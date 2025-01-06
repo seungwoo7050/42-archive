@@ -1,0 +1,8 @@
+build/
+libft.a
+tests/bin/
+tests/tmp/
+*.dSYM/
+*.gcda
+*.gcno
+*.profraw
