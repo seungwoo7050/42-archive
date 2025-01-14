@@ -34,7 +34,15 @@ DEP := $(OBJ:.o=.d)
 TEST_BIN := tests/bin/test_libft
 TEST_SRC := $(wildcard tests/test_*.c)
 
-.PHONY: all clean fclean re test
+WRITE_OBJ_DIR := build/write-failure
+WRITE_OUTPUT_OBJ := $(WRITE_OBJ_DIR)/ft_fd_output.o
+WRITE_DEP := $(WRITE_OUTPUT_OBJ:.o=.d)
+WRITE_BIN := tests/bin/test_write_failure
+WRITE_TEST_SRC := tests/failure/test_fd_output_failure.c \
+	tests/support/fail_write.c
+WRITE_DEFINES := -Dwrite=test_write
+
+.PHONY: all clean fclean re test write-failure-test
 
 all: $(NAME)
 
@@ -52,6 +60,21 @@ $(TEST_BIN): $(NAME) $(TEST_SRC) tests/test.h
 test: $(TEST_BIN)
 	./$(TEST_BIN)
 
+$(WRITE_OUTPUT_OBJ): src/io/ft_fd_output.c libft.h \
+		tests/support/fail_write.h
+	@$(MKDIR) $(dir $@)
+	$(CC) $(CPPFLAGS) $(WRITE_DEFINES) $(CFLAGS) \
+		$(DEPFLAGS) -c $< -o $@
+
+$(WRITE_BIN): $(NAME) $(WRITE_OUTPUT_OBJ) $(WRITE_TEST_SRC) \
+		tests/support/fail_write.h
+	@$(MKDIR) $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) \
+		$(WRITE_TEST_SRC) $(WRITE_OUTPUT_OBJ) $(NAME) -o $@
+
+write-failure-test: $(WRITE_BIN)
+	./$(WRITE_BIN)
+
 clean:
 	$(RMDIR) build tests/bin
 
@@ -60,4 +83,4 @@ fclean: clean
 
 re: fclean all
 
--include $(DEP)
+-include $(DEP) $(WRITE_DEP)
