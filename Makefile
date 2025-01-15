@@ -1,8 +1,9 @@
 NAME := libft.a
 
 CC := cc
-CFLAGS := -Wall -Wextra -Werror -std=c99 -pedantic
-CPPFLAGS := -I.
+override CFLAGS := -Wall -Wextra -Werror -Wpedantic -std=c99 \
+	-fno-builtin
+override CPPFLAGS := -I.
 DEPFLAGS := -MMD -MP
 AR := ar
 ARFLAGS := rcs
@@ -28,9 +29,11 @@ SRC := \
 	src/list/ft_list_basic.c \
 	src/list/ft_list_lifecycle.c \
 	src/list/ft_list_map.c
+
 OBJ_DIR := build/obj
 OBJ := $(SRC:%.c=$(OBJ_DIR)/%.o)
 DEP := $(OBJ:.o=.d)
+
 TEST_BIN := tests/bin/test_libft
 TEST_SRC := $(wildcard tests/test_*.c)
 
@@ -42,20 +45,24 @@ WRITE_TEST_SRC := tests/failure/test_fd_output_failure.c \
 	tests/support/fail_write.c
 WRITE_DEFINES := -Dwrite=test_write
 
-.PHONY: all clean fclean re test write-failure-test
+.PHONY: all bonus clean fclean re test write-failure-test
 
 all: $(NAME)
+
+bonus: all
 
 $(NAME): $(OBJ)
 	$(AR) $(ARFLAGS) $@ $(OBJ)
 
 $(OBJ_DIR)/%.o: %.c libft.h
 	@$(MKDIR) $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) \
+		$(DEPFLAGS) -c $< -o $@
 
 $(TEST_BIN): $(NAME) $(TEST_SRC) tests/test.h
 	@$(MKDIR) $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(TEST_SRC) $(NAME) -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) \
+		$(TEST_SRC) $(NAME) -o $@
 
 test: $(TEST_BIN)
 	./$(TEST_BIN)
