@@ -37,6 +37,13 @@ DEP := $(OBJ:.o=.d)
 TEST_BIN := tests/bin/test_libft
 TEST_SRC := $(wildcard tests/test_*.c)
 
+FAIL_OBJ_DIR := build/failure
+FAIL_OBJ := $(SRC:%.c=$(FAIL_OBJ_DIR)/%.o)
+FAIL_DEP := $(FAIL_OBJ:.o=.d)
+FAIL_BIN := tests/bin/test_failure
+FAIL_TEST_SRC := tests/failure/test_failure.c tests/support/fail_alloc.c
+FAIL_DEFINES := -Dmalloc=test_malloc -Dfree=test_free
+
 WRITE_OBJ_DIR := build/write-failure
 WRITE_OUTPUT_OBJ := $(WRITE_OBJ_DIR)/ft_fd_output.o
 WRITE_DEP := $(WRITE_OUTPUT_OBJ:.o=.d)
@@ -45,7 +52,7 @@ WRITE_TEST_SRC := tests/failure/test_fd_output_failure.c \
 	tests/support/fail_write.c
 WRITE_DEFINES := -Dwrite=test_write
 
-.PHONY: all bonus clean fclean re test write-failure-test
+.PHONY: all bonus clean fclean re test failure-test write-failure-test
 
 all: $(NAME)
 
@@ -66,6 +73,18 @@ $(TEST_BIN): $(NAME) $(TEST_SRC) tests/test.h
 
 test: $(TEST_BIN)
 	./$(TEST_BIN)
+
+$(FAIL_OBJ_DIR)/%.o: %.c libft.h tests/support/fail_alloc.h
+	@$(MKDIR) $(dir $@)
+	$(CC) $(CPPFLAGS) $(FAIL_DEFINES) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
+
+$(FAIL_BIN): $(FAIL_OBJ) $(FAIL_TEST_SRC) tests/support/fail_alloc.h
+	@$(MKDIR) $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) \
+		$(FAIL_TEST_SRC) $(FAIL_OBJ) -o $@
+
+failure-test: $(FAIL_BIN)
+	./$(FAIL_BIN)
 
 $(WRITE_OUTPUT_OBJ): src/io/ft_fd_output.c libft.h \
 		tests/support/fail_write.h
@@ -90,4 +109,4 @@ fclean: clean
 
 re: fclean all
 
--include $(DEP) $(WRITE_DEP)
+-include $(DEP) $(FAIL_DEP) $(WRITE_DEP)
