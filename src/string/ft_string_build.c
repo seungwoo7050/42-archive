@@ -33,7 +33,7 @@ char	*ft_strjoin(const char *left, const char *right)
 	left_length = ft_strlen(left);
 	right_length = ft_strlen(right);
 	if (right_length == (size_t)-1
-		|| left_length > (size_t)-2 - right_length)
+		|| left_length > (size_t)-1 - right_length - 1)
 		return (NULL);
 	joined = malloc(left_length + right_length + 1);
 	if (joined == NULL)
