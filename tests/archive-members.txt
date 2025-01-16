@@ -1,0 +1,17 @@
+ft_allocate.o
+ft_atoi.o
+ft_char.o
+ft_fd_output.o
+ft_itoa.o
+ft_list_basic.o
+ft_list_lifecycle.o
+ft_list_map.o
+ft_memory_copy.o
+ft_memory_fill.o
+ft_memory_move.o
+ft_memory_scan.o
+ft_split.o
+ft_string_bounds.o
+ft_string_build.o
+ft_string_search.o
+ft_string_transform.o

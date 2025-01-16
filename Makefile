@@ -52,7 +52,8 @@ WRITE_TEST_SRC := tests/failure/test_fd_output_failure.c \
 	tests/support/fail_write.c
 WRITE_DEFINES := -Dwrite=test_write
 
-.PHONY: all bonus clean fclean re test failure-test write-failure-test
+.PHONY: all bonus clean fclean re test failure-test write-failure-test \
+	check-archive
 
 all: $(NAME)
 
@@ -100,6 +101,9 @@ $(WRITE_BIN): $(NAME) $(WRITE_OUTPUT_OBJ) $(WRITE_TEST_SRC) \
 
 write-failure-test: $(WRITE_BIN)
 	./$(WRITE_BIN)
+
+check-archive: $(NAME)
+	CC="$(CC)" sh tests/check_archive.sh $(NAME)
 
 clean:
 	$(RMDIR) build tests/bin
