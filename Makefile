@@ -52,8 +52,14 @@ WRITE_TEST_SRC := tests/failure/test_fd_output_failure.c \
 	tests/support/fail_write.c
 WRITE_DEFINES := -Dwrite=test_write
 
+UBSAN_OBJ_DIR := build/ubsan
+UBSAN_OBJ := $(SRC:%.c=$(UBSAN_OBJ_DIR)/%.o)
+UBSAN_DEP := $(UBSAN_OBJ:.o=.d)
+UBSAN_BIN := tests/bin/test_ubsan
+UBSAN_FLAGS := -fsanitize=undefined -fno-omit-frame-pointer
+
 .PHONY: all bonus clean fclean re test failure-test write-failure-test \
-	check-archive
+	ubsan sanitize check-archive
 
 all: $(NAME)
 
@@ -102,6 +108,21 @@ $(WRITE_BIN): $(NAME) $(WRITE_OUTPUT_OBJ) $(WRITE_TEST_SRC) \
 write-failure-test: $(WRITE_BIN)
 	./$(WRITE_BIN)
 
+$(UBSAN_OBJ_DIR)/%.o: %.c libft.h
+	@$(MKDIR) $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) \
+		$(UBSAN_FLAGS) $(DEPFLAGS) -c $< -o $@
+
+$(UBSAN_BIN): $(UBSAN_OBJ) $(TEST_SRC) tests/test.h
+	@$(MKDIR) $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) \
+		$(UBSAN_FLAGS) $(TEST_SRC) $(UBSAN_OBJ) -o $@
+
+ubsan: $(UBSAN_BIN)
+	UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 ./$(UBSAN_BIN)
+
+sanitize: ubsan
+
 check-archive: $(NAME)
 	CC="$(CC)" sh tests/check_archive.sh $(NAME)
 
@@ -113,4 +134,4 @@ fclean: clean
 
 re: fclean all
 
--include $(DEP) $(FAIL_DEP) $(WRITE_DEP)
+-include $(DEP) $(FAIL_DEP) $(WRITE_DEP) $(UBSAN_DEP)
