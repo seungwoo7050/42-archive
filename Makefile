@@ -52,6 +52,13 @@ WRITE_TEST_SRC := tests/failure/test_fd_output_failure.c \
 	tests/support/fail_write.c
 WRITE_DEFINES := -Dwrite=test_write
 
+ASAN_OBJ_DIR := build/asan
+ASAN_OBJ := $(SRC:%.c=$(ASAN_OBJ_DIR)/%.o)
+ASAN_DEP := $(ASAN_OBJ:.o=.d)
+ASAN_BIN := tests/bin/test_asan
+ASAN_FLAGS := -fsanitize=address -fno-omit-frame-pointer
+ASAN_OPTIONS ?= detect_leaks=0:halt_on_error=1
+
 UBSAN_OBJ_DIR := build/ubsan
 UBSAN_OBJ := $(SRC:%.c=$(UBSAN_OBJ_DIR)/%.o)
 UBSAN_DEP := $(UBSAN_OBJ:.o=.d)
@@ -59,7 +66,7 @@ UBSAN_BIN := tests/bin/test_ubsan
 UBSAN_FLAGS := -fsanitize=undefined -fno-omit-frame-pointer
 
 .PHONY: all bonus clean fclean re test failure-test write-failure-test \
-	ubsan sanitize check-archive
+	asan ubsan sanitize check-archive
 
 all: $(NAME)
 
@@ -108,6 +115,19 @@ $(WRITE_BIN): $(NAME) $(WRITE_OUTPUT_OBJ) $(WRITE_TEST_SRC) \
 write-failure-test: $(WRITE_BIN)
 	./$(WRITE_BIN)
 
+$(ASAN_OBJ_DIR)/%.o: %.c libft.h
+	@$(MKDIR) $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) \
+		$(ASAN_FLAGS) $(DEPFLAGS) -c $< -o $@
+
+$(ASAN_BIN): $(ASAN_OBJ) $(TEST_SRC) tests/test.h
+	@$(MKDIR) $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) \
+		$(ASAN_FLAGS) $(TEST_SRC) $(ASAN_OBJ) -o $@
+
+asan: $(ASAN_BIN)
+	ASAN_OPTIONS=$(ASAN_OPTIONS) ./$(ASAN_BIN)
+
 $(UBSAN_OBJ_DIR)/%.o: %.c libft.h
 	@$(MKDIR) $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) \
@@ -134,4 +154,4 @@ fclean: clean
 
 re: fclean all
 
--include $(DEP) $(FAIL_DEP) $(WRITE_DEP) $(UBSAN_DEP)
+-include $(DEP) $(FAIL_DEP) $(WRITE_DEP) $(ASAN_DEP) $(UBSAN_DEP)
