@@ -66,7 +66,7 @@ UBSAN_BIN := tests/bin/test_ubsan
 UBSAN_FLAGS := -fsanitize=undefined -fno-omit-frame-pointer
 
 .PHONY: all bonus clean fclean re test failure-test write-failure-test \
-	asan ubsan sanitize check-archive
+	asan ubsan sanitize leak check-archive
 
 all: $(NAME)
 
@@ -142,6 +142,17 @@ ubsan: $(UBSAN_BIN)
 	UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 ./$(UBSAN_BIN)
 
 sanitize: ubsan
+
+leak: $(TEST_BIN)
+	@if command -v leaks >/dev/null 2>&1; then \
+		leaks --atExit -- ./$(TEST_BIN); \
+	elif command -v valgrind >/dev/null 2>&1; then \
+		valgrind --leak-check=full --errors-for-leak-kinds=all \
+			--error-exitcode=1 ./$(TEST_BIN); \
+	else \
+		echo "no supported leak checker found" >&2; \
+		exit 1; \
+	fi
 
 check-archive: $(NAME)
 	CC="$(CC)" sh tests/check_archive.sh $(NAME)
