@@ -66,7 +66,7 @@ UBSAN_BIN := tests/bin/test_ubsan
 UBSAN_FLAGS := -fsanitize=undefined -fno-omit-frame-pointer
 
 .PHONY: all bonus clean fclean re test failure-test write-failure-test \
-	asan ubsan sanitize leak check-archive
+	asan ubsan sanitize leak check-archive check-compilers
 
 all: $(NAME)
 
@@ -156,6 +156,9 @@ leak: $(TEST_BIN)
 
 check-archive: $(NAME)
 	CC="$(CC)" sh tests/check_archive.sh $(NAME)
+
+check-compilers:
+	sh tests/check_compilers.sh
 
 clean:
 	$(RMDIR) build tests/bin
