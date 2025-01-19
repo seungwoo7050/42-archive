@@ -66,7 +66,7 @@ UBSAN_BIN := tests/bin/test_ubsan
 UBSAN_FLAGS := -fsanitize=undefined -fno-omit-frame-pointer
 
 .PHONY: all bonus clean fclean re test failure-test write-failure-test \
-	asan ubsan sanitize leak check-archive check-compilers
+	asan ubsan sanitize leak check-archive check-compilers check
 
 all: $(NAME)
 
@@ -159,6 +159,19 @@ check-archive: $(NAME)
 
 check-compilers:
 	sh tests/check_compilers.sh
+
+check:
+	git diff --check
+	$(MAKE) fclean
+	$(MAKE) all
+	$(MAKE) test
+	$(MAKE) failure-test
+	$(MAKE) write-failure-test
+	$(MAKE) sanitize
+	$(MAKE) check-archive
+	$(MAKE) check-compilers
+	$(MAKE) leak
+	$(MAKE) -q all
 
 clean:
 	$(RMDIR) build tests/bin
