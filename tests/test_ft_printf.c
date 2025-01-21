@@ -108,6 +108,18 @@ static void	check_case(int line, const char *format, const char *expected,
 		actual_ret); \
 } while (0)
 
+#define EXPECT_FORMAT_ERROR(FORMAT, ...) do { \
+	char		actual[16]; \
+	t_capture	capture; \
+	int			actual_ret; \
+	ssize_t		actual_len; \
+	capture_begin(&capture, __LINE__); \
+	actual_ret = ft_printf(FORMAT, ##__VA_ARGS__); \
+	actual_len = capture_end(&capture, actual, sizeof(actual), __LINE__); \
+	if (actual_ret != -1 || actual_len != 0) \
+		fail_test(__LINE__, "invalid format produced output"); \
+} while (0)
+
 #define EXPECT_OUTPUT(EXPECTED, FORMAT, ...) do { \
 	char		actual[4096]; \
 	t_capture	capture; \
@@ -172,6 +184,14 @@ static void	run_parser_boundary_cases(void)
 {
 	expect_field_error(__LINE__, "%2147483648d");
 	expect_field_error(__LINE__, "%.2147483648d");
+	EXPECT_FORMAT_ERROR("prefix:%2147483648d", 1);
+	EXPECT_FORMAT_ERROR("prefix:%q", 1);
+	EXPECT_FORMAT_ERROR("prefix:%");
+	EXPECT_FORMAT_ERROR("value:%d bad:%q", 7, 1);
+	EXPECT_FORMAT_ERROR("x%2147483647d", 1);
+	EXPECT_FORMAT_ERROR("%2147483647dX", 1);
+	EXPECT_FORMAT_ERROR("%+.2147483647d", 1);
+	EXPECT_FORMAT_ERROR("%#.2147483647x", 1u);
 }
 
 static void	run_numeric_layout_cases(void)
