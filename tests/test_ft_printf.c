@@ -105,7 +105,7 @@ static void	check_case(int line, const char *format, const char *expected,
 	actual_ret = ft_printf(FORMAT, ##__VA_ARGS__); \
 	actual_len = capture_end(&capture, actual, sizeof(actual), __LINE__); \
 	check_case(__LINE__, FORMAT, expected, expected_ret, actual, actual_len, \
-		actual_ret); \
+	actual_ret); \
 } while (0)
 
 #define EXPECT_FORMAT_ERROR(FORMAT, ...) do { \
@@ -207,6 +207,75 @@ static void	run_numeric_layout_cases(void)
 	EXPECT_PRINTF("hex-empty:'%#.0x'", 0u);
 }
 
+static void	run_signed_differential_cases(void)
+{
+	static const char	*formats[] = {
+		"%d", "%i", "%+d", "% d", "%8d", "%-8d", "%08d", "%.0d",
+		"%.6d", "%+12.7d", "%- 12.7i"
+	};
+	static const int	values[] = {INT_MIN, -31, -1, 0, 1, 31, INT_MAX};
+	size_t				format_index;
+	size_t				value_index;
+
+	format_index = 0;
+	while (format_index < sizeof(formats) / sizeof(formats[0]))
+	{
+		value_index = 0;
+		while (value_index < sizeof(values) / sizeof(values[0]))
+		{
+			EXPECT_PRINTF(formats[format_index], values[value_index]);
+			value_index++;
+		}
+		format_index++;
+	}
+}
+
+static void	run_unsigned_differential_cases(void)
+{
+	static const char	*formats[] = {
+		"%u", "%10u", "%-10u", "%010u", "%.0u", "%.8u", "%12.8u",
+		"%-12.8u"
+	};
+	static const unsigned int	values[] = {0u, 1u, 31u, UINT_MAX};
+	size_t				format_index;
+	size_t				value_index;
+
+	format_index = 0;
+	while (format_index < sizeof(formats) / sizeof(formats[0]))
+	{
+		value_index = 0;
+		while (value_index < sizeof(values) / sizeof(values[0]))
+		{
+			EXPECT_PRINTF(formats[format_index], values[value_index]);
+			value_index++;
+		}
+		format_index++;
+	}
+}
+
+static void	run_hex_differential_cases(void)
+{
+	static const char	*formats[] = {
+		"%x", "%X", "%#x", "%#X", "%08x", "%-8X", "%.0x", "%.8X",
+		"%#12.8x", "%-#12.8X"
+	};
+	static const unsigned int	values[] = {0u, 1u, 48879u, UINT_MAX};
+	size_t				format_index;
+	size_t				value_index;
+
+	format_index = 0;
+	while (format_index < sizeof(formats) / sizeof(formats[0]))
+	{
+		value_index = 0;
+		while (value_index < sizeof(values) / sizeof(values[0]))
+		{
+			EXPECT_PRINTF(formats[format_index], values[value_index]);
+			value_index++;
+		}
+		format_index++;
+	}
+}
+
 static void	run_text_differential_cases(void)
 {
 	char	bounded[3];
@@ -214,7 +283,12 @@ static void	run_text_differential_cases(void)
 	bounded[0] = 'a';
 	bounded[1] = 'b';
 	bounded[2] = 'c';
+	EXPECT_PRINTF("'%c' '%5c' '%-5c'", 'A', 'B', 0);
+	EXPECT_PRINTF("'%s' '%8s' '%-8s'", "", "abc", "xy");
+	EXPECT_PRINTF("'%.0s' '%.3s' '%8.3s' '%-8.3s'",
+		"abcdef", "abcdef", "abcdef", "abcdef");
 	EXPECT_PRINTF("%.3s", bounded);
+	EXPECT_PRINTF("mix:%-8.3s:%+08d:%#10.6x:%%", "format", -17, 31u);
 }
 
 static void	run_error_cases(void)
@@ -286,6 +360,9 @@ int	main(void)
 	run_bonus_cases();
 	run_parser_boundary_cases();
 	run_numeric_layout_cases();
+	run_signed_differential_cases();
+	run_unsigned_differential_cases();
+	run_hex_differential_cases();
 	run_text_differential_cases();
 	run_error_cases();
 	run_sigpipe_policy_case();
