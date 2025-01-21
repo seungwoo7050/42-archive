@@ -291,6 +291,96 @@ static void	run_text_differential_cases(void)
 	EXPECT_PRINTF("mix:%-8.3s:%+08d:%#10.6x:%%", "format", -17, 31u);
 }
 
+static void	run_signed_boundary_matrix(void)
+{
+	static const char	*formats[] = {
+		"%1.0d", "%2.0d", "%-2.0d", "%02.0d", "%+1.0d", "%+2.0d",
+		"% 2.0d", "%4.2d", "%-4.2d", "%04.2d", "%+4.2d", "% 4.2d"
+	};
+	static const int	values[] = {0, 1, -1, 10, -10};
+	size_t			format_index;
+	size_t			value_index;
+
+	format_index = 0;
+	while (format_index < sizeof(formats) / sizeof(formats[0]))
+	{
+		value_index = 0;
+		while (value_index < sizeof(values) / sizeof(values[0]))
+		{
+			EXPECT_PRINTF(formats[format_index], values[value_index]);
+			value_index++;
+		}
+		format_index++;
+	}
+}
+
+static void	run_unsigned_boundary_matrix(void)
+{
+	static const char	*formats[] = {
+		"%1.0u", "%2.0u", "%-2.0u", "%02.0u", "%3.2u", "%-3.2u",
+		"%03.2u", "%4.3u", "%-4.3u", "%04.3u"
+	};
+	static const unsigned int	values[] = {0u, 1u, 9u, 10u, UINT_MAX};
+	size_t			format_index;
+	size_t			value_index;
+
+	format_index = 0;
+	while (format_index < sizeof(formats) / sizeof(formats[0]))
+	{
+		value_index = 0;
+		while (value_index < sizeof(values) / sizeof(values[0]))
+		{
+			EXPECT_PRINTF(formats[format_index], values[value_index]);
+			value_index++;
+		}
+		format_index++;
+	}
+}
+
+static void	run_hex_boundary_matrix(void)
+{
+	static const char	*formats[] = {
+		"%#.0x", "%#1.0X", "%#3.0x", "%-#3.0X", "%#03.0x",
+		"%#4.1x", "%-#4.1X", "%#04.1x", "%#5.2X", "%-#5.2x",
+		"%#05.2X"
+	};
+	static const unsigned int	values[] = {0u, 1u, 15u, 16u, UINT_MAX};
+	size_t			format_index;
+	size_t			value_index;
+
+	format_index = 0;
+	while (format_index < sizeof(formats) / sizeof(formats[0]))
+	{
+		value_index = 0;
+		while (value_index < sizeof(values) / sizeof(values[0]))
+		{
+			EXPECT_PRINTF(formats[format_index], values[value_index]);
+			value_index++;
+		}
+		format_index++;
+	}
+}
+
+static void	run_public_contract_boundary_cases(void)
+{
+	EXPECT_FORMAT_ERROR(NULL);
+	EXPECT_OUTPUT("", "");
+	EXPECT_OUTPUT("0x", "%.0p", (void *)0);
+	EXPECT_OUTPUT("      0x", "%8.0p", (void *)0);
+	EXPECT_OUTPUT("0x      ", "%-8.0p", (void *)0);
+	EXPECT_OUTPUT("  0x0000", "%8.4p", (void *)0);
+	EXPECT_OUTPUT("0x0000  ", "%-8.4p", (void *)0);
+	EXPECT_OUTPUT("  (null)", "%8s", (char *)0);
+	EXPECT_OUTPUT("(null)  ", "%-8s", (char *)0);
+	EXPECT_OUTPUT("", "%.0s", (char *)0);
+	EXPECT_OUTPUT("     (nu", "%8.3s", (char *)0);
+	EXPECT_OUTPUT("(nu     ", "%-8.3s", (char *)0);
+	EXPECT_OUTPUT("0000%|%    |%", "%05%|%-5%|%.%");
+	run_signed_boundary_matrix();
+	run_unsigned_boundary_matrix();
+	run_hex_boundary_matrix();
+}
+
 static void	run_error_cases(void)
 {
 	int	saved_stdout;
@@ -364,6 +454,7 @@ int	main(void)
 	run_unsigned_differential_cases();
 	run_hex_differential_cases();
 	run_text_differential_cases();
+	run_public_contract_boundary_cases();
 	run_error_cases();
 	run_sigpipe_policy_case();
 	dprintf(STDERR_FILENO, "ft_printf tests passed\n");
