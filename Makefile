@@ -37,6 +37,10 @@ test: $(NAME)
 		tests/test_output_faults.c $(SRC) -o $(FAULT_TEST_BIN)
 	./$(FAULT_TEST_BIN)
 
+release-check: $(NAME)
+	CC="$(CC)" sh tests/check_release.sh $(NAME) include \
+		tests/test_consumer.c
+
 clean:
 	$(RM) $(OBJ)
 	rm -rf tests/bin
@@ -46,4 +50,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re test
+.PHONY: all clean fclean re test release-check
