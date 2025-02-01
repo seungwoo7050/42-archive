@@ -33,5 +33,6 @@ int	main(void)
 	test_reader();
 	test_boundaries();
 	test_context();
+	test_nonblocking();
 	return (test_finish());
 }
