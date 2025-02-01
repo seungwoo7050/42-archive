@@ -15,6 +15,7 @@
 #include <unistd.h>
 
 #define MAX_TRACKED_ALLOCATIONS 4096
+#define MAX_READ_SCRIPT 64
 
 typedef struct s_allocation
 {
@@ -35,6 +36,8 @@ static size_t		g_read_calls;
 static size_t		g_read_fail_at;
 static size_t		g_read_limit;
 static int			g_read_failed;
+static int			g_read_script[MAX_READ_SCRIPT];
+static size_t		g_read_script_length;
 
 void	fault_runtime_reset(void)
 {
@@ -50,6 +53,7 @@ void	fault_runtime_reset(void)
 	g_read_fail_at = 0;
 	g_read_limit = 0;
 	g_read_failed = 0;
+	g_read_script_length = 0;
 }
 
 void	fault_allocation_fail_at(size_t attempt)
@@ -88,11 +92,31 @@ void	fault_read_fail_on(int fd, size_t call_index)
 	g_read_calls = 0;
 	g_read_fail_at = call_index;
 	g_read_failed = 0;
+	g_read_script_length = 0;
 }
 
 void	fault_read_limit(size_t limit)
 {
 	g_read_limit = limit;
+}
+
+void	fault_read_script(int fd, const int *errors, size_t length)
+{
+	size_t	index;
+
+	if (length > MAX_READ_SCRIPT)
+		length = MAX_READ_SCRIPT;
+	g_read_fd = fd;
+	g_read_calls = 0;
+	g_read_fail_at = 0;
+	g_read_failed = 0;
+	g_read_script_length = length;
+	index = 0;
+	while (index < length)
+	{
+		g_read_script[index] = errors[index];
+		index++;
+	}
 }
 
 size_t	fault_read_calls(void)
@@ -174,6 +198,13 @@ ssize_t	test_read(int fd, void *buffer, size_t count)
 	if (fd == g_read_fd)
 	{
 		g_read_calls++;
+		if (g_read_calls <= g_read_script_length
+			&& g_read_script[g_read_calls - 1] != 0)
+		{
+			g_read_failed = 1;
+			errno = g_read_script[g_read_calls - 1];
+			return (-1);
+		}
 		if (g_read_fail_at != 0 && g_read_calls == g_read_fail_at)
 		{
 			g_read_failed = 1;

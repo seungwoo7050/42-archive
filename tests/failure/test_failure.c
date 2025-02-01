@@ -1,6 +1,7 @@
 #include "fault_runtime.h"
 #include "get_next_line.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -304,6 +305,77 @@ static void	test_context_retries_final_line_allocation(void)
 	}
 }
 
+static void	test_interrupted_read_and_again_sequence(void)
+{
+	const int		errors[] = {EINTR, 0, EAGAIN};
+	char			*line;
+	int				fd;
+	t_blr_reader	*reader;
+
+	fault_runtime_reset();
+	fd = reader_for("partial\nlast");
+	CHECK(fd >= 0);
+	if (fd < 0)
+		return ;
+	reader = blr_reader_create(fd);
+	CHECK(reader != NULL);
+	if (reader == NULL)
+	{
+		close(fd);
+		return ;
+	}
+	fault_read_limit(3);
+	fault_read_script(fd, errors, sizeof(errors) / sizeof(errors[0]));
+	line = (char *)reader;
+	CHECK(blr_reader_next(reader, &line) == BLR_AGAIN);
+	CHECK(line == NULL);
+	CHECK(fault_read_calls() == 3);
+	CHECK(fault_read_failed());
+	CHECK(blr_reader_next(reader, &line) == BLR_LINE);
+	CHECK(line != NULL && strcmp(line, "partial\n") == 0);
+	test_free(line);
+	CHECK(blr_reader_next(reader, &line) == BLR_LINE);
+	CHECK(line != NULL && strcmp(line, "last") == 0);
+	test_free(line);
+	CHECK(blr_reader_next(reader, &line) == BLR_EOF);
+	CHECK(line == NULL);
+	blr_reader_destroy(reader);
+	close(fd);
+	check_clean_runtime();
+}
+
+static void	test_io_error_preserves_partial_input(void)
+{
+	const int		errors[] = {0, EIO};
+	char			*line;
+	int				fd;
+	t_blr_reader	*reader;
+
+	fault_runtime_reset();
+	fd = reader_for("recoverable\n");
+	CHECK(fd >= 0);
+	if (fd < 0)
+		return ;
+	reader = blr_reader_create(fd);
+	CHECK(reader != NULL);
+	if (reader == NULL)
+	{
+		close(fd);
+		return ;
+	}
+	fault_read_limit(3);
+	fault_read_script(fd, errors, sizeof(errors) / sizeof(errors[0]));
+	CHECK(blr_reader_next(reader, &line) == BLR_ERROR);
+	CHECK(line == NULL);
+	CHECK(blr_reader_next(reader, &line) == BLR_LINE);
+	CHECK(line != NULL && strcmp(line, "recoverable\n") == 0);
+	test_free(line);
+	CHECK(blr_reader_next(reader, &line) == BLR_EOF);
+	blr_reader_destroy(reader);
+	close(fd);
+	check_clean_runtime();
+}
+
 int	main(void)
 {
 	test_allocation_failures();
@@ -313,6 +385,8 @@ int	main(void)
 	test_one_fd_failure_preserves_another();
 	test_context_retries_line_allocation();
 	test_context_retries_final_line_allocation();
+	test_interrupted_read_and_again_sequence();
+	test_io_error_preserves_partial_input();
 	test_free_guards();
 	if (g_failures != 0)
 	{

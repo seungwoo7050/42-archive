@@ -15,6 +15,7 @@ size_t	fault_double_frees(void);
 
 void	fault_read_fail_on(int fd, size_t call_index);
 void	fault_read_limit(size_t limit);
+void	fault_read_script(int fd, const int *errors, size_t length);
 size_t	fault_read_calls(void);
 int		fault_read_failed(void);
 
