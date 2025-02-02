@@ -3,6 +3,7 @@ NAME := libbuffered_line_reader.a
 CC := cc
 override CFLAGS := -Wall -Wextra -Werror -Wpedantic -std=c99 \
 	-fno-builtin
+THREAD_FLAGS := -pthread
 BUFFER_SIZE ?= 42
 override CPPFLAGS := -I. -DBUFFER_SIZE=$(BUFFER_SIZE)
 DEPFLAGS := -MMD -MP
@@ -19,7 +20,7 @@ DEP := $(OBJ:.o=.d)
 
 TEST_BIN := tests/bin/test_reader_$(BUFFER_SIZE)
 TEST_SRC := tests/test_main.c tests/test_reader.c tests/test_boundaries.c \
-	tests/test_context.c tests/test_nonblocking.c
+	tests/test_context.c tests/test_nonblocking.c tests/test_threads.c
 MATRIX_SIZES := 1 2 42 1024
 
 FAULT_OBJ_DIR := build/fault/$(BUFFER_SIZE)
@@ -52,7 +53,7 @@ $(OBJ_DIR)/%.o: %.c get_next_line.h
 
 $(TEST_BIN): $(OBJ) $(TEST_SRC) tests/test.h
 	@$(MKDIR) $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(TEST_SRC) $(OBJ) -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(THREAD_FLAGS) $(TEST_SRC) $(OBJ) -o $@
 
 test-run: $(TEST_BIN)
 	./$(TEST_BIN)
@@ -91,7 +92,8 @@ failure-test:
 
 $(UBSAN_BIN): $(SRC) $(TEST_SRC) get_next_line.h tests/test.h
 	@$(MKDIR) $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(UBSAN_FLAGS) $(SRC) $(TEST_SRC) -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(THREAD_FLAGS) $(UBSAN_FLAGS) $(SRC) \
+		$(TEST_SRC) -o $@
 
 ubsan-run: $(UBSAN_BIN)
 	./$(UBSAN_BIN)

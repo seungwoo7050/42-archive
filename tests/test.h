@@ -10,6 +10,7 @@ void	test_reader(void);
 void	test_boundaries(void);
 void	test_context(void);
 void	test_nonblocking(void);
+void	test_threads(void);
 
 # define CHECK(condition) \
 	test_check((condition), #condition, __FILE__, __LINE__)

@@ -34,5 +34,6 @@ int	main(void)
 	test_boundaries();
 	test_context();
 	test_nonblocking();
+	test_threads();
 	return (test_finish());
 }
