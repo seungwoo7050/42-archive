@@ -34,7 +34,6 @@ FAULT_CPPFLAGS := $(CPPFLAGS) -Itests/support
 FAULT_DEFINES := -Dmalloc=test_malloc -Dfree=test_free -Dread=test_read
 UBSAN_FLAGS := -fsanitize=undefined -fno-sanitize-recover=all
 UBSAN_BIN := tests/bin/test_ubsan_$(BUFFER_SIZE)
-SMOKE_BIN := tests/bin/consumer
 
 .PHONY: all bonus clean fclean re test-run test failure-run failure-test \
 	ubsan-run ubsan sanitize leak-run leak check-archive check-consumer \
@@ -125,12 +124,10 @@ leak:
 check-archive: $(NAME)
 	sh tests/check_archive.sh $(NAME)
 
-$(SMOKE_BIN): tests/smoke/consumer.c get_next_line.h $(NAME)
-	@$(MKDIR) $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) tests/smoke/consumer.c $(NAME) -o $@
-
-check-consumer: $(SMOKE_BIN)
-	./$(SMOKE_BIN)
+check-consumer: $(NAME) tests/check_consumer.sh tests/smoke/consumer.c \
+		get_next_line.h
+	CC="$(CC)" sh tests/check_consumer.sh $(NAME) get_next_line.h \
+		tests/smoke/consumer.c
 
 check-buffer-size:
 	@! $(CC) -I. -DBUFFER_SIZE=0 $(CFLAGS) -fsyntax-only get_next_line.c \
