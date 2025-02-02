@@ -32,12 +32,14 @@ FAULT_DEP := $(FAULT_OBJ:.o=.d)
 FAULT_BIN := tests/bin/test_failure_$(BUFFER_SIZE)
 FAULT_CPPFLAGS := $(CPPFLAGS) -Itests/support
 FAULT_DEFINES := -Dmalloc=test_malloc -Dfree=test_free -Dread=test_read
+ASAN_FLAGS := -fsanitize=address -fno-omit-frame-pointer
+ASAN_BIN := tests/bin/test_asan_$(BUFFER_SIZE)
 UBSAN_FLAGS := -fsanitize=undefined -fno-sanitize-recover=all
 UBSAN_BIN := tests/bin/test_ubsan_$(BUFFER_SIZE)
 
 .PHONY: all bonus clean fclean re test-run test failure-run failure-test \
-	ubsan-run ubsan sanitize leak-run leak check-archive check-consumer \
-	check-buffer-size check
+	asan-run asan ubsan-run ubsan sanitize leak-run leak check-archive \
+	check-consumer check-buffer-size check
 
 all: $(NAME)
 
@@ -89,6 +91,23 @@ failure-test:
 		$(MAKE) --no-print-directory failure-run BUFFER_SIZE=$$size; \
 	done
 
+$(ASAN_BIN): $(SRC) $(TEST_SRC) get_next_line.h tests/test.h
+	@$(MKDIR) $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(THREAD_FLAGS) $(ASAN_FLAGS) $(SRC) \
+		$(TEST_SRC) -o $@
+
+asan-run: $(ASAN_BIN)
+	@if [ "$$(uname -s)" = Darwin ] && [ "$(RUN_ASAN)" != 1 ]; then \
+		echo "ASan binary built; execution skipped on Darwin (set RUN_ASAN=1 to force)"; \
+	else \
+		./$(ASAN_BIN); \
+	fi
+
+asan:
+	@set -e; for size in $(MATRIX_SIZES); do \
+		$(MAKE) --no-print-directory asan-run BUFFER_SIZE=$$size; \
+	done
+
 $(UBSAN_BIN): $(SRC) $(TEST_SRC) get_next_line.h tests/test.h
 	@$(MKDIR) $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(THREAD_FLAGS) $(UBSAN_FLAGS) $(SRC) \
@@ -102,7 +121,7 @@ ubsan:
 		$(MAKE) --no-print-directory ubsan-run BUFFER_SIZE=$$size; \
 	done
 
-sanitize: ubsan
+sanitize: asan ubsan
 
 leak-run: $(TEST_BIN)
 	@if [ "$$(uname -s)" = Darwin ] && [ "$(RUN_LEAKS)" != 1 ]; then \
