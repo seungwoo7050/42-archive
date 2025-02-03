@@ -1,0 +1,8 @@
+push_swap
+checker
+.build/
+*.o
+*.d
+tests/__pycache__/
+.pytest_cache/
+.DS_Store
