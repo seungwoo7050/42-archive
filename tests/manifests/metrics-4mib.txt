@@ -1,0 +1,9 @@
+input_bytes=4194304
+line_bytes=4194304
+checksum=790796585941148453
+read_calls=1025
+read_bytes=4194304
+allocation_calls=13
+allocation_bytes=20963393
+copy_calls=11
+copy_bytes=12533760

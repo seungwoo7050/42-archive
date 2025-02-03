@@ -37,9 +37,21 @@ ASAN_BIN := tests/bin/test_asan_$(BUFFER_SIZE)
 UBSAN_FLAGS := -fsanitize=undefined -fno-sanitize-recover=all
 UBSAN_BIN := tests/bin/test_ubsan_$(BUFFER_SIZE)
 
+METRIC_BUFFER_SIZE := 4096
+METRIC_OBJ_DIR := build/metrics
+METRIC_READER_OBJ := $(METRIC_OBJ_DIR)/get_next_line.o
+METRIC_RUNTIME_OBJ := $(METRIC_OBJ_DIR)/metric_runtime.o
+METRIC_TEST_OBJ := $(METRIC_OBJ_DIR)/test_metrics.o
+METRIC_OBJ := $(METRIC_READER_OBJ) $(METRIC_RUNTIME_OBJ) $(METRIC_TEST_OBJ)
+METRIC_BIN := tests/bin/test_metrics
+METRIC_ACTUAL := build/metrics-4mib.txt
+METRIC_CPPFLAGS := -I. -Itests/metrics -DBUFFER_SIZE=$(METRIC_BUFFER_SIZE)
+METRIC_DEFINES := -Dmalloc=metric_malloc -Dfree=metric_free \
+	-Dread=metric_read -DBLR_COPY_OBSERVER=metric_copy_observer
+
 .PHONY: all bonus clean fclean re test-run test failure-run failure-test \
-	asan-run asan ubsan-run ubsan sanitize leak-run leak check-archive \
-	check-consumer check-buffer-size check
+	asan-run asan ubsan-run ubsan sanitize metrics leak-run leak \
+	check-archive check-consumer check-buffer-size check
 
 all: $(NAME)
 
@@ -123,6 +135,29 @@ ubsan:
 
 sanitize: asan ubsan
 
+$(METRIC_READER_OBJ): get_next_line.c get_next_line.h \
+		tests/metrics/metric_runtime.h
+	@$(MKDIR) $(dir $@)
+	$(CC) $(METRIC_CPPFLAGS) $(METRIC_DEFINES) $(CFLAGS) -c $< -o $@
+
+$(METRIC_RUNTIME_OBJ): tests/metrics/metric_runtime.c \
+		tests/metrics/metric_runtime.h
+	@$(MKDIR) $(dir $@)
+	$(CC) $(METRIC_CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(METRIC_TEST_OBJ): tests/metrics/test_metrics.c get_next_line.h \
+		tests/metrics/metric_runtime.h
+	@$(MKDIR) $(dir $@)
+	$(CC) $(METRIC_CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(METRIC_BIN): $(METRIC_OBJ)
+	@$(MKDIR) $(dir $@)
+	$(CC) $(CFLAGS) $(METRIC_OBJ) -o $@
+
+metrics: $(METRIC_BIN)
+	./$(METRIC_BIN) >$(METRIC_ACTUAL)
+	diff -u tests/manifests/metrics-4mib.txt $(METRIC_ACTUAL)
+
 leak-run: $(TEST_BIN)
 	@if [ "$$(uname -s)" = Darwin ] && [ "$(RUN_LEAKS)" != 1 ]; then \
 		echo "leaks execution skipped on Darwin (set RUN_LEAKS=1 to force)"; \
@@ -165,6 +200,7 @@ check:
 	$(MAKE) test
 	$(MAKE) failure-test
 	$(MAKE) sanitize
+	$(MAKE) metrics
 	$(MAKE) leak
 	$(MAKE) -q all
 

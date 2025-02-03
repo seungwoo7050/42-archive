@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#ifdef BLR_COPY_OBSERVER
+void	BLR_COPY_OBSERVER(size_t length);
+#endif
+
 struct s_blr_reader
 {
 	int			fd;
@@ -32,6 +36,10 @@ static void	copy_bytes(char *destination, const char *source, size_t length)
 {
 	size_t	index;
 
+#ifdef BLR_COPY_OBSERVER
+	if (length > 0)
+		BLR_COPY_OBSERVER(length);
+#endif
 	index = 0;
 	while (index < length)
 	{
