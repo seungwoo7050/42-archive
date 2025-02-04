@@ -1,0 +1,4 @@
+small-shell
+*.o
+*.d
+evidence/tmp/
