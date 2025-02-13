@@ -18,6 +18,7 @@ typedef union u_allocation_header
 
 static unsigned long	g_malloc_calls;
 static unsigned long	g_read_calls;
+static unsigned long	g_write_calls;
 static unsigned long	g_live_allocations;
 
 static unsigned long	read_index(const char *name)
@@ -103,6 +104,17 @@ ssize_t	ps_read(int fd, void *buffer, size_t count)
 
 static ssize_t	ps_write_once(int fd, const void *buffer, size_t count)
 {
+#ifdef PS_FAULT_INJECTION
+	g_write_calls++;
+	if (at_index("PS_EINTR_WRITE_AT", g_write_calls))
+		return (errno = EINTR, -1);
+	if (at_index("PS_FAIL_WRITE_AT", g_write_calls))
+		return (errno = EPIPE, -1);
+	if (at_index("PS_ZERO_WRITE_AT", g_write_calls))
+		return (0);
+	if (at_index("PS_SHORT_WRITE_AT", g_write_calls) && count > 1)
+		count = 1;
+#endif
 	return (write(fd, buffer, count));
 }
 

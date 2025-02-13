@@ -129,9 +129,94 @@ def test_read_failures_and_command_bounds():
     assert_equal(unterminated.stdout, b"OK\n", "unterminated command is applied")
 
 
+def test_write_failures():
+    baseline = run(PUSH_SWAP, ["3", "2", "1"])
+    assert_equal(baseline.returncode, 0, "push_swap baseline succeeds")
+    write_count = len(baseline.stdout.splitlines())
+    assert_true(write_count >= 2, "write fault fixture emits multiple commands")
+    for index in range(1, write_count + 1):
+        result = run(
+            PUSH_SWAP,
+            ["3", "2", "1"],
+            faults={"PS_FAIL_WRITE_AT": index},
+        )
+        assert_true(result.returncode != 0, f"push_swap write #{index} fails")
+        assert_equal(result.stderr, b"Error\n", "push_swap write error")
+
+    for fault in ("PS_EINTR_WRITE_AT", "PS_SHORT_WRITE_AT"):
+        result = run(PUSH_SWAP, ["3", "2", "1"], faults={fault: 1})
+        assert_equal(result.returncode, 0, f"push_swap handles {fault}")
+        assert_equal(result.stdout, baseline.stdout, f"{fault} preserves command stream")
+
+    zero = run(PUSH_SWAP, ["3", "2", "1"], faults={"PS_ZERO_WRITE_AT": 1})
+    assert_true(zero.returncode != 0, "zero-byte write is a permanent failure")
+    assert_equal(zero.stderr, b"Error\n", "zero-byte write reports Error")
+
+    partial = run(
+        PUSH_SWAP,
+        ["3", "2", "1"],
+        faults={"PS_SHORT_WRITE_AT": 1, "PS_FAIL_WRITE_AT": 2},
+    )
+    assert_equal(partial.returncode, 1, "failure after a partial write reaches main")
+    assert_equal(partial.stdout, baseline.stdout[:1], "partial prefix is not repeated")
+    assert_equal(partial.stderr, b"Error\n", "partial-success failure reports Error")
+
+    checker = run(
+        CHECKER,
+        ["2", "1"],
+        b"sa\n",
+        faults={"PS_FAIL_WRITE_AT": 1},
+    )
+    assert_true(checker.returncode != 0, "checker propagates result write failure")
+    assert_equal(checker.stderr, b"Error\n", "checker output failure reports Error")
+
+    error_write_cases = [
+        ("push_swap parse error", PUSH_SWAP, ["1", "1"], b""),
+        ("checker command error", CHECKER, ["1", "2"], b"wat\n"),
+    ]
+    for label, binary, args, input_bytes in error_write_cases:
+        result = run(
+            binary,
+            args,
+            input_bytes,
+            faults={"PS_FAIL_WRITE_AT": 1},
+        )
+        assert_equal(result.returncode, 1, f"{label} keeps failure status")
+        assert_equal(result.stdout, b"", f"{label} has no stdout")
+        assert_equal(result.stderr, b"", f"{label} tolerates Error write failure")
+
+    read_fd, write_fd = os.pipe()
+    os.close(read_fd)
+    environment = os.environ.copy()
+    environment["PS_REPORT_ALLOCATIONS"] = "1"
+    process = subprocess.Popen(
+        [str(PUSH_SWAP), "3", "2", "1"],
+        stdin=subprocess.DEVNULL,
+        stdout=write_fd,
+        stderr=subprocess.PIPE,
+        cwd=ROOT,
+        env=environment,
+    )
+    os.close(write_fd)
+    try:
+        _, stderr = process.communicate(timeout=3)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.communicate()
+        fail("push_swap timed out after its stdout pipe closed")
+    assert_equal(process.returncode, 1, "closed stdout is reported by main")
+    assert_equal(
+        stderr.replace(ALLOCATION_REPORT, b""),
+        b"Error\n",
+        "closed stdout reports Error instead of dying from SIGPIPE",
+    )
+    assert_true(ALLOCATION_REPORT in stderr, "closed stdout path releases allocations")
+
+
 def main():
     test_nth_allocation_failures()
     test_read_failures_and_command_bounds()
+    test_write_failures()
     print("fault injection tests passed")
 
 
