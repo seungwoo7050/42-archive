@@ -20,6 +20,10 @@ static unsigned long	g_malloc_calls;
 static unsigned long	g_read_calls;
 static unsigned long	g_write_calls;
 static unsigned long	g_live_allocations;
+static size_t			g_current_bytes;
+static size_t			g_peak_bytes;
+static size_t			g_operation_count;
+static size_t			g_array_movements;
 
 static unsigned long	read_index(const char *name)
 {
@@ -65,6 +69,9 @@ void	*ps_malloc(size_t size)
 	header->data.size = size;
 	header->data.magic = 0x50535354UL;
 	g_live_allocations++;
+	g_current_bytes += size;
+	if (g_current_bytes > g_peak_bytes)
+		g_peak_bytes = g_current_bytes;
 	return ((void *)(header + 1));
 #else
 	return (malloc(size));
@@ -83,6 +90,7 @@ void	ps_free(void *pointer)
 	{
 		header->data.magic = 0;
 		g_live_allocations--;
+		g_current_bytes -= header->data.size;
 	}
 	free(header);
 #else
@@ -143,6 +151,22 @@ int	ps_ignore_sigpipe(void)
 }
 
 #ifdef PS_FAULT_INJECTION
+void	ps_record_operation(void)
+{
+	if (g_operation_count != (size_t)-1)
+		g_operation_count++;
+}
+
+void	ps_record_movements(size_t count)
+{
+	if (count > (size_t)-1 - g_array_movements)
+		g_array_movements = (size_t)-1;
+	else
+		g_array_movements += count;
+}
+#endif
+
+#ifdef PS_FAULT_INJECTION
 static void	raw_report(const char *message)
 {
 	size_t	length;
@@ -162,6 +186,35 @@ static void	raw_report(const char *message)
 		length -= (size_t)written;
 	}
 }
+
+static void	raw_report_number(const char *label, size_t value)
+{
+	char	digits[3 * sizeof(size_t) + 1];
+	char	temporary;
+	size_t	length;
+	size_t	index;
+
+	raw_report(label);
+	length = 0;
+	if (value == 0)
+		digits[length++] = '0';
+	while (value > 0)
+	{
+		digits[length++] = (char)('0' + value % 10);
+		value /= 10;
+	}
+	index = 0;
+	while (index < length / 2)
+	{
+		temporary = digits[index];
+		digits[index] = digits[length - index - 1];
+		digits[length - index - 1] = temporary;
+		index++;
+	}
+	digits[length++] = '\n';
+	digits[length] = '\0';
+	raw_report(digits);
+}
 #endif
 
 int	ps_test_finish(int status)
@@ -176,6 +229,12 @@ int	ps_test_finish(int status)
 			raw_report("PS_LIVE_ALLOCATIONS=NONZERO\n");
 			return (99);
 		}
+	}
+	if (getenv("PS_REPORT_METRICS") != NULL)
+	{
+		raw_report_number("PS_OPERATIONS=", g_operation_count);
+		raw_report_number("PS_ARRAY_MOVEMENTS=", g_array_movements);
+		raw_report_number("PS_PEAK_BYTES=", g_peak_bytes);
 	}
 #endif
 	return (status);

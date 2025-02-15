@@ -51,6 +51,13 @@ ssize_t	ps_read(int fd, void *buffer, size_t count);
 int		ps_write_all(int fd, const void *buffer, size_t count);
 int		ps_ignore_sigpipe(void);
 int		ps_test_finish(int status);
+# ifdef PS_FAULT_INJECTION
+void	ps_record_operation(void);
+void	ps_record_movements(size_t count);
+# else
+#  define ps_record_operation() ((void)0)
+#  define ps_record_movements(count) ((void)0)
+# endif
 
 size_t	ps_strlen(const char *str);
 int		ps_strcmp(const char *a, const char *b);

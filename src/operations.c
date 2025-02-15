@@ -5,7 +5,11 @@
 static int	emit_op(const char *name, int emit)
 {
 	if (emit)
-		return (ps_putstr_fd(1, name));
+	{
+		if (!ps_putstr_fd(1, name))
+			return (0);
+		ps_record_operation();
+	}
 	return (1);
 }
 
@@ -22,6 +26,7 @@ void	stack_swap(t_stack *stack)
 	stack->ranks[0] = stack->ranks[1];
 	stack->values[1] = value;
 	stack->ranks[1] = rank;
+	ps_record_movements(2);
 }
 
 void	stack_push(t_stack *dst, t_stack *src)
@@ -46,6 +51,7 @@ void	stack_push(t_stack *dst, t_stack *src)
 		memmove(src->ranks, src->ranks + 1,
 			sizeof(int) * (size_t)src->size);
 	}
+	ps_record_movements((size_t)(dst->size + src->size));
 }
 
 void	stack_rotate(t_stack *stack)
@@ -63,6 +69,7 @@ void	stack_rotate(t_stack *stack)
 		sizeof(int) * (size_t)(stack->size - 1));
 	stack->values[stack->size - 1] = value;
 	stack->ranks[stack->size - 1] = rank;
+	ps_record_movements((size_t)stack->size);
 }
 
 void	stack_reverse_rotate(t_stack *stack)
@@ -80,6 +87,7 @@ void	stack_reverse_rotate(t_stack *stack)
 		sizeof(int) * (size_t)(stack->size - 1));
 	stack->values[0] = value;
 	stack->ranks[0] = rank;
+	ps_record_movements((size_t)stack->size);
 }
 
 int	op_sa(t_stack *a, int emit)

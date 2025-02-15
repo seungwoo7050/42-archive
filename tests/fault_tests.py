@@ -27,7 +27,9 @@ def assert_true(condition, message):
 
 
 def run(binary, args, input_bytes=b"", faults=None):
-    environment = os.environ.copy()
+    environment = {
+        name: value for name, value in os.environ.items() if not name.startswith("PS_")
+    }
     environment["PS_REPORT_ALLOCATIONS"] = "1"
     if faults:
         environment.update({key: str(value) for key, value in faults.items()})
@@ -187,7 +189,9 @@ def test_write_failures():
 
     read_fd, write_fd = os.pipe()
     os.close(read_fd)
-    environment = os.environ.copy()
+    environment = {
+        name: value for name, value in os.environ.items() if not name.startswith("PS_")
+    }
     environment["PS_REPORT_ALLOCATIONS"] = "1"
     process = subprocess.Popen(
         [str(PUSH_SWAP), "3", "2", "1"],

@@ -73,3 +73,4 @@ test: all $(OPERATION_TEST) $(FAULT_PUSH_SWAP) $(FAULT_CHECKER)
 	python3 tests/run_tests.py
 	PS_PUSH_SWAP=$(FAULT_PUSH_SWAP) PS_CHECKER=$(FAULT_CHECKER) \
 		python3 tests/fault_tests.py
+	PS_PUSH_SWAP=$(FAULT_PUSH_SWAP) python3 tests/resource_tests.py

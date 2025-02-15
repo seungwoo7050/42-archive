@@ -1,0 +1,17 @@
+{
+  "measurement": {
+    "array_movements": "이동하거나 다시 쓴 (value, rank) 쌍의 수",
+    "peak_bytes": "계측 헤더를 제외하고 동시에 살아 있는 프로젝트 할당 요청의 합"
+  },
+  "cases": [
+    {"size": 10, "seed": 7, "commands": 65, "max_array_movements": 650, "max_peak_bytes": 160},
+    {"size": 10, "seed": 4242, "commands": 65, "max_array_movements": 650, "max_peak_bytes": 160},
+    {"size": 10, "seed": 9001, "commands": 65, "max_array_movements": 650, "max_peak_bytes": 160},
+    {"size": 100, "seed": 7, "commands": 1084, "max_array_movements": 105000, "max_peak_bytes": 1600},
+    {"size": 100, "seed": 4242, "commands": 1084, "max_array_movements": 105000, "max_peak_bytes": 1600},
+    {"size": 100, "seed": 9001, "commands": 1084, "max_array_movements": 105000, "max_peak_bytes": 1600},
+    {"size": 500, "seed": 7, "commands": 6784, "max_array_movements": 3200000, "max_peak_bytes": 8000},
+    {"size": 500, "seed": 4242, "commands": 6784, "max_array_movements": 3200000, "max_peak_bytes": 8000},
+    {"size": 500, "seed": 9001, "commands": 6784, "max_array_movements": 3200000, "max_peak_bytes": 8000}
+  ]
+}
