@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 from pathlib import Path
 import itertools
-import random
+import os
 import subprocess
 import sys
 import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PUSH_SWAP = ROOT / "push_swap"
-CHECKER = ROOT / "checker"
+PUSH_SWAP = ROOT / os.environ.get("PS_PUSH_SWAP", "push_swap")
+CHECKER = ROOT / os.environ.get("PS_CHECKER", "checker")
 VALID_MOVES = {"sa", "sb", "ss", "pa", "pb", "ra", "rb", "rr", "rra", "rrb", "rrr"}
 CHILD_TIMEOUT_SECONDS = 5
 
@@ -240,6 +240,17 @@ def assert_sorted_by_program(values):
     return moves
 
 
+def deterministic_values(size, seed):
+    values = list(range(size))
+    state = seed & 0xFFFFFFFF
+    for index in range(size - 1, 0, -1):
+        state = (1664525 * state + 1013904223) & 0xFFFFFFFF
+        selected = state % (index + 1)
+        values[index], values[selected] = values[selected], values[index]
+    offset = size * 23
+    return [value * 37 - offset for value in values]
+
+
 def test_sort_programs():
     sorted_case = run([PUSH_SWAP, "1", "2", "3", "4", "5"])
     assert_equal(sorted_case.returncode, 0, "already sorted input exits cleanly")
@@ -261,18 +272,27 @@ def test_sort_programs():
 
 
 def test_move_counts():
-    random.seed(4242)
     limits = [
         (100, 1500),
         (500, 8000),
     ]
     for size, limit in limits:
-        values = random.sample(range(-10000, 10000), size)
-        moves = assert_sorted_by_program(values)
-        assert_ok(
-            len(moves) <= limit,
-            f"{size} value move count {len(moves)} exceeds {limit}",
-        )
+        for seed in (7, 4242, 9001):
+            values = deterministic_values(size, seed)
+            moves = assert_sorted_by_program(values)
+            assert_ok(
+                len(moves) <= limit,
+                f"{size} value move count {len(moves)} exceeds {limit}",
+            )
+
+
+def test_seeded_differential_properties():
+    for seed in (1, 7, 97, 4242, 9001):
+        for size in (2, 3, 5, 6, 17, 64):
+            values = deterministic_values(size, seed)
+            first = assert_sorted_by_program(values)
+            second = assert_sorted_by_program(values)
+            assert_equal(second, first, f"deterministic moves for seed {seed}, size {size}")
 
 
 def main():
@@ -281,6 +301,7 @@ def main():
     test_checker_without_values_does_not_read_stdin()
     test_checker_operations()
     test_sort_programs()
+    test_seeded_differential_properties()
     test_move_counts()
     print("tests passed")
 
