@@ -1,0 +1,5 @@
+*.o
+*.d
+server
+client
+obj/
