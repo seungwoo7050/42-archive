@@ -3,4 +3,5 @@
 server
 client
 obj/
+tests/masked_exec
 tests/session_sender
