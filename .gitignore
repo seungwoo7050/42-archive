@@ -3,3 +3,4 @@
 server
 client
 obj/
+tests/session_sender
