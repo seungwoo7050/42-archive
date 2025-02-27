@@ -4,5 +4,6 @@ server
 client
 obj/
 tests/masked_exec
+tests/parse_pid_test
 tests/response_server
 tests/session_sender
