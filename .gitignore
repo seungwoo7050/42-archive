@@ -8,3 +8,5 @@ tests/masked_exec
 tests/parse_pid_test
 tests/response_server
 tests/session_sender
+tests/stale_exec
+tests/stale_server_exec
