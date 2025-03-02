@@ -4,6 +4,7 @@ server
 client
 obj/
 tests/fault_server
+tests/high_fd_exec
 tests/masked_exec
 tests/parse_pid_test
 tests/response_server
