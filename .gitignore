@@ -11,3 +11,4 @@ tests/response_server
 tests/session_sender
 tests/stale_exec
 tests/stale_server_exec
+tests/unreaped_exec

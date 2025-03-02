@@ -10,12 +10,18 @@ BUSY_ERR="$TEST_TMP/busy.err"
 EXPECTED_BUSY="$TEST_TMP/expected-busy.err"
 EXPECTED="$TEST_TMP/expected.out"
 READY="$TEST_TMP/ready.out"
+UNREAPED_READY="$TEST_TMP/unreaped-ready.out"
 BEFORE_BUSY="$TEST_TMP/before-busy.out"
 SERVER_PID=
 HOLDER_PID=
+UNREAPED_PARENT_PID=
 
 cleanup()
 {
+	if [ -n "$UNREAPED_PARENT_PID" ]; then
+		kill "$UNREAPED_PARENT_PID" 2>/dev/null || true
+		wait "$UNREAPED_PARENT_PID" 2>/dev/null || true
+	fi
 	if [ -n "$HOLDER_PID" ]; then
 		kill "$HOLDER_PID" 2>/dev/null || true
 		wait "$HOLDER_PID" 2>/dev/null || true
@@ -109,6 +115,36 @@ if ! "$ROOT/client" "$SERVER_PID" "reservation recovered" 2>>"$CLIENT_ERR"; then
 	exit 1
 fi
 
+: >"$UNREAPED_READY"
+"$ROOT/tests/unreaped_exec" "$ROOT/tests/session_sender" "$SERVER_PID" \
+	>"$UNREAPED_READY" &
+UNREAPED_PARENT_PID=$!
+tries=0
+while [ "$tries" -lt 50 ] && [ ! -s "$UNREAPED_READY" ]; do
+	if ! kill -0 "$UNREAPED_PARENT_PID" 2>/dev/null; then
+		printf 'unreaped owner helper exited before readiness\n' >&2
+		exit 1
+	fi
+	tries=$((tries + 1))
+	sleep 0.1
+done
+UNREAPED_OWNER_PID=$(sed -n '1p' "$UNREAPED_READY")
+case "$UNREAPED_OWNER_PID" in
+	''|*[!0-9]*)
+		printf 'unreaped owner helper did not publish a pid\n' >&2
+		exit 1
+		;;
+esac
+kill -0 "$UNREAPED_OWNER_PID"
+if ! "$ROOT/client" "$SERVER_PID" "unreaped recovered" 2>>"$CLIENT_ERR"; then
+	printf 'server did not recover while the exited owner was unreaped\n' >&2
+	cat "$CLIENT_ERR" >&2
+	exit 1
+fi
+kill "$UNREAPED_PARENT_PID"
+wait "$UNREAPED_PARENT_PID"
+UNREAPED_PARENT_PID=
+
 masked_status=0
 "$ROOT/tests/masked_exec" "$ROOT/client" "$SERVER_PID" "masked ack" \
 	2>>"$CLIENT_ERR" || masked_status=$?
@@ -135,6 +171,8 @@ fi
 	printf 'X\n'
 	printf 'line recovered\n'
 	printf 'reservation recovered\n'
+	printf 'X\n'
+	printf 'unreaped recovered\n'
 	printf 'masked ack\n'
 } >"$EXPECTED"
 

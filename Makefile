@@ -8,6 +8,7 @@ NAME_FAULT_SERVER := tests/fault_server
 NAME_STALE_EXEC := tests/stale_exec
 NAME_STALE_SERVER_EXEC := tests/stale_server_exec
 NAME_HIGH_FD_EXEC := tests/high_fd_exec
+NAME_UNREAPED_EXEC := tests/unreaped_exec
 
 CC := cc
 CFLAGS := -Wall -Wextra -Werror -Iinclude
@@ -34,6 +35,7 @@ FAULT_SERVER_OBJ := $(SERVER_SRC:%.c=$(FAULT_OBJ_DIR)/%.o) \
 STALE_EXEC_OBJ := $(OBJ_DIR)/tests/stale_exec.o $(COMMON_OBJ)
 STALE_SERVER_EXEC_OBJ := $(OBJ_DIR)/tests/stale_server_exec.o $(COMMON_OBJ)
 HIGH_FD_EXEC_OBJ := $(OBJ_DIR)/tests/high_fd_exec.o
+UNREAPED_EXEC_OBJ := $(OBJ_DIR)/tests/unreaped_exec.o $(COMMON_OBJ)
 
 .PHONY: all clean fclean re test
 
@@ -69,6 +71,9 @@ $(NAME_STALE_SERVER_EXEC): $(STALE_SERVER_EXEC_OBJ)
 $(NAME_HIGH_FD_EXEC): $(HIGH_FD_EXEC_OBJ)
 	$(CC) $(CFLAGS) $(HIGH_FD_EXEC_OBJ) -o $@
 
+$(NAME_UNREAPED_EXEC): $(UNREAPED_EXEC_OBJ)
+	$(CC) $(CFLAGS) $(UNREAPED_EXEC_OBJ) -o $@
+
 $(OBJ_DIR)/%.o: %.c include/minitalk.h
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -84,13 +89,13 @@ fclean: clean
 	$(RM) $(NAME_SERVER) $(NAME_CLIENT) $(NAME_SESSION_SENDER) \
 		$(NAME_MASKED_EXEC) $(NAME_RESPONSE_SERVER) $(NAME_PARSE_PID_TEST) \
 		$(NAME_FAULT_SERVER) $(NAME_STALE_EXEC) $(NAME_STALE_SERVER_EXEC)
-	$(RM) $(NAME_HIGH_FD_EXEC)
+	$(RM) $(NAME_HIGH_FD_EXEC) $(NAME_UNREAPED_EXEC)
 
 re: fclean all
 
 test: all $(NAME_SESSION_SENDER) $(NAME_MASKED_EXEC) $(NAME_RESPONSE_SERVER) \
 		$(NAME_PARSE_PID_TEST) $(NAME_FAULT_SERVER) $(NAME_STALE_EXEC) \
-		$(NAME_STALE_SERVER_EXEC) $(NAME_HIGH_FD_EXEC)
+		$(NAME_STALE_SERVER_EXEC) $(NAME_HIGH_FD_EXEC) $(NAME_UNREAPED_EXEC)
 	./$(NAME_PARSE_PID_TEST)
 	sh tests/smoke.sh
 	sh tests/session_ownership.sh
