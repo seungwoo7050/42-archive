@@ -22,11 +22,7 @@ all: $(NAME)
 
 $(NAME): $(OBJ)
 	$(RM) $@
-	@if test -n "$(strip $(OBJ))"; then \
-		$(AR) $(ARFLAGS) $@ $(OBJ); \
-	else \
-		printf '!<arch>\n' > $@; \
-	fi
+	$(AR) $(ARFLAGS) $@ $(OBJ)
 
 build/obj/%.o: src/%.cpp
 	@$(MKDIR) $(dir $@)
