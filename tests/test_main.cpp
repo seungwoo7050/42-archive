@@ -2,6 +2,7 @@
 
 void testContact(test_support::Suite &suite);
 void testContactBook(test_support::Suite &suite);
+void testTextBuffer(test_support::Suite &suite);
 
 int main()
 {
@@ -9,5 +10,6 @@ int main()
 
     testContact(suite);
     testContactBook(suite);
+    testTextBuffer(suite);
     return suite.result();
 }
