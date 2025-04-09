@@ -16,12 +16,15 @@ SRC := $(sort $(wildcard src/*.cpp))
 OBJ := $(SRC:src/%.cpp=build/obj/%.o)
 DEP := $(OBJ:.o=.d)
 
+APP_SRC := $(sort $(wildcard apps/*.cpp))
+APP_BIN := $(APP_SRC:apps/%.cpp=bin/%)
+
 TEST_SRC := $(sort $(wildcard tests/test_*.cpp))
 TEST_BIN := build/tests/unit
 
 .PHONY: all test check clean fclean re
 
-all: $(NAME)
+all: $(NAME) $(APP_BIN)
 
 $(NAME): $(OBJ)
 	$(RM) $@
@@ -30,6 +33,10 @@ $(NAME): $(OBJ)
 build/obj/%.o: src/%.cpp
 	@$(MKDIR) $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(DEPFLAGS) -c $< -o $@
+
+bin/%: apps/%.cpp $(NAME)
+	@$(MKDIR) $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< $(NAME) -o $@
 
 $(TEST_BIN): $(TEST_SRC) $(NAME)
 	@$(MKDIR) $(dir $@)
@@ -46,7 +53,7 @@ check:
 	$(MAKE) -q all
 
 clean:
-	$(RMDIR) build
+	$(RMDIR) build bin
 
 fclean: clean
 	$(RM) $(NAME)
