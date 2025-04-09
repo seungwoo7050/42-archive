@@ -1,4 +1,5 @@
 small-shell
+/tests/parser-api
 *.o
 *.d
 evidence/tmp/
