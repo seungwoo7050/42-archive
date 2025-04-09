@@ -1,5 +1,6 @@
 #include "cppf/ContactBook.hpp"
 
+#include <ostream>
 #include <stdexcept>
 
 namespace cppf
@@ -32,6 +33,18 @@ const Contact &ContactBook::at(std::size_t logical_index) const
         throw std::out_of_range("contact index");
     first = size_ == capacity ? next_ : 0;
     return contacts_[(first + logical_index) % capacity];
+}
+
+void ContactBook::write(std::ostream &output) const
+{
+    std::size_t index;
+
+    for (index = 0; index < size_; ++index)
+    {
+        const Contact &contact = at(index);
+        output << index << '|' << contact.name() << '|' << contact.note()
+               << '\n';
+    }
 }
 
 }
