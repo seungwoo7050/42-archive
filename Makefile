@@ -22,7 +22,7 @@ APP_BIN := $(APP_SRC:apps/%.cpp=bin/%)
 TEST_SRC := $(sort $(wildcard tests/test_*.cpp))
 TEST_BIN := build/tests/unit
 
-.PHONY: all test check clean fclean re
+.PHONY: all test-unit test-contract test-integration test check clean fclean re
 
 all: $(NAME) $(APP_BIN)
 
@@ -42,8 +42,19 @@ $(TEST_BIN): $(TEST_SRC) $(NAME)
 	@$(MKDIR) $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(TEST_SRC) $(NAME) -o $@
 
-test: $(TEST_BIN)
+test-unit: $(TEST_BIN)
 	./$(TEST_BIN)
+
+test-contract:
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/contact_headers.cpp
+	@! $(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/contact_private_fail.cpp >/dev/null 2>&1
+
+test-integration: bin/ex00_contact_book
+	sh tests/check_cli.sh
+
+test: test-unit test-contract test-integration
 
 check:
 	git diff --check

@@ -1,0 +1,5 @@
+ADD Ada|math
+ADD Grace|compiler
+BAD
+LIST
+QUIT
