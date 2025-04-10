@@ -21,8 +21,13 @@ APP_BIN := $(APP_SRC:apps/%.cpp=bin/%)
 
 TEST_SRC := $(sort $(wildcard tests/test_*.cpp))
 TEST_BIN := build/tests/unit
+FAILURE_BIN := build/tests/buffer_failure
+FAILURE_SRC := tests/failure/test_buffer_failure.cpp \
+	tests/support/FailingNew.cpp
+NO_ELIDE_BIN := build/tests/unit_no_elide
 
-.PHONY: all test-unit test-contract test-integration test check clean fclean re
+.PHONY: all test-unit failure-test test-no-elide test-contract \
+	test-integration test check clean fclean re
 
 all: $(NAME) $(APP_BIN)
 
@@ -45,6 +50,21 @@ $(TEST_BIN): $(TEST_SRC) $(NAME)
 test-unit: $(TEST_BIN)
 	./$(TEST_BIN)
 
+$(FAILURE_BIN): $(FAILURE_SRC) $(NAME)
+	@$(MKDIR) $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(FAILURE_SRC) $(NAME) -o $@
+
+failure-test: $(FAILURE_BIN)
+	./$(FAILURE_BIN)
+
+$(NO_ELIDE_BIN): $(TEST_SRC) $(NAME)
+	@$(MKDIR) $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fno-elide-constructors \
+		$(TEST_SRC) $(NAME) -o $@
+
+test-no-elide: $(NO_ELIDE_BIN)
+	./$(NO_ELIDE_BIN)
+
 test-contract:
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
 		tests/compile/contact_headers.cpp
@@ -54,7 +74,7 @@ test-contract:
 test-integration: bin/ex00_contact_book
 	sh tests/check_cli.sh
 
-test: test-unit test-contract test-integration
+test: test-unit failure-test test-no-elide test-contract test-integration
 
 check:
 	git diff --check
