@@ -10,6 +10,10 @@ void testTextBuffer(test_support::Suite &suite)
     cppf::TextBuffer value("buffer");
     cppf::TextBuffer null_value(0);
     const cppf::TextBuffer &view = value;
+    cppf::TextBuffer copy(value);
+    cppf::TextBuffer assigned("old");
+    cppf::TextBuffer chained("chain");
+    const cppf::TextBuffer &self_alias = value;
     bool threw = false;
 
     suite.check(empty.empty(), "text buffer empty state");
@@ -21,6 +25,21 @@ void testTextBuffer(test_support::Suite &suite)
     suite.check(std::strcmp(value.c_str(), "buffer") == 0,
                 "text buffer stores bytes");
     suite.check(view.at(1) == 'u', "text buffer const access");
+    copy.at(0) = 'B';
+    suite.check(std::strcmp(copy.c_str(), "Buffer") == 0,
+                "text buffer copy is mutable");
+    suite.check(std::strcmp(value.c_str(), "buffer") == 0,
+                "text buffer copy owns independent storage");
+    suite.check(&(assigned = value) == &assigned,
+                "text buffer assignment returns self");
+    suite.check(std::strcmp(assigned.c_str(), "buffer") == 0,
+                "text buffer assignment copies bytes");
+    chained = assigned = copy;
+    suite.check(std::strcmp(chained.c_str(), "Buffer") == 0,
+                "text buffer chained assignment");
+    value = self_alias;
+    suite.check(std::strcmp(value.c_str(), "buffer") == 0,
+                "text buffer self assignment preserves value");
     value.at(0) = 'B';
     suite.check(std::strcmp(value.c_str(), "Buffer") == 0,
                 "text buffer mutable access");
