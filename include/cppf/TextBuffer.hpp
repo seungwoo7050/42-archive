@@ -2,6 +2,7 @@
 #define CPPF_TEXT_BUFFER_HPP
 
 #include <cstddef>
+#include <iosfwd>
 
 namespace cppf
 {
@@ -15,6 +16,7 @@ public:
     ~TextBuffer();
 
     TextBuffer &operator=(const TextBuffer &other);
+    TextBuffer &operator+=(const TextBuffer &other);
 
     std::size_t size() const;
     bool empty() const;
@@ -27,6 +29,12 @@ private:
     char *data_;
     std::size_t size_;
 };
+
+TextBuffer operator+(const TextBuffer &left, const TextBuffer &right);
+bool operator==(const TextBuffer &left, const TextBuffer &right);
+bool operator!=(const TextBuffer &left, const TextBuffer &right);
+bool operator<(const TextBuffer &left, const TextBuffer &right);
+std::ostream &operator<<(std::ostream &output, const TextBuffer &value);
 
 }
 
