@@ -20,9 +20,23 @@ TextBuffer::TextBuffer(const char *text) : data_(0), size_(0)
     std::memcpy(data_, text, size_ + 1);
 }
 
+TextBuffer::TextBuffer(const TextBuffer &other)
+    : data_(new char[other.size_ + 1]), size_(other.size_)
+{
+    std::memcpy(data_, other.data_, size_ + 1);
+}
+
 TextBuffer::~TextBuffer()
 {
     delete[] data_;
+}
+
+TextBuffer &TextBuffer::operator=(const TextBuffer &other)
+{
+    TextBuffer copy(other);
+
+    swap(copy);
+    return *this;
 }
 
 std::size_t TextBuffer::size() const

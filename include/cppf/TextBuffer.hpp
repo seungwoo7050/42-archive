@@ -11,7 +11,10 @@ class TextBuffer
 public:
     TextBuffer();
     explicit TextBuffer(const char *text);
+    TextBuffer(const TextBuffer &other);
     ~TextBuffer();
+
+    TextBuffer &operator=(const TextBuffer &other);
 
     std::size_t size() const;
     bool empty() const;
@@ -21,9 +24,6 @@ public:
     void swap(TextBuffer &other) throw();
 
 private:
-    TextBuffer(const TextBuffer &other);
-    TextBuffer &operator=(const TextBuffer &other);
-
     char *data_;
     std::size_t size_;
 };
