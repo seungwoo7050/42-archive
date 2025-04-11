@@ -1,4 +1,5 @@
 small-shell
+/small-shell-test
 /tests/parser-api
 *.o
 *.d
