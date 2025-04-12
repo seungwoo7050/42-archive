@@ -17,7 +17,9 @@ public:
     };
 
     FormatPipeline();
+    FormatPipeline(const FormatPipeline &other);
     ~FormatPipeline();
+    FormatPipeline &operator=(const FormatPipeline &other);
 
     std::size_t size() const;
     void append(const Formatter &formatter);
@@ -25,9 +27,6 @@ public:
     void swap(FormatPipeline &other) throw();
 
 private:
-    FormatPipeline(const FormatPipeline &other);
-    FormatPipeline &operator=(const FormatPipeline &other);
-
     Formatter *steps_[max_steps];
     std::size_t size_;
 };

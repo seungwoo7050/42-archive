@@ -13,12 +13,39 @@ FormatPipeline::FormatPipeline() : steps_(), size_(0)
         steps_[index] = 0;
 }
 
+FormatPipeline::FormatPipeline(const FormatPipeline &other) : steps_(), size_(0)
+{
+    std::size_t index;
+
+    for (index = 0; index < max_steps; ++index)
+        steps_[index] = 0;
+    try
+    {
+        for (index = 0; index < other.size_; ++index)
+            append(*other.steps_[index]);
+    }
+    catch (...)
+    {
+        for (index = 0; index < size_; ++index)
+            delete steps_[index];
+        throw;
+    }
+}
+
 FormatPipeline::~FormatPipeline()
 {
     std::size_t index;
 
     for (index = 0; index < size_; ++index)
         delete steps_[index];
+}
+
+FormatPipeline &FormatPipeline::operator=(const FormatPipeline &other)
+{
+    FormatPipeline copy(other);
+
+    swap(copy);
+    return *this;
 }
 
 std::size_t FormatPipeline::size() const
