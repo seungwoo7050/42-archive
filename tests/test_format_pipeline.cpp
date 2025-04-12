@@ -25,6 +25,24 @@ void testFormatPipeline(test_support::Suite &suite)
                     cppf::TextBuffer("[VALUE]"),
                 "format pipeline dispatch order");
 
+    cppf::FormatPipeline copy(pipeline);
+    cppf::FormatPipeline assigned;
+    const cppf::FormatPipeline &self_alias = pipeline;
+
+    pipeline.append(suffix);
+    suite.check(copy.size() == 3, "format pipeline copy owns independent steps");
+    suite.check(copy.apply(cppf::TextBuffer("value")) ==
+                    cppf::TextBuffer("[VALUE]"),
+                "format pipeline copy preserves dynamic behavior");
+    suite.check(&(assigned = copy) == &assigned,
+                "format pipeline assignment returns self");
+    suite.check(assigned.apply(cppf::TextBuffer("x")) ==
+                    cppf::TextBuffer("[X]"),
+                "format pipeline assignment clones steps");
+    pipeline = self_alias;
+    suite.check(pipeline.size() == 4,
+                "format pipeline self assignment preserves state");
+
     cppf::FormatPipeline full;
     for (index = 0; index < cppf::FormatPipeline::max_steps; ++index)
         full.append(upper);
