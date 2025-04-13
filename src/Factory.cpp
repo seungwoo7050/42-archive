@@ -1,5 +1,34 @@
 #include "cppf/Factory.hpp"
 
+namespace
+{
+
+class FormatterOwner
+{
+public:
+    explicit FormatterOwner(cppf::Formatter *formatter) : formatter_(formatter)
+    {
+    }
+
+    ~FormatterOwner()
+    {
+        delete formatter_;
+    }
+
+    cppf::Formatter &get() const
+    {
+        return *formatter_;
+    }
+
+private:
+    FormatterOwner(const FormatterOwner &other);
+    FormatterOwner &operator=(const FormatterOwner &other);
+
+    cppf::Formatter *formatter_;
+};
+
+}
+
 namespace cppf
 {
 
@@ -42,6 +71,25 @@ Formatter *DefaultFormatterCreator::create(
             TextBuffer(specification.substr(suffix_key.size()).c_str()));
     }
     throw UnknownFormatter();
+}
+
+void PipelineBuilder::replace(FormatPipeline &target,
+                              const FormatterCreator &creator,
+                              const std::string *specifications,
+                              std::size_t count)
+{
+    FormatPipeline empty;
+    std::size_t index;
+
+    if ((specifications == 0 && count != 0) ||
+        count > FormatPipeline::max_steps)
+        throw InvalidSpecification();
+    target.swap(empty);
+    for (index = 0; index < count; ++index)
+    {
+        FormatterOwner formatter(creator.create(specifications[index]));
+        target.append(formatter.get());
+    }
 }
 
 }
