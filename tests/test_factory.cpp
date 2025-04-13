@@ -58,4 +58,27 @@ void testFactory(test_support::Suite &suite)
         threw = std::strcmp(error.what(), "unknown formatter") == 0;
     }
     suite.check(threw, "factory distinguishes unknown formatter");
+
+    std::string specifications[] = {"prefix=[", "upper", "suffix=]"};
+    cppf::FormatPipeline pipeline;
+
+    cppf::PipelineBuilder::replace(pipeline, creator, specifications, 3);
+    suite.check(pipeline.size() == 3, "pipeline builder transfers three clones");
+    suite.check(pipeline.apply(cppf::TextBuffer("value")) ==
+                    cppf::TextBuffer("[VALUE]"),
+                "pipeline builder preserves specification order");
+
+    cppf::PipelineBuilder::replace(pipeline, creator, 0, 0);
+    suite.check(pipeline.size() == 0, "pipeline builder accepts empty list");
+
+    threw = false;
+    try
+    {
+        cppf::PipelineBuilder::replace(pipeline, creator, 0, 1);
+    }
+    catch (const cppf::InvalidSpecification &)
+    {
+        threw = true;
+    }
+    suite.check(threw, "pipeline builder rejects null specification array");
 }
