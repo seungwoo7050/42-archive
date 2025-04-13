@@ -5,6 +5,7 @@ void testContactBook(test_support::Suite &suite);
 void testTextBuffer(test_support::Suite &suite);
 void testFormatter(test_support::Suite &suite);
 void testFormatPipeline(test_support::Suite &suite);
+void testFactory(test_support::Suite &suite);
 
 int main()
 {
@@ -15,5 +16,6 @@ int main()
     testTextBuffer(suite);
     testFormatter(suite);
     testFormatPipeline(suite);
+    testFactory(suite);
     return suite.result();
 }
