@@ -12,3 +12,7 @@ diff -u tests/fixtures/contact-session.out "$temporary_directory/contact.out"
 ./bin/ex01_text_buffer hello world > "$temporary_directory/text.out"
 printf 'helloworld\n' > "$temporary_directory/text.expected"
 diff -u "$temporary_directory/text.expected" "$temporary_directory/text.out"
+
+./bin/ex02_format_pipeline mixed > "$temporary_directory/format.out"
+printf '[MIXED]\n' > "$temporary_directory/format.expected"
+diff -u "$temporary_directory/format.expected" "$temporary_directory/format.out"

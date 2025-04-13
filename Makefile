@@ -20,6 +20,7 @@ APP_SRC := $(sort $(wildcard apps/*.cpp))
 APP_BIN := $(APP_SRC:apps/%.cpp=bin/%)
 
 TEST_SRC := $(sort $(wildcard tests/test_*.cpp))
+TEST_SUPPORT_SRC := tests/support/TestFormatter.cpp
 TEST_BIN := build/tests/unit
 FAILURE_BIN := build/tests/buffer_failure
 FAILURE_SRC := tests/failure/test_buffer_failure.cpp \
@@ -43,9 +44,10 @@ bin/%: apps/%.cpp $(NAME)
 	@$(MKDIR) $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< $(NAME) -o $@
 
-$(TEST_BIN): $(TEST_SRC) $(NAME)
+$(TEST_BIN): $(TEST_SRC) $(TEST_SUPPORT_SRC) $(NAME)
 	@$(MKDIR) $(dir $@)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(TEST_SRC) $(NAME) -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(TEST_SRC) $(TEST_SUPPORT_SRC) \
+		$(NAME) -o $@
 
 test-unit: $(TEST_BIN)
 	./$(TEST_BIN)
@@ -57,10 +59,10 @@ $(FAILURE_BIN): $(FAILURE_SRC) $(NAME)
 failure-test: $(FAILURE_BIN)
 	./$(FAILURE_BIN)
 
-$(NO_ELIDE_BIN): $(TEST_SRC) $(NAME)
+$(NO_ELIDE_BIN): $(TEST_SRC) $(TEST_SUPPORT_SRC) $(NAME)
 	@$(MKDIR) $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fno-elide-constructors \
-		$(TEST_SRC) $(NAME) -o $@
+		$(TEST_SRC) $(TEST_SUPPORT_SRC) $(NAME) -o $@
 
 test-no-elide: $(NO_ELIDE_BIN)
 	./$(NO_ELIDE_BIN)
@@ -68,8 +70,12 @@ test-no-elide: $(NO_ELIDE_BIN)
 test-contract:
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
 		tests/compile/contact_headers.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/format_headers.cpp
 	@! $(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
 		tests/compile/contact_private_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/formatter_abstract_fail.cpp >/dev/null 2>&1
 
 test-integration: bin/ex00_contact_book
 	sh tests/check_cli.sh
