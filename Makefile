@@ -77,7 +77,7 @@ test-contract:
 	@! $(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
 		tests/compile/formatter_abstract_fail.cpp >/dev/null 2>&1
 
-test-integration: bin/ex00_contact_book
+test-integration: $(APP_BIN)
 	sh tests/check_cli.sh
 
 test: test-unit failure-test test-no-elide test-contract test-integration

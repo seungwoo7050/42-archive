@@ -68,8 +68,25 @@ void testFactory(test_support::Suite &suite)
                     cppf::TextBuffer("[VALUE]"),
                 "pipeline builder preserves specification order");
 
-    cppf::PipelineBuilder::replace(pipeline, creator, 0, 0);
-    suite.check(pipeline.size() == 0, "pipeline builder accepts empty list");
+    std::string invalid_specifications[] = {
+        "prefix=<", "reverse", "suffix=>"};
+
+    threw = false;
+    try
+    {
+        cppf::PipelineBuilder::replace(
+            pipeline, creator, invalid_specifications, 3);
+    }
+    catch (const cppf::UnknownFormatter &)
+    {
+        threw = true;
+    }
+    suite.check(threw, "pipeline builder reports a failed replacement");
+    suite.check(pipeline.size() == 3,
+                "failed replacement preserves the previous pipeline size");
+    suite.check(pipeline.apply(cppf::TextBuffer("value")) ==
+                    cppf::TextBuffer("[VALUE]"),
+                "failed replacement preserves the previous pipeline value");
 
     threw = false;
     try
@@ -81,4 +98,10 @@ void testFactory(test_support::Suite &suite)
         threw = true;
     }
     suite.check(threw, "pipeline builder rejects null specification array");
+    suite.check(pipeline.apply(cppf::TextBuffer("value")) ==
+                    cppf::TextBuffer("[VALUE]"),
+                "invalid replacement preserves the previous pipeline");
+
+    cppf::PipelineBuilder::replace(pipeline, creator, 0, 0);
+    suite.check(pipeline.size() == 0, "pipeline builder accepts empty list");
 }
