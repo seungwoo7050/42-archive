@@ -25,6 +25,9 @@ TEST_BIN := build/tests/unit
 FAILURE_BIN := build/tests/buffer_failure
 FAILURE_SRC := tests/failure/test_buffer_failure.cpp \
 	tests/support/FailingNew.cpp
+FACTORY_FAILURE_BIN := build/tests/factory_failure
+FACTORY_FAILURE_SRC := tests/failure/test_factory_failure.cpp \
+	tests/support/FailingNew.cpp
 NO_ELIDE_BIN := build/tests/unit_no_elide
 
 .PHONY: all test-unit failure-test test-no-elide test-contract \
@@ -56,8 +59,13 @@ $(FAILURE_BIN): $(FAILURE_SRC) $(NAME)
 	@$(MKDIR) $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(FAILURE_SRC) $(NAME) -o $@
 
-failure-test: $(FAILURE_BIN)
+$(FACTORY_FAILURE_BIN): $(FACTORY_FAILURE_SRC) $(NAME)
+	@$(MKDIR) $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(FACTORY_FAILURE_SRC) $(NAME) -o $@
+
+failure-test: $(FAILURE_BIN) $(FACTORY_FAILURE_BIN)
 	./$(FAILURE_BIN)
+	./$(FACTORY_FAILURE_BIN)
 
 $(NO_ELIDE_BIN): $(TEST_SRC) $(TEST_SUPPORT_SRC) $(NAME)
 	@$(MKDIR) $(dir $@)

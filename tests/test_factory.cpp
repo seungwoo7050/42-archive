@@ -1,7 +1,116 @@
 #include "cppf/Factory.hpp"
 #include "support/Test.hpp"
+#include "support/TestFormatter.hpp"
 
 #include <cstring>
+
+namespace
+{
+
+class CreationFailure
+{
+};
+
+class ControlledCreator : public cppf::FormatterCreator
+{
+public:
+    explicit ControlledCreator(std::size_t failure_attempt)
+        : attempts_(0), failure_attempt_(failure_attempt)
+    {
+    }
+
+    virtual cppf::Formatter *create(
+        const std::string &specification) const
+    {
+        ++attempts_;
+        if (failure_attempt_ != 0 && attempts_ == failure_attempt_)
+            throw CreationFailure();
+        return new test_support::TestFormatter(
+            cppf::TextBuffer(specification.c_str()));
+    }
+
+    std::size_t attempts() const
+    {
+        return attempts_;
+    }
+
+private:
+    ControlledCreator(const ControlledCreator &other);
+    ControlledCreator &operator=(const ControlledCreator &other);
+
+    mutable std::size_t attempts_;
+    std::size_t failure_attempt_;
+};
+
+void testCreationFailure(test_support::Suite &suite)
+{
+    const cppf::UppercaseFormatter upper;
+    const std::string specifications[] = {"first", "second", "third"};
+    cppf::FormatPipeline target;
+    const ControlledCreator creator(2);
+    bool threw = false;
+
+    target.append(upper);
+    test_support::TestFormatter::resetCounters();
+    try
+    {
+        cppf::PipelineBuilder::replace(
+            target, creator, specifications, 3);
+    }
+    catch (const CreationFailure &)
+    {
+        threw = true;
+    }
+    suite.check(threw, "pipeline builder preserves creation failure type");
+    suite.check(creator.attempts() == 2,
+                "pipeline builder stops at failed creation");
+    suite.check(test_support::TestFormatter::cloneAttempts() == 1,
+                "creation failure follows one completed clone");
+    suite.check(target.size() == 1,
+                "creation failure preserves target size");
+    suite.check(target.apply(cppf::TextBuffer("keep")) ==
+                    cppf::TextBuffer("KEEP"),
+                "creation failure preserves target behavior");
+    suite.check(test_support::TestFormatter::liveCount() == 0,
+                "creation failure releases candidate formatters");
+}
+
+void testCloneFailure(test_support::Suite &suite)
+{
+    const cppf::UppercaseFormatter upper;
+    const std::string specifications[] = {"first", "second", "third"};
+    cppf::FormatPipeline target;
+    const ControlledCreator creator(0);
+    bool threw = false;
+
+    target.append(upper);
+    test_support::TestFormatter::resetCounters();
+    test_support::TestFormatter::failCloneOn(2);
+    try
+    {
+        cppf::PipelineBuilder::replace(
+            target, creator, specifications, 3);
+    }
+    catch (const test_support::CloneFailure &)
+    {
+        threw = true;
+    }
+    test_support::TestFormatter::disableCloneFailure();
+    suite.check(threw, "pipeline builder preserves clone failure type");
+    suite.check(creator.attempts() == 2,
+                "pipeline builder stops at failed clone");
+    suite.check(test_support::TestFormatter::cloneAttempts() == 2,
+                "pipeline builder reaches configured clone failure");
+    suite.check(target.size() == 1,
+                "clone failure preserves target size");
+    suite.check(target.apply(cppf::TextBuffer("keep")) ==
+                    cppf::TextBuffer("KEEP"),
+                "clone failure preserves target behavior");
+    suite.check(test_support::TestFormatter::liveCount() == 0,
+                "clone failure releases creator and candidate objects");
+}
+
+}
 
 void testFactory(test_support::Suite &suite)
 {
@@ -104,4 +213,7 @@ void testFactory(test_support::Suite &suite)
 
     cppf::PipelineBuilder::replace(pipeline, creator, 0, 0);
     suite.check(pipeline.size() == 0, "pipeline builder accepts empty list");
+
+    testCreationFailure(suite);
+    testCloneFailure(suite);
 }

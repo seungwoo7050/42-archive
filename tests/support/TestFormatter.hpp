@@ -3,8 +3,14 @@
 
 #include "cppf/Formatter.hpp"
 
+#include <cstddef>
+
 namespace test_support
 {
+
+class CloneFailure
+{
+};
 
 class TestFormatter : public cppf::Formatter
 {
@@ -18,6 +24,9 @@ public:
     virtual const char *name() const;
 
     static void resetCounters();
+    static void failCloneOn(std::size_t attempt);
+    static void disableCloneFailure();
+    static std::size_t cloneAttempts();
     static int liveCount();
     static int destroyedCount();
 
@@ -27,6 +36,8 @@ private:
     cppf::TextBuffer prefix_;
     static int live_count_;
     static int destroyed_count_;
+    static std::size_t clone_attempts_;
+    static std::size_t clone_failure_attempt_;
 };
 
 }
