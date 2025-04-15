@@ -78,18 +78,18 @@ void PipelineBuilder::replace(FormatPipeline &target,
                               const std::string *specifications,
                               std::size_t count)
 {
-    FormatPipeline empty;
+    FormatPipeline candidate;
     std::size_t index;
 
     if ((specifications == 0 && count != 0) ||
         count > FormatPipeline::max_steps)
         throw InvalidSpecification();
-    target.swap(empty);
     for (index = 0; index < count; ++index)
     {
         FormatterOwner formatter(creator.create(specifications[index]));
-        target.append(formatter.get());
+        candidate.append(formatter.get());
     }
+    target.swap(candidate);
 }
 
 }
