@@ -6,6 +6,7 @@ void testTextBuffer(test_support::Suite &suite);
 void testFormatter(test_support::Suite &suite);
 void testFormatPipeline(test_support::Suite &suite);
 void testFactory(test_support::Suite &suite);
+void testScalarLiteral(test_support::Suite &suite);
 
 int main()
 {
@@ -17,5 +18,6 @@ int main()
     testFormatter(suite);
     testFormatPipeline(suite);
     testFactory(suite);
+    testScalarLiteral(suite);
     return suite.result();
 }
