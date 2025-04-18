@@ -33,3 +33,22 @@ test ! -s "$temporary_directory/factory-failure.out"
 printf 'unknown formatter\n' > "$temporary_directory/factory-failure.expected"
 diff -u "$temporary_directory/factory-failure.expected" \
     "$temporary_directory/factory-failure.err"
+
+./bin/ex04_type_boundary scalar 42.5 \
+    > "$temporary_directory/scalar.out"
+printf "char: '*'\nint: 42\nfloat: 42.5f\ndouble: 42.5\n" \
+    > "$temporary_directory/scalar.expected"
+diff -u "$temporary_directory/scalar.expected" \
+    "$temporary_directory/scalar.out"
+
+if ./bin/ex04_type_boundary scalar 42f \
+    > "$temporary_directory/scalar-failure.out" \
+    2> "$temporary_directory/scalar-failure.err"
+then
+    exit 1
+fi
+test ! -s "$temporary_directory/scalar-failure.out"
+printf 'invalid scalar literal\n' \
+    > "$temporary_directory/scalar-failure.expected"
+diff -u "$temporary_directory/scalar-failure.expected" \
+    "$temporary_directory/scalar-failure.err"
