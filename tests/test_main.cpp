@@ -8,6 +8,7 @@ void testFormatPipeline(test_support::Suite &suite);
 void testFactory(test_support::Suite &suite);
 void testScalarLiteral(test_support::Suite &suite);
 void testScalarConverter(test_support::Suite &suite);
+void testRuntimeType(test_support::Suite &suite);
 
 int main()
 {
@@ -21,5 +22,6 @@ int main()
     testFactory(suite);
     testScalarLiteral(suite);
     testScalarConverter(suite);
+    testRuntimeType(suite);
     return suite.result();
 }
