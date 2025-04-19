@@ -1,5 +1,6 @@
 small-shell
 /small-shell-test
+/tests/timeout-runner
 /tests/parser-api
 *.o
 *.d
