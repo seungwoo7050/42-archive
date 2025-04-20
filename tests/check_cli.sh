@@ -52,3 +52,51 @@ printf 'invalid scalar literal\n' \
     > "$temporary_directory/scalar-failure.expected"
 diff -u "$temporary_directory/scalar-failure.expected" \
     "$temporary_directory/scalar-failure.err"
+
+./bin/ex04_type_boundary runtime A \
+    > "$temporary_directory/runtime.out"
+printf 'pointer: A\nreference: A\n' \
+    > "$temporary_directory/runtime.expected"
+diff -u "$temporary_directory/runtime.expected" \
+    "$temporary_directory/runtime.out"
+
+./bin/ex04_type_boundary address 42 alpha \
+    > "$temporary_directory/address.out"
+printf 'token: nonzero\nsame: yes\nid: 42\nlabel: alpha\n' \
+    > "$temporary_directory/address.expected"
+diff -u "$temporary_directory/address.expected" \
+    "$temporary_directory/address.out"
+
+if ./bin/ex04_type_boundary runtime Z \
+    > "$temporary_directory/runtime-failure.out" \
+    2> "$temporary_directory/runtime-failure.err"
+then
+    exit 1
+fi
+test ! -s "$temporary_directory/runtime-failure.out"
+printf 'unknown runtime kind\n' \
+    > "$temporary_directory/runtime-failure.expected"
+diff -u "$temporary_directory/runtime-failure.expected" \
+    "$temporary_directory/runtime-failure.err"
+
+if ./bin/ex04_type_boundary address 42x alpha \
+    > "$temporary_directory/address-failure.out" \
+    2> "$temporary_directory/address-failure.err"
+then
+    exit 1
+fi
+test ! -s "$temporary_directory/address-failure.out"
+printf 'invalid payload id\n' \
+    > "$temporary_directory/address-failure.expected"
+diff -u "$temporary_directory/address-failure.expected" \
+    "$temporary_directory/address-failure.err"
+
+if ./bin/ex04_type_boundary address 18446744073709551616 alpha \
+    > "$temporary_directory/address-overflow.out" \
+    2> "$temporary_directory/address-overflow.err"
+then
+    exit 1
+fi
+test ! -s "$temporary_directory/address-overflow.out"
+diff -u "$temporary_directory/address-failure.expected" \
+    "$temporary_directory/address-overflow.err"

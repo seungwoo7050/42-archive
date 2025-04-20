@@ -30,6 +30,10 @@ private:
     bool &destroyed_;
 };
 
+class KnownChild : public cppf::RuntimeA
+{
+};
+
 }
 
 void testRuntimeType(test_support::Suite &suite)
@@ -83,12 +87,36 @@ void testRuntimeType(test_support::Suite &suite)
     suite.check(created, "runtime factory creates every registered type");
     suite.check(cppf::RuntimeInspector::create(cppf::runtime_unknown) == 0,
                 "runtime factory rejects unknown kind");
+    const cppf::RuntimeKind invalid_kind =
+        static_cast<cppf::RuntimeKind>(999);
+    suite.check(cppf::RuntimeInspector::create(invalid_kind) == 0 &&
+                    std::strcmp(cppf::RuntimeInspector::name(invalid_kind),
+                                "unknown") == 0,
+                "runtime rejects invalid enum value");
     suite.check(std::strcmp(cppf::RuntimeInspector::name(cppf::runtime_a),
                             "A") == 0 &&
                     std::strcmp(
                         cppf::RuntimeInspector::name(cppf::runtime_unknown),
                         "unknown") == 0,
                 "runtime names are stable");
+
+    const KnownChild known_child;
+    suite.check(cppf::RuntimeInspector::identify(&known_child) ==
+                    cppf::runtime_a &&
+                    cppf::RuntimeInspector::identify(known_child) ==
+                    cppf::runtime_a,
+                "runtime recognizes a registered subtype descendant");
+
+    bool escaped = false;
+    try
+    {
+        cppf::RuntimeInspector::identify(unknown);
+    }
+    catch (...)
+    {
+        escaped = true;
+    }
+    suite.check(!escaped, "runtime reference hides bad cast failures");
 
     bool destroyed = false;
     cppf::RuntimeBase *tracked = new TrackedRuntime(destroyed);
