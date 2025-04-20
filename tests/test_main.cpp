@@ -9,6 +9,7 @@ void testFactory(test_support::Suite &suite);
 void testScalarLiteral(test_support::Suite &suite);
 void testScalarConverter(test_support::Suite &suite);
 void testRuntimeType(test_support::Suite &suite);
+void testSerializer(test_support::Suite &suite);
 
 int main()
 {
@@ -23,5 +24,6 @@ int main()
     testScalarLiteral(suite);
     testScalarConverter(suite);
     testRuntimeType(suite);
+    testSerializer(suite);
     return suite.result();
 }
