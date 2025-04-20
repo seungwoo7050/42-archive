@@ -10,6 +10,7 @@ void testScalarLiteral(test_support::Suite &suite);
 void testScalarConverter(test_support::Suite &suite);
 void testRuntimeType(test_support::Suite &suite);
 void testSerializer(test_support::Suite &suite);
+void testRandomAccessBatch(test_support::Suite &suite);
 
 int main()
 {
@@ -25,5 +26,6 @@ int main()
     testScalarConverter(suite);
     testRuntimeType(suite);
     testSerializer(suite);
+    testRandomAccessBatch(suite);
     return suite.result();
 }
