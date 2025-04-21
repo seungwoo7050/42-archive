@@ -2,8 +2,12 @@
 
 #include "cppf/RpnEvaluator.hpp"
 
+#include <algorithm>
 #include <istream>
+#include <locale>
 #include <map>
+#include <ostream>
+#include <sstream>
 #include <stdexcept>
 #include <utility>
 
@@ -42,14 +46,24 @@ bool isNameRest(char value)
 
 bool isValidName(const std::string &name)
 {
+    std::size_t index;
+
     if (name.empty() || !isNameStart(name[0]))
         return false;
-    for (std::size_t index = 1; index < name.size(); ++index)
+    for (index = 1; index < name.size(); ++index)
     {
         if (!isNameRest(name[index]))
             return false;
     }
     return true;
+}
+
+bool resultLess(const cppf::JobResult &left,
+                const cppf::JobResult &right)
+{
+    if (left.value() != right.value())
+        return left.value() < right.value();
+    return left.name() < right.name();
 }
 
 void parseLine(const std::string &line,
@@ -117,12 +131,27 @@ void BatchEngine::replace(std::istream &input)
     }
     if (!input.eof() || candidate.empty())
         throw std::invalid_argument("invalid batch input");
+    std::sort(candidate.begin(), candidate.end(), resultLess);
     results_.swap(candidate);
 }
 
 const std::vector<JobResult> &BatchEngine::results() const
 {
     return results_;
+}
+
+void BatchEngine::write(std::ostream &output) const
+{
+    std::ostringstream rendered;
+    std::size_t index;
+
+    rendered.imbue(std::locale::classic());
+    for (index = 0; index < results_.size(); ++index)
+        rendered << results_[index].value() << " | "
+                 << results_[index].name() << '\n';
+    const std::string text = rendered.str();
+
+    output.write(text.data(), static_cast<std::streamsize>(text.size()));
 }
 
 }

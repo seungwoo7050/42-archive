@@ -29,6 +29,7 @@ class BatchEngine
 public:
     void replace(std::istream &input);
     const std::vector<JobResult> &results() const;
+    void write(std::ostream &output) const;
 
 private:
     std::vector<JobResult> results_;
