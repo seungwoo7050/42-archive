@@ -100,3 +100,25 @@ fi
 test ! -s "$temporary_directory/address-overflow.out"
 diff -u "$temporary_directory/address-failure.expected" \
     "$temporary_directory/address-overflow.err"
+
+./bin/ex05_batch_engine rpn '8 3 -' \
+    > "$temporary_directory/rpn.out"
+printf '5\n' > "$temporary_directory/rpn.expected"
+diff -u "$temporary_directory/rpn.expected" \
+    "$temporary_directory/rpn.out"
+
+./bin/ex05_batch_engine batch < tests/fixtures/batch-basic.in \
+    > "$temporary_directory/batch.out"
+diff -u tests/fixtures/batch-basic.out "$temporary_directory/batch.out"
+
+if ./bin/ex05_batch_engine batch < tests/fixtures/batch-duplicate.in \
+    > "$temporary_directory/batch-failure.out" \
+    2> "$temporary_directory/batch-failure.err"
+then
+    exit 1
+fi
+test ! -s "$temporary_directory/batch-failure.out"
+printf 'invalid batch input\n' \
+    > "$temporary_directory/batch-failure.expected"
+diff -u "$temporary_directory/batch-failure.expected" \
+    "$temporary_directory/batch-failure.err"

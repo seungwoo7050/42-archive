@@ -12,6 +12,7 @@ void testRuntimeType(test_support::Suite &suite);
 void testSerializer(test_support::Suite &suite);
 void testRandomAccessBatch(test_support::Suite &suite);
 void testRpnEvaluator(test_support::Suite &suite);
+void testBatchEngine(test_support::Suite &suite);
 
 int main()
 {
@@ -29,5 +30,6 @@ int main()
     testSerializer(suite);
     testRandomAccessBatch(suite);
     testRpnEvaluator(suite);
+    testBatchEngine(suite);
     return suite.result();
 }
