@@ -27,6 +27,15 @@ std::string writeBatch(const cppf::BatchEngine &engine)
     return output.str();
 }
 
+std::string runBatch(const std::string &text)
+{
+    std::istringstream input(text);
+    cppf::BatchEngine engine;
+
+    engine.replace(input);
+    return writeBatch(engine);
+}
+
 }
 
 void testBatchEngine(test_support::Suite &suite)
@@ -134,4 +143,39 @@ void testBatchEngine(test_support::Suite &suite)
                     configured.width() == width &&
                     configured.precision() == precision,
                 "batch output preserves caller formatting state");
+
+    const std::string ordered =
+        "-2 | neg\n"
+        "0 | zero\n"
+        "2 | pos\n"
+        "5 | Alpha\n"
+        "5 | alpha\n"
+        "5 | beta\n"
+        "5 | zeta\n";
+    const std::string first_permutation =
+        "zeta | 5\n"
+        "neg | -2\n"
+        "alpha | 5\n"
+        "pos | 2\n"
+        "beta | 5\n"
+        "zero | 0\n"
+        "Alpha | 5\n";
+    const std::string second_permutation =
+        "Alpha | 5\n"
+        "zero | 0\n"
+        "beta | 5\n"
+        "pos | 2\n"
+        "alpha | 5\n"
+        "neg | -2\n"
+        "zeta | 5";
+
+    suite.check(runBatch(first_permutation) == ordered,
+                "batch orders vector and deque results identically");
+    suite.check(runBatch(second_permutation) == ordered,
+                "batch output is invariant under input permutation");
+    suite.check(runBatch("only | 7") == "7 | only\n",
+                "batch container comparison handles one element");
+    suite.check(writeBatch(engine) == original &&
+                    writeBatch(engine) == original,
+                "batch repeated output is byte-identical");
 }
