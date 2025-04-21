@@ -1,5 +1,74 @@
 #include "cppf/BatchEngine.hpp"
 
+#include "cppf/RpnEvaluator.hpp"
+
+#include <istream>
+#include <map>
+#include <stdexcept>
+#include <utility>
+
+namespace
+{
+
+bool isFieldWhitespace(char value)
+{
+    return value == ' ' || value == '\t' || value == '\r' ||
+           value == '\n' || value == '\v' || value == '\f';
+}
+
+std::string trimField(const std::string &field)
+{
+    std::size_t first = 0;
+    std::size_t last = field.size();
+
+    while (first < last && isFieldWhitespace(field[first]))
+        ++first;
+    while (last > first && isFieldWhitespace(field[last - 1]))
+        --last;
+    return field.substr(first, last - first);
+}
+
+bool isNameStart(char value)
+{
+    return (value >= 'A' && value <= 'Z') ||
+           (value >= 'a' && value <= 'z');
+}
+
+bool isNameRest(char value)
+{
+    return isNameStart(value) || (value >= '0' && value <= '9') ||
+           value == '_' || value == '-';
+}
+
+bool isValidName(const std::string &name)
+{
+    if (name.empty() || !isNameStart(name[0]))
+        return false;
+    for (std::size_t index = 1; index < name.size(); ++index)
+    {
+        if (!isNameRest(name[index]))
+            return false;
+    }
+    return true;
+}
+
+void parseLine(const std::string &line,
+               std::string &name,
+               std::string &expression)
+{
+    const std::size_t separator = line.find('|');
+
+    if (separator == std::string::npos ||
+        line.find('|', separator + 1) != std::string::npos)
+        throw std::invalid_argument("invalid batch input");
+    name = trimField(line.substr(0, separator));
+    expression = trimField(line.substr(separator + 1));
+    if (!isValidName(name) || expression.empty())
+        throw std::invalid_argument("invalid batch input");
+}
+
+}
+
 namespace cppf
 {
 
@@ -25,6 +94,35 @@ long JobResult::value() const
 bool operator==(const JobResult &left, const JobResult &right)
 {
     return left.name() == right.name() && left.value() == right.value();
+}
+
+void BatchEngine::replace(std::istream &input)
+{
+    std::vector<JobResult> candidate;
+    std::map<std::string, long> seen;
+    std::string line;
+
+    while (std::getline(input, line))
+    {
+        std::string name;
+        std::string expression;
+
+        parseLine(line, name, expression);
+        if (seen.find(name) != seen.end())
+            throw std::invalid_argument("invalid batch input");
+        const long value = RpnEvaluator::evaluate(expression);
+
+        seen.insert(std::make_pair(name, value));
+        candidate.push_back(JobResult(name, value));
+    }
+    if (!input.eof() || candidate.empty())
+        throw std::invalid_argument("invalid batch input");
+    results_.swap(candidate);
+}
+
+const std::vector<JobResult> &BatchEngine::results() const
+{
+    return results_;
 }
 
 }
