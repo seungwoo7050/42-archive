@@ -1,8 +1,9 @@
 #include "cppf/BatchEngine.hpp"
 
+#include "cppf/RandomAccessBatch.hpp"
 #include "cppf/RpnEvaluator.hpp"
 
-#include <algorithm>
+#include <deque>
 #include <istream>
 #include <locale>
 #include <map>
@@ -112,7 +113,8 @@ bool operator==(const JobResult &left, const JobResult &right)
 
 void BatchEngine::replace(std::istream &input)
 {
-    std::vector<JobResult> candidate;
+    RandomAccessBatch<JobResult> vector_batch;
+    RandomAccessBatch<JobResult, std::deque<JobResult> > deque_batch;
     std::map<std::string, long> seen;
     std::string line;
 
@@ -125,13 +127,22 @@ void BatchEngine::replace(std::istream &input)
         if (seen.find(name) != seen.end())
             throw std::invalid_argument("invalid batch input");
         const long value = RpnEvaluator::evaluate(expression);
+        const JobResult result(name, value);
 
         seen.insert(std::make_pair(name, value));
-        candidate.push_back(JobResult(name, value));
+        vector_batch.push_back(result);
+        deque_batch.push_back(result);
     }
-    if (!input.eof() || candidate.empty())
+    if (!input.eof() || vector_batch.empty())
         throw std::invalid_argument("invalid batch input");
-    std::sort(candidate.begin(), candidate.end(), resultLess);
+    vector_batch.sort(resultLess);
+    deque_batch.sort(resultLess);
+    if (!equal_ranges(vector_batch.begin(), vector_batch.end(),
+                      deque_batch.begin(), deque_batch.end()))
+        throw std::logic_error("batch container disagreement");
+    std::vector<JobResult> candidate(
+        vector_batch.begin(), vector_batch.end());
+
     results_.swap(candidate);
 }
 
