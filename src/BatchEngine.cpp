@@ -82,6 +82,22 @@ void parseLine(const std::string &line,
         throw std::invalid_argument("invalid batch input");
 }
 
+bool readLine(std::istream &input, std::string &line)
+{
+    char value;
+
+    line.clear();
+    while (input.get(value))
+    {
+        if (value == '\n')
+            return true;
+        line.push_back(value);
+    }
+    if (!input.eof())
+        throw std::invalid_argument("invalid batch input");
+    return !line.empty();
+}
+
 }
 
 namespace cppf
@@ -118,7 +134,7 @@ void BatchEngine::replace(std::istream &input)
     std::map<std::string, long> seen;
     std::string line;
 
-    while (std::getline(input, line))
+    while (readLine(input, line))
     {
         std::string name;
         std::string expression;
@@ -133,7 +149,7 @@ void BatchEngine::replace(std::istream &input)
         vector_batch.push_back(result);
         deque_batch.push_back(result);
     }
-    if (!input.eof() || vector_batch.empty())
+    if (vector_batch.empty())
         throw std::invalid_argument("invalid batch input");
     vector_batch.sort(resultLess);
     deque_batch.sort(resultLess);
