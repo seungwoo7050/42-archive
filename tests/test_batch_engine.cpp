@@ -2,6 +2,7 @@
 #include "support/Test.hpp"
 
 #include <ios>
+#include <limits>
 #include <locale>
 #include <sstream>
 #include <stdexcept>
@@ -34,6 +35,61 @@ std::string runBatch(const std::string &text)
 
     engine.replace(input);
     return writeBatch(engine);
+}
+
+std::string decimalLong(long value)
+{
+    std::ostringstream output;
+
+    output << value;
+    return output.str();
+}
+
+void checkInvalidPreserves(test_support::Suite &suite,
+                           cppf::BatchEngine &engine,
+                           const std::string &text,
+                           const char *expected_error,
+                           const char *label)
+{
+    const std::string before = writeBatch(engine);
+    const cppf::JobResult *first = &engine.results()[0];
+    bool invalid = false;
+
+    try
+    {
+        std::istringstream input(text);
+        engine.replace(input);
+    }
+    catch (const std::invalid_argument &error)
+    {
+        invalid = std::string(error.what()) == expected_error;
+    }
+    suite.check(invalid && &engine.results()[0] == first &&
+                    writeBatch(engine) == before,
+                label);
+}
+
+void checkOverflowPreserves(test_support::Suite &suite,
+                            cppf::BatchEngine &engine,
+                            const std::string &text,
+                            const char *label)
+{
+    const std::string before = writeBatch(engine);
+    const cppf::JobResult *first = &engine.results()[0];
+    bool overflow = false;
+
+    try
+    {
+        std::istringstream input(text);
+        engine.replace(input);
+    }
+    catch (const std::overflow_error &error)
+    {
+        overflow = std::string(error.what()) == "rpn overflow";
+    }
+    suite.check(overflow && &engine.results()[0] == first &&
+                    writeBatch(engine) == before,
+                label);
 }
 
 }
@@ -178,4 +234,70 @@ void testBatchEngine(test_support::Suite &suite)
     suite.check(writeBatch(engine) == original &&
                     writeBatch(engine) == original,
                 "batch repeated output is byte-identical");
+
+    suite.check(runBatch("\talpha\t | \t1 2 +\t\r\nA9_- | 4") ==
+                    "3 | alpha\n4 | A9_-\n",
+                "batch trims fields and accepts crlf without final newline");
+    checkInvalidPreserves(suite, engine, "   ", "invalid batch input",
+                          "batch rejects spaces-only line transactionally");
+    checkInvalidPreserves(suite, engine, "one | 1\n\ntwo | 2",
+                          "invalid batch input",
+                          "batch rejects blank middle line transactionally");
+    checkInvalidPreserves(suite, engine, "one | 1\n\n",
+                          "invalid batch input",
+                          "batch rejects trailing blank line transactionally");
+    checkInvalidPreserves(suite, engine, "one 1", "invalid batch input",
+                          "batch rejects missing separator transactionally");
+    checkInvalidPreserves(suite, engine, "one | 1 | 2",
+                          "invalid batch input",
+                          "batch rejects extra separator transactionally");
+    checkInvalidPreserves(suite, engine, " | 1", "invalid batch input",
+                          "batch rejects empty name transactionally");
+    checkInvalidPreserves(suite, engine, "one | ", "invalid batch input",
+                          "batch rejects empty expression transactionally");
+    checkInvalidPreserves(suite, engine, "9one | 1",
+                          "invalid batch input",
+                          "batch rejects digit-first name transactionally");
+    checkInvalidPreserves(suite, engine, "one two | 1",
+                          "invalid batch input",
+                          "batch rejects name whitespace transactionally");
+    checkInvalidPreserves(suite, engine, "one.two | 1",
+                          "invalid batch input",
+                          "batch rejects name punctuation transactionally");
+    checkInvalidPreserves(suite, engine,
+                          std::string("a\0b", 3) + " | 1",
+                          "invalid batch input",
+                          "batch rejects embedded nul name transactionally");
+    checkInvalidPreserves(suite, engine,
+                          std::string(1, static_cast<char>(0x80)) + " | 1",
+                          "invalid batch input",
+                          "batch rejects non-ascii name transactionally");
+    checkInvalidPreserves(suite, engine,
+                          "same | 1\nsame | 1",
+                          "invalid batch input",
+                          "batch rejects exact duplicate transactionally");
+    checkInvalidPreserves(suite, engine, "zero | 1 0 /",
+                          "invalid rpn expression",
+                          "batch propagates division failure transactionally");
+    checkOverflowPreserves(
+        suite, engine,
+        "large | " + decimalLong(std::numeric_limits<long>::max()) +
+            " 1 +",
+        "batch propagates rpn overflow transactionally");
+
+    std::istringstream broken("other | 1");
+    broken.setstate(std::ios::badbit);
+    const cppf::JobResult *broken_first = &engine.results()[0];
+    bool bad_stream = false;
+    try
+    {
+        engine.replace(broken);
+    }
+    catch (const std::invalid_argument &error)
+    {
+        bad_stream = std::string(error.what()) == "invalid batch input";
+    }
+    suite.check(bad_stream && &engine.results()[0] == broken_first &&
+                    writeBatch(engine) == original,
+                "batch bad stream preserves prior result and reference");
 }

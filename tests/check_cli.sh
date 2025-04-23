@@ -122,3 +122,15 @@ printf 'invalid batch input\n' \
     > "$temporary_directory/batch-failure.expected"
 diff -u "$temporary_directory/batch-failure.expected" \
     "$temporary_directory/batch-failure.err"
+
+if ./bin/ex05_batch_engine batch < tests/fixtures/batch-invalid-rpn.in \
+    > "$temporary_directory/batch-rpn-failure.out" \
+    2> "$temporary_directory/batch-rpn-failure.err"
+then
+    exit 1
+fi
+test ! -s "$temporary_directory/batch-rpn-failure.out"
+printf 'invalid rpn expression\n' \
+    > "$temporary_directory/batch-rpn-failure.expected"
+diff -u "$temporary_directory/batch-rpn-failure.expected" \
+    "$temporary_directory/batch-rpn-failure.err"

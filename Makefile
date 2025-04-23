@@ -28,6 +28,9 @@ FAILURE_SRC := tests/failure/test_buffer_failure.cpp \
 FACTORY_FAILURE_BIN := build/tests/factory_failure
 FACTORY_FAILURE_SRC := tests/failure/test_factory_failure.cpp \
 	tests/support/FailingNew.cpp
+BATCH_FAILURE_BIN := build/tests/batch_failure
+BATCH_FAILURE_SRC := tests/failure/test_batch_failure.cpp \
+	tests/support/FailingNew.cpp
 NO_ELIDE_BIN := build/tests/unit_no_elide
 
 .PHONY: all test-unit failure-test test-no-elide test-contract \
@@ -63,9 +66,14 @@ $(FACTORY_FAILURE_BIN): $(FACTORY_FAILURE_SRC) $(NAME)
 	@$(MKDIR) $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(FACTORY_FAILURE_SRC) $(NAME) -o $@
 
-failure-test: $(FAILURE_BIN) $(FACTORY_FAILURE_BIN)
+$(BATCH_FAILURE_BIN): $(BATCH_FAILURE_SRC) $(NAME)
+	@$(MKDIR) $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(BATCH_FAILURE_SRC) $(NAME) -o $@
+
+failure-test: $(FAILURE_BIN) $(FACTORY_FAILURE_BIN) $(BATCH_FAILURE_BIN)
 	./$(FAILURE_BIN)
 	./$(FACTORY_FAILURE_BIN)
+	./$(BATCH_FAILURE_BIN)
 
 $(NO_ELIDE_BIN): $(TEST_SRC) $(TEST_SUPPORT_SRC) $(NAME)
 	@$(MKDIR) $(dir $@)
@@ -104,6 +112,10 @@ test-contract:
 		tests/compile/serializer_private_fail.cpp >/dev/null 2>&1
 	@! $(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
 		tests/compile/serializer_const_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/rpn_evaluator_private_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/batch_results_mutation_fail.cpp >/dev/null 2>&1
 
 test-integration: $(APP_BIN)
 	sh tests/check_cli.sh
