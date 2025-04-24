@@ -1,0 +1,12 @@
+BatchEngine.o
+Contact.o
+ContactBook.o
+Factory.o
+FormatPipeline.o
+Formatter.o
+RpnEvaluator.o
+RuntimeType.o
+ScalarConverter.o
+ScalarLiteral.o
+Serializer.o
+TextBuffer.o

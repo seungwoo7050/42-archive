@@ -35,9 +35,10 @@ BATCH_FAILURE_SRC := tests/failure/test_batch_failure.cpp \
 NO_ELIDE_BIN := build/tests/unit_no_elide
 PUBLIC_CONTRACT_BIN := build/tests/public_contract
 PUBLIC_CONTRACT_SRC := tests/integration/test_public_contract.cpp
+RELEASE_BIN := $(APP_BIN) $(PUBLIC_CONTRACT_BIN)
 
 .PHONY: all test-unit failure-test test-no-elide test-contract \
-	test-integration test check clean fclean re
+	test-integration check-archive check-dependencies test check clean fclean re
 
 all: $(NAME) $(APP_BIN)
 
@@ -157,6 +158,12 @@ test-integration: $(APP_BIN) $(PUBLIC_CONTRACT_BIN)
 	sh tests/check_cli.sh
 	./$(PUBLIC_CONTRACT_BIN)
 
+check-archive: $(NAME)
+	sh tests/check_archive.sh $(NAME)
+
+check-dependencies: $(RELEASE_BIN)
+	sh tests/check_dependencies.sh $(RELEASE_BIN)
+
 test: test-unit failure-test test-no-elide test-contract test-integration
 
 check:
@@ -164,6 +171,8 @@ check:
 	$(MAKE) fclean
 	$(MAKE) all
 	$(MAKE) test
+	$(MAKE) check-archive
+	$(MAKE) check-dependencies
 	$(MAKE) -q all
 
 clean:

@@ -1,0 +1,104 @@
+cppf::BatchEngine::replace(std::basic_istream<char, std::char_traits<char>>&)
+cppf::BatchEngine::results() const
+cppf::BatchEngine::write(std::basic_ostream<char, std::char_traits<char>>&) const
+cppf::Contact::Contact()
+cppf::Contact::Contact(std::basic_string<char, std::char_traits<char>, std::allocator<char>> const&, std::basic_string<char, std::char_traits<char>, std::allocator<char>> const&)
+cppf::Contact::empty() const
+cppf::Contact::name() const
+cppf::Contact::note() const
+cppf::Contact::swap(cppf::Contact&)
+cppf::ContactBook::ContactBook()
+cppf::ContactBook::add(cppf::Contact const&)
+cppf::ContactBook::at(unsigned long) const
+cppf::ContactBook::size() const
+cppf::ContactBook::write(std::basic_ostream<char, std::char_traits<char>>&) const
+cppf::DefaultFormatterCreator::create(std::basic_string<char, std::char_traits<char>, std::allocator<char>> const&) const
+cppf::FormatPipeline::FormatPipeline()
+cppf::FormatPipeline::FormatPipeline(cppf::FormatPipeline const&)
+cppf::FormatPipeline::append(cppf::Formatter const&)
+cppf::FormatPipeline::apply(cppf::TextBuffer const&) const
+cppf::FormatPipeline::operator=(cppf::FormatPipeline const&)
+cppf::FormatPipeline::size() const
+cppf::FormatPipeline::swap(cppf::FormatPipeline&)
+cppf::FormatPipeline::~FormatPipeline()
+cppf::Formatter::~Formatter()
+cppf::FormatterCreator::~FormatterCreator()
+cppf::InvalidScalar::what() const
+cppf::InvalidSpecification::what() const
+cppf::JobResult::JobResult()
+cppf::JobResult::JobResult(std::basic_string<char, std::char_traits<char>, std::allocator<char>> const&, long)
+cppf::JobResult::name() const
+cppf::JobResult::value() const
+cppf::Payload::Payload(unsigned long, std::basic_string<char, std::char_traits<char>, std::allocator<char>> const&)
+cppf::PipelineBuilder::replace(cppf::FormatPipeline&, cppf::FormatterCreator const&, std::basic_string<char, std::char_traits<char>, std::allocator<char>> const*, unsigned long)
+cppf::PrefixFormatter::PrefixFormatter(cppf::TextBuffer const&)
+cppf::PrefixFormatter::apply(cppf::TextBuffer const&) const
+cppf::PrefixFormatter::clone() const
+cppf::PrefixFormatter::name() const
+cppf::RpnEvaluator::evaluate(std::basic_string<char, std::char_traits<char>, std::allocator<char>> const&)
+cppf::RuntimeBase::RuntimeBase()
+cppf::RuntimeBase::~RuntimeBase()
+cppf::RuntimeInspector::create(cppf::RuntimeKind)
+cppf::RuntimeInspector::identify(cppf::RuntimeBase const&)
+cppf::RuntimeInspector::identify(cppf::RuntimeBase const*)
+cppf::RuntimeInspector::name(cppf::RuntimeKind)
+cppf::ScalarConverter::write(std::basic_string<char, std::char_traits<char>, std::allocator<char>> const&, std::basic_ostream<char, std::char_traits<char>>&)
+cppf::Serializer::deserialize(unsigned long)
+cppf::Serializer::serialize(cppf::Payload*)
+cppf::SuffixFormatter::SuffixFormatter(cppf::TextBuffer const&)
+cppf::SuffixFormatter::apply(cppf::TextBuffer const&) const
+cppf::SuffixFormatter::clone() const
+cppf::SuffixFormatter::name() const
+cppf::TextBuffer::TextBuffer()
+cppf::TextBuffer::TextBuffer(char const*)
+cppf::TextBuffer::TextBuffer(cppf::TextBuffer const&)
+cppf::TextBuffer::at(unsigned long)
+cppf::TextBuffer::at(unsigned long) const
+cppf::TextBuffer::c_str() const
+cppf::TextBuffer::empty() const
+cppf::TextBuffer::operator+=(cppf::TextBuffer const&)
+cppf::TextBuffer::operator=(cppf::TextBuffer const&)
+cppf::TextBuffer::size() const
+cppf::TextBuffer::swap(cppf::TextBuffer&)
+cppf::TextBuffer::~TextBuffer()
+cppf::UnknownFormatter::what() const
+cppf::UppercaseFormatter::apply(cppf::TextBuffer const&) const
+cppf::UppercaseFormatter::clone() const
+cppf::UppercaseFormatter::name() const
+cppf::operator!=(cppf::TextBuffer const&, cppf::TextBuffer const&)
+cppf::operator+(cppf::TextBuffer const&, cppf::TextBuffer const&)
+cppf::operator<(cppf::TextBuffer const&, cppf::TextBuffer const&)
+cppf::operator<<(std::basic_ostream<char, std::char_traits<char>>&, cppf::TextBuffer const&)
+cppf::operator==(cppf::JobResult const&, cppf::JobResult const&)
+cppf::operator==(cppf::TextBuffer const&, cppf::TextBuffer const&)
+cppf::scalar_detail::parseScalarLiteral(std::basic_string<char, std::char_traits<char>, std::allocator<char>> const&)
+typeinfo for cppf::DefaultFormatterCreator
+typeinfo for cppf::Formatter
+typeinfo for cppf::FormatterCreator
+typeinfo for cppf::InvalidScalar
+typeinfo for cppf::InvalidSpecification
+typeinfo for cppf::PrefixFormatter
+typeinfo for cppf::RuntimeBase
+typeinfo for cppf::SuffixFormatter
+typeinfo for cppf::UnknownFormatter
+typeinfo for cppf::UppercaseFormatter
+typeinfo name for cppf::DefaultFormatterCreator
+typeinfo name for cppf::Formatter
+typeinfo name for cppf::FormatterCreator
+typeinfo name for cppf::InvalidScalar
+typeinfo name for cppf::InvalidSpecification
+typeinfo name for cppf::PrefixFormatter
+typeinfo name for cppf::RuntimeBase
+typeinfo name for cppf::SuffixFormatter
+typeinfo name for cppf::UnknownFormatter
+typeinfo name for cppf::UppercaseFormatter
+vtable for cppf::DefaultFormatterCreator
+vtable for cppf::Formatter
+vtable for cppf::FormatterCreator
+vtable for cppf::InvalidScalar
+vtable for cppf::InvalidSpecification
+vtable for cppf::PrefixFormatter
+vtable for cppf::RuntimeBase
+vtable for cppf::SuffixFormatter
+vtable for cppf::UnknownFormatter
+vtable for cppf::UppercaseFormatter
