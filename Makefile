@@ -35,11 +35,14 @@ BATCH_FAILURE_SRC := tests/failure/test_batch_failure.cpp \
 NO_ELIDE_BIN := build/tests/unit_no_elide
 PUBLIC_CONTRACT_BIN := build/tests/public_contract
 PUBLIC_CONTRACT_SRC := tests/integration/test_public_contract.cpp
+SANITIZER_BIN := build/tests/unit_sanitize
+SANITIZER_FLAGS := -O1 -fsanitize=undefined -fno-sanitize-recover=all \
+	-fno-omit-frame-pointer -g
 RELEASE_BIN := $(APP_BIN) $(PUBLIC_CONTRACT_BIN)
 
 .PHONY: all test-unit failure-test test-no-elide test-contract \
-	test-integration test-leak check-archive check-dependencies \
-	check-determinism test check clean fclean re
+	test-integration test-sanitize test-leak check-archive \
+	check-dependencies check-determinism test check clean fclean re
 
 all: $(NAME) $(APP_BIN)
 
@@ -159,12 +162,21 @@ test-integration: $(APP_BIN) $(PUBLIC_CONTRACT_BIN)
 	sh tests/check_cli.sh
 	./$(PUBLIC_CONTRACT_BIN)
 
-check-archive: $(NAME)
-	sh tests/check_archive.sh $(NAME)
+$(SANITIZER_BIN): $(SRC) $(TEST_SRC) $(TEST_SUPPORT_SRC)
+	@$(MKDIR) $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(SANITIZER_FLAGS) \
+		$(SRC) $(TEST_SRC) $(TEST_SUPPORT_SRC) -o $@
+
+test-sanitize: $(SANITIZER_BIN)
+	UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 \
+		./$(SANITIZER_BIN)
 
 test-leak: $(TEST_BIN) $(NO_ELIDE_BIN) $(PUBLIC_CONTRACT_BIN)
 	sh tests/check_leaks.sh $(TEST_BIN) $(NO_ELIDE_BIN) \
 		$(PUBLIC_CONTRACT_BIN)
+
+check-archive: $(NAME)
+	sh tests/check_archive.sh $(NAME)
 
 check-dependencies: $(RELEASE_BIN)
 	sh tests/check_dependencies.sh $(RELEASE_BIN)
@@ -183,6 +195,7 @@ check:
 	$(MAKE) check-archive
 	$(MAKE) check-dependencies
 	$(MAKE) check-determinism
+	$(MAKE) test-sanitize
 	$(MAKE) test-leak
 	$(MAKE) -q all
 
