@@ -87,12 +87,6 @@ void testRuntimeType(test_support::Suite &suite)
     suite.check(created, "runtime factory creates every registered type");
     suite.check(cppf::RuntimeInspector::create(cppf::runtime_unknown) == 0,
                 "runtime factory rejects unknown kind");
-    const cppf::RuntimeKind invalid_kind =
-        static_cast<cppf::RuntimeKind>(999);
-    suite.check(cppf::RuntimeInspector::create(invalid_kind) == 0 &&
-                    std::strcmp(cppf::RuntimeInspector::name(invalid_kind),
-                                "unknown") == 0,
-                "runtime rejects invalid enum value");
     suite.check(std::strcmp(cppf::RuntimeInspector::name(cppf::runtime_a),
                             "A") == 0 &&
                     std::strcmp(

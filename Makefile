@@ -123,6 +123,8 @@ test-contract:
 	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
 		tests/compile/runtime_unrelated_fail.cpp >/dev/null 2>&1
 	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/runtime_integer_kind_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
 		tests/compile/serializer_private_fail.cpp >/dev/null 2>&1
 	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
 		tests/compile/serializer_const_fail.cpp >/dev/null 2>&1
