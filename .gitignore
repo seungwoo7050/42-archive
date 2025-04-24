@@ -1,5 +1,14 @@
 small-shell
 /small-shell-test
+/small-shell-asan
+/small-shell-test-asan
+/small-shell-ubsan
+/small-shell-test-ubsan
+/tests/parser-api-asan
+/tests/parser-api-ubsan
+tests/parser-api-asan.dSYM/
+tests/parser-api-ubsan.dSYM/
+/*.dSYM/
 /tests/timeout-runner
 /tests/parser-api
 *.o
