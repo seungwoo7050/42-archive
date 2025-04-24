@@ -38,7 +38,8 @@ PUBLIC_CONTRACT_SRC := tests/integration/test_public_contract.cpp
 RELEASE_BIN := $(APP_BIN) $(PUBLIC_CONTRACT_BIN)
 
 .PHONY: all test-unit failure-test test-no-elide test-contract \
-	test-integration check-archive check-dependencies test check clean fclean re
+	test-integration test-leak check-archive check-dependencies \
+	check-determinism test check clean fclean re
 
 all: $(NAME) $(APP_BIN)
 
@@ -161,8 +162,16 @@ test-integration: $(APP_BIN) $(PUBLIC_CONTRACT_BIN)
 check-archive: $(NAME)
 	sh tests/check_archive.sh $(NAME)
 
+test-leak: $(TEST_BIN) $(NO_ELIDE_BIN) $(PUBLIC_CONTRACT_BIN)
+	sh tests/check_leaks.sh $(TEST_BIN) $(NO_ELIDE_BIN) \
+		$(PUBLIC_CONTRACT_BIN)
+
 check-dependencies: $(RELEASE_BIN)
 	sh tests/check_dependencies.sh $(RELEASE_BIN)
+
+check-determinism: $(APP_BIN)
+	LC_ALL=C LANG=C TZ=UTC sh tests/check_cli.sh
+	LC_ALL=C LANG=C TZ=UTC sh tests/check_cli.sh
 
 test: test-unit failure-test test-no-elide test-contract test-integration
 
@@ -173,6 +182,8 @@ check:
 	$(MAKE) test
 	$(MAKE) check-archive
 	$(MAKE) check-dependencies
+	$(MAKE) check-determinism
+	$(MAKE) test-leak
 	$(MAKE) -q all
 
 clean:
