@@ -5,6 +5,7 @@ override CXXFLAGS := -Wall -Wextra -Werror -Wpedantic -pedantic-errors \
 	-std=c++98 -Wold-style-cast -Wcast-qual -Woverloaded-virtual \
 	-Wnon-virtual-dtor -Wc++11-extensions
 override CPPFLAGS := -Iinclude -Itests
+PUBLIC_CPPFLAGS := -Iinclude
 DEPFLAGS := -MMD -MP
 AR := ar
 ARFLAGS := rcs
@@ -32,6 +33,8 @@ BATCH_FAILURE_BIN := build/tests/batch_failure
 BATCH_FAILURE_SRC := tests/failure/test_batch_failure.cpp \
 	tests/support/FailingNew.cpp
 NO_ELIDE_BIN := build/tests/unit_no_elide
+PUBLIC_CONTRACT_BIN := build/tests/public_contract
+PUBLIC_CONTRACT_SRC := tests/integration/test_public_contract.cpp
 
 .PHONY: all test-unit failure-test test-no-elide test-contract \
 	test-integration test check clean fclean re
@@ -83,42 +86,74 @@ $(NO_ELIDE_BIN): $(TEST_SRC) $(TEST_SUPPORT_SRC) $(NAME)
 test-no-elide: $(NO_ELIDE_BIN)
 	./$(NO_ELIDE_BIN)
 
-test-contract:
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/contact_headers.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/format_headers.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/scalar_headers.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/runtime_headers.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/serializer_headers.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/template_headers.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/rpn_headers.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/batch_headers.cpp
-	@! $(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/contact_private_fail.cpp >/dev/null 2>&1
-	@! $(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/formatter_abstract_fail.cpp >/dev/null 2>&1
-	@! $(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/runtime_inspector_private_fail.cpp >/dev/null 2>&1
-	@! $(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/runtime_unrelated_fail.cpp >/dev/null 2>&1
-	@! $(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/serializer_private_fail.cpp >/dev/null 2>&1
-	@! $(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/serializer_const_fail.cpp >/dev/null 2>&1
-	@! $(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/rpn_evaluator_private_fail.cpp >/dev/null 2>&1
-	@! $(CXX) $(CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
-		tests/compile/batch_results_mutation_fail.cpp >/dev/null 2>&1
+$(PUBLIC_CONTRACT_BIN): $(PUBLIC_CONTRACT_SRC) $(NAME)
+	@$(MKDIR) $(dir $@)
+	$(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) $(PUBLIC_CONTRACT_SRC) \
+		$(NAME) -o $@
 
-test-integration: $(APP_BIN)
+test-contract:
+	$(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/public_headers.cpp
+	$(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/contact_headers.cpp
+	$(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/text_buffer_headers.cpp
+	$(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/format_headers.cpp
+	$(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/factory_headers.cpp
+	$(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/scalar_headers.cpp
+	$(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/runtime_headers.cpp
+	$(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/serializer_headers.cpp
+	$(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/template_headers.cpp
+	$(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/rpn_headers.cpp
+	$(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/batch_headers.cpp
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/contact_private_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/formatter_abstract_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/runtime_inspector_private_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/runtime_unrelated_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/serializer_private_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/serializer_const_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/rpn_evaluator_private_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/batch_results_mutation_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/contact_book_const_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/text_buffer_const_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/text_buffer_storage_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/text_buffer_implicit_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/formatter_creator_abstract_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/pipeline_builder_private_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/scalar_converter_private_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/runtime_base_constructor_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/template_const_iterator_fail.cpp >/dev/null 2>&1
+	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
+		tests/compile/template_list_sort_fail.cpp >/dev/null 2>&1
+
+test-integration: $(APP_BIN) $(PUBLIC_CONTRACT_BIN)
 	sh tests/check_cli.sh
+	./$(PUBLIC_CONTRACT_BIN)
 
 test: test-unit failure-test test-no-elide test-contract test-integration
 
