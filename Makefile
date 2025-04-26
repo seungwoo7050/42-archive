@@ -35,6 +35,9 @@ BATCH_FAILURE_SRC := tests/failure/test_batch_failure.cpp \
 PIPELINE_FAILURE_BIN := build/tests/pipeline_failure
 PIPELINE_FAILURE_SRC := tests/failure/test_pipeline_failure.cpp \
 	tests/support/TestFormatter.cpp
+CONTACT_FAILURE_BIN := build/tests/contact_failure
+CONTACT_FAILURE_SRC := tests/failure/test_contact_failure.cpp \
+	tests/support/FailingNew.cpp
 NO_ELIDE_BIN := build/tests/unit_no_elide
 PUBLIC_CONTRACT_BIN := build/tests/public_contract
 PUBLIC_CONTRACT_SRC := tests/integration/test_public_contract.cpp
@@ -85,12 +88,17 @@ $(PIPELINE_FAILURE_BIN): $(PIPELINE_FAILURE_SRC) $(NAME)
 	@$(MKDIR) $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(PIPELINE_FAILURE_SRC) $(NAME) -o $@
 
+$(CONTACT_FAILURE_BIN): $(CONTACT_FAILURE_SRC) $(NAME)
+	@$(MKDIR) $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CONTACT_FAILURE_SRC) $(NAME) -o $@
+
 failure-test: $(FAILURE_BIN) $(FACTORY_FAILURE_BIN) $(BATCH_FAILURE_BIN) \
-	$(PIPELINE_FAILURE_BIN)
+	$(PIPELINE_FAILURE_BIN) $(CONTACT_FAILURE_BIN)
 	./$(FAILURE_BIN)
 	./$(FACTORY_FAILURE_BIN)
 	./$(BATCH_FAILURE_BIN)
 	./$(PIPELINE_FAILURE_BIN)
+	./$(CONTACT_FAILURE_BIN)
 
 $(NO_ELIDE_BIN): $(TEST_SRC) $(TEST_SUPPORT_SRC) $(NAME)
 	@$(MKDIR) $(dir $@)
