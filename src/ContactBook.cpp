@@ -12,9 +12,12 @@ ContactBook::ContactBook() : contacts_(), size_(0), next_(0)
 
 void ContactBook::add(const Contact &contact)
 {
+    Contact replacement;
+
     if (contact.empty())
         return;
-    contacts_[next_] = contact;
+    replacement = contact;
+    contacts_[next_].swap(replacement);
     next_ = (next_ + 1) % capacity;
     if (size_ < capacity)
         ++size_;
