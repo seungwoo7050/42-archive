@@ -1,9 +1,10 @@
 NAME := libcpp_foundation.a
 
 CXX := c++
+EXTRA_CXXFLAGS ?=
 override CXXFLAGS := -Wall -Wextra -Werror -Wpedantic -pedantic-errors \
 	-std=c++98 -Wold-style-cast -Wcast-qual -Woverloaded-virtual \
-	-Wnon-virtual-dtor -Wc++11-extensions
+	-Wnon-virtual-dtor -Wc++11-extensions $(EXTRA_CXXFLAGS)
 override CPPFLAGS := -Iinclude -Itests
 PUBLIC_CPPFLAGS := -Iinclude
 DEPFLAGS := -MMD -MP
@@ -43,15 +44,18 @@ PUBLIC_CONTRACT_BIN := build/tests/public_contract
 PUBLIC_CONTRACT_SRC := tests/integration/test_public_contract.cpp
 PROPERTY_BIN := build/tests/boundary_properties
 PROPERTY_SRC := tests/property/test_boundary_properties.cpp
-SANITIZER_BIN := build/tests/unit_sanitize
-SANITIZER_FLAGS := -O1 -fsanitize=undefined -fno-sanitize-recover=all \
+ASAN_BIN := build/tests/unit_asan
+UBSAN_BIN := build/tests/unit_ubsan
+ASAN_FLAGS := -O1 -fsanitize=address -fno-omit-frame-pointer -g
+UBSAN_FLAGS := -O1 -fsanitize=undefined -fno-sanitize-recover=all \
 	-fno-omit-frame-pointer -g
 RELEASE_BIN := $(APP_BIN) $(PUBLIC_CONTRACT_BIN)
 
 .PHONY: all test-unit failure-test test-no-elide test-contract \
-	test-integration test-consumer test-sanitize test-leak check-archive \
-	check-dependencies check-determinism test-property test check clean \
-	fclean re
+	test-integration test-consumer test-asan test-ubsan test-sanitize \
+	test-leak check-archive \
+	check-dependencies check-determinism test-property check-build \
+	check-portable check-platform test check clean fclean re
 
 all: $(NAME) $(APP_BIN)
 
@@ -192,14 +196,28 @@ $(PROPERTY_BIN): $(PROPERTY_SRC) $(NAME)
 test-property: $(PROPERTY_BIN)
 	sh tests/run_with_timeout.sh 30 ./$(PROPERTY_BIN)
 
-$(SANITIZER_BIN): $(SRC) $(TEST_SRC) $(TEST_SUPPORT_SRC)
+$(ASAN_BIN): $(SRC) $(TEST_SRC) $(TEST_SUPPORT_SRC)
 	@$(MKDIR) $(dir $@)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(SANITIZER_FLAGS) \
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(ASAN_FLAGS) \
 		$(SRC) $(TEST_SRC) $(TEST_SUPPORT_SRC) -o $@
 
-test-sanitize: $(SANITIZER_BIN)
+$(UBSAN_BIN): $(SRC) $(TEST_SRC) $(TEST_SUPPORT_SRC)
+	@$(MKDIR) $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(UBSAN_FLAGS) \
+		$(SRC) $(TEST_SRC) $(TEST_SUPPORT_SRC) -o $@
+
+test-asan: $(ASAN_BIN)
+	sh tests/run_with_timeout.sh 120 env \
+		ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 ./$(ASAN_BIN)
+
+test-ubsan: $(UBSAN_BIN)
+	sh tests/run_with_timeout.sh 120 env \
 	UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 \
-		./$(SANITIZER_BIN)
+		./$(UBSAN_BIN)
+
+test-sanitize:
+	$(MAKE) test-ubsan
+	$(MAKE) test-asan
 
 test-leak: $(TEST_BIN) $(NO_ELIDE_BIN) $(PUBLIC_CONTRACT_BIN)
 	sh tests/check_leaks.sh $(TEST_BIN) $(NO_ELIDE_BIN) \
@@ -218,17 +236,26 @@ check-determinism: $(APP_BIN)
 test: test-unit failure-test test-no-elide test-contract test-integration \
 	test-property
 
-check:
+check-build:
 	git diff --check
 	$(MAKE) fclean
 	$(MAKE) all
 	$(MAKE) test
+	$(MAKE) check-determinism
+	$(MAKE) -q all
+
+check-portable:
+	$(MAKE) check-build
+	$(MAKE) test-ubsan
+
+check-platform:
 	$(MAKE) check-archive
 	$(MAKE) check-dependencies
-	$(MAKE) check-determinism
-	$(MAKE) test-sanitize
 	$(MAKE) test-leak
-	$(MAKE) -q all
+
+check:
+	$(MAKE) check-portable
+	$(MAKE) check-platform
 
 clean:
 	$(RMDIR) build bin
