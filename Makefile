@@ -41,6 +41,8 @@ CONTACT_FAILURE_SRC := tests/failure/test_contact_failure.cpp \
 NO_ELIDE_BIN := build/tests/unit_no_elide
 PUBLIC_CONTRACT_BIN := build/tests/public_contract
 PUBLIC_CONTRACT_SRC := tests/integration/test_public_contract.cpp
+PROPERTY_BIN := build/tests/boundary_properties
+PROPERTY_SRC := tests/property/test_boundary_properties.cpp
 SANITIZER_BIN := build/tests/unit_sanitize
 SANITIZER_FLAGS := -O1 -fsanitize=undefined -fno-sanitize-recover=all \
 	-fno-omit-frame-pointer -g
@@ -48,7 +50,8 @@ RELEASE_BIN := $(APP_BIN) $(PUBLIC_CONTRACT_BIN)
 
 .PHONY: all test-unit failure-test test-no-elide test-contract \
 	test-integration test-consumer test-sanitize test-leak check-archive \
-	check-dependencies check-determinism test check clean fclean re
+	check-dependencies check-determinism test-property test check clean \
+	fclean re
 
 all: $(NAME) $(APP_BIN)
 
@@ -182,6 +185,13 @@ test-integration: $(APP_BIN) $(PUBLIC_CONTRACT_BIN) test-consumer
 	sh tests/check_cli.sh
 	./$(PUBLIC_CONTRACT_BIN)
 
+$(PROPERTY_BIN): $(PROPERTY_SRC) $(NAME)
+	@$(MKDIR) $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(PROPERTY_SRC) $(NAME) -o $@
+
+test-property: $(PROPERTY_BIN)
+	sh tests/run_with_timeout.sh 30 ./$(PROPERTY_BIN)
+
 $(SANITIZER_BIN): $(SRC) $(TEST_SRC) $(TEST_SUPPORT_SRC)
 	@$(MKDIR) $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(SANITIZER_FLAGS) \
@@ -205,7 +215,8 @@ check-determinism: $(APP_BIN)
 	LC_ALL=C LANG=C TZ=UTC sh tests/check_cli.sh
 	LC_ALL=C LANG=C TZ=UTC sh tests/check_cli.sh
 
-test: test-unit failure-test test-no-elide test-contract test-integration
+test: test-unit failure-test test-no-elide test-contract test-integration \
+	test-property
 
 check:
 	git diff --check
