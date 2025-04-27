@@ -47,7 +47,7 @@ SANITIZER_FLAGS := -O1 -fsanitize=undefined -fno-sanitize-recover=all \
 RELEASE_BIN := $(APP_BIN) $(PUBLIC_CONTRACT_BIN)
 
 .PHONY: all test-unit failure-test test-no-elide test-contract \
-	test-integration test-sanitize test-leak check-archive \
+	test-integration test-consumer test-sanitize test-leak check-archive \
 	check-dependencies check-determinism test check clean fclean re
 
 all: $(NAME) $(APP_BIN)
@@ -175,7 +175,10 @@ test-contract:
 	@! $(CXX) $(PUBLIC_CPPFLAGS) $(CXXFLAGS) -fsyntax-only \
 		tests/compile/template_list_sort_fail.cpp >/dev/null 2>&1
 
-test-integration: $(APP_BIN) $(PUBLIC_CONTRACT_BIN)
+test-consumer: $(NAME)
+	sh tests/check_external_consumer.sh "$(CXX)" "$(abspath $(NAME))"
+
+test-integration: $(APP_BIN) $(PUBLIC_CONTRACT_BIN) test-consumer
 	sh tests/check_cli.sh
 	./$(PUBLIC_CONTRACT_BIN)
 
