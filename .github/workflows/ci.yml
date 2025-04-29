@@ -1,0 +1,58 @@
+name: C++ build and regression
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: ${{ matrix.os }} / ${{ matrix.compiler }} / LP64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            compiler: gcc
+            command: g++
+            ubsan: true
+            asan: true
+          - os: ubuntu-22.04
+            compiler: clang
+            command: clang++
+            ubsan: true
+            asan: true
+          - os: macos-latest
+            compiler: clang
+            command: clang++
+            ubsan: true
+            asan: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select compiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          cxx_command=${{ matrix.command }}
+          command -v "$cxx_command"
+          "$cxx_command" --version
+          echo "CXX_COMMAND=$cxx_command" >> "$GITHUB_ENV"
+
+      - name: Build, regression, and LP64 checks
+        run: make check-build CXX="$CXX_COMMAND"
+
+      - name: UndefinedBehaviorSanitizer
+        if: matrix.ubsan
+        run: make test-ubsan CXX="$CXX_COMMAND"
+
+      - name: AddressSanitizer
+        if: matrix.asan
+        run: make test-asan CXX="$CXX_COMMAND"
