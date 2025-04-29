@@ -44,6 +44,8 @@ PUBLIC_CONTRACT_BIN := build/tests/public_contract
 PUBLIC_CONTRACT_SRC := tests/integration/test_public_contract.cpp
 PROPERTY_BIN := build/tests/boundary_properties
 PROPERTY_SRC := tests/property/test_boundary_properties.cpp
+DATA_MODEL_BIN := build/tests/data_model
+DATA_MODEL_SRC := tests/portability/test_data_model.cpp
 ASAN_BIN := build/tests/unit_asan
 UBSAN_BIN := build/tests/unit_ubsan
 ASAN_FLAGS := -O1 -fsanitize=address -fno-omit-frame-pointer -g
@@ -53,9 +55,9 @@ RELEASE_BIN := $(APP_BIN) $(PUBLIC_CONTRACT_BIN)
 
 .PHONY: all test-unit failure-test test-no-elide test-contract \
 	test-integration test-consumer test-asan test-ubsan test-sanitize \
-	test-leak check-archive \
-	check-dependencies check-determinism test-property check-build \
-	check-portable check-platform test check clean fclean re
+	test-leak check-archive check-data-model check-build \
+	check-dependencies check-determinism test-property check-portable \
+	check-platform test check clean fclean re
 
 all: $(NAME) $(APP_BIN)
 
@@ -236,12 +238,20 @@ check-determinism: $(APP_BIN)
 test: test-unit failure-test test-no-elide test-contract test-integration \
 	test-property
 
+$(DATA_MODEL_BIN): $(DATA_MODEL_SRC)
+	@$(MKDIR) $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(DATA_MODEL_SRC) -o $@
+
+check-data-model: $(DATA_MODEL_BIN)
+	./$(DATA_MODEL_BIN)
+
 check-build:
 	git diff --check
 	$(MAKE) fclean
 	$(MAKE) all
 	$(MAKE) test
 	$(MAKE) check-determinism
+	$(MAKE) check-data-model
 	$(MAKE) -q all
 
 check-portable:
