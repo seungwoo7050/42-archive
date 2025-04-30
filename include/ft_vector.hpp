@@ -64,7 +64,17 @@ namespace ft
 		}
 
 		size_type size() const { return _size; }
+		size_type capacity() const { return _capacity; }
 		bool empty() const { return _size == 0; }
+		size_type max_size() const { return _alloc.max_size(); }
+
+		void reserve(size_type new_cap)
+		{
+			if (new_cap > max_size())
+				throw std::length_error("ft::vector::reserve");
+			if (new_cap > _capacity)
+				_reallocate(new_cap);
+		}
 
 		reference operator[](size_type pos) { return _data[pos]; }
 		const_reference operator[](size_type pos) const { return _data[pos]; }
@@ -95,6 +105,41 @@ namespace ft
 		pointer _data;
 		size_type _size;
 		size_type _capacity;
+
+		size_type _next_capacity(size_type minimum) const
+		{
+			size_type next = _capacity == 0 ? 1 : _capacity * 2;
+			if (next < minimum)
+				next = minimum;
+			if (next > max_size())
+				throw std::length_error("ft::vector capacity");
+			return next;
+		}
+
+		void _reallocate(size_type new_cap)
+		{
+			pointer new_data = _alloc.allocate(new_cap);
+			size_type i = 0;
+			try
+			{
+				for (; i < _size; ++i)
+					_alloc.construct(new_data + i, _data[i]);
+			}
+			catch (...)
+			{
+				while (i)
+					_alloc.destroy(new_data + --i);
+				_alloc.deallocate(new_data, new_cap);
+				throw;
+			}
+			while (_size)
+				_alloc.destroy(_data + --_size);
+			if (_data)
+				_alloc.deallocate(_data, _capacity);
+			_data = new_data;
+			_size = i;
+			_capacity = new_cap;
+		}
 
 		void _assign_fill(size_type count, const value_type& value)
 		{
