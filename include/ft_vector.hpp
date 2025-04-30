@@ -38,12 +38,34 @@ namespace ft
 			const allocator_type& alloc = allocator_type())
 			: _alloc(alloc), _data(NULL), _size(0), _capacity(0)
 		{
-			_assign_fill(count, value);
+			assign(count, value);
+		}
+
+		template <class InputIt>
+		vector(InputIt first, InputIt last,
+			const allocator_type& alloc = allocator_type(),
+			typename ft::enable_if<!ft::is_integral<InputIt>::value>::type* = 0)
+			: _alloc(alloc), _data(NULL), _size(0), _capacity(0)
+		{
+			assign(first, last);
+		}
+
+		vector(const vector& other)
+			: _alloc(other._alloc), _data(NULL), _size(0), _capacity(0)
+		{
+			assign(other.begin(), other.end());
 		}
 
 		~vector()
 		{
 			_destroy_storage();
+		}
+
+		vector& operator=(const vector& other)
+		{
+			if (this != &other)
+				assign(other.begin(), other.end());
+			return *this;
 		}
 
 		iterator begin() { return _data; }
@@ -76,6 +98,20 @@ namespace ft
 				_reallocate(new_cap);
 		}
 
+		void resize(size_type count, value_type value = value_type())
+		{
+			if (count < _size)
+			{
+				while (_size > count)
+					_alloc.destroy(_data + --_size);
+				return;
+			}
+			if (count > _capacity)
+				reserve(_next_capacity(count));
+			while (_size < count)
+				_alloc.construct(_data + _size++, value);
+		}
+
 		reference operator[](size_type pos) { return _data[pos]; }
 		const_reference operator[](size_type pos) const { return _data[pos]; }
 
@@ -97,6 +133,47 @@ namespace ft
 		const_reference front() const { return _data[0]; }
 		reference back() { return _data[_size - 1]; }
 		const_reference back() const { return _data[_size - 1]; }
+
+		void assign(size_type count, const value_type& value)
+		{
+			clear();
+			if (count > _capacity)
+			{
+				_destroy_storage();
+				_data = _alloc.allocate(count);
+				_capacity = count;
+			}
+			for (size_type i = 0; i < count; ++i)
+				_alloc.construct(_data + i, value);
+			_size = count;
+		}
+
+		template <class InputIt>
+		void assign(InputIt first, InputIt last,
+			typename ft::enable_if<!ft::is_integral<InputIt>::value>::type* = 0)
+		{
+			clear();
+			for (; first != last; ++first)
+				push_back(*first);
+		}
+
+		void push_back(const value_type& value)
+		{
+			if (_size == _capacity)
+				reserve(_next_capacity(_size + 1));
+			_alloc.construct(_data + _size++, value);
+		}
+
+		void pop_back()
+		{
+			_alloc.destroy(_data + --_size);
+		}
+
+		void clear()
+		{
+			while (_size)
+				_alloc.destroy(_data + --_size);
+		}
 
 		allocator_type get_allocator() const { return _alloc; }
 
@@ -132,8 +209,7 @@ namespace ft
 				_alloc.deallocate(new_data, new_cap);
 				throw;
 			}
-			while (_size)
-				_alloc.destroy(_data + --_size);
+			clear();
 			if (_data)
 				_alloc.deallocate(_data, _capacity);
 			_data = new_data;
@@ -141,28 +217,9 @@ namespace ft
 			_capacity = new_cap;
 		}
 
-		void _assign_fill(size_type count, const value_type& value)
-		{
-			if (count == 0)
-				return;
-			_data = _alloc.allocate(count);
-			_capacity = count;
-			try
-			{
-				for (; _size < count; ++_size)
-					_alloc.construct(_data + _size, value);
-			}
-			catch (...)
-			{
-				_destroy_storage();
-				throw;
-			}
-		}
-
 		void _destroy_storage()
 		{
-			while (_size)
-				_alloc.destroy(_data + --_size);
+			clear();
 			if (_data)
 				_alloc.deallocate(_data, _capacity);
 			_data = NULL;
