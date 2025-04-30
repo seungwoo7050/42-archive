@@ -46,8 +46,48 @@ namespace ft
 			_destroy_storage();
 		}
 
+		iterator begin() { return _data; }
+		const_iterator begin() const { return _data; }
+		iterator end() { return _data + _size; }
+		const_iterator end() const { return _data + _size; }
+
+		reverse_iterator rbegin() { return reverse_iterator(end()); }
+		const_reverse_iterator rbegin() const
+		{
+			return const_reverse_iterator(end());
+		}
+
+		reverse_iterator rend() { return reverse_iterator(begin()); }
+		const_reverse_iterator rend() const
+		{
+			return const_reverse_iterator(begin());
+		}
+
 		size_type size() const { return _size; }
 		bool empty() const { return _size == 0; }
+
+		reference operator[](size_type pos) { return _data[pos]; }
+		const_reference operator[](size_type pos) const { return _data[pos]; }
+
+		reference at(size_type pos)
+		{
+			if (pos >= _size)
+				throw std::out_of_range("ft::vector::at");
+			return _data[pos];
+		}
+
+		const_reference at(size_type pos) const
+		{
+			if (pos >= _size)
+				throw std::out_of_range("ft::vector::at");
+			return _data[pos];
+		}
+
+		reference front() { return _data[0]; }
+		const_reference front() const { return _data[0]; }
+		reference back() { return _data[_size - 1]; }
+		const_reference back() const { return _data[_size - 1]; }
+
 		allocator_type get_allocator() const { return _alloc; }
 
 	private:
