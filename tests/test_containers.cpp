@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <stack>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -7,6 +8,7 @@
 #include "ft_algorithm.hpp"
 #include "ft_iterator.hpp"
 #include "ft_pair.hpp"
+#include "ft_stack.hpp"
 #include "ft_type_traits.hpp"
 #include "ft_vector.hpp"
 
@@ -86,12 +88,49 @@ namespace
 		catch (const std::out_of_range&) { std_thrown = true; }
 		require(ft_thrown == std_thrown, "vector at out_of_range");
 	}
+
+	void test_stack()
+	{
+		ft::stack<int> fts;
+		std::stack<int, std::vector<int> > stds;
+		for (int i = 0; i < 12; ++i)
+		{
+			fts.push(i);
+			stds.push(i);
+			require(fts.top() == stds.top(), "stack top after push");
+		}
+		while (!stds.empty())
+		{
+			require(fts.size() == stds.size(), "stack size");
+			require(fts.top() == stds.top(), "stack top");
+			fts.pop();
+			stds.pop();
+		}
+		require(fts.empty() == stds.empty(), "stack empty");
+
+		ft::stack<int> fta;
+		ft::stack<int> ftb;
+		std::stack<int, std::vector<int> > stda;
+		std::stack<int, std::vector<int> > stdb;
+		for (int i = 0; i < 4; ++i)
+		{
+			fta.push(i);
+			ftb.push(i);
+			stda.push(i);
+			stdb.push(i);
+		}
+		ftb.push(9);
+		stdb.push(9);
+		require((fta == ftb) == (stda == stdb), "stack equality compare");
+		require((fta < ftb) == (stda < stdb), "stack less compare");
+	}
 }
 
 int main()
 {
 	test_utilities();
 	test_vector();
+	test_stack();
 	std::cout << "ft_containers checks passed" << std::endl;
 	return 0;
 }
