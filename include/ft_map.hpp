@@ -42,9 +42,70 @@ namespace ft
 			}
 		};
 
-		typedef typename allocator_type::template rebind<node>::other node_allocator;
+	typedef typename allocator_type::template rebind<node>::other node_allocator;
 
 	public:
+		class iterator
+			: public ft::iterator<std::bidirectional_iterator_tag, value_type>
+		{
+			friend class map;
+
+		public:
+			iterator() : _node(NULL), _root(NULL)
+			{
+			}
+
+			reference operator*() const { return _node->value; }
+			pointer operator->() const { return &_node->value; }
+
+			iterator& operator++()
+			{
+				_node = _next(_node);
+				return *this;
+			}
+
+			iterator operator++(int)
+			{
+				iterator tmp(*this);
+				++(*this);
+				return tmp;
+			}
+
+			iterator& operator--()
+			{
+				if (_node == NULL)
+					_node = _maximum(_root);
+				else
+					_node = _previous(_node);
+				return *this;
+			}
+
+			iterator operator--(int)
+			{
+				iterator tmp(*this);
+				--(*this);
+				return tmp;
+			}
+
+			bool operator==(const iterator& other) const
+			{
+				return _node == other._node;
+			}
+
+			bool operator!=(const iterator& other) const
+			{
+				return !(*this == other);
+			}
+
+		private:
+			node* _node;
+			node* _root;
+
+			iterator(node* n, node* r) : _node(n), _root(r)
+			{
+			}
+		};
+
 		explicit map(const key_compare& comp = key_compare(),
 			const allocator_type& alloc = allocator_type())
 			: _alloc(alloc), _node_alloc(node_allocator()), _root(NULL),
@@ -56,6 +117,9 @@ namespace ft
 		{
 			_clear(_root);
 		}
+
+		iterator begin() { return iterator(_minimum(_root), _root); }
+		iterator end() { return iterator(NULL, _root); }
 
 		bool empty() const { return _size == 0; }
 		size_type size() const { return _size; }
@@ -89,6 +153,54 @@ namespace ft
 		{
 			_node_alloc.destroy(n);
 			_node_alloc.deallocate(n, 1);
+		}
+
+		static node* _minimum(node* n)
+		{
+			if (n == NULL)
+				return NULL;
+			while (n->left)
+				n = n->left;
+			return n;
+		}
+
+		static node* _maximum(node* n)
+		{
+			if (n == NULL)
+				return NULL;
+			while (n->right)
+				n = n->right;
+			return n;
+		}
+
+		static node* _next(node* n)
+		{
+			if (n == NULL)
+				return NULL;
+			if (n->right)
+				return _minimum(n->right);
+			node* parent = n->parent;
+			while (parent && n == parent->right)
+			{
+				n = parent;
+				parent = parent->parent;
+			}
+			return parent;
+		}
+
+		static node* _previous(node* n)
+		{
+			if (n == NULL)
+				return NULL;
+			if (n->left)
+				return _maximum(n->left);
+			node* parent = n->parent;
+			while (parent && n == parent->left)
+			{
+				n = parent;
+				parent = parent->parent;
+			}
+			return parent;
 		}
 
 		void _clear(node* n)
