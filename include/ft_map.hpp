@@ -202,16 +202,14 @@ namespace ft
 
 		~map()
 		{
-			_clear(_root);
+			clear();
 		}
 
 		map& operator=(const map& other)
 		{
 			if (this != &other)
 			{
-				_clear(_root);
-				_root = NULL;
-				_size = 0;
+				clear();
 				_comp = other._comp;
 				insert(other.begin(), other.end());
 			}
@@ -289,6 +287,49 @@ namespace ft
 		{
 			for (; first != last; ++first)
 				insert(*first);
+		}
+
+		void erase(iterator pos)
+		{
+			if (pos == end())
+				return;
+			_erase_node(pos._node);
+		}
+
+		size_type erase(const key_type& key)
+		{
+			iterator it = find(key);
+			if (it == end())
+				return 0;
+			erase(it);
+			return 1;
+		}
+
+		void erase(iterator first, iterator last)
+		{
+			while (first != last)
+			{
+				iterator next = first;
+				++next;
+				erase(first);
+				first = next;
+			}
+		}
+
+		void clear()
+		{
+			_clear(_root);
+			_root = NULL;
+			_size = 0;
+		}
+
+		void swap(map& other)
+		{
+			std::swap(_alloc, other._alloc);
+			std::swap(_node_alloc, other._node_alloc);
+			std::swap(_root, other._root);
+			std::swap(_size, other._size);
+			std::swap(_comp, other._comp);
 		}
 
 		key_compare key_comp() const { return _comp; }
@@ -463,6 +504,41 @@ namespace ft
 					cur = cur->right;
 			}
 			return result;
+		}
+
+		void _transplant(node* old_node, node* new_node)
+		{
+			if (old_node->parent == NULL)
+				_root = new_node;
+			else if (old_node == old_node->parent->left)
+				old_node->parent->left = new_node;
+			else
+				old_node->parent->right = new_node;
+			if (new_node)
+				new_node->parent = old_node->parent;
+		}
+
+		void _erase_node(node* target)
+		{
+			if (target->left == NULL)
+				_transplant(target, target->right);
+			else if (target->right == NULL)
+				_transplant(target, target->left);
+			else
+			{
+				node* successor = _minimum(target->right);
+				if (successor->parent != target)
+				{
+					_transplant(successor, successor->right);
+					successor->right = target->right;
+					successor->right->parent = successor;
+				}
+				_transplant(target, successor);
+				successor->left = target->left;
+				successor->left->parent = successor;
+			}
+			_destroy_node(target);
+			--_size;
 		}
 
 		void _clear(node* n)
