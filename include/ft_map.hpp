@@ -49,6 +49,7 @@ namespace ft
 			: public ft::iterator<std::bidirectional_iterator_tag, value_type>
 		{
 			friend class map;
+			friend class const_iterator;
 
 		public:
 			iterator() : _node(NULL), _root(NULL)
@@ -106,6 +107,76 @@ namespace ft
 			}
 		};
 
+		class const_iterator
+			: public ft::iterator<std::bidirectional_iterator_tag,
+				const value_type>
+		{
+			friend class map;
+
+		public:
+			const_iterator() : _node(NULL), _root(NULL)
+			{
+			}
+
+			const_iterator(const iterator& other)
+				: _node(other._node), _root(other._root)
+			{
+			}
+
+			const_reference operator*() const { return _node->value; }
+			const_pointer operator->() const { return &_node->value; }
+
+			const_iterator& operator++()
+			{
+				_node = _next(_node);
+				return *this;
+			}
+
+			const_iterator operator++(int)
+			{
+				const_iterator tmp(*this);
+				++(*this);
+				return tmp;
+			}
+
+			const_iterator& operator--()
+			{
+				if (_node == NULL)
+					_node = _maximum(_root);
+				else
+					_node = _previous(_node);
+				return *this;
+			}
+
+			const_iterator operator--(int)
+			{
+				const_iterator tmp(*this);
+				--(*this);
+				return tmp;
+			}
+
+			bool operator==(const const_iterator& other) const
+			{
+				return _node == other._node;
+			}
+
+			bool operator!=(const const_iterator& other) const
+			{
+				return !(*this == other);
+			}
+
+		private:
+			node* _node;
+			node* _root;
+
+			const_iterator(node* n, node* r) : _node(n), _root(r)
+			{
+			}
+		};
+
+		typedef ft::reverse_iterator<iterator> reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
+
 		explicit map(const key_compare& comp = key_compare(),
 			const allocator_type& alloc = allocator_type())
 			: _alloc(alloc), _node_alloc(node_allocator()), _root(NULL),
@@ -119,7 +190,25 @@ namespace ft
 		}
 
 		iterator begin() { return iterator(_minimum(_root), _root); }
+		const_iterator begin() const
+		{
+			return const_iterator(_minimum(_root), _root);
+		}
+
 		iterator end() { return iterator(NULL, _root); }
+		const_iterator end() const { return const_iterator(NULL, _root); }
+
+		reverse_iterator rbegin() { return reverse_iterator(end()); }
+		const_reverse_iterator rbegin() const
+		{
+			return const_reverse_iterator(end());
+		}
+
+		reverse_iterator rend() { return reverse_iterator(begin()); }
+		const_reverse_iterator rend() const
+		{
+			return const_reverse_iterator(begin());
+		}
 
 		bool empty() const { return _size == 0; }
 		size_type size() const { return _size; }
