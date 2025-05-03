@@ -184,9 +184,38 @@ namespace ft
 		{
 		}
 
+		template <class InputIt>
+		map(InputIt first, InputIt last, const key_compare& comp = key_compare(),
+			const allocator_type& alloc = allocator_type())
+			: _alloc(alloc), _node_alloc(node_allocator()), _root(NULL),
+			  _size(0), _comp(comp)
+		{
+			insert(first, last);
+		}
+
+		map(const map& other)
+			: _alloc(other._alloc), _node_alloc(node_allocator()), _root(NULL),
+			  _size(0), _comp(other._comp)
+		{
+			insert(other.begin(), other.end());
+		}
+
 		~map()
 		{
 			_clear(_root);
+		}
+
+		map& operator=(const map& other)
+		{
+			if (this != &other)
+			{
+				_clear(_root);
+				_root = NULL;
+				_size = 0;
+				_comp = other._comp;
+				insert(other.begin(), other.end());
+			}
+			return *this;
 		}
 
 		iterator begin() { return iterator(_minimum(_root), _root); }
@@ -213,6 +242,55 @@ namespace ft
 		bool empty() const { return _size == 0; }
 		size_type size() const { return _size; }
 		size_type max_size() const { return _node_alloc.max_size(); }
+
+		mapped_type& operator[](const key_type& key)
+		{
+			return insert(value_type(key, mapped_type())).first->second;
+		}
+
+		ft::pair<iterator, bool> insert(const value_type& value)
+		{
+			if (_root == NULL)
+			{
+				_root = _create_node(value);
+				++_size;
+				return ft::make_pair(iterator(_root, _root), true);
+			}
+			node* parent = NULL;
+			node* cur = _root;
+			while (cur)
+			{
+				parent = cur;
+				if (_comp(value.first, cur->value.first))
+					cur = cur->left;
+				else if (_comp(cur->value.first, value.first))
+					cur = cur->right;
+				else
+					return ft::make_pair(iterator(cur, _root), false);
+			}
+			node* created = _create_node(value);
+			created->parent = parent;
+			if (_comp(value.first, parent->value.first))
+				parent->left = created;
+			else
+				parent->right = created;
+			++_size;
+			return ft::make_pair(iterator(created, _root), true);
+		}
+
+		iterator insert(iterator hint, const value_type& value)
+		{
+			(void)hint;
+			return insert(value).first;
+		}
+
+		template <class InputIt>
+		void insert(InputIt first, InputIt last)
+		{
+			for (; first != last; ++first)
+				insert(*first);
+		}
+
 		key_compare key_comp() const { return _comp; }
 		allocator_type get_allocator() const { return _alloc; }
 
