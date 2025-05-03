@@ -294,6 +294,52 @@ namespace ft
 		key_compare key_comp() const { return _comp; }
 		allocator_type get_allocator() const { return _alloc; }
 
+		iterator find(const key_type& key)
+		{
+			return iterator(_find_node(key), _root);
+		}
+
+		const_iterator find(const key_type& key) const
+		{
+			return const_iterator(_find_node(key), _root);
+		}
+
+		size_type count(const key_type& key) const
+		{
+			return _find_node(key) ? 1 : 0;
+		}
+
+		iterator lower_bound(const key_type& key)
+		{
+			return iterator(_lower_bound_node(key), _root);
+		}
+
+		const_iterator lower_bound(const key_type& key) const
+		{
+			return const_iterator(_lower_bound_node(key), _root);
+		}
+
+		iterator upper_bound(const key_type& key)
+		{
+			return iterator(_upper_bound_node(key), _root);
+		}
+
+		const_iterator upper_bound(const key_type& key) const
+		{
+			return const_iterator(_upper_bound_node(key), _root);
+		}
+
+		ft::pair<iterator, iterator> equal_range(const key_type& key)
+		{
+			return ft::make_pair(lower_bound(key), upper_bound(key));
+		}
+
+		ft::pair<const_iterator, const_iterator> equal_range(
+			const key_type& key) const
+		{
+			return ft::make_pair(lower_bound(key), upper_bound(key));
+		}
+
 	private:
 		allocator_type _alloc;
 		node_allocator _node_alloc;
@@ -368,6 +414,55 @@ namespace ft
 				parent = parent->parent;
 			}
 			return parent;
+		}
+
+		node* _find_node(const key_type& key) const
+		{
+			node* cur = _root;
+			while (cur)
+			{
+				if (_comp(key, cur->value.first))
+					cur = cur->left;
+				else if (_comp(cur->value.first, key))
+					cur = cur->right;
+				else
+					return cur;
+			}
+			return NULL;
+		}
+
+		node* _lower_bound_node(const key_type& key) const
+		{
+			node* cur = _root;
+			node* result = NULL;
+			while (cur)
+			{
+				if (!_comp(cur->value.first, key))
+				{
+					result = cur;
+					cur = cur->left;
+				}
+				else
+					cur = cur->right;
+			}
+			return result;
+		}
+
+		node* _upper_bound_node(const key_type& key) const
+		{
+			node* cur = _root;
+			node* result = NULL;
+			while (cur)
+			{
+				if (_comp(key, cur->value.first))
+				{
+					result = cur;
+					cur = cur->left;
+				}
+				else
+					cur = cur->right;
+			}
+			return result;
 		}
 
 		void _clear(node* n)
