@@ -100,6 +100,8 @@ namespace ft
 
 		void resize(size_type count, value_type value = value_type())
 		{
+			if (count > max_size())
+				throw std::length_error("ft::vector::resize");
 			if (count < _size)
 			{
 				while (_size > count)
@@ -136,6 +138,8 @@ namespace ft
 
 		void assign(size_type count, const value_type& value)
 		{
+			if (count > max_size())
+				throw std::length_error("ft::vector::assign");
 			clear();
 			if (count > _capacity)
 			{
@@ -181,6 +185,8 @@ namespace ft
 			size_type index = static_cast<size_type>(pos - begin());
 			if (count == 0)
 				return;
+			if (count > max_size() - _size)
+				throw std::length_error("ft::vector::insert");
 			if (_size + count > _capacity)
 				reserve(_next_capacity(_size + count));
 			for (size_type i = _size; i > index; --i)
@@ -243,11 +249,18 @@ namespace ft
 
 		size_type _next_capacity(size_type minimum) const
 		{
-			size_type next = _capacity == 0 ? 1 : _capacity * 2;
+			const size_type limit = max_size();
+			if (minimum > limit)
+				throw std::length_error("ft::vector capacity");
+			size_type next;
+			if (_capacity == 0)
+				next = 1;
+			else if (_capacity > limit - _capacity)
+				next = limit;
+			else
+				next = _capacity * 2;
 			if (next < minimum)
 				next = minimum;
-			if (next > max_size())
-				throw std::length_error("ft::vector capacity");
 			return next;
 		}
 
