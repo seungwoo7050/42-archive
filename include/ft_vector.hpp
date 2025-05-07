@@ -156,9 +156,10 @@ namespace ft
 		void assign(InputIt first, InputIt last,
 			typename ft::enable_if<!ft::is_integral<InputIt>::value>::type* = 0)
 		{
-			clear();
+			vector tmp(_alloc);
 			for (; first != last; ++first)
-				push_back(*first);
+				tmp.push_back(*first);
+			swap(tmp);
 		}
 
 		void push_back(const value_type& value)
@@ -204,8 +205,18 @@ namespace ft
 			typename ft::enable_if<!ft::is_integral<InputIt>::value>::type* = 0)
 		{
 			size_type index = static_cast<size_type>(pos - begin());
-			for (; first != last; ++first, ++index)
-				insert(begin() + index, *first);
+			vector tmp(first, last, _alloc);
+			if (tmp.empty())
+				return;
+			if (tmp.size() > max_size() - _size)
+				throw std::length_error("ft::vector::insert");
+			vector tail(begin() + index, end(), _alloc);
+			erase(begin() + index, end());
+			reserve(_next_capacity(_size + tmp.size() + tail.size()));
+			for (size_type i = 0; i < tmp.size(); ++i)
+				push_back(tmp[i]);
+			for (size_type i = 0; i < tail.size(); ++i)
+				push_back(tail[i]);
 		}
 
 		iterator erase(iterator pos)
