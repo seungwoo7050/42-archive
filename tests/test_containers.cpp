@@ -77,6 +77,17 @@ namespace
 		require(ftcopy == ftv, "vector equality");
 		require(!(ftcopy < ftv), "vector less equal case");
 
+		std::vector<int> insert_source(stdcopy.begin(), stdcopy.begin() + 4);
+		ftcopy.insert(ftcopy.begin() + 3, ftcopy.begin(), ftcopy.begin() + 4);
+		stdcopy.insert(stdcopy.begin() + 3,
+			insert_source.begin(), insert_source.end());
+		compare_vector(ftcopy, stdcopy, "self range insert");
+
+		std::vector<int> assign_source(stdcopy.begin() + 2, stdcopy.end() - 1);
+		ftcopy.assign(ftcopy.begin() + 2, ftcopy.end() - 1);
+		stdcopy.assign(assign_source.begin(), assign_source.end());
+		compare_vector(ftcopy, stdcopy, "self range assign");
+
 		bool ft_thrown = false;
 		bool std_thrown = false;
 		try { (void)ftv.at(ftv.size()); }
