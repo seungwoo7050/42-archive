@@ -88,6 +88,11 @@ namespace
 		stdcopy.assign(assign_source.begin(), assign_source.end());
 		compare_vector(ftcopy, stdcopy, "self range assign");
 
+		ft::vector<int>::reverse_iterator frit = ftcopy.rbegin();
+		std::vector<int>::reverse_iterator srit = stdcopy.rbegin();
+		for (; frit != ftcopy.rend() && srit != stdcopy.rend(); ++frit, ++srit)
+			require(*frit == *srit, "vector reverse iteration");
+
 		bool ft_thrown = false;
 		bool std_thrown = false;
 		try { (void)ftv.at(ftv.size()); }
