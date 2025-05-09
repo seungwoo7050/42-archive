@@ -178,9 +178,31 @@ namespace ft
 				return _node == other._node;
 			}
 
+			bool operator==(const iterator& other) const
+			{
+				return _node == other._node;
+			}
+
 			bool operator!=(const const_iterator& other) const
 			{
 				return !(*this == other);
+			}
+
+			bool operator!=(const iterator& other) const
+			{
+				return !(*this == other);
+			}
+
+			friend bool operator==(const iterator& lhs,
+				const const_iterator& rhs)
+			{
+				return const_iterator(lhs) == rhs;
+			}
+
+			friend bool operator!=(const iterator& lhs,
+				const const_iterator& rhs)
+			{
+				return !(lhs == rhs);
 			}
 
 		private:
