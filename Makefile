@@ -3,7 +3,7 @@ CXXFLAGS := -Wall -Wextra -Werror -std=c++98
 CPPFLAGS := -Iinclude
 
 BUILD_DIR := build
-TEST_NAMES := test_containers test_vector_exceptions
+TEST_NAMES := test_containers test_vector_exceptions test_map_iterators
 TEST_BINS := $(addprefix $(BUILD_DIR)/,$(TEST_NAMES))
 HEADERS := $(wildcard include/*.hpp)
 
