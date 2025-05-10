@@ -207,6 +207,13 @@ namespace
 		std::map<int, std::string> stdcopy(stdm.begin(), stdm.end());
 		compare_map(ftcopy, stdcopy, "map range constructor");
 		require(ftcopy == ftm, "map equality");
+
+		const ft::map<int, std::string>& ftconst = ftcopy;
+		const std::map<int, std::string>& stdconst = stdcopy;
+		require(ftconst.begin()->first == stdconst.begin()->first,
+			"map const begin");
+		require(ftconst.rbegin()->first == stdconst.rbegin()->first,
+			"map const rbegin");
 	}
 }
 
