@@ -184,6 +184,18 @@ namespace
 			"map upper_bound");
 		require(ftm.equal_range(6).first->first == stdm.equal_range(6).first->first,
 			"map equal_range first");
+		require(ftm.lower_bound(2)->first == stdm.lower_bound(2)->first,
+			"map lower_bound gap");
+		require(ftm.upper_bound(13)->first == stdm.upper_bound(13)->first,
+			"map upper_bound near end");
+
+		ft::map<int, std::string>::reverse_iterator fmrit = ftm.rbegin();
+		std::map<int, std::string>::reverse_iterator smrit = stdm.rbegin();
+		for (; fmrit != ftm.rend() && smrit != stdm.rend(); ++fmrit, ++smrit)
+		{
+			require(fmrit->first == smrit->first, "map reverse key");
+			require(fmrit->second == smrit->second, "map reverse value");
+		}
 
 		ftm.erase(3);
 		stdm.erase(3);
