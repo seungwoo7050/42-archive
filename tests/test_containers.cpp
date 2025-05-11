@@ -153,6 +153,69 @@ namespace
 		require(fit == ftm.end() && sit == stdm.end(), label + " end");
 	}
 
+	std::string map_value(int key)
+	{
+		std::ostringstream oss;
+		oss << "value-" << key;
+		return oss.str();
+	}
+
+	void insert_key(ft::map<int, std::string>& ftm,
+		std::map<int, std::string>& stdm, int key)
+	{
+		ft::pair<ft::map<int, std::string>::iterator, bool> fr =
+			ftm.insert(ft::make_pair(key, map_value(key)));
+		std::pair<std::map<int, std::string>::iterator, bool> sr =
+			stdm.insert(std::make_pair(key, map_value(key)));
+		require(fr.second == sr.second, "map insert result");
+		require(fr.first->first == sr.first->first, "map insert iterator key");
+	}
+
+	void check_map_queries(const ft::map<int, std::string>& ftm,
+		const std::map<int, std::string>& stdm, const std::string& label)
+	{
+		for (int key = -3; key <= 135; key += 7)
+		{
+			ft::map<int, std::string>::const_iterator fit = ftm.find(key);
+			std::map<int, std::string>::const_iterator sit = stdm.find(key);
+			require((fit == ftm.end()) == (sit == stdm.end()),
+				label + " find presence");
+			if (sit != stdm.end())
+				require(fit->second == sit->second, label + " find value");
+
+			fit = ftm.lower_bound(key);
+			sit = stdm.lower_bound(key);
+			require((fit == ftm.end()) == (sit == stdm.end()),
+				label + " lower_bound presence");
+			if (sit != stdm.end())
+				require(fit->first == sit->first, label + " lower_bound key");
+
+			fit = ftm.upper_bound(key);
+			sit = stdm.upper_bound(key);
+			require((fit == ftm.end()) == (sit == stdm.end()),
+				label + " upper_bound presence");
+			if (sit != stdm.end())
+				require(fit->first == sit->first, label + " upper_bound key");
+
+			ft::pair<ft::map<int, std::string>::const_iterator,
+				ft::map<int, std::string>::const_iterator> fr =
+				ftm.equal_range(key);
+			std::pair<std::map<int, std::string>::const_iterator,
+				std::map<int, std::string>::const_iterator> sr =
+				stdm.equal_range(key);
+			require((fr.first == ftm.end()) == (sr.first == stdm.end()),
+				label + " equal_range first presence");
+			require((fr.second == ftm.end()) == (sr.second == stdm.end()),
+				label + " equal_range second presence");
+			if (sr.first != stdm.end())
+				require(fr.first->first == sr.first->first,
+					label + " equal_range first key");
+			if (sr.second != stdm.end())
+				require(fr.second->first == sr.second->first,
+					label + " equal_range second key");
+		}
+	}
+
 	void test_map()
 	{
 		ft::map<int, std::string> ftm;
@@ -215,6 +278,23 @@ namespace
 		require(ftconst.rbegin()->first == stdconst.rbegin()->first,
 			"map const rbegin");
 	}
+
+	void test_map_stress_ordering()
+	{
+		ft::map<int, std::string> ftasc;
+		std::map<int, std::string> stdasc;
+		for (int i = 1; i <= 96; ++i)
+			insert_key(ftasc, stdasc, i);
+		compare_map(ftasc, stdasc, "map ascending insert");
+		check_map_queries(ftasc, stdasc, "map ascending queries");
+
+		ft::map<int, std::string> ftdesc;
+		std::map<int, std::string> stddesc;
+		for (int i = 96; i >= 1; --i)
+			insert_key(ftdesc, stddesc, i);
+		compare_map(ftdesc, stddesc, "map descending insert");
+		check_map_queries(ftdesc, stddesc, "map descending queries");
+	}
 }
 
 int main()
@@ -223,6 +303,7 @@ int main()
 	test_vector();
 	test_stack();
 	test_map();
+	test_map_stress_ordering();
 	std::cout << "ft_containers checks passed" << std::endl;
 	return 0;
 }
