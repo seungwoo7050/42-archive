@@ -219,7 +219,7 @@ namespace ft
 
 		explicit map(const key_compare& comp = key_compare(),
 			const allocator_type& alloc = allocator_type())
-			: _alloc(alloc), _node_alloc(node_allocator()), _root(NULL),
+			: _alloc(alloc), _node_alloc(node_allocator(alloc)), _root(NULL),
 			  _size(0), _comp(comp)
 		{
 		}
@@ -227,14 +227,14 @@ namespace ft
 		template <class InputIt>
 		map(InputIt first, InputIt last, const key_compare& comp = key_compare(),
 			const allocator_type& alloc = allocator_type())
-			: _alloc(alloc), _node_alloc(node_allocator()), _root(NULL),
+			: _alloc(alloc), _node_alloc(node_allocator(alloc)), _root(NULL),
 			  _size(0), _comp(comp)
 		{
 			insert(first, last);
 		}
 
 		map(const map& other)
-			: _alloc(other._alloc), _node_alloc(node_allocator()), _root(NULL),
+			: _alloc(other._alloc), _node_alloc(node_allocator(other._alloc)), _root(NULL),
 			  _size(0), _comp(other._comp)
 		{
 			insert(other.begin(), other.end());
