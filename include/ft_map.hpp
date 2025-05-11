@@ -35,9 +35,10 @@ namespace ft
 			node* parent;
 			node* left;
 			node* right;
+			bool red;
 
 			explicit node(const value_type& v)
-				: value(v), parent(NULL), left(NULL), right(NULL)
+				: value(v), parent(NULL), left(NULL), right(NULL), red(true)
 			{
 			}
 		};
@@ -291,6 +292,7 @@ namespace ft
 			if (_root == NULL)
 			{
 				_root = _create_node(value);
+				_root->red = false;
 				++_size;
 				return ft::make_pair(iterator(_root, _root), true);
 			}
@@ -312,6 +314,7 @@ namespace ft
 				parent->left = created;
 			else
 				parent->right = created;
+			_insert_fixup(created);
 			++_size;
 			return ft::make_pair(iterator(created, _root), true);
 		}
@@ -496,6 +499,98 @@ namespace ft
 				parent = parent->parent;
 			}
 			return parent;
+		}
+
+		static bool _is_red(node* n)
+		{
+			return n != NULL && n->red;
+		}
+
+		void _rotate_left(node* x)
+		{
+			node* y = x->right;
+			x->right = y->left;
+			if (y->left)
+				y->left->parent = x;
+			y->parent = x->parent;
+			if (x->parent == NULL)
+				_root = y;
+			else if (x == x->parent->left)
+				x->parent->left = y;
+			else
+				x->parent->right = y;
+			y->left = x;
+			x->parent = y;
+		}
+
+		void _rotate_right(node* x)
+		{
+			node* y = x->left;
+			x->left = y->right;
+			if (y->right)
+				y->right->parent = x;
+			y->parent = x->parent;
+			if (x->parent == NULL)
+				_root = y;
+			else if (x == x->parent->right)
+				x->parent->right = y;
+			else
+				x->parent->left = y;
+			y->right = x;
+			x->parent = y;
+		}
+
+		void _insert_fixup(node* z)
+		{
+			while (z->parent && _is_red(z->parent))
+			{
+				if (z->parent == z->parent->parent->left)
+				{
+					node* uncle = z->parent->parent->right;
+					if (_is_red(uncle))
+					{
+						z->parent->red = false;
+						uncle->red = false;
+						z->parent->parent->red = true;
+						z = z->parent->parent;
+					}
+					else
+					{
+						if (z == z->parent->right)
+						{
+							z = z->parent;
+							_rotate_left(z);
+						}
+						z->parent->red = false;
+						z->parent->parent->red = true;
+						_rotate_right(z->parent->parent);
+					}
+				}
+				else
+				{
+					node* uncle = z->parent->parent->left;
+					if (_is_red(uncle))
+					{
+						z->parent->red = false;
+						uncle->red = false;
+						z->parent->parent->red = true;
+						z = z->parent->parent;
+					}
+					else
+					{
+						if (z == z->parent->left)
+						{
+							z = z->parent;
+							_rotate_right(z);
+						}
+						z->parent->red = false;
+						z->parent->parent->red = true;
+						_rotate_left(z->parent->parent);
+					}
+				}
+			}
+			if (_root)
+				_root->red = false;
 		}
 
 		node* _find_node(const key_type& key) const
