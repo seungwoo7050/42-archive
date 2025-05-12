@@ -1,0 +1,4 @@
+ray-scene-tracer
+*.o
+*.d
+/build*/
