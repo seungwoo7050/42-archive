@@ -294,6 +294,65 @@ namespace
 			insert_key(ftdesc, stddesc, i);
 		compare_map(ftdesc, stddesc, "map descending insert");
 		check_map_queries(ftdesc, stddesc, "map descending queries");
+
+		ft::map<int, std::string> ftcopy(ftdesc);
+		std::map<int, std::string> stdcopy(stddesc);
+		compare_map(ftcopy, stdcopy, "map copy constructor stress");
+
+		ft::map<int, std::string> ftassigned;
+		std::map<int, std::string> stdassigned;
+		ftassigned = ftasc;
+		stdassigned = stdasc;
+		compare_map(ftassigned, stdassigned, "map assignment stress");
+
+		ftassigned.swap(ftcopy);
+		stdassigned.swap(stdcopy);
+		compare_map(ftassigned, stdassigned, "map member swap lhs");
+		compare_map(ftcopy, stdcopy, "map member swap rhs");
+	}
+
+	void test_map_stress_erase()
+	{
+		ft::map<int, std::string> ftm;
+		std::map<int, std::string> stdm;
+		int keys[] = {
+			42, 7, 88, 13, 64, 2, 91, 55, 31, 76, 19, 4, 68, 27, 83, 10,
+			47, 99, 1, 35, 72, 58, 24, 90, 6, 40, 80, 15, 62, 30, 95, 50
+		};
+		for (std::size_t i = 0; i < sizeof(keys) / sizeof(keys[0]); ++i)
+			insert_key(ftm, stdm, keys[i]);
+		compare_map(ftm, stdm, "map mixed insert");
+		check_map_queries(ftm, stdm, "map mixed queries");
+
+		for (std::size_t i = 0; i < sizeof(keys) / sizeof(keys[0]); i += 3)
+		{
+			require(ftm.erase(keys[i]) == stdm.erase(keys[i]),
+				"map erase key count");
+			compare_map(ftm, stdm, "map repeated key erase");
+			check_map_queries(ftm, stdm, "map repeated key erase queries");
+		}
+
+		while (!stdm.empty())
+		{
+			ft::map<int, std::string>::iterator fit;
+			std::map<int, std::string>::iterator sit;
+			if (stdm.size() % 2 == 0)
+			{
+				fit = ftm.begin();
+				sit = stdm.begin();
+			}
+			else
+			{
+				fit = ftm.end();
+				sit = stdm.end();
+				--fit;
+				--sit;
+			}
+			ftm.erase(fit);
+			stdm.erase(sit);
+			compare_map(ftm, stdm, "map repeated iterator erase");
+		}
+		require(ftm.empty() && stdm.empty(), "map erase to empty");
 	}
 }
 
@@ -304,6 +363,7 @@ int main()
 	test_stack();
 	test_map();
 	test_map_stress_ordering();
+	test_map_stress_erase();
 	std::cout << "ft_containers checks passed" << std::endl;
 	return 0;
 }
