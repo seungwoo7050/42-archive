@@ -506,6 +506,11 @@ namespace ft
 			return n != NULL && n->red;
 		}
 
+		static bool _is_black(node* n)
+		{
+			return n == NULL || !n->red;
+		}
+
 		void _rotate_left(node* x)
 		{
 			node* y = x->right;
@@ -656,25 +661,146 @@ namespace ft
 
 		void _erase_node(node* target)
 		{
+			node* moved = target;
+			node* fix = NULL;
+			node* fix_parent = NULL;
+			bool moved_was_red = moved->red;
 			if (target->left == NULL)
+			{
+				fix = target->right;
+				fix_parent = target->parent;
 				_transplant(target, target->right);
+			}
 			else if (target->right == NULL)
+			{
+				fix = target->left;
+				fix_parent = target->parent;
 				_transplant(target, target->left);
+			}
 			else
 			{
-				node* successor = _minimum(target->right);
-				if (successor->parent != target)
+				moved = _minimum(target->right);
+				moved_was_red = moved->red;
+				fix = moved->right;
+				if (moved->parent == target)
 				{
-					_transplant(successor, successor->right);
-					successor->right = target->right;
-					successor->right->parent = successor;
+					fix_parent = moved;
+					if (fix)
+						fix->parent = moved;
 				}
-				_transplant(target, successor);
-				successor->left = target->left;
-				successor->left->parent = successor;
+				else
+				{
+					fix_parent = moved->parent;
+					_transplant(moved, moved->right);
+					moved->right = target->right;
+					moved->right->parent = moved;
+				}
+				_transplant(target, moved);
+				moved->left = target->left;
+				moved->left->parent = moved;
+				moved->red = target->red;
 			}
 			_destroy_node(target);
 			--_size;
+			if (!moved_was_red)
+				_erase_fixup(fix, fix_parent);
+			if (_root)
+				_root->red = false;
+		}
+
+		void _erase_fixup(node* x, node* parent)
+		{
+			while (x != _root && _is_black(x))
+			{
+				if (x == (parent ? parent->left : NULL))
+				{
+					node* sibling = parent ? parent->right : NULL;
+					if (_is_red(sibling))
+					{
+						sibling->red = false;
+						parent->red = true;
+						_rotate_left(parent);
+						sibling = parent->right;
+					}
+					if (_is_black(sibling ? sibling->left : NULL)
+						&& _is_black(sibling ? sibling->right : NULL))
+					{
+						if (sibling)
+							sibling->red = true;
+						x = parent;
+						parent = x ? x->parent : NULL;
+					}
+					else
+					{
+						if (_is_black(sibling ? sibling->right : NULL))
+						{
+							if (sibling && sibling->left)
+								sibling->left->red = false;
+							if (sibling)
+							{
+								sibling->red = true;
+								_rotate_right(sibling);
+							}
+							sibling = parent ? parent->right : NULL;
+						}
+						if (sibling)
+							sibling->red = parent ? parent->red : false;
+						if (parent)
+							parent->red = false;
+						if (sibling && sibling->right)
+							sibling->right->red = false;
+						if (parent)
+							_rotate_left(parent);
+						x = _root;
+						parent = NULL;
+					}
+				}
+				else
+				{
+					node* sibling = parent ? parent->left : NULL;
+					if (_is_red(sibling))
+					{
+						sibling->red = false;
+						parent->red = true;
+						_rotate_right(parent);
+						sibling = parent->left;
+					}
+					if (_is_black(sibling ? sibling->right : NULL)
+						&& _is_black(sibling ? sibling->left : NULL))
+					{
+						if (sibling)
+							sibling->red = true;
+						x = parent;
+						parent = x ? x->parent : NULL;
+					}
+					else
+					{
+						if (_is_black(sibling ? sibling->left : NULL))
+						{
+							if (sibling && sibling->right)
+								sibling->right->red = false;
+							if (sibling)
+							{
+								sibling->red = true;
+								_rotate_left(sibling);
+							}
+							sibling = parent ? parent->left : NULL;
+						}
+						if (sibling)
+							sibling->red = parent ? parent->red : false;
+						if (parent)
+							parent->red = false;
+						if (sibling && sibling->left)
+							sibling->left->red = false;
+						if (parent)
+							_rotate_right(parent);
+						x = _root;
+						parent = NULL;
+					}
+				}
+			}
+			if (x)
+				x->red = false;
 		}
 
 		void _clear(node* n)
