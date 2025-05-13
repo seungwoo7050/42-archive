@@ -277,6 +277,11 @@ namespace
 			"map const begin");
 		require(ftconst.rbegin()->first == stdconst.rbegin()->first,
 			"map const rbegin");
+
+		ftcopy.erase(ftcopy.begin(), ftcopy.end());
+		stdcopy.erase(stdcopy.begin(), stdcopy.end());
+		require(ftcopy.empty() == stdcopy.empty(), "map range erase empty");
+		require(ftcopy.size() == stdcopy.size(), "map range erase size");
 	}
 
 	void test_map_stress_ordering()
