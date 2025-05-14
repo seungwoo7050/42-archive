@@ -251,6 +251,11 @@ namespace
 			"map lower_bound gap");
 		require(ftm.upper_bound(13)->first == stdm.upper_bound(13)->first,
 			"map upper_bound near end");
+		require(ftm.key_comp()(1, 2) == stdm.key_comp()(1, 2),
+			"map key_comp");
+		require(ftm.value_comp()(*ftm.begin(), *ftm.upper_bound(1))
+				== stdm.value_comp()(*stdm.begin(), *stdm.upper_bound(1)),
+			"map value_comp");
 
 		ft::map<int, std::string>::reverse_iterator fmrit = ftm.rbegin();
 		std::map<int, std::string>::reverse_iterator smrit = stdm.rbegin();
