@@ -38,7 +38,9 @@ namespace ft
 			const allocator_type& alloc = allocator_type())
 			: _alloc(alloc), _data(NULL), _size(0), _capacity(0)
 		{
-			assign(count, value);
+			if (count > max_size())
+				throw std::length_error("ft::vector::vector");
+			_initialize_fill(count, value);
 		}
 
 		template <class InputIt>
@@ -110,8 +112,21 @@ namespace ft
 			}
 			if (count > _capacity)
 				reserve(_next_capacity(count));
-			while (_size < count)
-				_alloc.construct(_data + _size++, value);
+			const size_type old_size = _size;
+			try
+			{
+				while (_size < count)
+				{
+					_alloc.construct(_data + _size, value);
+					++_size;
+				}
+			}
+			catch (...)
+			{
+				while (_size > old_size)
+					_alloc.destroy(_data + --_size);
+				throw;
+			}
 		}
 
 		reference operator[](size_type pos) { return _data[pos]; }
@@ -140,16 +155,8 @@ namespace ft
 		{
 			if (count > max_size())
 				throw std::length_error("ft::vector::assign");
-			clear();
-			if (count > _capacity)
-			{
-				_destroy_storage();
-				_data = _alloc.allocate(count);
-				_capacity = count;
-			}
-			for (size_type i = 0; i < count; ++i)
-				_alloc.construct(_data + i, value);
-			_size = count;
+			vector tmp(count, value, _alloc);
+			_swap_storage(tmp);
 		}
 
 		template <class InputIt>
@@ -159,14 +166,20 @@ namespace ft
 			vector tmp(_alloc);
 			for (; first != last; ++first)
 				tmp.push_back(*first);
-			swap(tmp);
+			_swap_storage(tmp);
 		}
 
 		void push_back(const value_type& value)
 		{
 			if (_size == _capacity)
+			{
+				value_type value_copy(value);
 				reserve(_next_capacity(_size + 1));
-			_alloc.construct(_data + _size++, value);
+				_alloc.construct(_data + _size, value_copy);
+			}
+			else
+				_alloc.construct(_data + _size, value);
+			++_size;
 		}
 
 		void pop_back()
@@ -289,6 +302,36 @@ namespace ft
 		size_type _index_of(const_iterator pos) const
 		{
 			return _data ? static_cast<size_type>(pos - _data) : 0;
+		}
+
+		void _initialize_fill(size_type count, const value_type& value)
+		{
+			if (count == 0)
+				return;
+			pointer new_data = _alloc.allocate(count);
+			size_type constructed = 0;
+			try
+			{
+				for (; constructed < count; ++constructed)
+					_alloc.construct(new_data + constructed, value);
+			}
+			catch (...)
+			{
+				while (constructed)
+					_alloc.destroy(new_data + --constructed);
+				_alloc.deallocate(new_data, count);
+				throw;
+			}
+			_data = new_data;
+			_size = count;
+			_capacity = count;
+		}
+
+		void _swap_storage(vector& other)
+		{
+			std::swap(_data, other._data);
+			std::swap(_size, other._size);
+			std::swap(_capacity, other._capacity);
 		}
 
 		void _reallocate(size_type new_cap)
