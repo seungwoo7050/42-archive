@@ -201,16 +201,12 @@ namespace ft
 			size_type index = _index_of(pos);
 			if (count > max_size() - _size)
 				throw std::length_error("ft::vector::insert");
+			value_type value_copy(value);
 			if (_size + count > _capacity)
-				reserve(_next_capacity(_size + count));
-			for (size_type i = _size; i > index; --i)
-			{
-				_alloc.construct(_data + i + count - 1, _data[i - 1]);
-				_alloc.destroy(_data + i - 1);
-			}
-			for (size_type i = 0; i < count; ++i)
-				_alloc.construct(_data + index + i, value);
-			_size += count;
+				_insert_fill_reallocate(index, count, value_copy,
+					_next_capacity(_size + count));
+			else
+				_insert_fill_in_place(index, count, value_copy);
 		}
 
 		template <class InputIt>
@@ -223,13 +219,11 @@ namespace ft
 				return;
 			if (tmp.size() > max_size() - _size)
 				throw std::length_error("ft::vector::insert");
-			vector tail(begin() + index, end(), _alloc);
-			erase(begin() + index, end());
-			reserve(_next_capacity(_size + tmp.size() + tail.size()));
-			for (size_type i = 0; i < tmp.size(); ++i)
-				push_back(tmp[i]);
-			for (size_type i = 0; i < tail.size(); ++i)
-				push_back(tail[i]);
+			if (_size + tmp.size() > _capacity)
+				_insert_range_reallocate(index, tmp,
+					_next_capacity(_size + tmp.size()));
+			else
+				_insert_range_in_place(index, tmp);
 		}
 
 		iterator erase(iterator pos)
@@ -332,6 +326,146 @@ namespace ft
 			std::swap(_data, other._data);
 			std::swap(_size, other._size);
 			std::swap(_capacity, other._capacity);
+		}
+
+		void _replace_storage(pointer new_data, size_type new_size,
+			size_type new_capacity)
+		{
+			_destroy_storage();
+			_data = new_data;
+			_size = new_size;
+			_capacity = new_capacity;
+		}
+
+		void _destroy_constructed_tail(size_type start, size_type count)
+		{
+			while (count)
+				_alloc.destroy(_data + start + --count);
+		}
+
+		void _insert_fill_reallocate(size_type index, size_type count,
+			const value_type& value, size_type new_capacity)
+		{
+			pointer new_data = _alloc.allocate(new_capacity);
+			size_type constructed = 0;
+			try
+			{
+				for (size_type i = 0; i < index; ++i, ++constructed)
+					_alloc.construct(new_data + constructed, _data[i]);
+				for (size_type i = 0; i < count; ++i, ++constructed)
+					_alloc.construct(new_data + constructed, value);
+				for (size_type i = index; i < _size; ++i, ++constructed)
+					_alloc.construct(new_data + constructed, _data[i]);
+			}
+			catch (...)
+			{
+				while (constructed)
+					_alloc.destroy(new_data + --constructed);
+				_alloc.deallocate(new_data, new_capacity);
+				throw;
+			}
+			_replace_storage(new_data, constructed, new_capacity);
+		}
+
+		void _insert_fill_in_place(size_type index, size_type count,
+			const value_type& value)
+		{
+			const size_type old_size = _size;
+			const size_type tail_size = old_size - index;
+			size_type constructed = 0;
+			try
+			{
+				if (count <= tail_size)
+				{
+					for (; constructed < count; ++constructed)
+						_alloc.construct(_data + old_size + constructed,
+							_data[old_size - count + constructed]);
+					for (size_type i = old_size - count; i > index; --i)
+						_data[i + count - 1] = _data[i - 1];
+					for (size_type i = 0; i < count; ++i)
+						_data[index + i] = value;
+				}
+				else
+				{
+					const size_type extra = count - tail_size;
+					for (; constructed < extra; ++constructed)
+						_alloc.construct(_data + old_size + constructed, value);
+					for (size_type i = 0; i < tail_size; ++i, ++constructed)
+						_alloc.construct(_data + old_size + constructed,
+							_data[index + i]);
+					for (size_type i = 0; i < tail_size; ++i)
+						_data[index + i] = value;
+				}
+			}
+			catch (...)
+			{
+				_destroy_constructed_tail(old_size, constructed);
+				throw;
+			}
+			_size = old_size + count;
+		}
+
+		void _insert_range_reallocate(size_type index, const vector& values,
+			size_type new_capacity)
+		{
+			pointer new_data = _alloc.allocate(new_capacity);
+			size_type constructed = 0;
+			try
+			{
+				for (size_type i = 0; i < index; ++i, ++constructed)
+					_alloc.construct(new_data + constructed, _data[i]);
+				for (size_type i = 0; i < values.size(); ++i, ++constructed)
+					_alloc.construct(new_data + constructed, values[i]);
+				for (size_type i = index; i < _size; ++i, ++constructed)
+					_alloc.construct(new_data + constructed, _data[i]);
+			}
+			catch (...)
+			{
+				while (constructed)
+					_alloc.destroy(new_data + --constructed);
+				_alloc.deallocate(new_data, new_capacity);
+				throw;
+			}
+			_replace_storage(new_data, constructed, new_capacity);
+		}
+
+		void _insert_range_in_place(size_type index, const vector& values)
+		{
+			const size_type count = values.size();
+			const size_type old_size = _size;
+			const size_type tail_size = old_size - index;
+			size_type constructed = 0;
+			try
+			{
+				if (count <= tail_size)
+				{
+					for (; constructed < count; ++constructed)
+						_alloc.construct(_data + old_size + constructed,
+							_data[old_size - count + constructed]);
+					for (size_type i = old_size - count; i > index; --i)
+						_data[i + count - 1] = _data[i - 1];
+					for (size_type i = 0; i < count; ++i)
+						_data[index + i] = values[i];
+				}
+				else
+				{
+					const size_type extra = count - tail_size;
+					for (; constructed < extra; ++constructed)
+						_alloc.construct(_data + old_size + constructed,
+							values[tail_size + constructed]);
+					for (size_type i = 0; i < tail_size; ++i, ++constructed)
+						_alloc.construct(_data + old_size + constructed,
+							_data[index + i]);
+					for (size_type i = 0; i < tail_size; ++i)
+						_data[index + i] = values[i];
+				}
+			}
+			catch (...)
+			{
+				_destroy_constructed_tail(old_size, constructed);
+				throw;
+			}
+			_size = old_size + count;
 		}
 
 		void _reallocate(size_type new_cap)
