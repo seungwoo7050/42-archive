@@ -347,6 +347,176 @@ namespace
 		require_clean("aliased push_back");
 	}
 
+	void test_fill_insert_alias_and_failures()
+	{
+		reset_injection();
+		{
+			tracked_vector values;
+			values.reserve(8);
+			for (int i = 1; i <= 3; ++i)
+			{
+				tracked_value value(i);
+				values.push_back(value);
+			}
+			values.insert(values.begin(), 2, values.back());
+			const int expected[] = {3, 3, 1, 2, 3};
+			require_values(values, expected, 5,
+				"fill insert snapshots an aliased value");
+		}
+		require_clean("aliased fill insert");
+
+		reset_injection();
+		{
+			tracked_vector values;
+			values.reserve(8);
+			for (int i = 1; i <= 4; ++i)
+			{
+				tracked_value value(i);
+				values.push_back(value);
+			}
+			tracked_value inserted(9);
+			const int expected[] = {1, 2, 3, 4};
+			tracked_value::copy_attempts = 0;
+			tracked_value::throw_on_copy = 1;
+			bool thrown = false;
+			try
+			{
+				values.insert(values.begin() + 1, 2, inserted);
+			}
+			catch (const injected_failure&)
+			{
+				thrown = true;
+			}
+			reset_injection();
+			require(thrown, "fill insert copy failure");
+			require_values(values, expected, 4,
+				"fill insert restores constructed tail");
+		}
+		require_clean("fill insert copy rollback");
+
+		reset_injection();
+		{
+			tracked_vector values;
+			values.reserve(8);
+			for (int i = 1; i <= 4; ++i)
+			{
+				tracked_value value(i);
+				values.push_back(value);
+			}
+			tracked_value inserted(9);
+			tracked_value::assignment_attempts = 0;
+			tracked_value::throw_on_assignment = 2;
+			bool thrown = false;
+			try
+			{
+				values.insert(values.begin() + 1, 2, inserted);
+			}
+			catch (const injected_failure&)
+			{
+				thrown = true;
+			}
+			reset_injection();
+			require(thrown, "fill insert assignment failure");
+			require(values.size() == 4,
+				"fill insert failure keeps tracked size");
+			values.push_back(inserted);
+			require(values.size() == 5,
+				"fill insert remains usable after assignment failure");
+		}
+		require_clean("fill insert assignment rollback");
+	}
+
+	void test_range_insert_capacity_and_rollback()
+	{
+		ft::vector<int> values;
+		values.reserve(16);
+		values.push_back(1);
+		values.push_back(2);
+		values.push_back(3);
+		int additions[] = {8, 9};
+		int* first_address = &values[0];
+		values.insert(values.begin() + 1, additions, additions + 2);
+		const int expected[] = {1, 8, 9, 2, 3};
+		require(values.capacity() == 16,
+			"range insert preserves spare capacity");
+		require(&values[0] == first_address,
+			"range insert preserves prefix address");
+		for (std::size_t i = 0; i < 5; ++i)
+			require(values[i] == expected[i], "range insert value");
+
+		for (int fail_at = 0; fail_at < 14; ++fail_at)
+		{
+			reset_injection();
+			bool thrown = false;
+			{
+				tracked_value one(1);
+				tracked_value two(2);
+				tracked_value seven(7);
+				tracked_value eight(8);
+				tracked_vector original;
+				original.push_back(one);
+				original.push_back(two);
+				tracked_value input[] = {seven, eight};
+				tracked_value::copy_attempts = 0;
+				tracked_value::throw_on_copy = fail_at;
+				try
+				{
+					original.insert(original.begin() + 1, input, input + 2);
+				}
+				catch (const injected_failure&)
+				{
+					thrown = true;
+				}
+				reset_injection();
+				if (thrown)
+				{
+					const int unchanged[] = {1, 2};
+					require_values(original, unchanged, 2,
+						"range insert preserves original");
+				}
+				else
+				{
+					const int inserted[] = {1, 7, 8, 2};
+					require_values(original, inserted, 4,
+						"range insert completes");
+				}
+			}
+			require_clean("range insert failure sweep");
+		}
+	}
+
+	void test_range_insert_allocation_failure()
+	{
+		reset_injection();
+		{
+			tracked_value one(1);
+			tracked_value two(2);
+			tracked_value seven(7);
+			tracked_value eight(8);
+			tracked_vector original;
+			original.push_back(one);
+			original.push_back(two);
+			tracked_value input[] = {seven, eight};
+			value_allocator::allocation_attempts = 0;
+			value_allocator::throw_on_allocate = 2;
+			bool thrown = false;
+			try
+			{
+				original.insert(original.begin() + 1, input, input + 2);
+			}
+			catch (const std::bad_alloc&)
+			{
+				thrown = true;
+			}
+			reset_injection();
+			const int expected[] = {1, 2};
+			require(thrown, "range insert allocation failure");
+			require_values(original, expected, 2,
+				"range insert allocation preserves original");
+		}
+		require_clean("range insert allocation rollback");
+	}
+
 	void test_bounded_growth_and_empty_iterators()
 	{
 		typedef tracking_allocator<int> int_allocator;
@@ -378,6 +548,9 @@ int main()
 	test_copy_assignment_preserves_original();
 	test_resize_rollback();
 	test_aliased_push_back();
+	test_fill_insert_alias_and_failures();
+	test_range_insert_capacity_and_rollback();
+	test_range_insert_allocation_failure();
 	test_bounded_growth_and_empty_iterators();
 	std::cout << "vector exception checks passed" << std::endl;
 	return 0;
