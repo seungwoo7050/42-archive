@@ -105,6 +105,9 @@ namespace
 		typedef ft::vector<int, int_allocator> int_vector;
 		{
 			int_vector values;
+			require(values.begin() == values.end(), "empty begin equals end");
+			values.insert(values.end(), 0, 4);
+			values.erase(values.begin(), values.end());
 			values.reserve(3);
 			for (int i = 0; i < 4; ++i)
 				values.push_back(i);
