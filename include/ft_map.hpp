@@ -231,14 +231,30 @@ namespace ft
 			: _alloc(alloc), _node_alloc(node_allocator(alloc)), _root(NULL),
 			  _size(0), _comp(comp)
 		{
-			insert(first, last);
+			try
+			{
+				insert(first, last);
+			}
+			catch (...)
+			{
+				clear();
+				throw;
+			}
 		}
 
 		map(const map& other)
 			: _alloc(other._alloc), _node_alloc(node_allocator(other._alloc)), _root(NULL),
 			  _size(0), _comp(other._comp)
 		{
-			insert(other.begin(), other.end());
+			try
+			{
+				insert(other.begin(), other.end());
+			}
+			catch (...)
+			{
+				clear();
+				throw;
+			}
 		}
 
 		~map()
@@ -250,9 +266,8 @@ namespace ft
 		{
 			if (this != &other)
 			{
-				clear();
-				_comp = other._comp;
-				insert(other.begin(), other.end());
+				map tmp(other.begin(), other.end(), other._comp, _alloc);
+				_swap_tree_and_compare(tmp);
 			}
 			return *this;
 		}
@@ -438,6 +453,13 @@ namespace ft
 		node* _root;
 		size_type _size;
 		key_compare _comp;
+
+		void _swap_tree_and_compare(map& other)
+		{
+			std::swap(_root, other._root);
+			std::swap(_size, other._size);
+			std::swap(_comp, other._comp);
+		}
 
 		node* _create_node(const value_type& value)
 		{
