@@ -298,19 +298,26 @@ namespace ft
 			}
 			node* parent = NULL;
 			node* cur = _root;
+			bool insert_left = false;
 			while (cur)
 			{
 				parent = cur;
 				if (_comp(value.first, cur->value.first))
+				{
+					insert_left = true;
 					cur = cur->left;
+				}
 				else if (_comp(cur->value.first, value.first))
+				{
+					insert_left = false;
 					cur = cur->right;
+				}
 				else
 					return ft::make_pair(iterator(cur, _root), false);
 			}
 			node* created = _create_node(value);
 			created->parent = parent;
-			if (_comp(value.first, parent->value.first))
+			if (insert_left)
 				parent->left = created;
 			else
 				parent->right = created;
