@@ -399,11 +399,11 @@ namespace ft
 
 		void swap(map& other)
 		{
+			std::swap(_comp, other._comp);
 			std::swap(_alloc, other._alloc);
 			std::swap(_node_alloc, other._node_alloc);
 			std::swap(_header.parent, other._header.parent);
 			std::swap(_size, other._size);
-			std::swap(_comp, other._comp);
 			_refresh_header();
 			other._refresh_header();
 		}
@@ -476,9 +476,9 @@ namespace ft
 
 		void _swap_tree_and_compare(map& other)
 		{
+			std::swap(_comp, other._comp);
 			std::swap(_header.parent, other._header.parent);
 			std::swap(_size, other._size);
-			std::swap(_comp, other._comp);
 			_refresh_header();
 			other._refresh_header();
 		}
