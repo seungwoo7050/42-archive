@@ -11,10 +11,19 @@
 
 namespace ft
 {
+	namespace detail
+	{
+		template <class Map>
+		struct map_inspector;
+	}
+
 	template <class Key, class T, class Compare = std::less<Key>,
 		class Alloc = std::allocator<ft::pair<const Key, T> > >
 	class map
 	{
+		template <class Map>
+		friend struct detail::map_inspector;
+
 	public:
 		typedef Key key_type;
 		typedef T mapped_type;
