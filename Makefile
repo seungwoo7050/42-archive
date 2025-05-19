@@ -4,7 +4,8 @@ CPPFLAGS := -Iinclude
 
 BUILD_DIR := build
 TEST_NAMES := test_containers test_vector_exceptions test_map_exceptions \
-	test_map_iterators test_map_policy_exceptions test_map_randomized
+	test_map_iterators test_map_policy_exceptions test_map_randomized \
+	test_complexity
 
 TEST_SUPPORT_HEADERS := $(wildcard tests/support/*.hpp)
 TEST_BINS := $(addprefix $(BUILD_DIR)/,$(TEST_NAMES))
