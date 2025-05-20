@@ -1,6 +1,8 @@
 CXX := c++
 CXXFLAGS := -Wall -Wextra -Werror -std=c++98
 CPPFLAGS := -Iinclude
+SANITIZER_FLAGS := -O1 -g -fno-omit-frame-pointer \
+	-fsanitize=address,undefined
 
 BUILD_DIR := build
 TEST_NAMES := test_containers test_vector_exceptions test_map_exceptions \
@@ -18,7 +20,7 @@ CONSUMER_OBJECTS := $(patsubst tests/consumer/%.cpp,\
 	$(BUILD_DIR)/consumer/%.o,$(CONSUMER_SOURCES))
 CONSUMER_BIN := $(BUILD_DIR)/consumer_test
 
-.PHONY: all test headers consumer check clean fclean re
+.PHONY: all test headers consumer check sanitize clean fclean re
 
 all: $(TEST_BINS)
 
@@ -54,6 +56,10 @@ consumer: $(CONSUMER_BIN)
 	./$(CONSUMER_BIN)
 
 check: test headers consumer
+
+sanitize:
+	$(MAKE) BUILD_DIR=$(BUILD_DIR)/sanitize \
+		CXXFLAGS="$(CXXFLAGS) $(SANITIZER_FLAGS)" check
 
 clean:
 	rm -rf $(BUILD_DIR)
