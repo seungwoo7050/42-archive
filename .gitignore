@@ -1,0 +1,5 @@
+irc-relay-server
+ircserv
+*.o
+*.d
+*.log
