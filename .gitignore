@@ -3,3 +3,4 @@ ircserv
 *.o
 *.d
 *.log
+tests/connection_test
