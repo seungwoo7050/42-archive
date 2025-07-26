@@ -4,3 +4,4 @@ ircserv
 *.d
 *.log
 tests/connection_test
+tests/server_lifetime_test
