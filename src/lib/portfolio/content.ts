@@ -14,6 +14,8 @@ import type {
   ContentLink,
   ExperienceItem,
   JourneyItem,
+  PortfolioContent,
+  PortfolioEnv,
   PortfolioProject,
   PresentationContent,
   ProfileContent,
@@ -49,4 +51,43 @@ export const portfolioTechStackById = new Map(
 
 export function getEnabledLinks(contentLinks: ContentLink[] = links) {
   return contentLinks.filter((link) => link.enabled !== false);
+}
+
+function withEnvHref(link: ContentLink, env: PortfolioEnv): ContentLink {
+  const envValue = link.envKey ? env[link.envKey]?.trim() : undefined;
+
+  return {
+    ...link,
+    href: envValue && envValue.length > 0 ? envValue : link.href,
+  };
+}
+
+export function getPortfolioContent(
+  env: PortfolioEnv = {
+    NEXT_PUBLIC_DASHBOARD_URL: process.env.NEXT_PUBLIC_DASHBOARD_URL,
+    NEXT_PUBLIC_SEOUL_APP_URL: process.env.NEXT_PUBLIC_SEOUL_APP_URL,
+  },
+): PortfolioContent {
+  const resolvedProjects = projects
+    .filter((project) => project.enabled !== false)
+    .map((project) => ({
+      ...project,
+      links: project.links
+        .filter((link) => link.enabled !== false)
+        .map((link) => withEnvHref(link, env)),
+    }));
+
+  return {
+    site,
+    profile,
+    projects: resolvedProjects,
+    presentation: portfolioPresentation,
+    skills,
+    techStack,
+    experience,
+    journey,
+    links: getEnabledLinks(),
+    contact,
+    resume,
+  };
 }
