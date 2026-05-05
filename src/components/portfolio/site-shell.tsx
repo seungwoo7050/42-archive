@@ -1,10 +1,25 @@
 import Link from "next/link";
-import type { ProfileContent, SiteContent } from "@/lib/portfolio";
+import {
+  getTemplateHref,
+  type HomeTemplateId,
+  type PresentationTemplate,
+  type ProfileContent,
+  type SiteContent,
+} from "@/lib/portfolio";
+
+type TemplateSwitcherProps = {
+  activeId: HomeTemplateId;
+  contentDebug?: boolean;
+  currentPath: string;
+  templates: PresentationTemplate[];
+};
 
 export function SiteHeader({
+  templateSwitcher,
   profile,
   site,
 }: {
+  templateSwitcher?: TemplateSwitcherProps;
   profile: ProfileContent;
   site: SiteContent;
 }) {
@@ -13,7 +28,9 @@ export function SiteHeader({
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
         <Link
           className="text-sm font-semibold tracking-normal text-foreground"
-          href="/"
+          href={getTemplateHref("/", templateSwitcher?.activeId, {
+            contentDebug: templateSwitcher?.contentDebug,
+          })}
         >
           {profile.handle}
         </Link>
@@ -21,13 +38,48 @@ export function SiteHeader({
           {site.navigation.map((item) => (
             <Link
               className="text-sm font-medium text-muted transition hover:text-foreground"
-              href={item.href}
+              href={getTemplateHref(item.href, templateSwitcher?.activeId, {
+                contentDebug: templateSwitcher?.contentDebug,
+              })}
               key={item.href}
             >
               {item.label}
             </Link>
           ))}
         </nav>
+        {templateSwitcher ? (
+          <nav
+            aria-label="Home template"
+            className="flex rounded-md border border-line bg-surface p-1"
+          >
+            {templateSwitcher.templates.map((template) => {
+              const isActive = template.id === templateSwitcher.activeId;
+
+              return (
+                <Link
+                  aria-current={isActive ? "page" : undefined}
+                  className={`rounded px-3 py-1.5 text-xs font-semibold transition ${
+                    isActive
+                      ? "bg-accent text-background"
+                      : "text-muted hover:bg-surface-soft hover:text-foreground"
+                  }`}
+                  href={getTemplateHref(
+                    templateSwitcher.currentPath,
+                    template.id,
+                    {
+                      alwaysInclude: true,
+                      contentDebug: templateSwitcher.contentDebug,
+                    },
+                  )}
+                  key={template.id}
+                  title={template.description}
+                >
+                  {template.label}
+                </Link>
+              );
+            })}
+          </nav>
+        ) : null}
       </div>
     </header>
   );
