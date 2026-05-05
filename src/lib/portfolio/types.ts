@@ -198,3 +198,67 @@ export type HomePresentation = {
     };
   };
 };
+
+export type ProjectGroupPresentation = {
+  category: string;
+  body: string;
+};
+
+export type ProjectPageCountKey =
+  | "curriculumCount"
+  | "projectCount"
+  | "sourceOnlyCount";
+
+export type ProjectPageContent = {
+  groups: ProjectGroupPresentation[];
+  design: {
+    hero: {
+      title: string;
+      body: string;
+      stats: {
+        visibleEntries: string;
+        archive: string;
+        sourceFirst: string;
+      };
+    };
+    featured: {
+      eyebrow: string;
+      title: string;
+      body: string;
+    };
+    group: {
+      countLabel: string;
+    };
+  };
+  classic: {
+    hero: {
+      eyebrow: string;
+      title: string;
+      body: string;
+      stats: Array<{
+        label: string;
+        countKey: ProjectPageCountKey;
+      }>;
+    };
+    terminal: {
+      ariaLabel: string;
+      title: string;
+      promptUser: string;
+      promptPath: string;
+      command: string;
+      entryLabel: string;
+      maxGroups: number;
+    };
+    selected: {
+      eyebrow: string;
+      title: string;
+      body: string;
+    };
+    grouped: {
+      eyebrow: string;
+      title: string;
+      body: string;
+      countLabel: string;
+    };
+  };
+};
