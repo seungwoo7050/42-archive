@@ -107,3 +107,53 @@ export type PortfolioProject = {
   tradeoffs: string[];
   results: string[];
 };
+
+export type HomeTemplateId = "design" | "classic";
+
+export type PresentationTemplate = {
+  id: HomeTemplateId;
+  label: string;
+  description: string;
+};
+
+export type HomeSectionId =
+  | "contact"
+  | "featured"
+  | "journey"
+  | "stack"
+  | "technicalFocus"
+  | "workMap";
+
+export type SectionCopy = {
+  actionLabel?: string;
+  title: string;
+  body?: string;
+};
+
+export type WorkMapCountKey =
+  | "curriculumCount"
+  | "productCount"
+  | "reliabilityCount";
+
+export type WorkMapCard = {
+  id: string;
+  label: string;
+  body: string;
+  countKey: WorkMapCountKey;
+};
+
+export type WorkMapPresentation = SectionCopy & {
+  cards: WorkMapCard[];
+};
+
+export type HomeStatPresentation = {
+  label: string;
+  countKey: WorkMapCountKey;
+};
+
+export type DesignHomeHeroPresentation = {
+  primaryActionLabel: string;
+  leadLabel: string;
+  leadActionLabel: string;
+  stats: HomeStatPresentation[];
+};

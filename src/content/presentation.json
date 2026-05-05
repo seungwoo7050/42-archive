@@ -1,0 +1,44 @@
+{
+  "defaultHomeTemplate": "design",
+  "templates": [
+    {
+      "id": "design",
+      "label": "Design",
+      "description": "Design template placeholder."
+    },
+    {
+      "id": "classic",
+      "label": "Classic",
+      "description": "Classic template placeholder."
+    }
+  ],
+  "home": {
+    "design": {
+      "hero": {
+        "primaryActionLabel": "Projects",
+        "leadLabel": "Lead case study",
+        "leadActionLabel": "Open",
+        "stats": [
+          {
+            "label": "Product",
+            "countKey": "productCount"
+          },
+          {
+            "label": "42 archive",
+            "countKey": "curriculumCount"
+          },
+          {
+            "label": "Reliability",
+            "countKey": "reliabilityCount"
+          }
+        ]
+      },
+      "sections": [],
+      "featured": {
+        "title": "Featured",
+        "body": "Featured placeholder.",
+        "actionLabel": "View all projects"
+      }
+    }
+  }
+}
