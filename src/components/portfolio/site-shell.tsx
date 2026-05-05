@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRightIcon } from "@/components/icons";
 import {
   getTemplateHref,
   type HomeTemplateId,
@@ -82,5 +83,65 @@ export function SiteHeader({
         ) : null}
       </div>
     </header>
+  );
+}
+
+export function SiteFooter({
+  contentDebug,
+  homeTemplate,
+  site,
+}: {
+  contentDebug?: boolean;
+  homeTemplate?: HomeTemplateId;
+  site: SiteContent;
+}) {
+  return (
+    <footer className="border-t border-line bg-background">
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-8">
+        <p>{site.footer.note}</p>
+        <Link
+          className="inline-flex items-center gap-2 font-semibold text-foreground transition hover:text-accent-strong"
+          href={getTemplateHref("/", homeTemplate, { contentDebug })}
+        >
+          {site.footer.copyright}
+          <ArrowRightIcon className="-rotate-45" />
+        </Link>
+      </div>
+    </footer>
+  );
+}
+
+export function PageShell({
+  children,
+  contentDebug,
+  homeTemplate,
+  profile,
+  site,
+  templateSwitcher,
+}: {
+  children: React.ReactNode;
+  contentDebug?: boolean;
+  homeTemplate?: HomeTemplateId;
+  profile: ProfileContent;
+  site: SiteContent;
+  templateSwitcher?: TemplateSwitcherProps;
+}) {
+  return (
+    <main
+      className="min-h-screen bg-background text-foreground"
+      data-home-template={homeTemplate}
+    >
+      <SiteHeader
+        profile={profile}
+        site={site}
+        templateSwitcher={templateSwitcher}
+      />
+      {children}
+      <SiteFooter
+        contentDebug={contentDebug}
+        homeTemplate={homeTemplate}
+        site={site}
+      />
+    </main>
   );
 }
