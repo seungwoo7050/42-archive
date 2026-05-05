@@ -39,6 +39,73 @@
         "body": "Featured placeholder.",
         "actionLabel": "View all projects"
       }
+    },
+    "classic": {
+      "hero": {
+        "primaryActionLabel": "Projects"
+      },
+      "sections": [],
+      "featured": {
+        "title": "Selected work",
+        "body": "Selected work placeholder.",
+        "actionLabel": "View all projects"
+      },
+      "terminal": {
+        "title": "portfolio.sh",
+        "bootLine": "boot placeholder",
+        "promptUser": "user",
+        "promptPath": "~/portfolio",
+        "commands": [
+          {
+            "command": "status",
+            "output": [
+              "placeholder"
+            ]
+          }
+        ]
+      }
+    },
+    "shared": {
+      "workMap": {
+        "title": "Work map",
+        "body": "Work map placeholder.",
+        "cards": [
+          {
+            "id": "product",
+            "label": "Product",
+            "body": "Product placeholder.",
+            "countKey": "productCount"
+          },
+          {
+            "id": "curriculum",
+            "label": "Curriculum",
+            "body": "Curriculum placeholder.",
+            "countKey": "curriculumCount"
+          },
+          {
+            "id": "reliability",
+            "label": "Reliability",
+            "body": "Reliability placeholder.",
+            "countKey": "reliabilityCount"
+          }
+        ]
+      },
+      "technicalFocus": {
+        "title": "Technical focus",
+        "body": "Technical focus placeholder."
+      },
+      "stack": {
+        "title": "Stack",
+        "body": "Stack placeholder."
+      },
+      "journey": {
+        "title": "Journey",
+        "body": "Journey placeholder."
+      },
+      "contact": {
+        "title": "Contact",
+        "actionLabel": "Contact page"
+      }
     }
   }
 }

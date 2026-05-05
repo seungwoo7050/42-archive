@@ -157,3 +157,44 @@ export type DesignHomeHeroPresentation = {
   leadActionLabel: string;
   stats: HomeStatPresentation[];
 };
+
+export type ClassicHomeHeroPresentation = {
+  primaryActionLabel: string;
+};
+
+export type TerminalCommand = {
+  command: string;
+  output: string[];
+};
+
+export type TerminalPresentation = {
+  title: string;
+  bootLine: string;
+  promptUser: string;
+  promptPath: string;
+  commands: TerminalCommand[];
+};
+
+export type HomePresentation = {
+  design: {
+    hero: DesignHomeHeroPresentation;
+    sections: HomeSectionId[];
+    featured: SectionCopy;
+  };
+  classic: {
+    hero: ClassicHomeHeroPresentation;
+    sections: HomeSectionId[];
+    featured: SectionCopy;
+    terminal: TerminalPresentation;
+  };
+  shared: {
+    workMap: WorkMapPresentation;
+    technicalFocus: SectionCopy;
+    stack: SectionCopy;
+    journey: SectionCopy;
+    contact: {
+      actionLabel: string;
+      title: string;
+    };
+  };
+};
