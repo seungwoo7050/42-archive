@@ -383,3 +383,51 @@ export type JourneyItem = {
   projectId: string | null;
   sourcePath: string | null;
 };
+
+export type ContactContent = {
+  title: string;
+  intro: string;
+  availability: string;
+  preferred: string[];
+  notes: string[];
+};
+
+export type ResumeTraining = {
+  name: string;
+  period: string;
+  description: string;
+};
+
+export type ResumeEducation = {
+  name: string;
+  period: string;
+  description: string;
+};
+
+export type ResumeContent = {
+  downloadUrl: string | null;
+  summary: string[];
+  projectIds: string[];
+  training: ResumeTraining[];
+  education: ResumeEducation[];
+  notes: string[];
+};
+
+export type PortfolioContent = {
+  site: SiteContent;
+  profile: ProfileContent;
+  projects: PortfolioProject[];
+  presentation: PresentationContent;
+  skills: SkillsContent;
+  techStack: TechStackItem[];
+  experience: ExperienceItem[];
+  journey: JourneyItem[];
+  links: ContentLink[];
+  contact: ContactContent;
+  resume: ResumeContent;
+};
+
+export type PortfolioEnv = Partial<Record<EnvKey, string | undefined>>;
+export type RouteSearchParams = Promise<
+  Record<string, string | string[] | undefined>
+>;
