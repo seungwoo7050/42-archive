@@ -85,3 +85,72 @@ export function CityIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function CheckIcon(props: IconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height="18"
+      viewBox="0 0 18 18"
+      width="18"
+      {...props}
+    >
+      <path
+        d="m4 9.25 3.05 3.05L14 5.7"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
+export function ExternalLinkIcon(props: IconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height="16"
+      viewBox="0 0 16 16"
+      width="16"
+      {...props}
+    >
+      <path
+        d="M6.25 3.25h6.5v6.5m0-6.5-7.5 7.5M7 5H4.2c-.66 0-1.2.54-1.2 1.2v5.6c0 .66.54 1.2 1.2 1.2h5.6c.66 0 1.2-.54 1.2-1.2V9"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.45"
+      />
+    </svg>
+  );
+}
+
+export function ShieldIcon(props: IconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height="20"
+      viewBox="0 0 20 20"
+      width="20"
+      {...props}
+    >
+      <path
+        d="M10 17.25c3.5-1.35 5.25-3.7 5.25-7.05V5.55L10 3.25 4.75 5.55v4.65c0 3.35 1.75 5.7 5.25 7.05Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.55"
+      />
+      <path
+        d="m7.4 10.15 1.75 1.75 3.6-3.8"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.55"
+      />
+    </svg>
+  );
+}
