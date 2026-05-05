@@ -171,6 +171,82 @@
           "countLabel": "projects"
         }
       }
+    },
+    "projectDetail": {
+      "backLabel": "Projects",
+      "sections": {
+        "problem": {
+          "eyebrow": "Problem",
+          "title": "Problem statement"
+        },
+        "solution": {
+          "eyebrow": "Solution",
+          "title": "Solution summary"
+        },
+        "architecture": {
+          "eyebrow": "Architecture",
+          "title": "Architecture"
+        },
+        "screenshots": {
+          "eyebrow": "Screenshots",
+          "title": "Gallery"
+        },
+        "stack": {
+          "eyebrow": "Stack",
+          "title": "Tech stack"
+        },
+        "decisions": {
+          "eyebrow": "Decisions",
+          "title": "Key technical decisions"
+        },
+        "tradeoffs": {
+          "eyebrow": "Tradeoffs",
+          "title": "Challenges and tradeoffs"
+        },
+        "result": {
+          "eyebrow": "Result",
+          "title": "Result"
+        }
+      }
+    },
+    "about": {
+      "hero": {
+        "title": "About"
+      },
+      "principles": {
+        "title": "Working principles"
+      },
+      "journey": {
+        "title": "Journey"
+      },
+      "skills": {
+        "title": "Skills"
+      }
+    },
+    "resume": {
+      "hero": {
+        "title": "Resume",
+        "body": "Resume placeholder.",
+        "downloadLabel": "Download PDF"
+      },
+      "summary": {
+        "title": "Summary"
+      },
+      "projects": {
+        "title": "Project experience",
+        "caseStudyLabel": "Case study"
+      },
+      "training": {
+        "title": "Training"
+      }
+    },
+    "contact": {
+      "availability": {
+        "title": "Availability"
+      },
+      "notes": {
+        "title": "Content notes"
+      }
     }
   }
 }
