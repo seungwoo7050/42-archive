@@ -4,7 +4,9 @@ import {
   portfolioTechStackById,
 } from "./content";
 import type {
+  ContentLink,
   HomeTemplateId,
+  LinkType,
   PortfolioContent,
   PortfolioProject,
   PresentationContent,
@@ -77,4 +79,45 @@ export function getResumeProjects(
   return content.resume.projectIds
     .map((projectId) => byId.get(projectId))
     .filter((project): project is PortfolioProject => Boolean(project));
+}
+
+export function getPreferredContactLinks(
+  content: PortfolioContent = getPortfolioContent(),
+) {
+  const byId = new Map(content.links.map((link) => [link.id, link]));
+
+  return content.contact.preferred
+    .map((id) => byId.get(id))
+    .filter((link): link is ContentLink => Boolean(link));
+}
+
+export function getProjectLink(project: PortfolioProject, type: LinkType) {
+  return project.links.find((link) => link.type === type) ?? null;
+}
+
+export function isProjectLive(project: PortfolioProject) {
+  return Boolean(
+    project.deployment.status === "live" && getProjectLink(project, "demo"),
+  );
+}
+
+export function getProjectCardLinks(project: PortfolioProject) {
+  return project.links.filter((link) => {
+    if (link.type === "demo") {
+      return isProjectLive(project);
+    }
+
+    return link.type === "github" || link.type === "case-study";
+  });
+}
+
+export function getExternalLinkProps(link: ContentLink) {
+  if (!link.external) {
+    return {};
+  }
+
+  return {
+    rel: "noreferrer",
+    target: "_blank",
+  };
 }
