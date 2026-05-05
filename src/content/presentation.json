@@ -107,5 +107,70 @@
         "actionLabel": "Contact page"
       }
     }
+  },
+  "pages": {
+    "projects": {
+      "groups": [],
+      "design": {
+        "hero": {
+          "title": "Projects",
+          "body": "Projects placeholder.",
+          "stats": {
+            "visibleEntries": "visible entries",
+            "archive": "archive",
+            "sourceFirst": "source-first"
+          }
+        },
+        "featured": {
+          "eyebrow": "Featured",
+          "title": "Lead projects",
+          "body": "Lead projects placeholder."
+        },
+        "group": {
+          "countLabel": "projects"
+        }
+      },
+      "classic": {
+        "hero": {
+          "eyebrow": "projects.index",
+          "title": "Project archive",
+          "body": "Project archive placeholder.",
+          "stats": [
+            {
+              "label": "Entries",
+              "countKey": "projectCount"
+            },
+            {
+              "label": "42 archive",
+              "countKey": "curriculumCount"
+            },
+            {
+              "label": "Source-first",
+              "countKey": "sourceOnlyCount"
+            }
+          ]
+        },
+        "terminal": {
+          "ariaLabel": "Project archive terminal",
+          "title": "projects.index",
+          "promptUser": "user",
+          "promptPath": "~/portfolio",
+          "command": "projects --grouped",
+          "entryLabel": "entries",
+          "maxGroups": 5
+        },
+        "selected": {
+          "eyebrow": "Selected work",
+          "title": "Representative case",
+          "body": "Representative case placeholder."
+        },
+        "grouped": {
+          "eyebrow": "Archive tracks",
+          "title": "Grouped index",
+          "body": "Grouped index placeholder.",
+          "countLabel": "projects"
+        }
+      }
+    }
   }
 }
