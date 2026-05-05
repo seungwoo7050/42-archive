@@ -1,0 +1,16 @@
+{
+  "title": "Portfolio Site",
+  "description": "Content-driven portfolio placeholder.",
+  "language": "ko",
+  "brand": "Portfolio",
+  "navigation": [
+    {
+      "label": "Home",
+      "href": "/"
+    }
+  ],
+  "footer": {
+    "note": "Content placeholder.",
+    "copyright": "Portfolio"
+  }
+}

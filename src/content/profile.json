@@ -1,0 +1,11 @@
+{
+  "name": "Profile Name",
+  "koreanName": "프로필 이름",
+  "handle": "handle",
+  "role": "Web Developer",
+  "headline": "Portfolio headline placeholder.",
+  "summary": "Portfolio summary placeholder.",
+  "location": "Seoul, Korea",
+  "availability": "Available for portfolio review.",
+  "principles": []
+}
