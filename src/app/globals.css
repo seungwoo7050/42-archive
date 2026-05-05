@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7faf8;
+  --background-soft: #edf5f2;
+  --foreground: #14213d;
+  --muted: #5f6d7d;
+  --line: #ccd9d8;
+  --surface: #ffffff;
+  --surface-soft: #f2f7f6;
+  --surface-hover: #f8fbfb;
+  --accent: #008c89;
+  --accent-strong: #006b69;
+  --accent-soft: rgba(0, 140, 137, 0.12);
+  --signal: #4f46e5;
+  --signal-strong: #3730a3;
+  --signal-soft: rgba(79, 70, 229, 0.12);
+  --warm: #f59e0b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-soft: var(--background-soft);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-surface: var(--surface);
+  --color-surface-soft: var(--surface-soft);
+  --color-surface-hover: var(--surface-hover);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-signal: var(--signal);
+  --color-signal-strong: var(--signal-strong);
+  --color-signal-soft: var(--signal-soft);
+  --color-warm: var(--warm);
+  --font-sans: "Geist", "Apple SD Gothic Neo", "Noto Sans KR", ui-sans-serif,
+    system-ui, sans-serif;
+  --font-mono: "Geist Mono", "SFMono-Regular", Consolas, ui-monospace,
+    monospace;
+}
+
+html {
+  background: var(--background);
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), "Apple SD Gothic Neo", "Noto Sans KR",
+    ui-sans-serif, system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: #bff4e5;
+  color: #10212c;
+}
+
+a {
+  text-underline-offset: 3px;
+}
