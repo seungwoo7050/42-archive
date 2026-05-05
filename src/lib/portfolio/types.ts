@@ -262,3 +262,60 @@ export type ProjectPageContent = {
     };
   };
 };
+
+export type ProjectDetailPageContent = {
+  backLabel: string;
+  sections: Record<
+    | "architecture"
+    | "decisions"
+    | "problem"
+    | "result"
+    | "screenshots"
+    | "solution"
+    | "stack"
+    | "tradeoffs",
+    {
+      eyebrow: string;
+      title: string;
+    }
+  >;
+};
+
+export type AboutPageContent = {
+  hero: { title: string };
+  principles: { title: string };
+  journey: { title: string };
+  skills: { title: string };
+};
+
+export type ResumePageContent = {
+  hero: {
+    title: string;
+    body: string;
+    downloadLabel: string;
+  };
+  summary: { title: string };
+  projects: {
+    title: string;
+    caseStudyLabel: string;
+  };
+  training: { title: string };
+};
+
+export type ContactPageContent = {
+  availability: { title: string };
+  notes: { title: string };
+};
+
+export type PresentationContent = {
+  defaultHomeTemplate: HomeTemplateId;
+  templates: PresentationTemplate[];
+  home: HomePresentation;
+  pages: {
+    about: AboutPageContent;
+    contact: ContactPageContent;
+    projectDetail: ProjectDetailPageContent;
+    projects: ProjectPageContent;
+    resume: ResumePageContent;
+  };
+};
