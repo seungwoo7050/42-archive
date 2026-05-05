@@ -319,3 +319,67 @@ export type PresentationContent = {
     resume: ResumePageContent;
   };
 };
+
+export type TechStackIcon =
+  | "api"
+  | "box"
+  | "c"
+  | "check"
+  | "cmake"
+  | "cplusplus"
+  | "database"
+  | "docker"
+  | "eslint"
+  | "flow"
+  | "json"
+  | "nextjs"
+  | "nodejs"
+  | "playwright"
+  | "postgresql"
+  | "prisma"
+  | "react"
+  | "redis"
+  | "shield"
+  | "tailwind"
+  | "terminal"
+  | "tool"
+  | "typescript"
+  | "vitest";
+
+export type TechStackItem = {
+  id: string;
+  label: string;
+  icon: TechStackIcon;
+  color: string;
+};
+
+export type SkillFocusArea = {
+  title: string;
+  body: string;
+};
+
+export type SkillGroup = {
+  title: string;
+  items: string[];
+};
+
+export type SkillsContent = {
+  focusAreas: SkillFocusArea[];
+  groups: SkillGroup[];
+};
+
+export type ExperienceItem = {
+  period: string;
+  title: string;
+  body: string;
+};
+
+export type JourneyItem = {
+  date: string;
+  endDate: string | null;
+  title: string;
+  category: string;
+  body: string;
+  projectId: string | null;
+  sourcePath: string | null;
+};
