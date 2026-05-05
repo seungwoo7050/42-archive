@@ -1,7 +1,14 @@
-import { portfolioPresentation } from "./content";
+import {
+  getPortfolioContent,
+  portfolioPresentation,
+  portfolioTechStackById,
+} from "./content";
 import type {
   HomeTemplateId,
+  PortfolioContent,
+  PortfolioProject,
   PresentationContent,
+  TechStackItem,
 } from "./types";
 import { createTemplateHref } from "./template-href";
 
@@ -36,4 +43,38 @@ export function getTemplateHref(
     portfolioPresentation.defaultHomeTemplate,
     options,
   );
+}
+
+export function resolveTechStackItem(id: string): TechStackItem {
+  return (
+    portfolioTechStackById.get(id) ?? {
+      id,
+      label: id,
+      icon: "tool",
+      color: "#9cc8b1",
+    }
+  );
+}
+
+export function getFeaturedProjects(
+  content: PortfolioContent = getPortfolioContent(),
+) {
+  return content.projects.filter((project) => project.featured);
+}
+
+export function getProjectById(
+  projectId: string,
+  content: PortfolioContent = getPortfolioContent(),
+) {
+  return content.projects.find((project) => project.id === projectId) ?? null;
+}
+
+export function getResumeProjects(
+  content: PortfolioContent = getPortfolioContent(),
+) {
+  const byId = new Map(content.projects.map((project) => [project.id, project]));
+
+  return content.resume.projectIds
+    .map((projectId) => byId.get(projectId))
+    .filter((project): project is PortfolioProject => Boolean(project));
 }
