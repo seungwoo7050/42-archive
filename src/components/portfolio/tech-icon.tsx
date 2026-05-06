@@ -1,0 +1,35 @@
+import {
+  siC,
+  siCmake,
+  siCplusplus,
+  siDocker,
+  siEslint,
+  siNextdotjs,
+  siNodedotjs,
+  siPostgresql,
+  siPrisma,
+  siReact,
+  siRedis,
+  siTailwindcss,
+  siTypescript,
+  siVitest,
+  type SimpleIcon,
+} from "simple-icons";
+import type { TechStackIcon } from "@/lib/portfolio";
+
+const iconMap: Partial<Record<TechStackIcon, SimpleIcon>> = {
+  c: siC,
+  cmake: siCmake,
+  cplusplus: siCplusplus,
+  docker: siDocker,
+  eslint: siEslint,
+  nextjs: siNextdotjs,
+  nodejs: siNodedotjs,
+  postgresql: siPostgresql,
+  prisma: siPrisma,
+  react: siReact,
+  redis: siRedis,
+  tailwind: siTailwindcss,
+  typescript: siTypescript,
+  vitest: siVitest,
+};
