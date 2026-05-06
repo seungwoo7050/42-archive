@@ -3,9 +3,15 @@ import { AnimatedTerminal } from "@/components/portfolio/animated-terminal";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { ContentLinkView } from "@/components/portfolio/content-link";
 import { ProfilePhoto } from "@/components/portfolio/profile-photo";
+import { ProjectCard } from "@/components/portfolio/project-card";
 import { Reveal } from "@/components/portfolio/reveal";
+import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
-import type { HomeTemplateId, PortfolioContent } from "@/lib/portfolio";
+import {
+  getFeaturedProjects,
+  type HomeTemplateId,
+  type PortfolioContent,
+} from "@/lib/portfolio";
 
 export function ClassicHomeRoute({
   content,
@@ -15,6 +21,7 @@ export function ClassicHomeRoute({
   contentDebug: boolean;
 }) {
   const activeTemplate: HomeTemplateId = "classic";
+  const featuredProjects = getFeaturedProjects(content);
 
   return (
     <PageShell
@@ -34,7 +41,57 @@ export function ClassicHomeRoute({
         content={content}
         contentDebug={contentDebug}
       />
+      {content.presentation.home.classic.sections.includes("featured") ? (
+        <ClassicFeaturedProjectsSection
+          activeTemplate={activeTemplate}
+          content={content}
+          contentDebug={contentDebug}
+          projects={featuredProjects}
+        />
+      ) : null}
     </PageShell>
+  );
+}
+
+function ClassicFeaturedProjectsSection({
+  activeTemplate,
+  content,
+  contentDebug,
+  projects,
+}: {
+  activeTemplate: HomeTemplateId;
+  content: PortfolioContent;
+  contentDebug: boolean;
+  projects: ReturnType<typeof getFeaturedProjects>;
+}) {
+  const copy = content.presentation.home.classic.featured;
+
+  return (
+    <section className="border-b border-line bg-background-soft">
+      <div className="mx-auto grid max-w-6xl gap-6 px-5 py-10 sm:px-8 md:py-12">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <SectionHeading
+            body={copy.body}
+            contentDebug={contentDebug}
+            contentHint="src/content/presentation.json > home.classic.featured"
+            title={copy.title}
+          />
+        </div>
+        <div className="grid gap-5">
+          {projects.slice(0, 1).map((project) => (
+            <Reveal key={project.id}>
+              <ProjectCard
+                contentDebug={contentDebug}
+                homeTemplate={activeTemplate}
+                priority
+                project={project}
+                variant="featured"
+              />
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
