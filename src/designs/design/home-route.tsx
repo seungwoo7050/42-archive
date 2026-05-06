@@ -3,8 +3,10 @@ import { ArrowRightIcon } from "@/components/icons";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { ContentLinkView } from "@/components/portfolio/content-link";
 import { ProfilePhoto } from "@/components/portfolio/profile-photo";
+import { ProjectCard } from "@/components/portfolio/project-card";
 import { ProjectScreenshot } from "@/components/portfolio/project-screenshot";
 import { Reveal } from "@/components/portfolio/reveal";
+import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
 import {
   getFeaturedProjects,
@@ -42,7 +44,69 @@ export function DesignHomeRoute({
         contentDebug={contentDebug}
         projects={featuredProjects}
       />
+      {content.presentation.home.design.sections.includes("featured") ? (
+        <FeaturedProjectsSection
+          activeTemplate={activeTemplate}
+          content={content}
+          contentDebug={contentDebug}
+          projects={featuredProjects}
+        />
+      ) : null}
     </PageShell>
+  );
+}
+
+function FeaturedProjectsSection({
+  activeTemplate,
+  content,
+  contentDebug,
+  projects,
+}: {
+  activeTemplate: HomeTemplateId;
+  content: PortfolioContent;
+  contentDebug: boolean;
+  projects: ReturnType<typeof getFeaturedProjects>;
+}) {
+  const copy = content.presentation.home.design.featured;
+
+  return (
+    <section className="border-b border-line bg-background-soft">
+      <div className="mx-auto grid max-w-6xl gap-6 px-5 py-10 sm:px-8 md:py-12">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <SectionHeading
+            body={copy.body}
+            contentDebug={contentDebug}
+            contentHint="src/content/presentation.json > home.design.featured"
+            title={copy.title}
+          />
+        </div>
+        <div className="grid gap-5">
+          {projects.slice(0, 1).map((project) => (
+            <Reveal key={project.id}>
+              <ProjectCard
+                contentDebug={contentDebug}
+                homeTemplate={activeTemplate}
+                priority
+                project={project}
+                variant="featured"
+              />
+            </Reveal>
+          ))}
+          <div className="grid gap-5 lg:grid-cols-2">
+            {projects.slice(1, 3).map((project, index) => (
+              <Reveal delay={index * 80} key={project.id}>
+                <ProjectCard
+                  contentDebug={contentDebug}
+                  homeTemplate={activeTemplate}
+                  priority
+                  project={project}
+                />
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
