@@ -109,6 +109,29 @@ a {
   z-index: 1;
 }
 
+.hero-terminal-wrap {
+  animation: terminal-float 7s ease-in-out infinite;
+  position: relative;
+}
+
+.hero-terminal-wrap::before,
+.hero-terminal-wrap::after {
+  border: 1px solid rgba(122, 167, 255, 0.2);
+  content: "";
+  inset: 10% -4% auto auto;
+  height: 12rem;
+  pointer-events: none;
+  position: absolute;
+  transform: rotate(-18deg);
+  width: 12rem;
+}
+
+.hero-terminal-wrap::after {
+  border-color: rgba(156, 200, 177, 0.16);
+  inset: auto auto 2% -3%;
+  transform: rotate(16deg);
+}
+
 .hero-showcase {
   animation: terminal-float 7s ease-in-out infinite;
   position: relative;
@@ -141,6 +164,72 @@ a {
     0 0 0 1px rgba(255, 255, 255, 0.75) inset;
   overflow: hidden;
   position: relative;
+}
+
+.terminal-window {
+  background: rgba(17, 19, 25, 0.88);
+  border: 1px solid rgba(122, 167, 255, 0.26);
+  border-radius: 8px;
+  box-shadow:
+    0 26px 80px rgba(0, 0, 0, 0.34),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  color: #edf7ff;
+  overflow: hidden;
+  position: relative;
+}
+
+.terminal-window .text-accent {
+  color: #5eead4;
+}
+
+.terminal-window .text-muted {
+  color: #9fb0c4;
+}
+
+.terminal-window .text-signal {
+  color: #93c5fd;
+}
+
+.terminal-window::before {
+  animation: terminal-sheen 4.8s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, rgba(122, 167, 255, 0.2), transparent);
+  content: "";
+  height: 1px;
+  left: -30%;
+  position: absolute;
+  top: 0;
+  width: 60%;
+}
+
+.terminal-titlebar {
+  align-items: center;
+  background: rgba(42, 45, 52, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  gap: 0.45rem;
+  height: 2.2rem;
+  padding: 0 0.85rem;
+}
+
+.terminal-titlebar span {
+  border-radius: 999px;
+  height: 0.62rem;
+  width: 0.62rem;
+}
+
+.terminal-titlebar p {
+  color: var(--muted);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  margin-left: 0.4rem;
+}
+
+.terminal-body {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.82rem;
+  line-height: 1.75;
+  min-height: 16rem;
+  padding: 1.15rem;
 }
 
 .reveal-item {
@@ -180,13 +269,26 @@ a {
   }
 }
 
+@keyframes terminal-sheen {
+  0%,
+  35% {
+    transform: translateX(0);
+  }
+
+  70%,
+  100% {
+    transform: translateX(230%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
 
   .hero-section::after,
-  .hero-showcase {
+  .hero-showcase,
+  .terminal-window::before {
     animation: none;
   }
 
