@@ -7,6 +7,7 @@ import { ProjectCard } from "@/components/portfolio/project-card";
 import { Reveal } from "@/components/portfolio/reveal";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
+import { WorkMapSection } from "@/components/portfolio/work-map-section";
 import {
   getFeaturedProjects,
   type HomeTemplateId,
@@ -48,6 +49,9 @@ export function ClassicHomeRoute({
           contentDebug={contentDebug}
           projects={featuredProjects}
         />
+      ) : null}
+      {content.presentation.home.classic.sections.includes("workMap") ? (
+        <WorkMapSection content={content} contentDebug={contentDebug} />
       ) : null}
     </PageShell>
   );

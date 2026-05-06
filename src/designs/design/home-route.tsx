@@ -9,6 +9,10 @@ import { Reveal } from "@/components/portfolio/reveal";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
 import {
+  getWorkMapStats,
+  WorkMapSection,
+} from "@/components/portfolio/work-map-section";
+import {
   getFeaturedProjects,
   getTemplateHref,
   type HomeTemplateId,
@@ -51,6 +55,9 @@ export function DesignHomeRoute({
           contentDebug={contentDebug}
           projects={featuredProjects}
         />
+      ) : null}
+      {content.presentation.home.design.sections.includes("workMap") ? (
+        <WorkMapSection content={content} contentDebug={contentDebug} />
       ) : null}
     </PageShell>
   );
@@ -108,22 +115,6 @@ function FeaturedProjectsSection({
       </div>
     </section>
   );
-}
-
-function getWorkMapStats(content: PortfolioContent) {
-  const curriculumCount = content.projects.filter((project) =>
-    project.screenshot.src.startsWith("/projects/42/") || project.id === "pong-pong",
-  ).length;
-  const reliabilityProject = content.projects.find(
-    (project) => project.id === "reliability-training-series",
-  );
-  const productCount = content.projects.filter((project) => project.featured).length;
-
-  return {
-    curriculumCount,
-    productCount,
-    reliabilityCount: reliabilityProject?.highlights.length ?? 0,
-  };
 }
 
 function HeroSection({
