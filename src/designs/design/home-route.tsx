@@ -29,6 +29,12 @@ export function DesignHomeRoute({
       homeTemplate={activeTemplate}
       profile={content.profile}
       site={content.site}
+      templateSwitcher={{
+        activeId: activeTemplate,
+        contentDebug,
+        currentPath: "/",
+        templates: content.presentation.templates,
+      }}
     >
       <HeroSection
         activeTemplate={activeTemplate}

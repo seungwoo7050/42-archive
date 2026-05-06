@@ -22,6 +22,12 @@ export function ClassicHomeRoute({
       homeTemplate={activeTemplate}
       profile={content.profile}
       site={content.site}
+      templateSwitcher={{
+        activeId: activeTemplate,
+        contentDebug,
+        currentPath: "/",
+        templates: content.presentation.templates,
+      }}
     >
       <ClassicHeroSection
         activeTemplate={activeTemplate}
