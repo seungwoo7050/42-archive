@@ -18,6 +18,24 @@
   --warm: #f59e0b;
 }
 
+main[data-home-template="classic"] {
+  --background: #1f2023;
+  --background-soft: #242528;
+  --foreground: #f2efe7;
+  --muted: #a4abb2;
+  --line: #3a3d43;
+  --surface: #292b2f;
+  --surface-soft: #303338;
+  --surface-hover: #2f3237;
+  --accent: #9cc8b1;
+  --accent-strong: #c0ddcd;
+  --accent-soft: rgba(156, 200, 177, 0.12);
+  --signal: #7aa7ff;
+  --signal-strong: #9db9ff;
+  --signal-soft: rgba(122, 167, 255, 0.16);
+  --warm: #f6c76f;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-background-soft: var(--background-soft);
@@ -107,6 +125,26 @@ a {
 .hero-section > * {
   position: relative;
   z-index: 1;
+}
+
+main[data-home-template="classic"] .hero-section::before {
+  background:
+    radial-gradient(circle at 82% 14%, rgba(122, 167, 255, 0.24), transparent 24rem),
+    linear-gradient(135deg, transparent 0 58%, rgba(122, 167, 255, 0.16) 58.2% 58.55%, transparent 58.8%),
+    linear-gradient(155deg, transparent 0 70%, rgba(156, 200, 177, 0.14) 70.1% 70.38%, transparent 70.7%);
+}
+
+main[data-home-template="classic"] .hero-section::after {
+  background-image:
+    linear-gradient(rgba(122, 167, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(156, 200, 177, 0.07) 1px, transparent 1px);
+  opacity: 0.8;
+}
+
+main[data-home-template="classic"] .profile-photo-frame {
+  border-color: rgba(156, 200, 177, 0.34);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
+  height: 4.8rem;
 }
 
 .hero-terminal-wrap {
