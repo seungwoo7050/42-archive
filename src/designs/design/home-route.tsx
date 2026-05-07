@@ -8,6 +8,7 @@ import { ProjectScreenshot } from "@/components/portfolio/project-screenshot";
 import { Reveal } from "@/components/portfolio/reveal";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
+import { TechnicalFocusSection } from "@/components/portfolio/technical-focus-section";
 import {
   getWorkMapStats,
   WorkMapSection,
@@ -58,6 +59,9 @@ export function DesignHomeRoute({
       ) : null}
       {content.presentation.home.design.sections.includes("workMap") ? (
         <WorkMapSection content={content} contentDebug={contentDebug} />
+      ) : null}
+      {content.presentation.home.design.sections.includes("technicalFocus") ? (
+        <TechnicalFocusSection content={content} contentDebug={contentDebug} />
       ) : null}
     </PageShell>
   );
