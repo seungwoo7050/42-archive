@@ -6,6 +6,7 @@ import { ProfilePhoto } from "@/components/portfolio/profile-photo";
 import { ProjectCard } from "@/components/portfolio/project-card";
 import { Reveal } from "@/components/portfolio/reveal";
 import { SectionHeading } from "@/components/portfolio/section-heading";
+import { SelectedStackSection } from "@/components/portfolio/selected-stack-section";
 import { PageShell } from "@/components/portfolio/site-shell";
 import { TechnicalFocusSection } from "@/components/portfolio/technical-focus-section";
 import { WorkMapSection } from "@/components/portfolio/work-map-section";
@@ -56,6 +57,9 @@ export function ClassicHomeRoute({
       ) : null}
       {content.presentation.home.classic.sections.includes("technicalFocus") ? (
         <TechnicalFocusSection content={content} contentDebug={contentDebug} />
+      ) : null}
+      {content.presentation.home.classic.sections.includes("stack") ? (
+        <SelectedStackSection content={content} contentDebug={contentDebug} />
       ) : null}
     </PageShell>
   );
