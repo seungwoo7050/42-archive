@@ -2,6 +2,7 @@ import { ArrowRightIcon } from "@/components/icons";
 import { AnimatedTerminal } from "@/components/portfolio/animated-terminal";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { ContentLinkView } from "@/components/portfolio/content-link";
+import { HomeContactPreview } from "@/components/portfolio/home-contact-preview";
 import { HomeJourneySection } from "@/components/portfolio/home-journey-section";
 import { ProfilePhoto } from "@/components/portfolio/profile-photo";
 import { ProjectCard } from "@/components/portfolio/project-card";
@@ -64,6 +65,13 @@ export function ClassicHomeRoute({
       ) : null}
       {content.presentation.home.classic.sections.includes("journey") ? (
         <HomeJourneySection
+          activeTemplate={activeTemplate}
+          content={content}
+          contentDebug={contentDebug}
+        />
+      ) : null}
+      {content.presentation.home.classic.sections.includes("contact") ? (
+        <HomeContactPreview
           activeTemplate={activeTemplate}
           content={content}
           contentDebug={contentDebug}
