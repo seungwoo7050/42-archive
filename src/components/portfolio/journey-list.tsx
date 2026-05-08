@@ -184,3 +184,64 @@ function PairedJourneyList({
     </div>
   );
 }
+
+export function JourneyList({
+  animated = false,
+  contentDebug,
+  homeTemplate,
+  items,
+  variant = "compact",
+}: {
+  animated?: boolean;
+  contentDebug?: boolean;
+  homeTemplate?: HomeTemplateId;
+  items: JourneyItem[];
+  variant?: JourneyListVariant;
+}) {
+  if (variant === "paired-centerline") {
+    return (
+      <PairedJourneyList
+        animated={animated}
+        contentDebug={contentDebug}
+        homeTemplate={homeTemplate}
+        items={items}
+      />
+    );
+  }
+
+  const rows = items.map((item, index) =>
+    animated ? (
+      <Reveal
+        as="li"
+        className="experience-row grid gap-3 border-b border-line py-5 last:border-b-0 sm:grid-cols-[9.5rem_1fr]"
+        delay={index * 60}
+        key={`${item.date}-${item.title}`}
+      >
+        <JourneyEntry
+          contentDebug={contentDebug}
+          homeTemplate={homeTemplate}
+          item={item}
+        />
+      </Reveal>
+    ) : (
+      <li
+        className="experience-row grid gap-3 border-b border-line py-5 last:border-b-0 sm:grid-cols-[9.5rem_1fr]"
+        key={`${item.date}-${item.title}`}
+      >
+        <JourneyEntry
+          contentDebug={contentDebug}
+          homeTemplate={homeTemplate}
+          item={item}
+        />
+      </li>
+    ),
+  );
+
+  const list = <ol className="relative border-y border-line">{rows}</ol>;
+
+  if (animated) {
+    return <Reveal className="timeline-list">{list}</Reveal>;
+  }
+
+  return <div className="timeline-list">{list}</div>;
+}
