@@ -96,3 +96,91 @@ function chunkPairs(items: JourneyItem[]) {
 
   return pairs;
 }
+
+function PairedJourneyList({
+  animated,
+  contentDebug,
+  homeTemplate,
+  items,
+}: {
+  animated: boolean;
+  contentDebug?: boolean;
+  homeTemplate?: HomeTemplateId;
+  items: JourneyItem[];
+}) {
+  const [startItem, ...projectItems] = items;
+  const rows = chunkPairs(projectItems);
+
+  return (
+    <div className="paired-timeline">
+      <ol className="paired-timeline-list">
+        {startItem ? (
+          animated ? (
+            <Reveal
+              as="li"
+              className="paired-timeline-start"
+              key={`${startItem.date}-${startItem.title}`}
+            >
+              <JourneyCard
+                contentDebug={contentDebug}
+                homeTemplate={homeTemplate}
+                item={startItem}
+              />
+            </Reveal>
+          ) : (
+            <li
+              className="paired-timeline-start"
+              key={`${startItem.date}-${startItem.title}`}
+            >
+              <JourneyCard
+                contentDebug={contentDebug}
+                homeTemplate={homeTemplate}
+                item={startItem}
+              />
+            </li>
+          )
+        ) : null}
+        {rows.map((pair, index) => {
+          const rowClassName = `paired-timeline-row ${
+            pair.length === 1 ? "is-single" : ""
+          }`;
+          const row = (
+            <>
+              <JourneyCard
+                contentDebug={contentDebug}
+                homeTemplate={homeTemplate}
+                item={pair[0]}
+              />
+              <span aria-hidden="true" className="paired-timeline-node" />
+              {pair[1] ? (
+                <JourneyCard
+                  contentDebug={contentDebug}
+                  homeTemplate={homeTemplate}
+                  item={pair[1]}
+                />
+              ) : null}
+            </>
+          );
+
+          return animated ? (
+            <Reveal
+              as="li"
+              className={rowClassName}
+              delay={(index + 1) * 70}
+              key={pair.map((item) => `${item.date}-${item.title}`).join("-")}
+            >
+              {row}
+            </Reveal>
+          ) : (
+            <li
+              className={rowClassName}
+              key={pair.map((item) => `${item.date}-${item.title}`).join("-")}
+            >
+              {row}
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
