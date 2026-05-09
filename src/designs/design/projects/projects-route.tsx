@@ -5,12 +5,14 @@ import type {
   PortfolioProject,
   ProjectPageContent,
 } from "@/lib/portfolio";
+import type { GroupedProjects } from "@/lib/portfolio/project-groups";
 
 export function DesignProjectsView({
   activeTemplate,
   contentDebug,
   curriculumCount,
   featuredProjects,
+  groupedProjects,
   pageCopy,
   projects,
   sourceOnlyCount,
@@ -19,11 +21,13 @@ export function DesignProjectsView({
   contentDebug: boolean;
   curriculumCount: number;
   featuredProjects: PortfolioProject[];
+  groupedProjects: GroupedProjects;
   pageCopy: ProjectPageContent;
   projects: PortfolioProject[];
   sourceOnlyCount: number;
 }) {
   const copy = pageCopy.design;
+  const groupCopy = new Map(pageCopy.groups.map((group) => [group.category, group.body]));
 
   return (
     <>
@@ -78,6 +82,46 @@ export function DesignProjectsView({
           </div>
         </div>
       </section>
+      <div>
+        {groupedProjects.map(([category, groupedItems], groupIndex) => (
+          <section
+            className={`border-b border-line ${
+              groupIndex % 2 === 0 ? "" : "bg-background-soft"
+            }`}
+            key={category}
+          >
+            <div className="mx-auto grid max-w-6xl gap-6 px-5 py-14 sm:px-8">
+              <div className="grid gap-4 lg:grid-cols-[0.38fr_0.62fr] lg:items-end">
+                <div>
+                  <ContentHint
+                    enabled={contentDebug}
+                    path={`src/content/presentation.json > pages.projects.groups[category=${category}]`}
+                  />
+                  <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">
+                    {groupedItems.length} {copy.group.countLabel}
+                  </p>
+                  <h2 className="mt-3 text-3xl font-semibold text-foreground">
+                    {category}
+                  </h2>
+                </div>
+                <p className="max-w-2xl text-sm leading-6 text-muted lg:justify-self-end">
+                  {groupCopy.get(category)}
+                </p>
+              </div>
+              <div className="grid gap-6 lg:grid-cols-2">
+                {groupedItems.map((project) => (
+                  <ProjectCard
+                    contentDebug={contentDebug}
+                    homeTemplate={activeTemplate}
+                    key={project.id}
+                    project={project}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+        ))}
+      </div>
     </>
   );
 }
