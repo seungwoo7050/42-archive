@@ -1,23 +1,33 @@
 import { ContentHint } from "@/components/portfolio/content-hint";
-import type { PortfolioProject, ProjectPageContent } from "@/lib/portfolio";
+import { ProjectCard } from "@/components/portfolio/project-card";
+import type {
+  HomeTemplateId,
+  PortfolioProject,
+  ProjectPageContent,
+} from "@/lib/portfolio";
 import type { GroupedProjects } from "@/lib/portfolio/project-groups";
 
 export function ClassicProjectsView({
+  activeTemplate,
   contentDebug,
   curriculumCount,
+  featuredProjects,
   groupedProjects,
   pageCopy,
   projects,
   sourceOnlyCount,
 }: {
+  activeTemplate: HomeTemplateId;
   contentDebug: boolean;
   curriculumCount: number;
+  featuredProjects: PortfolioProject[];
   groupedProjects: GroupedProjects;
   pageCopy: ProjectPageContent;
   projects: PortfolioProject[];
   sourceOnlyCount: number;
 }) {
   const copy = pageCopy.classic;
+  const leadProject = featuredProjects[0];
   const counts = {
     curriculumCount,
     projectCount: projects.length,
@@ -25,8 +35,9 @@ export function ClassicProjectsView({
   };
 
   return (
-    <section className="classic-projects-hero border-b border-line">
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
+    <>
+      <section className="classic-projects-hero border-b border-line">
+        <div className="mx-auto grid max-w-6xl gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
         <div>
           <ContentHint
             enabled={contentDebug}
@@ -90,7 +101,34 @@ export function ClassicProjectsView({
             </div>
           </div>
         </aside>
-      </div>
-    </section>
+        </div>
+      </section>
+      {leadProject ? (
+        <section className="border-b border-line bg-background-soft">
+          <div className="mx-auto grid max-w-6xl gap-6 px-5 py-14 sm:px-8">
+            <div className="grid gap-3 lg:grid-cols-[0.4fr_0.6fr] lg:items-end">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">
+                  {copy.selected.eyebrow}
+                </p>
+                <h2 className="mt-3 text-3xl font-semibold text-foreground">
+                  {copy.selected.title}
+                </h2>
+              </div>
+              <p className="max-w-xl text-sm leading-6 text-muted lg:justify-self-end">
+                {copy.selected.body}
+              </p>
+            </div>
+            <ProjectCard
+              contentDebug={contentDebug}
+              homeTemplate={activeTemplate}
+              priority
+              project={leadProject}
+              variant="featured"
+            />
+          </div>
+        </section>
+      ) : null}
+    </>
   );
 }
