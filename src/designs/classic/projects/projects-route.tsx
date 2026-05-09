@@ -1,0 +1,96 @@
+import { ContentHint } from "@/components/portfolio/content-hint";
+import type { PortfolioProject, ProjectPageContent } from "@/lib/portfolio";
+import type { GroupedProjects } from "@/lib/portfolio/project-groups";
+
+export function ClassicProjectsView({
+  contentDebug,
+  curriculumCount,
+  groupedProjects,
+  pageCopy,
+  projects,
+  sourceOnlyCount,
+}: {
+  contentDebug: boolean;
+  curriculumCount: number;
+  groupedProjects: GroupedProjects;
+  pageCopy: ProjectPageContent;
+  projects: PortfolioProject[];
+  sourceOnlyCount: number;
+}) {
+  const copy = pageCopy.classic;
+  const counts = {
+    curriculumCount,
+    projectCount: projects.length,
+    sourceOnlyCount,
+  };
+
+  return (
+    <section className="classic-projects-hero border-b border-line">
+      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
+        <div>
+          <ContentHint
+            enabled={contentDebug}
+            path="src/content/presentation.json > pages.projects.classic.hero"
+          />
+          <p className="text-sm font-medium text-muted">
+            {copy.hero.eyebrow}
+          </p>
+          <h1 className="mt-5 max-w-3xl text-5xl font-semibold leading-tight text-foreground md:text-6xl">
+            {copy.hero.title}
+          </h1>
+          <p className="mt-6 max-w-2xl text-base leading-7 text-muted">
+            {copy.hero.body}
+          </p>
+          <dl className="mt-8 grid max-w-2xl grid-cols-3 overflow-hidden rounded-md border border-line bg-surface">
+            {copy.hero.stats.map((stat, index) => (
+              <div
+                className={
+                  index < copy.hero.stats.length - 1 ? "border-r border-line p-4" : "p-4"
+                }
+                key={stat.label}
+              >
+                <dt className="text-xs font-semibold uppercase text-muted">
+                  {stat.label}
+                </dt>
+                <dd className="mt-1 text-2xl font-semibold text-foreground">
+                  {counts[stat.countKey]}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <aside
+          aria-label={copy.terminal.ariaLabel}
+          className="terminal-window mx-auto w-full max-w-xl"
+        >
+          <ContentHint
+            enabled={contentDebug}
+            path="src/content/presentation.json > pages.projects.classic.terminal"
+          />
+          <div className="terminal-titlebar">
+            <span className="bg-[#ff6b5f]" />
+            <span className="bg-[#f6c76f]" />
+            <span className="bg-[#67d391]" />
+            <p>{copy.terminal.title}</p>
+          </div>
+          <div className="terminal-body">
+            <p className="terminal-line">
+              <span className="text-accent">{copy.terminal.promptUser}</span>
+              <span className="text-muted">:</span>
+              <span className="text-signal">{copy.terminal.promptPath}</span>
+              <span className="text-muted">$ </span>
+              {copy.terminal.command}
+            </p>
+            <div className="mt-5 grid gap-3">
+              {groupedProjects.slice(0, copy.terminal.maxGroups).map(([category, items]) => (
+                <p className="terminal-line terminal-output" key={category}>
+                  {category.padEnd(26, ".")} {items.length} {copy.terminal.entryLabel}
+                </p>
+              ))}
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  );
+}
