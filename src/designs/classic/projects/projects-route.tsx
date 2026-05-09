@@ -1,5 +1,10 @@
+import Link from "next/link";
+import { ArrowRightIcon } from "@/components/icons";
+import { AvailabilityBadge } from "@/components/portfolio/availability-badge";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { ProjectCard } from "@/components/portfolio/project-card";
+import { StackList } from "@/components/portfolio/stack-list";
+import { getTemplateHref } from "@/lib/portfolio";
 import type {
   HomeTemplateId,
   PortfolioProject,
@@ -28,6 +33,7 @@ export function ClassicProjectsView({
 }) {
   const copy = pageCopy.classic;
   const leadProject = featuredProjects[0];
+  const groupCopy = new Map(pageCopy.groups.map((group) => [group.category, group.body]));
   const counts = {
     curriculumCount,
     projectCount: projects.length,
@@ -129,6 +135,80 @@ export function ClassicProjectsView({
           </div>
         </section>
       ) : null}
+      <section>
+        <div className="mx-auto grid max-w-6xl gap-6 px-5 py-14 sm:px-8">
+          <div className="grid gap-3 lg:grid-cols-[0.4fr_0.6fr] lg:items-end">
+            <div>
+              <ContentHint
+                enabled={contentDebug}
+                path="src/content/presentation.json > pages.projects.classic.grouped"
+              />
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">
+                {copy.grouped.eyebrow}
+              </p>
+              <h2 className="mt-3 text-3xl font-semibold text-foreground">
+                {copy.grouped.title}
+              </h2>
+            </div>
+            <p className="max-w-xl text-sm leading-6 text-muted lg:justify-self-end">
+              {copy.grouped.body}
+            </p>
+          </div>
+          <div className="grid gap-3">
+            {groupedProjects.map(([category, items]) => (
+              <article
+                className="rounded-md border border-line bg-surface p-5"
+                key={category}
+              >
+                <div className="grid gap-5 lg:grid-cols-[0.3fr_0.7fr]">
+                  <div>
+                    <ContentHint
+                      enabled={contentDebug}
+                      path={`src/content/presentation.json > pages.projects.groups[category=${category}]`}
+                    />
+                    <p className="text-xs font-semibold uppercase tracking-[0.08em] text-accent">
+                      {items.length} {copy.grouped.countLabel}
+                    </p>
+                    <h3 className="mt-2 text-xl font-semibold text-foreground">
+                      {category}
+                    </h3>
+                    <p className="mt-3 text-sm leading-6 text-muted">
+                      {groupCopy.get(category)}
+                    </p>
+                  </div>
+                  <ul className="grid gap-3">
+                    {items.map((project) => (
+                      <li
+                        className="grid gap-3 border-t border-line pt-3 first:border-t-0 first:pt-0"
+                        key={project.id}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <Link
+                            className="inline-flex items-center gap-2 font-semibold text-foreground transition hover:text-accent-strong"
+                            href={getTemplateHref(
+                              `/projects/${project.id}`,
+                              activeTemplate,
+                              { contentDebug },
+                            )}
+                          >
+                            {project.title}
+                            <ArrowRightIcon />
+                          </Link>
+                          <AvailabilityBadge project={project} />
+                        </div>
+                        <p className="text-sm leading-6 text-muted">
+                          {project.summary}
+                        </p>
+                        <StackList items={project.stack} limit={5} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
     </>
   );
 }
