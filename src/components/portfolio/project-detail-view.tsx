@@ -9,6 +9,7 @@ import {
 import { AvailabilityBadge } from "./availability-badge";
 import { ContentHint } from "./content-hint";
 import { ProjectLinks } from "./project-links";
+import { TwoColumnSection } from "./project-detail-sections";
 import { ProjectScreenshot } from "./project-screenshot";
 
 export function ProjectDetailView({
@@ -22,9 +23,12 @@ export function ProjectDetailView({
   pageCopy: ProjectDetailPageContent;
   project: PortfolioProject;
 }) {
+  const { sections } = pageCopy;
+
   return (
-    <section className="border-b border-line">
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+    <>
+      <section className="border-b border-line">
+        <div className="mx-auto grid max-w-6xl gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div>
           <Link
             className="inline-flex items-center gap-2 text-sm font-semibold text-muted transition hover:text-foreground"
@@ -64,7 +68,24 @@ export function ProjectDetailView({
         <div className="group">
           <ProjectScreenshot image={project.screenshot} priority />
         </div>
+        </div>
+      </section>
+      <div className="mx-auto grid max-w-6xl gap-14 px-5 py-16 sm:px-8">
+        <ContentHint
+          enabled={contentDebug}
+          path={`src/content/presentation.json > pages.projectDetail.sections + src/content/projects.json > projects[id=${project.id}] detail fields`}
+        />
+        <TwoColumnSection
+          body={project.problem}
+          eyebrow={sections.problem.eyebrow}
+          title={sections.problem.title}
+        />
+        <TwoColumnSection
+          body={project.solution}
+          eyebrow={sections.solution.eyebrow}
+          title={sections.solution.title}
+        />
       </div>
-    </section>
+    </>
   );
 }
