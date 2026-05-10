@@ -9,8 +9,13 @@ import {
 import { AvailabilityBadge } from "./availability-badge";
 import { ContentHint } from "./content-hint";
 import { ProjectLinks } from "./project-links";
-import { SectionTitle, TwoColumnSection } from "./project-detail-sections";
+import {
+  ListSection,
+  SectionTitle,
+  TwoColumnSection,
+} from "./project-detail-sections";
 import { ProjectScreenshot } from "./project-screenshot";
+import { StackList } from "./stack-list";
 
 export function ProjectDetailView({
   contentDebug,
@@ -119,6 +124,30 @@ export function ProjectDetailView({
             ))}
           </div>
         </section>
+        <section className="grid gap-6 lg:grid-cols-[0.42fr_0.58fr]">
+          <SectionTitle
+            eyebrow={sections.stack.eyebrow}
+            title={sections.stack.title}
+          />
+          <div className="rounded-lg border border-line bg-surface p-6">
+            <StackList items={project.stack} />
+          </div>
+        </section>
+        <ListSection
+          eyebrow={sections.decisions.eyebrow}
+          items={project.decisions}
+          title={sections.decisions.title}
+        />
+        <ListSection
+          eyebrow={sections.tradeoffs.eyebrow}
+          items={project.tradeoffs}
+          title={sections.tradeoffs.title}
+        />
+        <ListSection
+          eyebrow={sections.result.eyebrow}
+          items={project.results}
+          title={sections.result.title}
+        />
       </div>
     </>
   );
