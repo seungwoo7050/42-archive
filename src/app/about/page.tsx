@@ -2,6 +2,7 @@ import { ContentHint } from "@/components/portfolio/content-hint";
 import { JourneyList } from "@/components/portfolio/journey-list";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
+import { StackList } from "@/components/portfolio/stack-list";
 import {
   getPortfolioContent,
   resolveContentDebug,
@@ -90,6 +91,34 @@ export default async function AboutPage({
             homeTemplate={activeTemplate}
             items={content.journey}
           />
+        </div>
+      </section>
+      <section>
+        <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+          <SectionHeading
+            contentDebug={contentDebug}
+            contentHint="src/content/presentation.json > pages.about.skills"
+            title={pageCopy.skills.title}
+          />
+          <div className="grid gap-4 sm:grid-cols-2">
+            {content.skills.groups.map((group) => (
+              <article
+                className="rounded-lg border border-line bg-surface p-5"
+                key={group.title}
+              >
+                <ContentHint
+                  enabled={contentDebug}
+                  path={`src/content/skills.json > groups[title=${group.title}]`}
+                />
+                <h2 className="text-sm font-semibold text-foreground">
+                  {group.title}
+                </h2>
+                <div className="mt-4">
+                  <StackList items={group.items} />
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
     </PageShell>
