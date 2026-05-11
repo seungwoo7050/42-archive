@@ -1,4 +1,5 @@
 import { ContentHint } from "@/components/portfolio/content-hint";
+import { JourneyList } from "@/components/portfolio/journey-list";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
 import {
@@ -75,6 +76,20 @@ export default async function AboutPage({
               </article>
             ))}
           </div>
+        </div>
+      </section>
+      <section className="border-b border-line bg-background-soft">
+        <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+          <SectionHeading
+            contentDebug={contentDebug}
+            contentHint="src/content/presentation.json > pages.about.journey + src/content/journey.json > journey[]"
+            title={pageCopy.journey.title}
+          />
+          <JourneyList
+            contentDebug={contentDebug}
+            homeTemplate={activeTemplate}
+            items={content.journey}
+          />
         </div>
       </section>
     </PageShell>
