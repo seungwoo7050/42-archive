@@ -126,6 +126,33 @@ export default async function ResumePage({
           </div>
         </div>
       </section>
+      <section>
+        <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+          <h2 className="text-3xl font-semibold text-foreground">
+            {pageCopy.training.title}
+          </h2>
+          <div className="grid gap-4">
+            {content.resume.training.map((item) => (
+              <article
+                className="rounded-lg border border-line bg-surface p-5"
+                key={item.name}
+              >
+                <ContentHint
+                  enabled={contentDebug}
+                  path={`src/content/resume.json > training[name=${item.name}]`}
+                />
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <h3 className="font-semibold text-foreground">{item.name}</h3>
+                  <span className="text-sm text-muted">{item.period}</span>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-muted">
+                  {item.description}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
     </PageShell>
   );
 }
