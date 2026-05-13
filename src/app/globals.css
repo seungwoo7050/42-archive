@@ -515,6 +515,58 @@ main[data-home-template="classic"] .paired-timeline-card {
   transform: translate3d(0, 0, 0);
 }
 
+.motion-card {
+  position: relative;
+  will-change: transform;
+}
+
+.motion-card:hover {
+  transform: translateY(-4px);
+}
+
+.project-card {
+  overflow: hidden;
+}
+
+.project-card::before {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(156, 200, 177, 0.16), transparent 34%),
+    radial-gradient(circle at 100% 20%, rgba(122, 167, 255, 0.14), transparent 38%);
+  content: "";
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 300ms ease;
+}
+
+.project-card:hover::before {
+  opacity: 1;
+}
+
+.project-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.project-screenshot {
+  position: relative;
+}
+
+.project-screenshot::after {
+  background: linear-gradient(135deg, transparent, rgba(122, 167, 255, 0.18));
+  content: "";
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 300ms ease;
+}
+
+.project-card:hover .project-screenshot::after {
+  opacity: 1;
+}
+
 @keyframes grid-drift {
   from {
     transform: translate3d(0, 0, 0);
@@ -656,10 +708,14 @@ main[data-home-template="classic"] .paired-timeline-card {
     animation: none;
   }
 
+  .reveal-item,
+  .motion-card {
+    transform: none;
+    transition: none;
+  }
+
   .reveal-item {
     filter: none;
     opacity: 1;
-    transform: none;
-    transition: none;
   }
 }
