@@ -709,7 +709,11 @@ main[data-home-template="classic"] .paired-timeline-card {
   }
 
   .reveal-item,
-  .motion-card {
+  .motion-card,
+  .tech-chip,
+  .experience-row::before,
+  .paired-timeline::before,
+  .timeline-list::before {
     transform: none;
     transition: none;
   }
