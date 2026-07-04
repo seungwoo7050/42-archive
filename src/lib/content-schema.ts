@@ -127,3 +127,32 @@ const projectImageSchema = z
     alt: nonEmptyString,
   })
   .strict();
+
+export const projectGroupSchema = z
+  .object({
+    id: contentId,
+    label: nonEmptyString,
+    description: nonEmptyString,
+    order: z.number().int().nonnegative(),
+  })
+  .strict();
+
+export const projectMetricFilterSchema = z
+  .object({
+    projectIds: z.array(contentId).min(1).optional(),
+    groupIds: z.array(contentId).min(1).optional(),
+    tags: z.array(contentId).min(1).optional(),
+    featured: z.boolean().optional(),
+    deploymentStatuses: z.array(deploymentStatusSchema).min(1).optional(),
+  })
+  .strict();
+
+export const projectMetricSchema = z
+  .object({
+    id: contentId,
+    label: nonEmptyString,
+    description: nonEmptyString.optional(),
+    aggregate: z.enum(["projects", "highlights"]),
+    filter: projectMetricFilterSchema.optional(),
+  })
+  .strict();
