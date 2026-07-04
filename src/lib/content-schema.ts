@@ -420,5 +420,53 @@ export const presentationContentSchema = z
           .strict(),
       })
       .strict(),
+    home: z
+      .object({
+        design: z
+          .object({
+            hero: z
+              .object({
+                primaryActionLabel: nonEmptyString,
+                leadLabel: nonEmptyString,
+                leadActionLabel: nonEmptyString,
+                stats: z.array(
+                  z
+                    .object({
+                      label: nonEmptyString,
+                      countKey: workMapCountKeySchema,
+                    })
+                    .strict(),
+                ),
+              })
+              .strict(),
+            sections: z.array(homeSectionIdSchema),
+            featured: sectionCopySchema,
+          })
+          .strict(),
+        classic: z
+          .object({
+            hero: z.object({ primaryActionLabel: nonEmptyString }).strict(),
+            sections: z.array(homeSectionIdSchema),
+            featured: sectionCopySchema,
+            terminal: z
+              .object({
+                title: nonEmptyString,
+                bootLine: nonEmptyString,
+                promptUser: nonEmptyString,
+                promptPath: nonEmptyString,
+                commands: z.array(
+                  z
+                    .object({
+                      command: nonEmptyString,
+                      output: z.array(nonEmptyString),
+                    })
+                    .strict(),
+                ),
+              })
+              .strict(),
+          })
+          .strict(),
+      })
+      .passthrough(),
   })
   .passthrough();
