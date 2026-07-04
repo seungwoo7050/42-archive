@@ -203,3 +203,61 @@ export const projectsContentSchema = z
     items: z.array(portfolioProjectSourceSchema).min(1),
   })
   .strict();
+
+const sectionCopySchema = z
+  .object({
+    actionLabel: nonEmptyString.optional(),
+    title: nonEmptyString,
+    body: nonEmptyString.optional(),
+  })
+  .strict();
+
+const homeSectionIdSchema = z.enum([
+  "contact",
+  "featured",
+  "journey",
+  "stack",
+  "technicalFocus",
+  "workMap",
+]);
+
+const editorialHomeSectionsSchema = z
+  .array(z.enum(["hero", "lead", "featured", "principles", "contact"]))
+  .min(1)
+  .refine((sections) => new Set(sections).size === sections.length, {
+    message: "Editorial home section IDs must be unique.",
+  });
+
+const brutalistHomeSectionsSchema = z
+  .array(z.enum(["hero", "signal", "featured", "system", "journey", "contact"]))
+  .min(1)
+  .refine((sections) => new Set(sections).size === sections.length, {
+    message: "Brutalist home section IDs must be unique.",
+  });
+
+const cinematicHomeSectionsSchema = z
+  .array(z.enum(["hero", "statement", "projects", "focusContact"]))
+  .min(1)
+  .refine((sections) => new Set(sections).size === sections.length, {
+    message: "Cinematic home section IDs must be unique.",
+  });
+
+export const siteDesignIdSchema = z.enum([
+  "design",
+  "classic",
+  "editorial",
+  "brutalist",
+  "cinematic",
+]);
+
+const workMapCountKeySchema = z.enum([
+  "curriculumCount",
+  "productCount",
+  "reliabilityCount",
+]);
+
+const projectPageCountKeySchema = z.enum([
+  "curriculumCount",
+  "projectCount",
+  "sourceOnlyCount",
+]);
