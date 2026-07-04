@@ -156,3 +156,50 @@ export const projectMetricSchema = z
     filter: projectMetricFilterSchema.optional(),
   })
   .strict();
+
+export const portfolioProjectSourceSchema = z
+  .object({
+    id: contentId,
+    order: nonEmptyString,
+    title: nonEmptyString,
+    groupId: contentId,
+    tags: z.array(contentId),
+    featured: z.boolean().optional(),
+    enabled: z.boolean().optional(),
+    period: nonEmptyString,
+    role: nonEmptyString,
+    summary: nonEmptyString,
+    description: nonEmptyString,
+    deployment: z
+      .object({
+        status: deploymentStatusSchema,
+        label: nonEmptyString,
+        showBadge: z.boolean().optional(),
+      })
+      .strict(),
+    screenshot: projectImageSchema,
+    screenshots: z.array(projectImageSchema),
+    stack: z.array(contentId),
+    links: z.array(contentLinkSchema),
+    highlights: z.array(nonEmptyString),
+    problem: nonEmptyString,
+    solution: nonEmptyString,
+    architecture: z
+      .object({
+        summary: nonEmptyString,
+        items: z.array(nonEmptyString),
+      })
+      .strict(),
+    decisions: z.array(nonEmptyString),
+    tradeoffs: z.array(nonEmptyString),
+    results: z.array(nonEmptyString),
+  })
+  .strict();
+
+export const projectsContentSchema = z
+  .object({
+    groups: z.array(projectGroupSchema).min(1),
+    metrics: z.array(projectMetricSchema),
+    items: z.array(portfolioProjectSourceSchema).min(1),
+  })
+  .strict();
