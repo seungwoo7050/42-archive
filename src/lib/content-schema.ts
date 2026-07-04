@@ -261,3 +261,118 @@ const projectPageCountKeySchema = z.enum([
   "projectCount",
   "sourceOnlyCount",
 ]);
+
+const presentationPageTitleSchema = z.object({ title: nonEmptyString }).passthrough();
+const eyebrowTitleSchema = z
+  .object({ eyebrow: nonEmptyString, title: nonEmptyString })
+  .strict();
+const projectDetailSectionSchema = eyebrowTitleSchema;
+const projectPageContentSchema = z
+  .object({
+    groups: z.array(
+      z.object({ category: nonEmptyString, body: nonEmptyString }).strict(),
+    ),
+    design: z
+      .object({
+        hero: z
+          .object({
+            title: nonEmptyString,
+            body: nonEmptyString,
+            stats: z
+              .object({
+                visibleEntries: nonEmptyString,
+                archive: nonEmptyString,
+                sourceFirst: nonEmptyString,
+              })
+              .strict(),
+          })
+          .strict(),
+        featured: z
+          .object({
+            eyebrow: nonEmptyString,
+            title: nonEmptyString,
+            body: nonEmptyString,
+          })
+          .strict(),
+        group: z.object({ countLabel: nonEmptyString }).strict(),
+      })
+      .strict(),
+    classic: z
+      .object({
+        hero: z
+          .object({
+            eyebrow: nonEmptyString,
+            title: nonEmptyString,
+            body: nonEmptyString,
+            stats: z.array(
+              z
+                .object({
+                  label: nonEmptyString,
+                  countKey: projectPageCountKeySchema,
+                })
+                .strict(),
+            ),
+          })
+          .strict(),
+        terminal: z
+          .object({
+            ariaLabel: nonEmptyString,
+            title: nonEmptyString,
+            promptUser: nonEmptyString,
+            promptPath: nonEmptyString,
+            command: nonEmptyString,
+            entryLabel: nonEmptyString,
+            maxGroups: z.number().int().positive(),
+          })
+          .strict(),
+        selected: z
+          .object({
+            eyebrow: nonEmptyString,
+            title: nonEmptyString,
+            body: nonEmptyString,
+          })
+          .strict(),
+        grouped: z
+          .object({
+            eyebrow: nonEmptyString,
+            title: nonEmptyString,
+            body: nonEmptyString,
+            countLabel: nonEmptyString,
+          })
+          .strict(),
+      })
+      .strict(),
+    editorial: z
+      .object({
+        hero: z
+          .object({ title: nonEmptyString, body: nonEmptyString })
+          .strict(),
+        archiveAriaLabel: nonEmptyString,
+        groupKickerTemplate: nonEmptyString,
+      })
+      .strict(),
+    brutalist: z
+      .object({
+        hero: z
+          .object({
+            eyebrow: nonEmptyString,
+            title: nonEmptyString,
+            body: nonEmptyString,
+          })
+          .strict(),
+      })
+      .strict(),
+    cinematic: z
+      .object({
+        hero: z
+          .object({
+            eyebrow: nonEmptyString,
+            entryLabel: nonEmptyString,
+            title: nonEmptyString,
+            body: nonEmptyString,
+          })
+          .strict(),
+      })
+      .strict(),
+  })
+  .passthrough();
