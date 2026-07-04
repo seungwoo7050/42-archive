@@ -427,6 +427,13 @@ export const presentationContentSchema = z
           .strict(),
       })
       .strict(),
+    brutalist: z
+      .object({
+        shell: z
+          .object({ debugLabel: nonEmptyString, debugHint: nonEmptyString })
+          .strict(),
+      })
+      .strict(),
     home: z
       .object({
         design: z
@@ -487,6 +494,31 @@ export const presentationContentSchema = z
               .strict(),
             featured: z.object({ title: nonEmptyString }).strict(),
             current: z.object({ actionLabel: nonEmptyString }).strict(),
+          })
+          .strict(),
+        brutalist: z
+          .object({
+            sections: brutalistHomeSectionsSchema,
+            stampLabel: nonEmptyString,
+            signalText: nonEmptyString,
+            hero: z
+              .object({
+                primaryActionLabel: nonEmptyString,
+                secondaryActionLabel: nonEmptyString,
+              })
+              .strict(),
+            featured: z
+              .object({
+                title: nonEmptyString,
+                body: nonEmptyString,
+                actionLabel: nonEmptyString,
+              })
+              .strict(),
+            system: z
+              .object({ title: nonEmptyString, body: nonEmptyString })
+              .strict(),
+            journeyActionLabel: nonEmptyString,
+            contactActionLabel: nonEmptyString,
           })
           .strict(),
       })
