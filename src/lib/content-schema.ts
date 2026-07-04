@@ -30,3 +30,60 @@ export const navigationItemSchema = z
     href: contentHrefSchema,
   })
   .strict();
+
+export const siteContentSchema = z
+  .object({
+    title: nonEmptyString,
+    description: nonEmptyString,
+    language: nonEmptyString,
+    brand: nonEmptyString,
+    socialImage: contentAssetPathSchema.optional(),
+    pages: z
+      .object({
+        projects: z.boolean(),
+        about: z.boolean(),
+        resume: z.boolean(),
+        contact: z.boolean(),
+        journey: z.boolean(),
+        interviewMap: z.boolean(),
+        curation: z.boolean(),
+      })
+      .strict()
+      .optional(),
+    navigation: z.array(navigationItemSchema),
+    footer: z
+      .object({
+        note: nonEmptyString,
+        copyright: nonEmptyString,
+      })
+      .strict(),
+  })
+  .passthrough();
+
+export const profileContentSchema = z
+  .object({
+    name: nonEmptyString,
+    koreanName: z.string(),
+    handle: nonEmptyString,
+    role: nonEmptyString,
+    headline: nonEmptyString,
+    summary: nonEmptyString,
+    location: nonEmptyString,
+    availability: nonEmptyString,
+    photo: z
+      .object({
+        src: contentAssetPathSchema,
+        alt: nonEmptyString,
+      })
+      .strict()
+      .optional(),
+    principles: z.array(
+      z
+        .object({
+          title: nonEmptyString,
+          body: nonEmptyString,
+        })
+        .strict(),
+    ),
+  })
+  .strict();
