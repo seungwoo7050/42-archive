@@ -376,3 +376,49 @@ const projectPageContentSchema = z
       .strict(),
   })
   .passthrough();
+
+export const presentationContentSchema = z
+  .object({
+    defaultHomeTemplate: siteDesignIdSchema,
+    templates: z.array(
+      z
+        .object({
+          id: siteDesignIdSchema,
+          label: nonEmptyString,
+          description: nonEmptyString,
+        })
+        .passthrough(),
+    ),
+    ui: z
+      .object({
+        debugPrefix: nonEmptyString,
+        skipLinkLabel: nonEmptyString,
+        primaryNavigationAriaLabel: nonEmptyString,
+        mobileNavigationAriaLabel: nonEmptyString,
+        menuLabel: nonEmptyString,
+        designSwitcherAriaTemplate: nonEmptyString,
+        designSwitcherCountTemplate: nonEmptyString,
+        designSwitcherCloseLabel: nonEmptyString,
+        designNavigationAriaLabel: nonEmptyString,
+        journeyCaseStudyLabel: nonEmptyString,
+        techMarqueeAriaLabel: nonEmptyString,
+        animatedTerminalAriaLabel: nonEmptyString,
+        projectNavigationAriaLabel: nonEmptyString,
+        readCaseStudyAriaTemplate: nonEmptyString,
+        openItemAriaTemplate: nonEmptyString,
+        nowLabel: nonEmptyString,
+        emptyStates: z
+          .object({
+            projectsHome: nonEmptyString,
+            projectsArchive: nonEmptyString,
+            journey: nonEmptyString,
+            projectDetails: nonEmptyString,
+            noMappedEvidence: nonEmptyString,
+            additionalNotes: nonEmptyString,
+            contactLinks: nonEmptyString,
+          })
+          .strict(),
+      })
+      .strict(),
+  })
+  .passthrough();
