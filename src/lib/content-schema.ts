@@ -87,3 +87,43 @@ export const profileContentSchema = z
     ),
   })
   .strict();
+
+export const linkTypeSchema = z.enum([
+  "case-study",
+  "demo",
+  "email",
+  "github",
+  "resume",
+  "source",
+  "website",
+]);
+
+export const contentLinkSchema = z
+  .object({
+    id: contentId.optional(),
+    type: linkTypeSchema,
+    label: nonEmptyString,
+    href: contentHrefSchema,
+    external: z.boolean().optional(),
+    enabled: z.boolean().optional(),
+    placements: z
+      .array(z.enum(["hero", "contact", "card", "detail", "footer"]))
+      .optional(),
+  })
+  .strict();
+
+export const deploymentStatusSchema = z.enum([
+  "archived",
+  "case-study-only",
+  "live",
+  "offline",
+  "private",
+  "source-only",
+]);
+
+const projectImageSchema = z
+  .object({
+    src: contentAssetPathSchema,
+    alt: nonEmptyString,
+  })
+  .strict();
