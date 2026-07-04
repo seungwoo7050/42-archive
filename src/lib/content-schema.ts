@@ -420,6 +420,13 @@ export const presentationContentSchema = z
           .strict(),
       })
       .strict(),
+    editorial: z
+      .object({
+        shell: z
+          .object({ kicker: nonEmptyString, volumeLabel: nonEmptyString })
+          .strict(),
+      })
+      .strict(),
     home: z
       .object({
         design: z
@@ -464,6 +471,22 @@ export const presentationContentSchema = z
                 ),
               })
               .strict(),
+          })
+          .strict(),
+        editorial: z
+          .object({
+            sections: editorialHomeSectionsSchema,
+            hero: z
+              .object({
+                issueTemplate: nonEmptyString,
+                primaryActionLabel: nonEmptyString,
+              })
+              .strict(),
+            lead: z
+              .object({ label: nonEmptyString, actionLabel: nonEmptyString })
+              .strict(),
+            featured: z.object({ title: nonEmptyString }).strict(),
+            current: z.object({ actionLabel: nonEmptyString }).strict(),
           })
           .strict(),
       })
