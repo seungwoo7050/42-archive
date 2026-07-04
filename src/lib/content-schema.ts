@@ -434,6 +434,11 @@ export const presentationContentSchema = z
           .strict(),
       })
       .strict(),
+    cinematic: z
+      .object({
+        shell: z.object({ brandSubtitle: nonEmptyString }).strict(),
+      })
+      .strict(),
     home: z
       .object({
         design: z
@@ -519,6 +524,21 @@ export const presentationContentSchema = z
               .strict(),
             journeyActionLabel: nonEmptyString,
             contactActionLabel: nonEmptyString,
+          })
+          .strict(),
+        cinematic: z
+          .object({
+            sections: cinematicHomeSectionsSchema,
+            hero: z
+              .object({
+                primaryActionLabel: nonEmptyString,
+                secondaryActionLabel: nonEmptyString,
+              })
+              .strict(),
+            statementLabel: nonEmptyString,
+            focusLabel: nonEmptyString,
+            contactActionLabel: nonEmptyString,
+            caseStudyActionLabel: nonEmptyString,
           })
           .strict(),
       })
