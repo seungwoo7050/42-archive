@@ -568,5 +568,47 @@ export const presentationContentSchema = z
           .strict(),
       })
       .passthrough(),
+    pages: z
+      .object({
+        about: z
+          .object({
+            hero: presentationPageTitleSchema,
+            principles: presentationPageTitleSchema,
+            journey: presentationPageTitleSchema,
+            skills: presentationPageTitleSchema,
+            curation: presentationPageTitleSchema.extend({
+              body: nonEmptyString,
+              criteriaTitle: nonEmptyString,
+              categoriesTitle: nonEmptyString,
+              omissionsTitle: nonEmptyString,
+              nextReviewTitle: nonEmptyString,
+            }),
+            editorial: z
+              .object({
+                heroEyebrowTemplate: nonEmptyString,
+                curationEyebrow: nonEmptyString,
+              })
+              .strict(),
+            brutalist: z
+              .object({
+                heroEyebrowTemplate: nonEmptyString,
+                principleItemLabel: nonEmptyString,
+                focusItemLabel: nonEmptyString,
+              })
+              .strict(),
+          })
+          .passthrough(),
+        contact: z
+          .object({
+            availability: presentationPageTitleSchema,
+            notes: presentationPageTitleSchema,
+            editorial: z
+              .object({ heroEyebrowTemplate: nonEmptyString })
+              .strict(),
+            brutalist: z.object({ heroEyebrow: nonEmptyString }).strict(),
+          })
+          .passthrough(),
+      })
+      .passthrough(),
   })
   .passthrough();
