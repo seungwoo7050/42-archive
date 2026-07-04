@@ -541,6 +541,31 @@ export const presentationContentSchema = z
             caseStudyActionLabel: nonEmptyString,
           })
           .strict(),
+        shared: z
+          .object({
+            workMap: sectionCopySchema.extend({
+              cards: z.array(
+                z
+                  .object({
+                    id: contentId,
+                    label: nonEmptyString,
+                    body: nonEmptyString,
+                    countKey: workMapCountKeySchema,
+                  })
+                  .strict(),
+              ),
+            }),
+            technicalFocus: sectionCopySchema,
+            stack: sectionCopySchema,
+            journey: sectionCopySchema,
+            contact: z
+              .object({
+                actionLabel: nonEmptyString,
+                title: nonEmptyString,
+              })
+              .strict(),
+          })
+          .strict(),
       })
       .passthrough(),
   })
