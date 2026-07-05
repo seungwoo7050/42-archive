@@ -841,3 +841,25 @@ export const resumeContentSchema = z
     notes: z.array(nonEmptyString),
   })
   .strict();
+
+export const journeyNarrativeContentSchema = z
+  .object({
+    intro: nonEmptyString,
+    milestones: z.array(
+      z
+        .object({
+          id: contentId,
+          date: nonEmptyString,
+          title: nonEmptyString,
+          state: nonEmptyString,
+          reason: nonEmptyString,
+          result: nonEmptyString,
+          anchorProjectIds: z.array(contentId),
+        })
+        .strict(),
+    ),
+    currentPosition: z
+      .object({ title: nonEmptyString, body: nonEmptyString })
+      .strict(),
+  })
+  .strict();
