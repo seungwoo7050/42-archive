@@ -863,3 +863,44 @@ export const journeyNarrativeContentSchema = z
       .strict(),
   })
   .strict();
+
+export const interviewMapContentSchema = z
+  .object({
+    intro: nonEmptyString,
+    referenceRepo: z
+      .object({ label: nonEmptyString, href: contentHrefSchema })
+      .strict(),
+    tracks: z.array(
+      z
+        .object({
+          id: contentId,
+          label: nonEmptyString,
+          body: nonEmptyString,
+          items: z.array(
+            z
+              .object({
+                label: nonEmptyString,
+                reference: contentHrefSchema,
+                answers: z.array(
+                  z
+                    .object({
+                      projectId: contentId,
+                      depth: nonEmptyString,
+                    })
+                    .strict(),
+                ),
+              })
+              .strict(),
+          ),
+        })
+        .strict(),
+    ),
+    gaps: z
+      .object({
+        title: nonEmptyString,
+        body: nonEmptyString,
+        items: z.array(nonEmptyString),
+      })
+      .strict(),
+  })
+  .strict();
