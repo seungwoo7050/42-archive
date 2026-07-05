@@ -1,1 +1,38 @@
-[]
+[
+  {
+    "id": "github",
+    "type": "github",
+    "label": "GitHub",
+    "href": "https://github.com/your-handle",
+    "external": true,
+    "enabled": true,
+    "placements": ["hero", "contact", "footer"]
+  },
+  {
+    "id": "resume",
+    "type": "resume",
+    "label": "Resume",
+    "href": "/resume",
+    "external": false,
+    "enabled": true,
+    "placements": ["hero", "contact"]
+  },
+  {
+    "id": "contact",
+    "type": "website",
+    "label": "Contact",
+    "href": "/contact",
+    "external": false,
+    "enabled": true,
+    "placements": ["hero", "contact", "footer"]
+  },
+  {
+    "id": "email",
+    "type": "email",
+    "label": "Email",
+    "href": "mailto:hello@example.com",
+    "external": false,
+    "enabled": false,
+    "placements": ["contact"]
+  }
+]

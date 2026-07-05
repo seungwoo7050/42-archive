@@ -1,4 +1,30 @@
 {
-  "focusAreas": [],
-  "groups": []
+  "focusAreas": [
+    {
+      "title": "Product thinking",
+      "body": "Turn ambiguous goals into a clear scope, information hierarchy, and measurable outcome."
+    },
+    {
+      "title": "Interface systems",
+      "body": "Build responsive components and visual rules that stay coherent across the full product."
+    },
+    {
+      "title": "Reliable delivery",
+      "body": "Use typed data, automated checks, and documented decisions to keep changes safe."
+    }
+  ],
+  "groups": [
+    {
+      "title": "Languages",
+      "items": ["typescript"]
+    },
+    {
+      "title": "Frameworks",
+      "items": ["react", "nextjs"]
+    },
+    {
+      "title": "Verification",
+      "items": ["playwright"]
+    }
+  ]
 }

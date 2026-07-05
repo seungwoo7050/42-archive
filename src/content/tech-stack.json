@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": "typescript",
+    "label": "TypeScript",
+    "icon": "typescript",
+    "color": "#3178c6"
+  },
+  {
+    "id": "react",
+    "label": "React",
+    "icon": "react",
+    "color": "#61dafb"
+  },
+  {
+    "id": "nextjs",
+    "label": "Next.js",
+    "icon": "nextjs",
+    "color": "#171614"
+  },
+  {
+    "id": "playwright",
+    "label": "Playwright",
+    "icon": "playwright",
+    "color": "#45ba4b"
+  }
+]
