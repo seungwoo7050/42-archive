@@ -693,6 +693,38 @@ export const presentationContentSchema = z
           })
           .passthrough(),
         projects: projectPageContentSchema,
+        resume: z
+          .object({
+            hero: z
+              .object({
+                title: nonEmptyString,
+                body: nonEmptyString,
+                downloadLabel: nonEmptyString,
+              })
+              .strict(),
+            summary: presentationPageTitleSchema,
+            projects: z
+              .object({
+                title: nonEmptyString,
+                caseStudyLabel: nonEmptyString,
+              })
+              .strict(),
+            training: presentationPageTitleSchema,
+            experience: presentationPageTitleSchema,
+            education: presentationPageTitleSchema,
+            notes: presentationPageTitleSchema,
+            identity: z
+              .object({
+                locationLabel: nonEmptyString,
+                availabilityLabel: nonEmptyString,
+              })
+              .strict(),
+            editorial: z.object({ heroEyebrow: nonEmptyString }).strict(),
+            brutalist: z
+              .object({ heroEyebrowTemplate: nonEmptyString })
+              .strict(),
+          })
+          .passthrough(),
       })
       .passthrough(),
   })
