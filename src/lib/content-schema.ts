@@ -788,3 +788,29 @@ export const experienceContentSchema = z.array(
     })
     .strict(),
 );
+
+export const journeyContentSchema = z.array(
+  z
+    .object({
+      date: nonEmptyString,
+      endDate: nonEmptyString.nullable(),
+      title: nonEmptyString,
+      category: nonEmptyString,
+      body: nonEmptyString,
+      projectId: contentId.nullable(),
+      sourcePath: nonEmptyString.nullable(),
+    })
+    .strict(),
+);
+
+export const linksContentSchema = z.array(contentLinkSchema);
+
+export const contactContentSchema = z
+  .object({
+    title: nonEmptyString,
+    intro: nonEmptyString,
+    availability: nonEmptyString,
+    preferred: z.array(contentId),
+    notes: z.array(nonEmptyString),
+  })
+  .strict();
