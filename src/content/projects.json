@@ -50,5 +50,74 @@
         "deploymentStatuses": ["source-only"]
       }
     }
+  ],
+  "items": [
+    {
+      "id": "example-project",
+      "order": "01",
+      "title": "Example Project",
+      "groupId": "featured-work",
+      "tags": ["product", "web-app"],
+      "featured": true,
+      "enabled": true,
+      "period": "2026",
+      "role": "Product designer and developer",
+      "summary": "A neutral case study showing where to describe a project's purpose and strongest outcome.",
+      "description": "Replace this starter project with a real case study. Describe the context, your contribution, and why the work mattered.",
+      "deployment": {
+        "status": "case-study-only",
+        "label": "Case study",
+        "showBadge": true
+      },
+      "screenshot": {
+        "src": "/template/profile/portrait-placeholder.svg",
+        "alt": "Placeholder artwork for Example Project"
+      },
+      "screenshots": [
+        {
+          "src": "/template/profile/portrait-placeholder.svg",
+          "alt": "Placeholder detail view for Example Project"
+        }
+      ],
+      "stack": ["typescript", "react", "nextjs", "playwright"],
+      "links": [
+        {
+          "id": "example-source",
+          "type": "source",
+          "label": "Source placeholder",
+          "href": "https://github.com/your-handle/example-project",
+          "external": true,
+          "enabled": false,
+          "placements": ["card", "detail"]
+        }
+      ],
+      "highlights": [
+        "Clarified the core user journey and reduced the interface to the essential steps.",
+        "Built a reusable component system with responsive and keyboard-friendly states.",
+        "Documented the main technical decisions and verification path."
+      ],
+      "problem": "The initial workflow was fragmented, making the primary task difficult to discover and complete.",
+      "solution": "A focused information architecture and reusable interface system turned the workflow into a clear sequence.",
+      "architecture": {
+        "summary": "A content-driven Next.js interface with typed boundaries and reusable presentation components.",
+        "items": [
+          "Structured content as validated data rather than page-level hardcoded copy.",
+          "Separated route data from visual presentation so multiple designs can share one source.",
+          "Added automated checks for the primary user paths."
+        ]
+      },
+      "decisions": [
+        "Kept project content independent from presentation-specific markup.",
+        "Used one canonical project identifier across resume, journey, curation, and interview references."
+      ],
+      "tradeoffs": [
+        "The starter uses placeholder artwork so adopters must add authentic project evidence.",
+        "A compact example is easier to understand but does not demonstrate every optional content pattern."
+      ],
+      "results": [
+        "A complete example route that renders in all five visual templates.",
+        "A safe reference for adding more projects without breaking cross-file links."
+      ]
+    }
   ]
 }
