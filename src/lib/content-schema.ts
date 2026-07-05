@@ -608,6 +608,28 @@ export const presentationContentSchema = z
             brutalist: z.object({ heroEyebrow: nonEmptyString }).strict(),
           })
           .passthrough(),
+        interviewMap: z
+          .object({
+            hero: z
+              .object({ title: nonEmptyString, eyebrow: nonEmptyString })
+              .strict(),
+            tracks: z
+              .object({
+                title: nonEmptyString,
+                answerLabel: nonEmptyString,
+                depthLabel: nonEmptyString,
+                referenceLabel: nonEmptyString,
+                emptyLabel: nonEmptyString,
+                indexLabel: nonEmptyString,
+                itemCountTemplate: nonEmptyString,
+                questionLabel: nonEmptyString,
+              })
+              .strict(),
+            gaps: z
+              .object({ ariaLabel: nonEmptyString, eyebrow: nonEmptyString })
+              .strict(),
+          })
+          .passthrough(),
       })
       .passthrough(),
   })
