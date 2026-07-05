@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "date": "2026-01-01",
+    "endDate": "2026-03-01",
+    "title": "Example Project",
+    "category": "Featured Work",
+    "body": "A starter timeline entry showing how a project can connect your learning path to its case study.",
+    "projectId": "example-project",
+    "sourcePath": null
+  }
+]

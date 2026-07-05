@@ -1,8 +1,20 @@
 {
   "downloadUrl": null,
-  "summary": [],
-  "projectIds": [],
-  "training": [],
+  "summary": [
+    "Designer and developer focused on clear interfaces, maintainable systems, and evidence-led case studies.",
+    "Replace this starter summary with a short, factual overview of your experience and strengths."
+  ],
+  "projectIds": ["example-project"],
+  "training": [
+    {
+      "name": "Your Program or Practice",
+      "period": "2026",
+      "description": "Replace this with relevant training, certification, or structured independent study."
+    }
+  ],
   "education": [],
-  "notes": []
+  "notes": [
+    "Set downloadUrl after adding a resume file under public/content.",
+    "Resume projects are resolved from projects.json by project ID."
+  ]
 }

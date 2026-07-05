@@ -1,0 +1,18 @@
+{
+  "intro": "Use this page to explain the decisions that connect your projects, roles, and learning milestones over time.",
+  "milestones": [
+    {
+      "id": "example-milestone",
+      "date": "2026-01",
+      "title": "Choosing a focused project",
+      "state": "The initial idea covered too many audiences and workflows to communicate clearly.",
+      "reason": "A narrower scope made it possible to show one complete problem-solving process with honest evidence.",
+      "result": "The work became a concise case study with a clear user journey, implementation boundary, and verification path.",
+      "anchorProjectIds": ["example-project"]
+    }
+  ],
+  "currentPosition": {
+    "title": "What I am exploring now",
+    "body": "Replace this text with the questions, product area, or technical direction guiding your next project."
+  }
+}
