@@ -29,7 +29,14 @@ const site = siteJson as SiteContent;
 const profile = profileJson as ProfileContent;
 export const portfolioPresentation =
   presentationJson as PresentationContent;
-const projects = projectsJson as PortfolioProject[];
+type ProjectContentFile =
+  | PortfolioProject[]
+  | { items: PortfolioProject[] };
+
+const projectContentFile = projectsJson as unknown as ProjectContentFile;
+const projects = Array.isArray(projectContentFile)
+  ? projectContentFile
+  : projectContentFile.items;
 const skills = skillsJson as SkillsContent;
 const techStack = techStackJson as TechStackItem[];
 const experience = experienceJson as ExperienceItem[];
