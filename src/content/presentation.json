@@ -4,12 +4,12 @@
     {
       "id": "design",
       "label": "Design",
-      "description": "Design template placeholder."
+      "description": "A polished product case-study presentation with visual evidence."
     },
     {
       "id": "classic",
       "label": "Classic",
-      "description": "Classic template placeholder."
+      "description": "A compact terminal-led portfolio with an indexed archive."
     }
   ],
   "home": {
@@ -247,6 +247,33 @@
       "notes": {
         "title": "Content notes"
       }
+    }
+  },
+  "ui": {
+    "debugPrefix": "Content",
+    "skipLinkLabel": "Skip to content",
+    "primaryNavigationAriaLabel": "Primary navigation",
+    "mobileNavigationAriaLabel": "Mobile navigation",
+    "menuLabel": "Menu",
+    "designSwitcherAriaTemplate": "Change site design. Current design: {label}",
+    "designSwitcherCountTemplate": "Design {index}/{total}",
+    "designSwitcherCloseLabel": "Close design selector",
+    "designNavigationAriaLabel": "Site design",
+    "journeyCaseStudyLabel": "Case study",
+    "techMarqueeAriaLabel": "Technology stack marquee",
+    "animatedTerminalAriaLabel": "Animated portfolio terminal preview",
+    "projectNavigationAriaLabel": "Project navigation",
+    "readCaseStudyAriaTemplate": "Read {title} case study",
+    "openItemAriaTemplate": "Open {title}",
+    "nowLabel": "Now",
+    "emptyStates": {
+      "projectsHome": "Project entries will appear here.",
+      "projectsArchive": "No public projects are configured yet.",
+      "journey": "Journey entries will appear here.",
+      "projectDetails": "Details are being prepared.",
+      "noMappedEvidence": "No mapped evidence yet.",
+      "additionalNotes": "No additional notes supplied.",
+      "contactLinks": "No contact links are configured."
     }
   }
 }
