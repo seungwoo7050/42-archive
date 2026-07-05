@@ -1,1 +1,54 @@
-[]
+{
+  "groups": [
+    {
+      "id": "featured-work",
+      "label": "Featured Work",
+      "description": "A small selection of projects that best represents your approach and capabilities.",
+      "order": 0
+    }
+  ],
+  "metrics": [
+    {
+      "id": "projectCount",
+      "label": "Projects",
+      "description": "All visible projects.",
+      "aggregate": "projects"
+    },
+    {
+      "id": "productCount",
+      "label": "Products",
+      "description": "Projects in the featured work group.",
+      "aggregate": "projects",
+      "filter": {
+        "groupIds": ["featured-work"]
+      }
+    },
+    {
+      "id": "curriculumCount",
+      "label": "Archive",
+      "description": "Non-featured learning projects.",
+      "aggregate": "projects",
+      "filter": {
+        "featured": false
+      }
+    },
+    {
+      "id": "reliabilityCount",
+      "label": "Reliability",
+      "description": "Archived reliability exercises.",
+      "aggregate": "projects",
+      "filter": {
+        "deploymentStatuses": ["archived"]
+      }
+    },
+    {
+      "id": "sourceOnlyCount",
+      "label": "Source only",
+      "description": "Projects published as source code only.",
+      "aggregate": "projects",
+      "filter": {
+        "deploymentStatuses": ["source-only"]
+      }
+    }
+  ]
+}
