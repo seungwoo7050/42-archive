@@ -1,0 +1,34 @@
+{
+  "intro": "Map common interview topics to concrete evidence in your project case studies.",
+  "referenceRepo": {
+    "label": "Your preparation notes",
+    "href": "https://github.com/your-handle/interview-notes"
+  },
+  "tracks": [
+    {
+      "id": "product-engineering",
+      "label": "Product engineering",
+      "body": "Questions about scope, interface decisions, implementation boundaries, and verification.",
+      "items": [
+        {
+          "label": "How do you turn an ambiguous problem into a deliverable product?",
+          "reference": "/projects/example-project",
+          "answers": [
+            {
+              "projectId": "example-project",
+              "depth": "The case study covers problem framing, scope decisions, architecture, tradeoffs, and results."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "gaps": {
+    "title": "Evidence to add",
+    "body": "Keep this section honest by naming topics that are not yet supported by a project or work example.",
+    "items": [
+      "Add a real collaboration example with review or handoff evidence.",
+      "Add measured product outcomes when reliable data is available."
+    ]
+  }
+}

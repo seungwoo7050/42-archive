@@ -1,0 +1,42 @@
+{
+  "intro": "Explain why each project belongs in the portfolio and what perspective the collection is designed to show.",
+  "criteria": {
+    "title": "Selection criteria",
+    "items": [
+      {
+        "title": "Clear contribution",
+        "body": "Include work where your role, decisions, and implementation responsibility can be described precisely."
+      },
+      {
+        "title": "Useful evidence",
+        "body": "Prefer projects with screenshots, working flows, source, measured outcomes, or documented tradeoffs."
+      }
+    ]
+  },
+  "categories": [
+    {
+      "id": "featured-case-study",
+      "label": "Featured case study",
+      "rationale": "This project is included as the starter's complete example of an evidence-led product story.",
+      "projectIds": ["example-project"]
+    }
+  ],
+  "omissions": {
+    "title": "What is not represented yet",
+    "body": "Name important gaps rather than implying the portfolio covers every kind of work.",
+    "items": [
+      {
+        "title": "Long-term operations",
+        "body": "The starter project does not claim evidence from operating a product over an extended period."
+      },
+      {
+        "title": "Team collaboration",
+        "body": "Add review, planning, or handoff artifacts before making strong collaboration claims."
+      }
+    ]
+  },
+  "nextReview": {
+    "title": "When to review the selection",
+    "body": "Revisit the portfolio when a new project adds a genuinely different decision area or stronger evidence."
+  }
+}
