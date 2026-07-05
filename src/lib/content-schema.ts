@@ -729,3 +729,62 @@ export const presentationContentSchema = z
       .passthrough(),
   })
   .passthrough();
+
+export const techStackIconSchema = z.enum([
+  "api",
+  "box",
+  "c",
+  "check",
+  "cmake",
+  "cplusplus",
+  "database",
+  "docker",
+  "eslint",
+  "flow",
+  "json",
+  "nextjs",
+  "nodejs",
+  "playwright",
+  "postgresql",
+  "prisma",
+  "react",
+  "redis",
+  "shield",
+  "tailwind",
+  "terminal",
+  "tool",
+  "typescript",
+  "vitest",
+]);
+
+export const techStackContentSchema = z.array(
+  z
+    .object({
+      id: contentId,
+      label: nonEmptyString,
+      icon: techStackIconSchema,
+      color,
+    })
+    .strict(),
+);
+
+export const skillsContentSchema = z
+  .object({
+    focusAreas: z.array(
+      z.object({ title: nonEmptyString, body: nonEmptyString }).strict(),
+    ),
+    groups: z.array(
+      z.object({ title: nonEmptyString, items: z.array(nonEmptyString) }).strict(),
+    ),
+  })
+  .strict();
+
+export const experienceContentSchema = z.array(
+  z
+    .object({
+      period: nonEmptyString,
+      title: nonEmptyString,
+      body: nonEmptyString,
+    })
+    .strict(),
+);
