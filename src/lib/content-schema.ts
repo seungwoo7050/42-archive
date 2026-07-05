@@ -656,6 +656,43 @@ export const presentationContentSchema = z
               .strict(),
           })
           .passthrough(),
+        projectDetail: z
+          .object({
+            backLabel: nonEmptyString,
+            caseLabel: nonEmptyString,
+            missing: z
+              .object({
+                eyebrow: nonEmptyString,
+                title: nonEmptyString,
+                body: nonEmptyString,
+                actionLabel: nonEmptyString,
+              })
+              .strict(),
+            facts: z
+              .object({ roleLabel: nonEmptyString, statusLabel: nonEmptyString })
+              .strict(),
+            outroLabel: nonEmptyString,
+            returnToIndexLabel: nonEmptyString,
+            frameLabel: nonEmptyString,
+            editorial: z
+              .object({ decisionSpreadTitle: nonEmptyString })
+              .strict(),
+            sections: z
+              .object({
+                architecture: projectDetailSectionSchema,
+                decisions: projectDetailSectionSchema,
+                highlights: projectDetailSectionSchema,
+                problem: projectDetailSectionSchema,
+                result: projectDetailSectionSchema,
+                screenshots: projectDetailSectionSchema,
+                solution: projectDetailSectionSchema,
+                stack: projectDetailSectionSchema,
+                tradeoffs: projectDetailSectionSchema,
+              })
+              .strict(),
+          })
+          .passthrough(),
+        projects: projectPageContentSchema,
       })
       .passthrough(),
   })
