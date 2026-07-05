@@ -1,32 +1,28 @@
 {
-  "title": "Portfolio Site",
-  "description": "Content-driven portfolio placeholder.",
-  "language": "ko",
-  "brand": "Portfolio",
+  "title": "Your Name — Portfolio",
+  "description": "A reusable, content-driven portfolio for your profile, selected work, and case studies.",
+  "language": "en",
+  "brand": "Your Name",
+  "pages": {
+    "projects": true,
+    "about": true,
+    "resume": true,
+    "contact": true,
+    "journey": true,
+    "interviewMap": true,
+    "curation": true
+  },
   "navigation": [
-    {
-      "label": "Home",
-      "href": "/"
-    },
-    {
-      "label": "Projects",
-      "href": "/projects"
-    },
-    {
-      "label": "About",
-      "href": "/about"
-    },
-    {
-      "label": "Resume",
-      "href": "/resume"
-    },
-    {
-      "label": "Contact",
-      "href": "/contact"
-    }
+    { "label": "Home", "href": "/" },
+    { "label": "Projects", "href": "/projects" },
+    { "label": "Journey", "href": "/journey" },
+    { "label": "Interview Map", "href": "/interview-map" },
+    { "label": "About", "href": "/about" },
+    { "label": "Resume", "href": "/resume" },
+    { "label": "Contact", "href": "/contact" }
   ],
   "footer": {
-    "note": "Content placeholder.",
-    "copyright": "Portfolio"
+    "note": "A content-driven portfolio built with Next.js.",
+    "copyright": "2026 Your Name"
   }
 }

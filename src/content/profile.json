@@ -1,11 +1,28 @@
 {
-  "name": "Profile Name",
-  "koreanName": "프로필 이름",
-  "handle": "handle",
-  "role": "Web Developer",
-  "headline": "Portfolio headline placeholder.",
-  "summary": "Portfolio summary placeholder.",
-  "location": "Seoul, Korea",
-  "availability": "Available for portfolio review.",
-  "principles": []
+  "name": "Your Name",
+  "koreanName": "",
+  "handle": "your-handle",
+  "role": "Designer and Developer",
+  "headline": "I design and build thoughtful digital products from idea to reliable interface.",
+  "summary": "Replace this starter copy with a concise introduction to your work, strengths, and the outcomes you create.",
+  "location": "Your City",
+  "availability": "Open to selected opportunities and collaborations.",
+  "photo": {
+    "src": "/template/profile/portrait-placeholder.svg",
+    "alt": "Portrait placeholder for Your Name"
+  },
+  "principles": [
+    {
+      "title": "Make the work clear",
+      "body": "Explain the problem, the decisions, and the evidence so visitors can understand the work quickly."
+    },
+    {
+      "title": "Design for real use",
+      "body": "Balance visual character with accessibility, responsiveness, and maintainable implementation."
+    },
+    {
+      "title": "Show outcomes honestly",
+      "body": "Describe results, constraints, and tradeoffs without overstating what the project achieved."
+    }
+  ]
 }
