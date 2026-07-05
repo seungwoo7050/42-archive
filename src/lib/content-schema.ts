@@ -904,3 +904,50 @@ export const interviewMapContentSchema = z
       .strict(),
   })
   .strict();
+
+export const curationContentSchema = z
+  .object({
+    intro: nonEmptyString,
+    criteria: z
+      .object({
+        title: nonEmptyString,
+        items: z.array(
+          z.object({ title: nonEmptyString, body: nonEmptyString }).strict(),
+        ),
+      })
+      .strict(),
+    categories: z.array(
+      z
+        .object({
+          id: contentId,
+          label: nonEmptyString,
+          rationale: nonEmptyString,
+          projectIds: z.array(contentId),
+        })
+        .strict(),
+    ),
+    omissions: z
+      .object({
+        title: nonEmptyString,
+        body: nonEmptyString,
+        items: z.array(
+          z.object({ title: nonEmptyString, body: nonEmptyString }).strict(),
+        ),
+      })
+      .strict(),
+    nextReview: z
+      .object({ title: nonEmptyString, body: nonEmptyString })
+      .strict(),
+  })
+  .strict();
+
+export type ProjectGroup = z.infer<typeof projectGroupSchema>;
+export type ProjectMetric = z.infer<typeof projectMetricSchema>;
+export type ProjectMetricFilter = z.infer<typeof projectMetricFilterSchema>;
+export type PortfolioProjectSource = z.infer<
+  typeof portfolioProjectSourceSchema
+>;
+export type ProjectsContentSource = z.infer<typeof projectsContentSchema>;
+export type PresentationContentSource = z.infer<
+  typeof presentationContentSchema
+>;
