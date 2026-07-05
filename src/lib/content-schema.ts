@@ -814,3 +814,30 @@ export const contactContentSchema = z
     notes: z.array(nonEmptyString),
   })
   .strict();
+
+export const resumeContentSchema = z
+  .object({
+    downloadUrl: contentAssetPathSchema.nullable(),
+    summary: z.array(nonEmptyString),
+    projectIds: z.array(contentId),
+    training: z.array(
+      z
+        .object({
+          name: nonEmptyString,
+          period: nonEmptyString,
+          description: nonEmptyString,
+        })
+        .strict(),
+    ),
+    education: z.array(
+      z
+        .object({
+          name: nonEmptyString,
+          period: nonEmptyString,
+          description: nonEmptyString,
+        })
+        .strict(),
+    ),
+    notes: z.array(nonEmptyString),
+  })
+  .strict();
