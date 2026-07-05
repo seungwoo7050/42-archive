@@ -630,6 +630,32 @@ export const presentationContentSchema = z
               .strict(),
           })
           .passthrough(),
+        journey: z
+          .object({
+            hero: z
+              .object({ title: nonEmptyString, eyebrow: nonEmptyString })
+              .strict(),
+            narrative: z
+              .object({
+                title: nonEmptyString,
+                body: nonEmptyString,
+                labels: z
+                  .object({
+                    state: nonEmptyString,
+                    reason: nonEmptyString,
+                    result: nonEmptyString,
+                  })
+                  .strict(),
+              })
+              .strict(),
+            timeline: z
+              .object({ title: nonEmptyString, body: nonEmptyString })
+              .strict(),
+            now: z
+              .object({ title: nonEmptyString, anchorLabel: nonEmptyString })
+              .strict(),
+          })
+          .passthrough(),
       })
       .passthrough(),
   })
