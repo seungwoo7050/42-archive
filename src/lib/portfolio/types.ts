@@ -1,4 +1,9 @@
-import type { PresentationContentSource } from "../content-schema";
+import type {
+  PresentationContentSource,
+  ProjectGroup,
+  ProjectMetric,
+  ProjectMetricFilter,
+} from "../content-schema";
 
 export type {
   PortfolioProjectSource,
@@ -68,14 +73,11 @@ export type LinkType =
   | "source"
   | "website";
 
-export type EnvKey = "NEXT_PUBLIC_DASHBOARD_URL" | "NEXT_PUBLIC_SEOUL_APP_URL";
-
 export type ContentLink = {
   id?: string;
   type: LinkType;
   label: string;
   href: string;
-  envKey?: EnvKey;
   external?: boolean;
   enabled?: boolean;
   placements?: Array<"hero" | "contact" | "card" | "detail" | "footer">;
@@ -329,7 +331,6 @@ export type ResumeContent = {
   notes: string[];
 };
 
-
 export type JourneyMilestone = {
   id: string;
   date: string;
@@ -422,17 +423,21 @@ export type PortfolioContent = {
   site: SiteContent;
   profile: ProfileContent;
   projects: PortfolioProject[];
+  projectGroups: ProjectGroup[];
+  projectMetrics: ProjectMetric[];
   presentation: PresentationContent;
   skills: SkillsContent;
   techStack: TechStackItem[];
   experience: ExperienceItem[];
   journey: JourneyItem[];
+  journeyNarrative: JourneyNarrativeContent;
+  interviewMap: InterviewMapContent;
+  curation: CurationContent;
   links: ContentLink[];
   contact: ContactContent;
   resume: ResumeContent;
 };
 
-export type PortfolioEnv = Partial<Record<EnvKey, string | undefined>>;
 export type RouteSearchParams = Promise<
   Record<string, string | string[] | undefined>
 >;

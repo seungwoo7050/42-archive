@@ -1,46 +1,55 @@
-import contactJson from "@/content/contact.json";
-import experienceJson from "@/content/experience.json";
-import journeyJson from "@/content/journey.json";
-import linksJson from "@/content/links.json";
-import presentationJson from "@/content/presentation.json";
-import profileJson from "@/content/profile.json";
-import projectsJson from "@/content/projects.json";
-import resumeJson from "@/content/resume.json";
-import siteJson from "@/content/site.json";
-import skillsJson from "@/content/skills.json";
-import techStackJson from "@/content/tech-stack.json";
+import { portfolioSource } from "../content-loader";
 import type {
   ContactContent,
   ContentLink,
+  CurationContent,
   ExperienceItem,
+  InterviewMapContent,
   JourneyItem,
+  JourneyNarrativeContent,
   PortfolioContent,
-  PortfolioEnv,
   PortfolioProject,
   PresentationContent,
   ProfileContent,
+  ProjectGroup,
+  ProjectMetric,
   ResumeContent,
   SiteContent,
   SkillsContent,
   TechStackItem,
 } from "./types";
 
-const site = siteJson as SiteContent;
-const profile = profileJson as ProfileContent;
-export const portfolioPresentation =
-  presentationJson as PresentationContent;
-type ProjectContentFile =
-  | PortfolioProject[]
-  | { items: PortfolioProject[] };
-
-const projectContentFile = projectsJson as unknown as ProjectContentFile;
-const projects = Array.isArray(projectContentFile)
-  ? projectContentFile
-  : projectContentFile.items;
-const skills = skillsJson as SkillsContent;
-const techStack = techStackJson as TechStackItem[];
-const experience = experienceJson as ExperienceItem[];
-const journey = (journeyJson as JourneyItem[]).slice().sort((left, right) => {
+const site = portfolioSource.site as SiteContent;
+const profile = portfolioSource.profile as ProfileContent;
+const projectGroups = portfolioSource.projects.groups
+  .slice()
+  .sort((left, right) => left.order - right.order) as ProjectGroup[];
+const projectMetrics = portfolioSource.projects.metrics as ProjectMetric[];
+const projectGroupById = new Map(
+  projectGroups.map((group) => [group.id, group]),
+);
+const projects = portfolioSource.projects.items.map((project) => ({
+  ...project,
+  category: projectGroupById.get(project.groupId)?.label ?? project.groupId,
+})) as PortfolioProject[];
+const presentationSource = portfolioSource.presentation as unknown as PresentationContent;
+export const portfolioPresentation = {
+  ...presentationSource,
+  pages: {
+    ...presentationSource.pages,
+    projects: {
+      ...presentationSource.pages.projects,
+      groups: projectGroups.map((group) => ({
+        category: group.label,
+        body: group.description,
+      })),
+    },
+  },
+} satisfies PresentationContent;
+const skills = portfolioSource.skills as SkillsContent;
+const techStack = portfolioSource.techStack as TechStackItem[];
+const experience = portfolioSource.experience as ExperienceItem[];
+const journey = (portfolioSource.journey as JourneyItem[]).slice().sort((left, right) => {
   const dateOrder = left.date.localeCompare(right.date);
 
   if (dateOrder !== 0) {
@@ -49,9 +58,12 @@ const journey = (journeyJson as JourneyItem[]).slice().sort((left, right) => {
 
   return left.title.localeCompare(right.title);
 });
-const links = linksJson as ContentLink[];
-const contact = contactJson as ContactContent;
-const resume = resumeJson as ResumeContent;
+const links = portfolioSource.links as ContentLink[];
+const contact = portfolioSource.contact as ContactContent;
+const resume = portfolioSource.resume as ResumeContent;
+const journeyNarrative = portfolioSource.journeyNarrative as JourneyNarrativeContent;
+const interviewMap = portfolioSource.interviewMap as InterviewMapContent;
+const curation = portfolioSource.curation as CurationContent;
 export const portfolioTechStackById = new Map(
   techStack.map((item) => [item.id, item]),
 );
@@ -60,39 +72,32 @@ export function getEnabledLinks(contentLinks: ContentLink[] = links) {
   return contentLinks.filter((link) => link.enabled !== false);
 }
 
-function withEnvHref(link: ContentLink, env: PortfolioEnv): ContentLink {
-  const envValue = link.envKey ? env[link.envKey]?.trim() : undefined;
-
-  return {
-    ...link,
-    href: envValue && envValue.length > 0 ? envValue : link.href,
-  };
-}
-
 export function getPortfolioContent(
-  env: PortfolioEnv = {
-    NEXT_PUBLIC_DASHBOARD_URL: process.env.NEXT_PUBLIC_DASHBOARD_URL,
-    NEXT_PUBLIC_SEOUL_APP_URL: process.env.NEXT_PUBLIC_SEOUL_APP_URL,
-  },
+  _legacyEnvironment?: Readonly<Record<string, string | undefined>>,
 ): PortfolioContent {
+  void _legacyEnvironment;
+
   const resolvedProjects = projects
     .filter((project) => project.enabled !== false)
     .map((project) => ({
       ...project,
-      links: project.links
-        .filter((link) => link.enabled !== false)
-        .map((link) => withEnvHref(link, env)),
+      links: project.links.filter((link) => link.enabled !== false),
     }));
 
   return {
     site,
     profile,
     projects: resolvedProjects,
+    projectGroups,
+    projectMetrics,
     presentation: portfolioPresentation,
     skills,
     techStack,
     experience,
     journey,
+    journeyNarrative,
+    interviewMap,
+    curation,
     links: getEnabledLinks(),
     contact,
     resume,
