@@ -1,3 +1,13 @@
+import type { PresentationContentSource } from "../content-schema";
+
+export type {
+  PortfolioProjectSource,
+  ProjectGroup,
+  ProjectMetric,
+  ProjectMetricFilter,
+  ProjectsContentSource,
+} from "../content-schema";
+
 export type NavigationItem = {
   label: string;
   href: string;
@@ -8,12 +18,23 @@ export type SiteContent = {
   description: string;
   language: string;
   brand: string;
+  socialImage?: string;
+  pages?: Record<SitePageId, boolean>;
   navigation: NavigationItem[];
   footer: {
     note: string;
     copyright: string;
   };
 };
+
+export type SitePageId =
+  | "projects"
+  | "about"
+  | "resume"
+  | "contact"
+  | "journey"
+  | "interviewMap"
+  | "curation";
 
 export type ProfilePrinciple = {
   title: string;
@@ -57,6 +78,7 @@ export type ContentLink = {
   envKey?: EnvKey;
   external?: boolean;
   enabled?: boolean;
+  placements?: Array<"hero" | "contact" | "card" | "detail" | "footer">;
 };
 
 export type DeploymentStatus =
@@ -87,6 +109,8 @@ export type PortfolioProject = {
   id: string;
   order: string;
   title: string;
+  groupId: string;
+  tags: string[];
   category: string;
   featured?: boolean;
   enabled?: boolean;
@@ -108,7 +132,14 @@ export type PortfolioProject = {
   results: string[];
 };
 
-export type HomeTemplateId = "design" | "classic";
+export type SiteDesignId =
+  | "design"
+  | "classic"
+  | "editorial"
+  | "brutalist"
+  | "cinematic";
+
+export type HomeTemplateId = SiteDesignId;
 
 export type PresentationTemplate = {
   id: HomeTemplateId;
@@ -175,29 +206,7 @@ export type TerminalPresentation = {
   commands: TerminalCommand[];
 };
 
-export type HomePresentation = {
-  design: {
-    hero: DesignHomeHeroPresentation;
-    sections: HomeSectionId[];
-    featured: SectionCopy;
-  };
-  classic: {
-    hero: ClassicHomeHeroPresentation;
-    sections: HomeSectionId[];
-    featured: SectionCopy;
-    terminal: TerminalPresentation;
-  };
-  shared: {
-    workMap: WorkMapPresentation;
-    technicalFocus: SectionCopy;
-    stack: SectionCopy;
-    journey: SectionCopy;
-    contact: {
-      actionLabel: string;
-      title: string;
-    };
-  };
-};
+export type HomePresentation = PresentationContentSource["home"];
 
 export type ProjectGroupPresentation = {
   category: string;
@@ -209,116 +218,23 @@ export type ProjectPageCountKey =
   | "projectCount"
   | "sourceOnlyCount";
 
-export type ProjectPageContent = {
-  groups: ProjectGroupPresentation[];
-  design: {
-    hero: {
-      title: string;
-      body: string;
-      stats: {
-        visibleEntries: string;
-        archive: string;
-        sourceFirst: string;
-      };
-    };
-    featured: {
-      eyebrow: string;
-      title: string;
-      body: string;
-    };
-    group: {
-      countLabel: string;
-    };
-  };
-  classic: {
-    hero: {
-      eyebrow: string;
-      title: string;
-      body: string;
-      stats: Array<{
-        label: string;
-        countKey: ProjectPageCountKey;
-      }>;
-    };
-    terminal: {
-      ariaLabel: string;
-      title: string;
-      promptUser: string;
-      promptPath: string;
-      command: string;
-      entryLabel: string;
-      maxGroups: number;
-    };
-    selected: {
-      eyebrow: string;
-      title: string;
-      body: string;
-    };
-    grouped: {
-      eyebrow: string;
-      title: string;
-      body: string;
-      countLabel: string;
-    };
-  };
-};
+export type ProjectPageContent = PresentationContentSource["pages"]["projects"];
 
-export type ProjectDetailPageContent = {
-  backLabel: string;
-  sections: Record<
-    | "architecture"
-    | "decisions"
-    | "problem"
-    | "result"
-    | "screenshots"
-    | "solution"
-    | "stack"
-    | "tradeoffs",
-    {
-      eyebrow: string;
-      title: string;
-    }
-  >;
-};
+export type ProjectDetailPageContent =
+  PresentationContentSource["pages"]["projectDetail"];
 
-export type AboutPageContent = {
-  hero: { title: string };
-  principles: { title: string };
-  journey: { title: string };
-  skills: { title: string };
-};
+export type AboutPageContent = PresentationContentSource["pages"]["about"];
 
-export type ResumePageContent = {
-  hero: {
-    title: string;
-    body: string;
-    downloadLabel: string;
-  };
-  summary: { title: string };
-  projects: {
-    title: string;
-    caseStudyLabel: string;
-  };
-  training: { title: string };
-};
+export type JourneyPageContent = PresentationContentSource["pages"]["journey"];
 
-export type ContactPageContent = {
-  availability: { title: string };
-  notes: { title: string };
-};
+export type InterviewMapPageContent =
+  PresentationContentSource["pages"]["interviewMap"];
 
-export type PresentationContent = {
-  defaultHomeTemplate: HomeTemplateId;
-  templates: PresentationTemplate[];
-  home: HomePresentation;
-  pages: {
-    about: AboutPageContent;
-    contact: ContactPageContent;
-    projectDetail: ProjectDetailPageContent;
-    projects: ProjectPageContent;
-    resume: ResumePageContent;
-  };
-};
+export type ResumePageContent = PresentationContentSource["pages"]["resume"];
+
+export type ContactPageContent = PresentationContentSource["pages"]["contact"];
+
+export type PresentationContent = PresentationContentSource;
 
 export type TechStackIcon =
   | "api"
@@ -412,6 +328,7 @@ export type ResumeContent = {
   education: ResumeEducation[];
   notes: string[];
 };
+
 
 export type PortfolioContent = {
   site: SiteContent;
