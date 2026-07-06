@@ -581,6 +581,44 @@ export function loadPortfolioSource(overrides: PortfolioSourceOverrides = {}) {
       enabledProjectIds,
     ),
   );
+  journey.forEach((item, index) => {
+    if (item.projectId !== null) {
+      addMissingReferenceIssue(
+        issues,
+        "src/content/journey.json",
+        `$[${index}].projectId`,
+        "project id",
+        item.projectId,
+        enabledProjectIds,
+      );
+    }
+  });
+  journeyNarrative.milestones.forEach((milestone, milestoneIndex) =>
+    milestone.anchorProjectIds.forEach((projectId, projectIndex) =>
+      addMissingReferenceIssue(
+        issues,
+        "src/content/journey-narrative.json",
+        `$.milestones[${milestoneIndex}].anchorProjectIds[${projectIndex}]`,
+        "project id",
+        projectId,
+        enabledProjectIds,
+      ),
+    ),
+  );
+  interviewMap.tracks.forEach((track, trackIndex) =>
+    track.items.forEach((item, itemIndex) =>
+      item.answers.forEach((answer, answerIndex) =>
+        addMissingReferenceIssue(
+          issues,
+          "src/content/interview-map.json",
+          `$.tracks[${trackIndex}].items[${itemIndex}].answers[${answerIndex}].projectId`,
+          "project id",
+          answer.projectId,
+          enabledProjectIds,
+        ),
+      ),
+    ),
+  );
   if (issues.length > 0) {
     throw new PortfolioContentError(issues);
   }
