@@ -212,21 +212,26 @@
   },
   "pages": {
     "projects": {
-      "groups": [],
+      "groups": [
+        {
+          "category": "Featured Work",
+          "body": "A small selection of projects that best represents your approach and capabilities."
+        }
+      ],
       "design": {
         "hero": {
           "title": "Projects",
-          "body": "Projects placeholder.",
+          "body": "Browse selected work by problem, contribution, technical decisions, and outcomes.",
           "stats": {
             "visibleEntries": "visible entries",
-            "archive": "archive",
+            "archive": "archive entries",
             "sourceFirst": "source-first"
           }
         },
         "featured": {
           "eyebrow": "Featured",
           "title": "Lead projects",
-          "body": "Lead projects placeholder."
+          "body": "Begin with the projects that offer the clearest evidence of your role and judgment."
         },
         "group": {
           "countLabel": "projects"
@@ -234,16 +239,16 @@
       },
       "classic": {
         "hero": {
-          "eyebrow": "projects.index",
+          "eyebrow": "portfolio/projects.index",
           "title": "Project archive",
-          "body": "Project archive placeholder.",
+          "body": "An indexed view of selected case studies and supporting work.",
           "stats": [
             {
               "label": "Entries",
               "countKey": "projectCount"
             },
             {
-              "label": "42 archive",
+              "label": "Archive",
               "countKey": "curriculumCount"
             },
             {
@@ -253,24 +258,47 @@
           ]
         },
         "terminal": {
-          "ariaLabel": "Project archive terminal",
+          "ariaLabel": "Classic project archive terminal",
           "title": "projects.index",
-          "promptUser": "user",
+          "promptUser": "your-handle",
           "promptPath": "~/portfolio",
-          "command": "projects --grouped",
+          "command": "projects --grouped --public",
           "entryLabel": "entries",
           "maxGroups": 5
         },
         "selected": {
           "eyebrow": "Selected work",
           "title": "Representative case",
-          "body": "Representative case placeholder."
+          "body": "A lead project appears first, followed by a compact grouped index."
         },
         "grouped": {
           "eyebrow": "Archive tracks",
           "title": "Grouped index",
-          "body": "Grouped index placeholder.",
+          "body": "Compare related projects within a shared problem area.",
           "countLabel": "projects"
+        }
+      },
+      "editorial": {
+        "hero": {
+          "title": "Project index",
+          "body": "Browse the complete body of work as an editorial archive."
+        },
+        "archiveAriaLabel": "Project archive summary",
+        "groupKickerTemplate": "Chapter {number}"
+      },
+      "brutalist": {
+        "hero": {
+          "eyebrow": "Project archive",
+          "title": "Projects",
+          "body": "Browse selected work by problem, contribution, technical decisions, and outcomes."
+        }
+      },
+      "cinematic": {
+        "hero": {
+          "eyebrow": "Archive",
+          "entryLabel": "entries",
+          "title": "Projects as chapters, not thumbnails.",
+          "body": "Move through the work as a sequence of visual case studies."
         }
       }
     },
