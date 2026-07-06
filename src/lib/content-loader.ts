@@ -238,3 +238,112 @@ function addInternalRouteIssue({
     }
   }
 }
+
+export function loadPortfolioSource(overrides: PortfolioSourceOverrides = {}) {
+  const input = {
+    site: siteJson,
+    profile: profileJson,
+    projects: projectsJson,
+    presentation: presentationJson,
+    skills: skillsJson,
+    techStack: techStackJson,
+    experience: experienceJson,
+    journey: journeyJson,
+    links: linksJson,
+    contact: contactJson,
+    resume: resumeJson,
+    journeyNarrative: journeyNarrativeJson,
+    interviewMap: interviewMapJson,
+    curation: curationJson,
+    ...overrides,
+  };
+
+  const site = parseContentFile("src/content/site.json", siteContentSchema, input.site);
+  const profile = parseContentFile(
+    "src/content/profile.json",
+    profileContentSchema,
+    input.profile,
+  );
+  const projects = parseContentFile(
+    "src/content/projects.json",
+    projectsContentSchema,
+    input.projects,
+  );
+  const presentation = parseContentFile(
+    "src/content/presentation.json",
+    presentationContentSchema,
+    input.presentation,
+  );
+  const skills = parseContentFile(
+    "src/content/skills.json",
+    skillsContentSchema,
+    input.skills,
+  );
+  const techStack = parseContentFile(
+    "src/content/tech-stack.json",
+    techStackContentSchema,
+    input.techStack,
+  );
+  const experience = parseContentFile(
+    "src/content/experience.json",
+    experienceContentSchema,
+    input.experience,
+  );
+  const journey = parseContentFile(
+    "src/content/journey.json",
+    journeyContentSchema,
+    input.journey,
+  );
+  const links = parseContentFile(
+    "src/content/links.json",
+    linksContentSchema,
+    input.links,
+  );
+  const contact = parseContentFile(
+    "src/content/contact.json",
+    contactContentSchema,
+    input.contact,
+  );
+  const resume = parseContentFile(
+    "src/content/resume.json",
+    resumeContentSchema,
+    input.resume,
+  );
+  const journeyNarrative = parseContentFile(
+    "src/content/journey-narrative.json",
+    journeyNarrativeContentSchema,
+    input.journeyNarrative,
+  );
+  const interviewMap = parseContentFile(
+    "src/content/interview-map.json",
+    interviewMapContentSchema,
+    input.interviewMap,
+  );
+  const curation = parseContentFile(
+    "src/content/curation.json",
+    curationContentSchema,
+    input.curation,
+  );
+
+
+  return {
+    site,
+    profile,
+    projects,
+    presentation,
+    skills,
+    techStack,
+    experience,
+    journey,
+    journeyNarrative,
+    interviewMap,
+    curation,
+    links,
+    contact,
+    resume,
+  };
+}
+
+export const portfolioSource = loadPortfolioSource();
+
+export type PortfolioSource = ReturnType<typeof loadPortfolioSource>;
