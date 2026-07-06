@@ -12,6 +12,50 @@
       "description": "A compact terminal-led portfolio with an indexed archive."
     }
   ],
+  "ui": {
+    "debugPrefix": "Content",
+    "skipLinkLabel": "Skip to content",
+    "primaryNavigationAriaLabel": "Primary navigation",
+    "mobileNavigationAriaLabel": "Mobile navigation",
+    "menuLabel": "Menu",
+    "designSwitcherAriaTemplate": "Change site design. Current design: {label}",
+    "designSwitcherCountTemplate": "Design {index}/{total}",
+    "designSwitcherCloseLabel": "Close design selector",
+    "designNavigationAriaLabel": "Site design",
+    "journeyCaseStudyLabel": "Case study",
+    "techMarqueeAriaLabel": "Technology stack marquee",
+    "animatedTerminalAriaLabel": "Animated portfolio terminal preview",
+    "projectNavigationAriaLabel": "Project navigation",
+    "readCaseStudyAriaTemplate": "Read {title} case study",
+    "openItemAriaTemplate": "Open {title}",
+    "nowLabel": "Now",
+    "emptyStates": {
+      "projectsHome": "Project entries will appear here.",
+      "projectsArchive": "No public projects are configured yet.",
+      "journey": "Journey entries will appear here.",
+      "projectDetails": "Details are being prepared.",
+      "noMappedEvidence": "No mapped evidence yet.",
+      "additionalNotes": "No additional notes supplied.",
+      "contactLinks": "No contact links are configured."
+    }
+  },
+  "editorial": {
+    "shell": {
+      "kicker": "Independent portfolio",
+      "volumeLabel": "Vol."
+    }
+  },
+  "brutalist": {
+    "shell": {
+      "debugLabel": "Content mode",
+      "debugHint": "Editable source: src/content/** + public/content/**"
+    }
+  },
+  "cinematic": {
+    "shell": {
+      "brandSubtitle": "Visual archive"
+    }
+  },
   "home": {
     "design": {
       "hero": {
@@ -101,6 +145,54 @@
         ]
       }
     },
+    "editorial": {
+      "sections": ["hero", "lead", "featured", "principles", "contact"],
+      "hero": {
+        "issueTemplate": "Portfolio / {year}",
+        "primaryActionLabel": "Browse the complete project index"
+      },
+      "lead": {
+        "label": "Cover story",
+        "actionLabel": "Read the case study"
+      },
+      "featured": {
+        "title": "Selected stories"
+      },
+      "current": {
+        "actionLabel": "Follow the journey"
+      }
+    },
+    "brutalist": {
+      "sections": ["hero", "signal", "featured", "system", "journey", "contact"],
+      "stampLabel": "Portfolio",
+      "signalText": "Build / Prove / Ship / Question /",
+      "hero": {
+        "primaryActionLabel": "View the work",
+        "secondaryActionLabel": "Contact"
+      },
+      "featured": {
+        "title": "Selected work",
+        "body": "A numbered index of the projects that best explain the work.",
+        "actionLabel": "All projects"
+      },
+      "system": {
+        "title": "Working system",
+        "body": "The constraints used to keep code, decisions, and evidence inspectable."
+      },
+      "journeyActionLabel": "Open full journey",
+      "contactActionLabel": "Open contact"
+    },
+    "cinematic": {
+      "sections": ["hero", "statement", "projects", "focusContact"],
+      "hero": {
+        "primaryActionLabel": "View the archive",
+        "secondaryActionLabel": "Start a conversation"
+      },
+      "statementLabel": "Selected work",
+      "focusLabel": "Focus",
+      "contactActionLabel": "Contact",
+      "caseStudyActionLabel": "Enter case study"
+    },
     "shared": {
       "workMap": {
         "title": "Work map",
@@ -142,72 +234,6 @@
         "actionLabel": "Contact page",
         "title": "Start a conversation"
       }
-    },
-    "editorial": {
-      "sections": [
-        "hero",
-        "lead",
-        "featured",
-        "principles",
-        "contact"
-      ],
-      "hero": {
-        "issueTemplate": "Portfolio / {year}",
-        "primaryActionLabel": "Browse the complete project index"
-      },
-      "lead": {
-        "label": "Cover story",
-        "actionLabel": "Read the case study"
-      },
-      "featured": {
-        "title": "Selected stories"
-      },
-      "current": {
-        "actionLabel": "Follow the journey"
-      }
-    },
-    "brutalist": {
-      "sections": [
-        "hero",
-        "signal",
-        "featured",
-        "system",
-        "journey",
-        "contact"
-      ],
-      "stampLabel": "Portfolio",
-      "signalText": "Build / Prove / Ship / Question /",
-      "hero": {
-        "primaryActionLabel": "View the work",
-        "secondaryActionLabel": "Contact"
-      },
-      "featured": {
-        "title": "Selected work",
-        "body": "A numbered index of the projects that best explain the work.",
-        "actionLabel": "All projects"
-      },
-      "system": {
-        "title": "Working system",
-        "body": "The constraints used to keep code, decisions, and evidence inspectable."
-      },
-      "journeyActionLabel": "Open full journey",
-      "contactActionLabel": "Open contact"
-    },
-    "cinematic": {
-      "sections": [
-        "hero",
-        "statement",
-        "projects",
-        "focusContact"
-      ],
-      "hero": {
-        "primaryActionLabel": "View the archive",
-        "secondaryActionLabel": "Start a conversation"
-      },
-      "statementLabel": "Selected work",
-      "focusLabel": "Focus",
-      "contactActionLabel": "Contact",
-      "caseStudyActionLabel": "Enter case study"
     }
   },
   "pages": {
@@ -391,50 +417,6 @@
         "focusItemLabel": "Focus"
       }
     },
-    "resume": {
-      "hero": {
-        "title": "Resume",
-        "body": "A concise overview of your profile, selected work, training, and education.",
-        "downloadLabel": "Download PDF"
-      },
-      "summary": {
-        "title": "Summary"
-      },
-      "projects": {
-        "title": "Selected project experience",
-        "caseStudyLabel": "Case study"
-      },
-      "training": {
-        "title": "Training and education"
-      },
-      "experience": {
-        "title": "Experience"
-      },
-      "education": {
-        "title": "Education"
-      },
-      "notes": {
-        "title": "Notes / Read me"
-      },
-      "identity": {
-        "locationLabel": "Location",
-        "availabilityLabel": "Availability"
-      },
-      "editorial": {
-        "heroEyebrow": "Curriculum vitae"
-      },
-      "brutalist": {
-        "heroEyebrowTemplate": "{name} / CV"
-      }
-    },
-    "contact": {
-      "availability": {
-        "title": "Availability"
-      },
-      "notes": {
-        "title": "Content notes"
-      }
-    },
     "journey": {
       "hero": {
         "title": "Journey",
@@ -477,50 +459,56 @@
         "ariaLabel": "Topics that need stronger evidence",
         "eyebrow": "Appendix"
       }
-    }
-  },
-  "ui": {
-    "debugPrefix": "Content",
-    "skipLinkLabel": "Skip to content",
-    "primaryNavigationAriaLabel": "Primary navigation",
-    "mobileNavigationAriaLabel": "Mobile navigation",
-    "menuLabel": "Menu",
-    "designSwitcherAriaTemplate": "Change site design. Current design: {label}",
-    "designSwitcherCountTemplate": "Design {index}/{total}",
-    "designSwitcherCloseLabel": "Close design selector",
-    "designNavigationAriaLabel": "Site design",
-    "journeyCaseStudyLabel": "Case study",
-    "techMarqueeAriaLabel": "Technology stack marquee",
-    "animatedTerminalAriaLabel": "Animated portfolio terminal preview",
-    "projectNavigationAriaLabel": "Project navigation",
-    "readCaseStudyAriaTemplate": "Read {title} case study",
-    "openItemAriaTemplate": "Open {title}",
-    "nowLabel": "Now",
-    "emptyStates": {
-      "projectsHome": "Project entries will appear here.",
-      "projectsArchive": "No public projects are configured yet.",
-      "journey": "Journey entries will appear here.",
-      "projectDetails": "Details are being prepared.",
-      "noMappedEvidence": "No mapped evidence yet.",
-      "additionalNotes": "No additional notes supplied.",
-      "contactLinks": "No contact links are configured."
-    }
-  },
-  "editorial": {
-    "shell": {
-      "kicker": "Independent portfolio",
-      "volumeLabel": "Vol."
-    }
-  },
-  "brutalist": {
-    "shell": {
-      "debugLabel": "Content mode",
-      "debugHint": "Editable source: src/content/** + public/content/**"
-    }
-  },
-  "cinematic": {
-    "shell": {
-      "brandSubtitle": "Visual archive"
+    },
+    "resume": {
+      "hero": {
+        "title": "Resume",
+        "body": "A concise overview of your profile, selected work, training, and education.",
+        "downloadLabel": "Download PDF"
+      },
+      "summary": {
+        "title": "Summary"
+      },
+      "projects": {
+        "title": "Selected project experience",
+        "caseStudyLabel": "Case study"
+      },
+      "training": {
+        "title": "Training and education"
+      },
+      "experience": {
+        "title": "Experience"
+      },
+      "education": {
+        "title": "Education"
+      },
+      "notes": {
+        "title": "Notes / Read me"
+      },
+      "identity": {
+        "locationLabel": "Location",
+        "availabilityLabel": "Availability"
+      },
+      "editorial": {
+        "heroEyebrow": "Curriculum vitae"
+      },
+      "brutalist": {
+        "heroEyebrowTemplate": "{name} / CV"
+      }
+    },
+    "contact": {
+      "availability": {
+        "title": "Availability"
+      },
+      "notes": {
+        "title": "Contact notes"
+      },
+      "editorial": {
+        "heroEyebrowTemplate": "Correspondence / {location}"
+      },
+      "brutalist": {
+        "heroEyebrow": "Open channel"
+      }
     }
   }
 }
