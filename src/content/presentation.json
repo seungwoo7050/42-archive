@@ -368,10 +368,27 @@
         "title": "Working principles"
       },
       "journey": {
-        "title": "Journey"
+        "title": "Experience"
       },
       "skills": {
         "title": "Skills"
+      },
+      "curation": {
+        "title": "Curation rationale",
+        "body": "Explain what the portfolio includes, what it leaves out, and why.",
+        "criteriaTitle": "Selection criteria",
+        "categoriesTitle": "Portfolio categories",
+        "omissionsTitle": "Not represented yet",
+        "nextReviewTitle": "Next review"
+      },
+      "editorial": {
+        "heroEyebrowTemplate": "Profile / {handle}",
+        "curationEyebrow": "Editorial policy"
+      },
+      "brutalist": {
+        "heroEyebrowTemplate": "{handle} / Profile",
+        "principleItemLabel": "Rule",
+        "focusItemLabel": "Focus"
       }
     },
     "resume": {
@@ -397,6 +414,29 @@
       },
       "notes": {
         "title": "Content notes"
+      }
+    },
+    "journey": {
+      "hero": {
+        "title": "Journey",
+        "eyebrow": "Timeline narrative"
+      },
+      "narrative": {
+        "title": "Decision milestones",
+        "body": "Explain the state before each decision, why you chose a direction, and what changed afterward.",
+        "labels": {
+          "state": "State",
+          "reason": "Reason",
+          "result": "Result"
+        }
+      },
+      "timeline": {
+        "title": "Timeline",
+        "body": "A chronological view of projects, roles, education, and learning milestones."
+      },
+      "now": {
+        "title": "Current direction",
+        "anchorLabel": "Related case study"
       }
     }
   },
