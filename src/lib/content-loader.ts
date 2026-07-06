@@ -537,6 +537,50 @@ export function loadPortfolioSource(overrides: PortfolioSourceOverrides = {}) {
     );
 
   });
+
+  projects.metrics.forEach((metric, metricIndex) => {
+    metric.filter?.projectIds?.forEach((projectId, projectIndex) =>
+      addMissingReferenceIssue(
+        issues,
+        "src/content/projects.json",
+        `$.metrics[${metricIndex}].filter.projectIds[${projectIndex}]`,
+        "project id",
+        projectId,
+        enabledProjectIds,
+      ),
+    );
+    metric.filter?.groupIds?.forEach((groupId, groupIndex) =>
+      addMissingReferenceIssue(
+        issues,
+        "src/content/projects.json",
+        `$.metrics[${metricIndex}].filter.groupIds[${groupIndex}]`,
+        "project group id",
+        groupId,
+        groupIds,
+      ),
+    );
+    metric.filter?.tags?.forEach((tag, tagIndex) =>
+      addMissingReferenceIssue(
+        issues,
+        "src/content/projects.json",
+        `$.metrics[${metricIndex}].filter.tags[${tagIndex}]`,
+        "project tag",
+        tag,
+        tagIds,
+      ),
+    );
+  });
+
+  resume.projectIds.forEach((projectId, index) =>
+    addMissingReferenceIssue(
+      issues,
+      "src/content/resume.json",
+      `$.projectIds[${index}]`,
+      "project id",
+      projectId,
+      enabledProjectIds,
+    ),
+  );
   if (issues.length > 0) {
     throw new PortfolioContentError(issues);
   }
