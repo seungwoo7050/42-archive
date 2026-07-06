@@ -6,6 +6,7 @@ export {
   getPreferredContactLinks,
   getProjectById,
   getProjectCardLinks,
+  getProjectMetricValue,
   getProjectLink,
   getResumeProjects,
   getTemplateHref,

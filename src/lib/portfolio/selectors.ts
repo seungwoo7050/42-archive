@@ -10,6 +10,7 @@ import type {
   PortfolioContent,
   PortfolioProject,
   PresentationContent,
+  ProjectMetricFilter,
   SitePageId,
   TechStackItem,
 } from "./types";
@@ -64,6 +65,64 @@ export function resolveTechStackItem(id: string): TechStackItem {
       color: "#9cc8b1",
     }
   );
+}
+
+function projectMatchesMetricFilter(
+  project: PortfolioProject,
+  filter: ProjectMetricFilter | undefined,
+) {
+  if (!filter) {
+    return true;
+  }
+
+  if (filter.projectIds && !filter.projectIds.includes(project.id)) {
+    return false;
+  }
+
+  if (filter.groupIds && !filter.groupIds.includes(project.groupId)) {
+    return false;
+  }
+
+  if (filter.tags && !filter.tags.every((tag) => project.tags.includes(tag))) {
+    return false;
+  }
+
+  if (filter.featured !== undefined && Boolean(project.featured) !== filter.featured) {
+    return false;
+  }
+
+  if (
+    filter.deploymentStatuses &&
+    !filter.deploymentStatuses.includes(project.deployment.status)
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+export function getProjectMetricValue(
+  metricId: string,
+  content: PortfolioContent = getPortfolioContent(),
+) {
+  const metric = content.projectMetrics.find((item) => item.id === metricId);
+
+  if (!metric) {
+    return 0;
+  }
+
+  const matchingProjects = content.projects.filter((project) =>
+    projectMatchesMetricFilter(project, metric.filter),
+  );
+
+  if (metric.aggregate === "highlights") {
+    return matchingProjects.reduce(
+      (total, project) => total + project.highlights.length,
+      0,
+    );
+  }
+
+  return matchingProjects.length;
 }
 
 export function getFeaturedProjects(
