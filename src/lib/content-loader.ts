@@ -110,3 +110,23 @@ function jsonPath(path: PropertyKey[]) {
       : `${result}[${JSON.stringify(key)}]`;
   }, "$" );
 }
+
+function parseContentFile<Schema extends z.ZodType>(
+  file: string,
+  schema: Schema,
+  input: unknown,
+): z.output<Schema> {
+  const parsed = schema.safeParse(input);
+
+  if (!parsed.success) {
+    throw new PortfolioContentError(
+      parsed.error.issues.map((issue) => ({
+        file,
+        path: jsonPath(issue.path),
+        message: issue.message,
+      })),
+    );
+  }
+
+  return parsed.data;
+}
