@@ -178,3 +178,63 @@ function addMissingReferenceIssue(
     });
   }
 }
+
+function addInternalRouteIssue({
+  enabledProjectIds,
+  file,
+  href,
+  issues,
+  path,
+  routeKind,
+  site,
+}: {
+  enabledProjectIds: Set<string>;
+  file: string;
+  href: string;
+  issues: ContentValidationIssue[];
+  path: string;
+  routeKind: "link" | "navigation";
+  site: z.output<typeof siteContentSchema>;
+}) {
+  if (!href.startsWith("/") || href.startsWith("//")) {
+    return;
+  }
+
+  const pathname = new URL(href, "https://portfolio.invalid").pathname;
+  if (pathname === "/") {
+    return;
+  }
+
+  const projectMatch = pathname.match(/^\/projects\/([^/]+)\/?$/);
+  const pageId = projectMatch
+    ? "projects"
+    : internalNavigationPages.get(pathname);
+
+  if (!pageId) {
+    issues.push({
+      file,
+      path,
+      message: `Unsupported internal ${routeKind} route "${pathname}".`,
+    });
+    return;
+  }
+
+  if (site.pages?.[pageId] === false) {
+    issues.push({
+      file,
+      path,
+      message: `Internal ${routeKind} route "${pathname}" points to disabled page "${pageId}".`,
+    });
+  }
+
+  if (projectMatch) {
+    const projectId = decodeURIComponent(projectMatch[1]);
+    if (!enabledProjectIds.has(projectId)) {
+      issues.push({
+        file,
+        path,
+        message: `Internal ${routeKind} route "${pathname}" points to unknown or disabled project "${projectId}".`,
+      });
+    }
+  }
+}
