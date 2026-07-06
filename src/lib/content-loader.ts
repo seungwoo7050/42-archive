@@ -325,6 +325,112 @@ export function loadPortfolioSource(overrides: PortfolioSourceOverrides = {}) {
     input.curation,
   );
 
+  const issues: ContentValidationIssue[] = [];
+  const groupIds = new Set(projects.groups.map((group) => group.id));
+  const enabledProjectIds = new Set(
+    projects.items
+      .filter((project) => project.enabled !== false)
+      .map((project) => project.id),
+  );
+  const stackIds = new Set(techStack.map((item) => item.id));
+  const tagIds = new Set(
+    projects.items
+      .filter((project) => project.enabled !== false)
+      .flatMap((project) => project.tags),
+  );
+  const enabledLinkIds = new Set(
+    links.flatMap((link) =>
+      link.id !== undefined && link.enabled !== false ? [link.id] : [],
+    ),
+  );
+
+  addDuplicateIssues(
+    issues,
+    "src/content/projects.json",
+    "$.groups",
+    "project group id",
+    projects.groups.map((group) => group.id),
+  );
+  addDuplicateIssues(
+    issues,
+    "src/content/projects.json",
+    "$.groups",
+    "project group order",
+    projects.groups.map((group) => String(group.order)),
+  );
+  addDuplicateIssues(
+    issues,
+    "src/content/projects.json",
+    "$.metrics",
+    "project metric id",
+    projects.metrics.map((metric) => metric.id),
+  );
+  addDuplicateIssues(
+    issues,
+    "src/content/projects.json",
+    "$.items",
+    "project id",
+    projects.items.map((project) => project.id),
+  );
+  addDuplicateIssues(
+    issues,
+    "src/content/projects.json",
+    "$.items",
+    "project order",
+    projects.items.map((project) => project.order),
+  );
+  addDuplicateIssues(
+    issues,
+    "src/content/tech-stack.json",
+    "$",
+    "technology id",
+    techStack.map((item) => item.id),
+  );
+  addDuplicateIssues(
+    issues,
+    "src/content/links.json",
+    "$",
+    "link id",
+    links.flatMap((link) => (link.id === undefined ? [] : [link.id])),
+  );
+  addDuplicateIssues(
+    issues,
+    "src/content/journey-narrative.json",
+    "$.milestones",
+    "milestone id",
+    journeyNarrative.milestones.map((milestone) => milestone.id),
+  );
+  addDuplicateIssues(
+    issues,
+    "src/content/interview-map.json",
+    "$.tracks",
+    "interview track id",
+    interviewMap.tracks.map((track) => track.id),
+  );
+  addDuplicateIssues(
+    issues,
+    "src/content/curation.json",
+    "$.categories",
+    "curation category id",
+    curation.categories.map((category) => category.id),
+  );
+  addDuplicateIssues(
+    issues,
+    "src/content/presentation.json",
+    "$.templates",
+    "site design id",
+    presentation.templates.map((template) => template.id),
+  );
+  addDuplicateIssues(
+    issues,
+    "src/content/site.json",
+    "$.navigation",
+    "navigation href",
+    site.navigation.map((item) => item.href),
+  );
+  if (issues.length > 0) {
+    throw new PortfolioContentError(issues);
+  }
 
   return {
     site,
