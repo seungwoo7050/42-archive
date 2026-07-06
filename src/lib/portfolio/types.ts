@@ -330,6 +330,94 @@ export type ResumeContent = {
 };
 
 
+export type JourneyMilestone = {
+  id: string;
+  date: string;
+  title: string;
+  state: string;
+  reason: string;
+  result: string;
+  anchorProjectIds: string[];
+};
+
+export type JourneyNarrativeContent = {
+  intro: string;
+  milestones: JourneyMilestone[];
+  currentPosition: {
+    title: string;
+    body: string;
+  };
+};
+
+export type InterviewMapReference = {
+  label: string;
+  href: string;
+};
+
+export type InterviewMapAnswer = {
+  projectId: string;
+  depth: string;
+};
+
+export type InterviewMapItem = {
+  label: string;
+  reference: string;
+  answers: InterviewMapAnswer[];
+};
+
+export type InterviewMapTrack = {
+  id: string;
+  label: string;
+  body: string;
+  items: InterviewMapItem[];
+};
+
+export type InterviewMapContent = {
+  intro: string;
+  referenceRepo: InterviewMapReference;
+  tracks: InterviewMapTrack[];
+  gaps: {
+    title: string;
+    body: string;
+    items: string[];
+  };
+};
+
+export type CurationCategory = {
+  id: string;
+  label: string;
+  rationale: string;
+  projectIds: string[];
+};
+
+export type CurationOmissionItem = {
+  title: string;
+  body: string;
+};
+
+export type CurationCriteriaItem = {
+  title: string;
+  body: string;
+};
+
+export type CurationContent = {
+  intro: string;
+  criteria: {
+    title: string;
+    items: CurationCriteriaItem[];
+  };
+  categories: CurationCategory[];
+  omissions: {
+    title: string;
+    body: string;
+    items: CurationOmissionItem[];
+  };
+  nextReview: {
+    title: string;
+    body: string;
+  };
+};
+
 export type PortfolioContent = {
   site: SiteContent;
   profile: ProfileContent;
