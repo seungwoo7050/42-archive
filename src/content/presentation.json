@@ -104,43 +104,43 @@
     "shared": {
       "workMap": {
         "title": "Work map",
-        "body": "Work map placeholder.",
+        "body": "Group the portfolio into a few meaningful tracks instead of treating every project as equal.",
         "cards": [
           {
             "id": "product",
-            "label": "Product",
-            "body": "Product placeholder.",
+            "label": "Product case studies",
+            "body": "Complete stories covering context, decisions, implementation, and outcomes.",
             "countKey": "productCount"
           },
           {
-            "id": "curriculum",
-            "label": "Curriculum",
-            "body": "Curriculum placeholder.",
+            "id": "archive",
+            "label": "Learning archive",
+            "body": "Smaller exercises that support your technical foundation.",
             "countKey": "curriculumCount"
           },
           {
             "id": "reliability",
-            "label": "Reliability",
-            "body": "Reliability placeholder.",
+            "label": "Reliability practice",
+            "body": "Work that demonstrates testing, failure handling, and operational thinking.",
             "countKey": "reliabilityCount"
           }
         ]
       },
       "technicalFocus": {
         "title": "Technical focus",
-        "body": "Technical focus placeholder."
+        "body": "Describe the few technical themes that consistently shape how you work."
       },
       "stack": {
-        "title": "Stack",
-        "body": "Stack placeholder."
+        "title": "Languages, frameworks, and tools",
+        "body": "List technologies you can support with concrete project evidence."
       },
       "journey": {
         "title": "Journey",
-        "body": "Journey placeholder."
+        "body": "Connect projects and milestones through the decisions that moved your work forward."
       },
       "contact": {
-        "title": "Contact",
-        "actionLabel": "Contact page"
+        "actionLabel": "Contact page",
+        "title": "Start a conversation"
       }
     },
     "editorial": {
