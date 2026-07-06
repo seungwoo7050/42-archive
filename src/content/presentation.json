@@ -394,18 +394,37 @@
     "resume": {
       "hero": {
         "title": "Resume",
-        "body": "Resume placeholder.",
+        "body": "A concise overview of your profile, selected work, training, and education.",
         "downloadLabel": "Download PDF"
       },
       "summary": {
         "title": "Summary"
       },
       "projects": {
-        "title": "Project experience",
+        "title": "Selected project experience",
         "caseStudyLabel": "Case study"
       },
       "training": {
-        "title": "Training"
+        "title": "Training and education"
+      },
+      "experience": {
+        "title": "Experience"
+      },
+      "education": {
+        "title": "Education"
+      },
+      "notes": {
+        "title": "Notes / Read me"
+      },
+      "identity": {
+        "locationLabel": "Location",
+        "availabilityLabel": "Availability"
+      },
+      "editorial": {
+        "heroEyebrow": "Curriculum vitae"
+      },
+      "brutalist": {
+        "heroEyebrowTemplate": "{name} / CV"
       }
     },
     "contact": {
@@ -437,6 +456,26 @@
       "now": {
         "title": "Current direction",
         "anchorLabel": "Related case study"
+      }
+    },
+    "interviewMap": {
+      "hero": {
+        "title": "Interview Map",
+        "eyebrow": "Evidence reference"
+      },
+      "tracks": {
+        "title": "Topics and evidence",
+        "answerLabel": "Supporting project",
+        "depthLabel": "What the evidence covers",
+        "referenceLabel": "Reference",
+        "emptyLabel": "No mapped evidence yet.",
+        "indexLabel": "Track index",
+        "itemCountTemplate": "{count} items",
+        "questionLabel": "Interview topic"
+      },
+      "gaps": {
+        "ariaLabel": "Topics that need stronger evidence",
+        "eyebrow": "Appendix"
       }
     }
   },
