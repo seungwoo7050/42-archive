@@ -487,6 +487,56 @@ export function loadPortfolioSource(overrides: PortfolioSourceOverrides = {}) {
       site,
     }),
   );
+
+  projects.items.forEach((project, projectIndex) => {
+    addMissingReferenceIssue(
+      issues,
+      "src/content/projects.json",
+      `$.items[${projectIndex}].groupId`,
+      "project group id",
+      project.groupId,
+      groupIds,
+    );
+
+    addDuplicateIssues(
+      issues,
+      "src/content/projects.json",
+      `$.items[${projectIndex}].tags`,
+      "project tag",
+      project.tags,
+    );
+    addDuplicateIssues(
+      issues,
+      "src/content/projects.json",
+      `$.items[${projectIndex}].stack`,
+      "technology reference",
+      project.stack,
+    );
+
+    project.stack.forEach((stackId, stackIndex) =>
+      addMissingReferenceIssue(
+        issues,
+        "src/content/projects.json",
+        `$.items[${projectIndex}].stack[${stackIndex}]`,
+        "technology id",
+        stackId,
+        stackIds,
+      ),
+    );
+
+    project.links.forEach((link, linkIndex) =>
+      addInternalRouteIssue({
+        enabledProjectIds,
+        file: "src/content/projects.json",
+        href: link.href,
+        issues,
+        path: `$.items[${projectIndex}].links[${linkIndex}].href`,
+        routeKind: "link",
+        site,
+      }),
+    );
+
+  });
   if (issues.length > 0) {
     throw new PortfolioContentError(issues);
   }
