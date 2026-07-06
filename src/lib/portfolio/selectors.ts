@@ -10,6 +10,7 @@ import type {
   PortfolioContent,
   PortfolioProject,
   PresentationContent,
+  SitePageId,
   TechStackItem,
 } from "./types";
 import { createTemplateHref } from "./template-href";
@@ -32,6 +33,13 @@ export function resolveHomeTemplateId(
 
 export function resolveContentDebug(value: string | string[] | undefined) {
   return (Array.isArray(value) ? value[0] : value) === "content";
+}
+
+export function isSitePageEnabled(
+  pageId: SitePageId,
+  content: PortfolioContent = getPortfolioContent(),
+) {
+  return content.site.pages?.[pageId] !== false;
 }
 
 export function getTemplateHref(

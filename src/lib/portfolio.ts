@@ -10,6 +10,7 @@ export {
   getResumeProjects,
   getTemplateHref,
   isProjectLive,
+  isSitePageEnabled,
   resolveContentDebug,
   resolveHomeTemplateId,
   resolveTechStackItem,
