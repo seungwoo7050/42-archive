@@ -463,6 +463,30 @@ export function loadPortfolioSource(overrides: PortfolioSourceOverrides = {}) {
       });
     }
   });
+
+  site.navigation.forEach((item, index) =>
+    addInternalRouteIssue({
+      enabledProjectIds,
+      file: "src/content/site.json",
+      href: item.href,
+      issues,
+      path: `$.navigation[${index}].href`,
+      routeKind: "navigation",
+      site,
+    }),
+  );
+
+  links.forEach((link, index) =>
+    addInternalRouteIssue({
+      enabledProjectIds,
+      file: "src/content/links.json",
+      href: link.href,
+      issues,
+      path: `$[${index}].href`,
+      routeKind: "link",
+      site,
+    }),
+  );
   if (issues.length > 0) {
     throw new PortfolioContentError(issues);
   }
