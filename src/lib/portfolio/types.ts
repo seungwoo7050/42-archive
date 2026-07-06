@@ -2,7 +2,6 @@ import type {
   PresentationContentSource,
   ProjectGroup,
   ProjectMetric,
-  ProjectMetricFilter,
 } from "../content-schema";
 
 export type {
