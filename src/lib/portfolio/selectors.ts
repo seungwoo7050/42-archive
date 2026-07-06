@@ -170,11 +170,15 @@ export function isProjectLive(project: PortfolioProject) {
 
 export function getProjectCardLinks(project: PortfolioProject) {
   return project.links.filter((link) => {
+    if (!link.placements?.includes("card")) {
+      return false;
+    }
+
     if (link.type === "demo") {
       return isProjectLive(project);
     }
 
-    return link.type === "github" || link.type === "case-study";
+    return true;
   });
 }
 
