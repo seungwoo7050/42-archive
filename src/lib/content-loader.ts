@@ -130,3 +130,51 @@ function parseContentFile<Schema extends z.ZodType>(
 
   return parsed.data;
 }
+
+function findDuplicates(values: string[]) {
+  const seen = new Set<string>();
+  const duplicates = new Set<string>();
+
+  for (const value of values) {
+    if (seen.has(value)) {
+      duplicates.add(value);
+    }
+
+    seen.add(value);
+  }
+
+  return duplicates;
+}
+
+function addDuplicateIssues(
+  issues: ContentValidationIssue[],
+  file: string,
+  path: string,
+  label: string,
+  values: string[],
+) {
+  for (const duplicate of findDuplicates(values)) {
+    issues.push({
+      file,
+      path,
+      message: `Duplicate ${label} "${duplicate}".`,
+    });
+  }
+}
+
+function addMissingReferenceIssue(
+  issues: ContentValidationIssue[],
+  file: string,
+  path: string,
+  referenceType: string,
+  reference: string,
+  knownReferences: Set<string>,
+) {
+  if (!knownReferences.has(reference)) {
+    issues.push({
+      file,
+      path,
+      message: `Unknown ${referenceType} "${reference}".`,
+    });
+  }
+}
