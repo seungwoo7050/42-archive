@@ -619,6 +619,29 @@ export function loadPortfolioSource(overrides: PortfolioSourceOverrides = {}) {
       ),
     ),
   );
+  curation.categories.forEach((category, categoryIndex) =>
+    category.projectIds.forEach((projectId, projectIndex) =>
+      addMissingReferenceIssue(
+        issues,
+        "src/content/curation.json",
+        `$.categories[${categoryIndex}].projectIds[${projectIndex}]`,
+        "project id",
+        projectId,
+        enabledProjectIds,
+      ),
+    ),
+  );
+  contact.preferred.forEach((linkId, index) =>
+    addMissingReferenceIssue(
+      issues,
+      "src/content/contact.json",
+      `$.preferred[${index}]`,
+      "link id",
+      linkId,
+      enabledLinkIds,
+    ),
+  );
+
   if (issues.length > 0) {
     throw new PortfolioContentError(issues);
   }
