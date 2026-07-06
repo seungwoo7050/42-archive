@@ -428,6 +428,41 @@ export function loadPortfolioSource(overrides: PortfolioSourceOverrides = {}) {
     "navigation href",
     site.navigation.map((item) => item.href),
   );
+
+  if (
+    !presentation.templates.some(
+      (template) => template.id === presentation.defaultHomeTemplate,
+    )
+  ) {
+    issues.push({
+      file: "src/content/presentation.json",
+      path: "$.defaultHomeTemplate",
+      message: `Default site design "${presentation.defaultHomeTemplate}" is not listed in templates.`,
+    });
+  }
+
+  presentation.templates.forEach((template, templateIndex) => {
+    if (!supportedDesignIds.has(template.id)) {
+      issues.push({
+        file: "src/content/presentation.json",
+        path: `$.templates[${templateIndex}].id`,
+        message: `Unsupported site design "${template.id}".`,
+      });
+    }
+  });
+
+  const configuredDesignIds = new Set(
+    presentation.templates.map((template) => template.id),
+  );
+  supportedDesignIdList.forEach((designId) => {
+    if (!configuredDesignIds.has(designId)) {
+      issues.push({
+        file: "src/content/presentation.json",
+        path: "$.templates",
+        message: `Missing supported site design "${designId}".`,
+      });
+    }
+  });
   if (issues.length > 0) {
     throw new PortfolioContentError(issues);
   }
