@@ -142,6 +142,72 @@
         "title": "Contact",
         "actionLabel": "Contact page"
       }
+    },
+    "editorial": {
+      "sections": [
+        "hero",
+        "lead",
+        "featured",
+        "principles",
+        "contact"
+      ],
+      "hero": {
+        "issueTemplate": "Portfolio / {year}",
+        "primaryActionLabel": "Browse the complete project index"
+      },
+      "lead": {
+        "label": "Cover story",
+        "actionLabel": "Read the case study"
+      },
+      "featured": {
+        "title": "Selected stories"
+      },
+      "current": {
+        "actionLabel": "Follow the journey"
+      }
+    },
+    "brutalist": {
+      "sections": [
+        "hero",
+        "signal",
+        "featured",
+        "system",
+        "journey",
+        "contact"
+      ],
+      "stampLabel": "Portfolio",
+      "signalText": "Build / Prove / Ship / Question /",
+      "hero": {
+        "primaryActionLabel": "View the work",
+        "secondaryActionLabel": "Contact"
+      },
+      "featured": {
+        "title": "Selected work",
+        "body": "A numbered index of the projects that best explain the work.",
+        "actionLabel": "All projects"
+      },
+      "system": {
+        "title": "Working system",
+        "body": "The constraints used to keep code, decisions, and evidence inspectable."
+      },
+      "journeyActionLabel": "Open full journey",
+      "contactActionLabel": "Open contact"
+    },
+    "cinematic": {
+      "sections": [
+        "hero",
+        "statement",
+        "projects",
+        "focusContact"
+      ],
+      "hero": {
+        "primaryActionLabel": "View the archive",
+        "secondaryActionLabel": "Start a conversation"
+      },
+      "statementLabel": "Selected work",
+      "focusLabel": "Focus",
+      "contactActionLabel": "Contact",
+      "caseStudyActionLabel": "Enter case study"
     }
   },
   "pages": {
@@ -310,6 +376,23 @@
       "noMappedEvidence": "No mapped evidence yet.",
       "additionalNotes": "No additional notes supplied.",
       "contactLinks": "No contact links are configured."
+    }
+  },
+  "editorial": {
+    "shell": {
+      "kicker": "Independent portfolio",
+      "volumeLabel": "Vol."
+    }
+  },
+  "brutalist": {
+    "shell": {
+      "debugLabel": "Content mode",
+      "debugHint": "Editable source: src/content/** + public/content/**"
+    }
+  },
+  "cinematic": {
+    "shell": {
+      "brandSubtitle": "Visual archive"
     }
   }
 }
