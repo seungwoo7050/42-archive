@@ -93,3 +93,20 @@ export class PortfolioContentError extends Error {
     this.issues = issues;
   }
 }
+
+function jsonPath(path: PropertyKey[]) {
+  if (path.length === 0) {
+    return "$";
+  }
+
+  return path.reduce<string>((result, segment) => {
+    if (typeof segment === "number") {
+      return `${result}[${segment}]`;
+    }
+
+    const key = String(segment);
+    return /^[a-zA-Z_$][\w$]*$/.test(key)
+      ? `${result}.${key}`
+      : `${result}[${JSON.stringify(key)}]`;
+  }, "$" );
+}
