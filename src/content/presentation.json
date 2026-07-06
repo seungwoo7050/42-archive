@@ -15,16 +15,16 @@
   "home": {
     "design": {
       "hero": {
-        "primaryActionLabel": "Projects",
+        "primaryActionLabel": "View projects",
         "leadLabel": "Lead case study",
-        "leadActionLabel": "Open",
+        "leadActionLabel": "Open case study",
         "stats": [
           {
-            "label": "Product",
+            "label": "Products",
             "countKey": "productCount"
           },
           {
-            "label": "42 archive",
+            "label": "Archive",
             "countKey": "curriculumCount"
           },
           {
@@ -33,33 +33,69 @@
           }
         ]
       },
-      "sections": [],
+      "sections": [
+        "featured",
+        "workMap",
+        "technicalFocus",
+        "stack",
+        "journey",
+        "contact"
+      ],
       "featured": {
-        "title": "Featured",
-        "body": "Featured placeholder.",
+        "title": "Selected work",
+        "body": "Start with the projects that best demonstrate your judgment, craft, and contribution.",
         "actionLabel": "View all projects"
       }
     },
     "classic": {
       "hero": {
-        "primaryActionLabel": "Projects"
+        "primaryActionLabel": "View projects"
       },
-      "sections": [],
+      "sections": [
+        "featured",
+        "workMap",
+        "technicalFocus",
+        "stack",
+        "journey",
+        "contact"
+      ],
       "featured": {
         "title": "Selected work",
-        "body": "Selected work placeholder.",
+        "body": "A concise index of your strongest project evidence and technical decisions.",
         "actionLabel": "View all projects"
       },
       "terminal": {
         "title": "portfolio.sh",
-        "bootLine": "boot placeholder",
-        "promptUser": "user",
+        "bootLine": "portfolio ready · content loaded",
+        "promptUser": "your-handle",
         "promptPath": "~/portfolio",
         "commands": [
           {
-            "command": "status",
+            "command": "whoami",
             "output": [
-              "placeholder"
+              "{handle} / {role}",
+              "{location} · open to opportunities"
+            ]
+          },
+          {
+            "command": "projects --featured",
+            "output": [
+              "{projectCount} project indexed from content",
+              "case studies · decisions · outcomes"
+            ]
+          },
+          {
+            "command": "stack --focus",
+            "output": [
+              "{stackCount} tools mapped",
+              "TypeScript · React · Next.js"
+            ]
+          },
+          {
+            "command": "contact --signal",
+            "output": [
+              "availability published",
+              "response route: /contact"
             ]
           }
         ]
