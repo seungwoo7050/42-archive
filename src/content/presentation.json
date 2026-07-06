@@ -304,6 +304,23 @@
     },
     "projectDetail": {
       "backLabel": "Projects",
+      "caseLabel": "Case",
+      "missing": {
+        "eyebrow": "404 / Case file",
+        "title": "Project unavailable",
+        "body": "This project is not part of the current public content set.",
+        "actionLabel": "Return to projects"
+      },
+      "facts": {
+        "roleLabel": "Role",
+        "statusLabel": "Status"
+      },
+      "outroLabel": "End of case file",
+      "returnToIndexLabel": "Return to project index",
+      "frameLabel": "Frame",
+      "editorial": {
+        "decisionSpreadTitle": "Decision record"
+      },
       "sections": {
         "problem": {
           "eyebrow": "Problem",
@@ -318,24 +335,28 @@
           "title": "Architecture"
         },
         "screenshots": {
-          "eyebrow": "Screenshots",
+          "eyebrow": "Evidence",
           "title": "Gallery"
         },
         "stack": {
           "eyebrow": "Stack",
-          "title": "Tech stack"
+          "title": "Technology"
         },
         "decisions": {
           "eyebrow": "Decisions",
-          "title": "Key technical decisions"
+          "title": "Key decisions"
+        },
+        "highlights": {
+          "eyebrow": "Highlights",
+          "title": "Project highlights"
         },
         "tradeoffs": {
           "eyebrow": "Tradeoffs",
-          "title": "Challenges and tradeoffs"
+          "title": "Constraints and tradeoffs"
         },
         "result": {
           "eyebrow": "Result",
-          "title": "Result"
+          "title": "Outcomes"
         }
       }
     },
