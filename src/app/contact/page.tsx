@@ -19,6 +19,7 @@ export default async function ContactPage({
   const params = searchParams ? await searchParams : {};
   const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
   const contentDebug = resolveContentDebug(params.debug);
+
   const pageCopy = content.presentation.pages.contact;
   const preferredLinks = getPreferredContactLinks(content);
 
@@ -67,18 +68,24 @@ export default async function ContactPage({
             </p>
           </div>
           <div className="grid gap-4">
-            {preferredLinks.map((link) => (
-              <ContentLinkView
-                className="flex items-center justify-between gap-4 rounded-lg border border-line bg-surface p-5 text-sm font-semibold text-foreground transition hover:border-accent hover:text-accent-strong"
-                contentDebug={contentDebug}
-                homeTemplate={activeTemplate}
-                key={link.id ?? link.href}
-                link={link}
-              >
-                {link.label}
-                <ArrowRightIcon className="-rotate-45" />
-              </ContentLinkView>
-            ))}
+            {preferredLinks.length > 0 ? (
+              preferredLinks.map((link) => (
+                <ContentLinkView
+                  className="flex min-h-11 items-center justify-between gap-4 rounded-lg border border-line bg-surface p-5 text-sm font-semibold text-foreground transition hover:border-accent hover:text-accent-strong"
+                  contentDebug={contentDebug}
+                  homeTemplate={activeTemplate}
+                  key={link.id ?? link.href}
+                  link={link}
+                >
+                  {link.label}
+                  <ArrowRightIcon className="-rotate-45" />
+                </ContentLinkView>
+              ))
+            ) : (
+              <p className="rounded-lg border border-dashed border-line bg-surface p-5 text-sm leading-6 text-muted">
+                {content.presentation.ui.emptyStates.contactLinks}
+              </p>
+            )}
             <div className="rounded-lg border border-line bg-surface p-5">
               <ContentHint
                 enabled={contentDebug}
