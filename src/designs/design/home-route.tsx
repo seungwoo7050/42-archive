@@ -156,7 +156,7 @@ function HeroSection({
   const stats = getWorkMapStats(content);
   const copy = content.presentation.home.design.hero;
   const links = content.links.filter((link) =>
-    ["github", "resume", "website"].includes(link.type),
+    link.placements?.includes("hero"),
   );
   const leadProject = projects[0];
   const supportingProjects = projects.slice(1, 3);

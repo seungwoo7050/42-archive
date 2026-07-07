@@ -134,7 +134,7 @@ function ClassicHeroSection({
 }) {
   const { profile } = content;
   const links = content.links.filter((link) =>
-    ["github", "resume", "website"].includes(link.type),
+    link.placements?.includes("hero"),
   );
 
   return (
