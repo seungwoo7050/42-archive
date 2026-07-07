@@ -1,6 +1,7 @@
 import { ArrowUpRightIcon, ExternalLinkIcon } from "@/components/icons";
 import {
   getProjectCardLinks,
+  getProjectDetailLinks,
   isProjectLive,
   type ContentLink,
   type HomeTemplateId,
@@ -27,13 +28,11 @@ export function ProjectLinks({
   homeTemplate?: HomeTemplateId;
   project: PortfolioProject;
 }) {
-  const links = project.links.filter((link) => {
-    if (excludeCaseStudy && link.type === "case-study") {
-      return false;
-    }
-
-    return isVisibleProjectLink(project, link);
-  });
+  const links = getProjectDetailLinks(project).filter(
+    (link) =>
+      (!excludeCaseStudy || link.type !== "case-study") &&
+      isVisibleProjectLink(project, link),
+  );
 
   if (!links.length) {
     return null;
