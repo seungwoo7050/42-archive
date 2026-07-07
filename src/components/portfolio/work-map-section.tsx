@@ -1,20 +1,12 @@
-import type { PortfolioContent } from "@/lib/portfolio";
+import { getProjectMetricValue, type PortfolioContent } from "@/lib/portfolio";
 import { Reveal } from "./reveal";
 import { SectionHeading } from "./section-heading";
 
 export function getWorkMapStats(content: PortfolioContent) {
-  const curriculumCount = content.projects.filter((project) =>
-    project.screenshot.src.startsWith("/projects/42/") || project.id === "pong-pong",
-  ).length;
-  const reliabilityProject = content.projects.find(
-    (project) => project.id === "reliability-training-series",
-  );
-  const productCount = content.projects.filter((project) => project.featured).length;
-
   return {
-    curriculumCount,
-    productCount,
-    reliabilityCount: reliabilityProject?.highlights.length ?? 0,
+    curriculumCount: getProjectMetricValue("curriculumCount", content),
+    productCount: getProjectMetricValue("productCount", content),
+    reliabilityCount: getProjectMetricValue("reliabilityCount", content),
   };
 }
 

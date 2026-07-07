@@ -139,6 +139,11 @@ export function ProjectDetailView({
           title={sections.decisions.title}
         />
         <ListSection
+          eyebrow={sections.highlights.eyebrow}
+          items={project.highlights}
+          title={sections.highlights.title}
+        />
+        <ListSection
           eyebrow={sections.tradeoffs.eyebrow}
           items={project.tradeoffs}
           title={sections.tradeoffs.title}

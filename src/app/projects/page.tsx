@@ -3,6 +3,7 @@ import { ClassicProjectsView } from "@/designs/classic/projects/projects-route";
 import { DesignProjectsView } from "@/designs/design/projects/projects-route";
 import {
   getPortfolioContent,
+  getProjectMetricValue,
   resolveContentDebug,
   resolveHomeTemplateId,
   type RouteSearchParams,
@@ -22,12 +23,8 @@ export default async function ProjectsPage({
   const featuredProjects = content.projects.filter((project) => project.featured);
   const trackProjects = content.projects.filter((project) => !project.featured);
   const groupedProjects = groupProjects(trackProjects, pageCopy.groups);
-  const sourceOnlyCount = content.projects.filter(
-    (project) => project.deployment.status === "source-only",
-  ).length;
-  const curriculumCount = content.projects.filter((project) =>
-    project.screenshot.src.startsWith("/projects/42/") || project.id === "pong-pong",
-  ).length;
+  const sourceOnlyCount = getProjectMetricValue("sourceOnlyCount", content);
+  const curriculumCount = getProjectMetricValue("curriculumCount", content);
   const shellProps = {
     contentDebug,
     homeTemplate: activeTemplate,
