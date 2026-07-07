@@ -694,13 +694,29 @@ a {
   }
 }
 
+@media (max-width: 640px) {
+  [data-site-header] {
+    backdrop-filter: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
 
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
   .hero-section::after,
   .hero-showcase,
+  .hero-terminal-wrap,
   .terminal-window::before,
   .terminal-caret,
   .terminal-output,
@@ -710,6 +726,7 @@ a {
 
   .reveal-item,
   .motion-card,
+  .motion-card:hover,
   .tech-chip,
   .experience-row::before,
   .paired-timeline::before,
