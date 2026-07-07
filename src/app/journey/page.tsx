@@ -1,9 +1,12 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowRightIcon } from "@/components/icons";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
 import {
   getPortfolioContent,
+  getTemplateHref,
   isSitePageEnabled,
   resolveContentDebug,
   resolveHomeTemplateId,
@@ -98,6 +101,9 @@ function MilestoneCard({
   labels: PresentationContent["pages"]["journey"]["narrative"]["labels"];
   milestone: JourneyMilestone;
 }) {
+  const anchorProjects = milestone.anchorProjectIds
+    .map((projectId) => content.projects.find((project) => project.id === projectId))
+    .filter((project): project is NonNullable<typeof project> => Boolean(project));
 
   return (
     <li className="rounded-lg border border-line bg-surface p-6">
@@ -139,6 +145,23 @@ function MilestoneCard({
           </dd>
         </div>
       </dl>
+      {anchorProjects.length > 0 ? (
+        <ul className="mt-5 flex flex-wrap gap-2">
+          {anchorProjects.map((project) => (
+            <li key={project.id}>
+              <Link
+                className="inline-flex items-center gap-2 rounded-md border border-line bg-surface-soft px-3 py-2 text-xs font-semibold text-muted transition hover:border-accent hover:text-foreground"
+                href={getTemplateHref(`/projects/${project.id}`, homeTemplate, {
+                  contentDebug,
+                })}
+              >
+                {project.title}
+                <ArrowRightIcon />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </li>
   );
 }
