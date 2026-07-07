@@ -61,6 +61,28 @@ export default async function InterviewMapPage({
           </a>
         </div>
       </section>
+      <section className="border-b border-line bg-background-soft">
+        <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
+          <ContentHint
+            enabled={contentDebug}
+            path="src/content/interview-map.json > tracks[]"
+          />
+          <nav aria-label={pageCopy.tracks.indexLabel}>
+            <ul className="flex flex-wrap gap-2">
+              {data.tracks.map((track) => (
+                <li key={track.id}>
+                  <a
+                    className="inline-flex items-center gap-2 rounded-md border border-line bg-surface px-3 py-2 text-xs font-semibold text-muted transition hover:border-accent hover:text-foreground"
+                    href={`#track-${track.id}`}
+                  >
+                    {track.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </section>
     </PageShell>
   );
 }
