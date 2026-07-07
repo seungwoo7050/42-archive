@@ -72,6 +72,8 @@ export type LinkType =
   | "source"
   | "website";
 
+export type LinkPlacement = "hero" | "contact" | "card" | "detail" | "footer";
+
 export type ContentLink = {
   id?: string;
   type: LinkType;
@@ -79,7 +81,7 @@ export type ContentLink = {
   href: string;
   external?: boolean;
   enabled?: boolean;
-  placements?: Array<"hero" | "contact" | "card" | "detail" | "footer">;
+  placements?: LinkPlacement[];
 };
 
 export type DeploymentStatus =

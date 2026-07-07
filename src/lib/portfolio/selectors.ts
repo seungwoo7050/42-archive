@@ -6,6 +6,7 @@ import {
 import type {
   ContentLink,
   HomeTemplateId,
+  LinkPlacement,
   LinkType,
   PortfolioContent,
   PortfolioProject,
@@ -169,8 +170,19 @@ export function isProjectLive(project: PortfolioProject) {
 }
 
 export function getProjectCardLinks(project: PortfolioProject) {
+  return getProjectLinksForPlacement(project, "card");
+}
+
+export function getProjectDetailLinks(project: PortfolioProject) {
+  return getProjectLinksForPlacement(project, "detail");
+}
+
+export function getProjectLinksForPlacement(
+  project: PortfolioProject,
+  placement: LinkPlacement,
+) {
   return project.links.filter((link) => {
-    if (!link.placements?.includes("card")) {
+    if (!link.placements?.includes(placement)) {
       return false;
     }
 
@@ -180,6 +192,13 @@ export function getProjectCardLinks(project: PortfolioProject) {
 
     return true;
   });
+}
+
+export function getContentLinksByPlacement(
+  placement: LinkPlacement,
+  content: PortfolioContent = getPortfolioContent(),
+) {
+  return content.links.filter((link) => link.placements?.includes(placement));
 }
 
 export function getExternalLinkProps(link: ContentLink) {
