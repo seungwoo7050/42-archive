@@ -1,11 +1,16 @@
 import { notFound } from "next/navigation";
 import { ContentHint } from "@/components/portfolio/content-hint";
+import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
 import {
   getPortfolioContent,
   isSitePageEnabled,
   resolveContentDebug,
   resolveHomeTemplateId,
+  type HomeTemplateId,
+  type JourneyMilestone,
+  type PortfolioContent,
+  type PresentationContent,
   type RouteSearchParams,
 } from "@/lib/portfolio";
 
@@ -51,6 +56,63 @@ export default async function JourneyPage({
           </p>
         </div>
       </section>
+      <section className="border-b border-line bg-background-soft">
+        <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+          <SectionHeading
+            body={pageCopy.narrative.body}
+            contentDebug={contentDebug}
+            contentHint="src/content/journey-narrative.json > milestones[]"
+            title={pageCopy.narrative.title}
+          />
+          <ol className="grid gap-5">
+            {narrative.milestones.map((milestone, index) => (
+              <MilestoneCard
+                contentDebug={contentDebug}
+                content={content}
+                homeTemplate={activeTemplate}
+                index={index}
+                key={milestone.id}
+                labels={pageCopy.narrative.labels}
+                milestone={milestone}
+              />
+            ))}
+          </ol>
+        </div>
+      </section>
     </PageShell>
+  );
+}
+
+function MilestoneCard({
+  contentDebug,
+  content,
+  homeTemplate,
+  index,
+  labels,
+  milestone,
+}: {
+  contentDebug: boolean;
+  content: PortfolioContent;
+  homeTemplate: HomeTemplateId;
+  index: number;
+  labels: PresentationContent["pages"]["journey"]["narrative"]["labels"];
+  milestone: JourneyMilestone;
+}) {
+
+  return (
+    <li className="rounded-lg border border-line bg-surface p-6">
+      <ContentHint
+        enabled={contentDebug}
+        path={`src/content/journey-narrative.json > milestones[id=${milestone.id}]`}
+      />
+      <div className="flex flex-wrap items-baseline gap-3">
+        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-accent">
+          {String(index + 1).padStart(2, "0")} · {milestone.date}
+        </span>
+      </div>
+      <h3 className="mt-3 text-xl font-semibold text-foreground">
+        {milestone.title}
+      </h3>
+    </li>
   );
 }
