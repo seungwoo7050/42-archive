@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRightIcon } from "@/components/icons";
 import { ContentHint } from "@/components/portfolio/content-hint";
+import { JourneyList } from "@/components/portfolio/journey-list";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
 import {
@@ -80,6 +81,22 @@ export default async function JourneyPage({
               />
             ))}
           </ol>
+        </div>
+      </section>
+      <section className="border-b border-line">
+        <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+          <SectionHeading
+            body={pageCopy.timeline.body}
+            contentDebug={contentDebug}
+            contentHint="src/content/journey.json > journey[]"
+            title={pageCopy.timeline.title}
+          />
+          <JourneyList
+            contentDebug={contentDebug}
+            homeTemplate={activeTemplate}
+            items={content.journey}
+            variant="paired-centerline"
+          />
         </div>
       </section>
     </PageShell>
