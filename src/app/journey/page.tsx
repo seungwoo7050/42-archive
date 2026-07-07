@@ -113,6 +113,32 @@ function MilestoneCard({
       <h3 className="mt-3 text-xl font-semibold text-foreground">
         {milestone.title}
       </h3>
+      <dl className="mt-5 grid gap-4">
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">
+            {labels.state}
+          </dt>
+          <dd className="mt-2 text-sm leading-6 text-muted md:text-base md:leading-7">
+            {milestone.state}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">
+            {labels.reason}
+          </dt>
+          <dd className="mt-2 text-sm leading-6 text-muted md:text-base md:leading-7">
+            {milestone.reason}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">
+            {labels.result}
+          </dt>
+          <dd className="mt-2 text-sm leading-6 text-muted md:text-base md:leading-7">
+            {milestone.result}
+          </dd>
+        </div>
+      </dl>
     </li>
   );
 }
