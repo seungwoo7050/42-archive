@@ -130,6 +130,7 @@ export function PageShell({
     <main
       className="min-h-screen bg-background text-foreground"
       data-home-template={homeTemplate}
+      data-site-design={homeTemplate}
     >
       <SiteHeader
         profile={profile}
