@@ -24,11 +24,13 @@ function formatTerminalLine(
 }
 
 export function AnimatedTerminal({
+  ariaLabel,
   profile,
   projectCount,
   stackCount,
   terminal,
 }: {
+  ariaLabel: string;
   profile: ProfileContent;
   projectCount: number;
   stackCount: number;
@@ -95,7 +97,7 @@ export function AnimatedTerminal({
 
   return (
     <aside
-      aria-label="Animated portfolio terminal preview"
+      aria-label={ariaLabel}
       className="terminal-window mx-auto w-full max-w-xl"
     >
       <div className="terminal-titlebar">

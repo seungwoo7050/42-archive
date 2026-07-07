@@ -92,6 +92,7 @@ export default async function JourneyPage({
             title={pageCopy.timeline.title}
           />
           <JourneyList
+            caseStudyLabel={content.presentation.ui.journeyCaseStudyLabel}
             contentDebug={contentDebug}
             homeTemplate={activeTemplate}
             items={content.journey}

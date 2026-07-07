@@ -27,7 +27,10 @@ export function SelectedStackSection({
             title={copy.title}
           />
           <div className="grid gap-6">
-            <TechMarquee items={visibleStackItems} />
+            <TechMarquee
+              ariaLabel={content.presentation.ui.techMarqueeAriaLabel}
+              items={visibleStackItems}
+            />
             <div className="grid overflow-hidden rounded-lg border border-line bg-surface sm:grid-cols-2">
               {content.skills.groups.map((group, index) => (
                 <Reveal delay={index * 80} key={group.title}>

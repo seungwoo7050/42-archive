@@ -2,11 +2,17 @@ import type { CSSProperties } from "react";
 import type { TechStackItem } from "@/lib/portfolio";
 import { TechIcon } from "./tech-icon";
 
-export function TechMarquee({ items }: { items: TechStackItem[] }) {
+export function TechMarquee({
+  ariaLabel,
+  items,
+}: {
+  ariaLabel: string;
+  items: TechStackItem[];
+}) {
   const visibleItems = items.slice(0, 18);
 
   return (
-    <div aria-label="Technology stack marquee" className="stack-marquee">
+    <div aria-label={ariaLabel} className="stack-marquee">
       <div className="stack-marquee-viewport">
         <TechMarqueeTrack items={visibleItems} />
         <TechMarqueeTrack ariaHidden items={visibleItems} />

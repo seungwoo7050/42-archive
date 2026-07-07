@@ -87,6 +87,7 @@ export default async function AboutPage({
             title={pageCopy.journey.title}
           />
           <JourneyList
+            caseStudyLabel={content.presentation.ui.journeyCaseStudyLabel}
             contentDebug={contentDebug}
             homeTemplate={activeTemplate}
             items={content.journey}

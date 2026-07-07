@@ -24,6 +24,7 @@ export function HomeJourneySection({
         />
         <JourneyList
           animated
+          caseStudyLabel={content.presentation.ui.journeyCaseStudyLabel}
           contentDebug={contentDebug}
           homeTemplate={activeTemplate}
           items={content.journey}

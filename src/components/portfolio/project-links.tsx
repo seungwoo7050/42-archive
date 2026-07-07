@@ -45,7 +45,7 @@ export function ProjectLinks({
 
         return (
           <ContentLinkView
-            className={`inline-flex h-9 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background ${
+            className={`inline-flex min-h-11 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background ${
               primary
                 ? "border-accent bg-accent text-background hover:bg-accent-strong"
                 : "border-line bg-surface text-muted hover:border-accent hover:text-foreground"
@@ -83,7 +83,7 @@ export function ProjectCardLinks({
     <div className="flex flex-wrap gap-2">
       {links.map((link) => (
         <ContentLinkView
-          className={`inline-flex h-9 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background ${
+          className={`inline-flex min-h-11 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background ${
             link.type === "demo"
               ? "border-accent bg-accent text-background hover:bg-accent-strong"
               : "border-line bg-surface text-muted hover:border-accent hover:text-foreground"

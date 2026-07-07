@@ -26,10 +26,12 @@ function getJourneyPeriod(item: JourneyItem) {
 }
 
 function JourneyEntry({
+  caseStudyLabel,
   contentDebug,
   homeTemplate,
   item,
 }: {
+  caseStudyLabel: string;
   contentDebug?: boolean;
   homeTemplate?: HomeTemplateId;
   item: JourneyItem;
@@ -58,7 +60,7 @@ function JourneyEntry({
               contentDebug,
             })}
           >
-            Case Study
+            {caseStudyLabel}
             <ArrowRightIcon />
           </Link>
         ) : null}
@@ -68,10 +70,12 @@ function JourneyEntry({
 }
 
 function JourneyCard({
+  caseStudyLabel,
   contentDebug,
   homeTemplate,
   item,
 }: {
+  caseStudyLabel: string;
   contentDebug?: boolean;
   homeTemplate?: HomeTemplateId;
   item: JourneyItem;
@@ -79,6 +83,7 @@ function JourneyCard({
   return (
     <article className="paired-timeline-card">
       <JourneyEntry
+        caseStudyLabel={caseStudyLabel}
         contentDebug={contentDebug}
         homeTemplate={homeTemplate}
         item={item}
@@ -99,11 +104,13 @@ function chunkPairs(items: JourneyItem[]) {
 
 function PairedJourneyList({
   animated,
+  caseStudyLabel,
   contentDebug,
   homeTemplate,
   items,
 }: {
   animated: boolean;
+  caseStudyLabel: string;
   contentDebug?: boolean;
   homeTemplate?: HomeTemplateId;
   items: JourneyItem[];
@@ -122,6 +129,7 @@ function PairedJourneyList({
               key={`${startItem.date}-${startItem.title}`}
             >
               <JourneyCard
+                caseStudyLabel={caseStudyLabel}
                 contentDebug={contentDebug}
                 homeTemplate={homeTemplate}
                 item={startItem}
@@ -133,6 +141,7 @@ function PairedJourneyList({
               key={`${startItem.date}-${startItem.title}`}
             >
               <JourneyCard
+                caseStudyLabel={caseStudyLabel}
                 contentDebug={contentDebug}
                 homeTemplate={homeTemplate}
                 item={startItem}
@@ -147,6 +156,7 @@ function PairedJourneyList({
           const row = (
             <>
               <JourneyCard
+                caseStudyLabel={caseStudyLabel}
                 contentDebug={contentDebug}
                 homeTemplate={homeTemplate}
                 item={pair[0]}
@@ -154,6 +164,7 @@ function PairedJourneyList({
               <span aria-hidden="true" className="paired-timeline-node" />
               {pair[1] ? (
                 <JourneyCard
+                  caseStudyLabel={caseStudyLabel}
                   contentDebug={contentDebug}
                   homeTemplate={homeTemplate}
                   item={pair[1]}
@@ -187,12 +198,14 @@ function PairedJourneyList({
 
 export function JourneyList({
   animated = false,
+  caseStudyLabel,
   contentDebug,
   homeTemplate,
   items,
   variant = "compact",
 }: {
   animated?: boolean;
+  caseStudyLabel: string;
   contentDebug?: boolean;
   homeTemplate?: HomeTemplateId;
   items: JourneyItem[];
@@ -202,6 +215,7 @@ export function JourneyList({
     return (
       <PairedJourneyList
         animated={animated}
+        caseStudyLabel={caseStudyLabel}
         contentDebug={contentDebug}
         homeTemplate={homeTemplate}
         items={items}
@@ -218,6 +232,7 @@ export function JourneyList({
         key={`${item.date}-${item.title}`}
       >
         <JourneyEntry
+          caseStudyLabel={caseStudyLabel}
           contentDebug={contentDebug}
           homeTemplate={homeTemplate}
           item={item}
@@ -229,6 +244,7 @@ export function JourneyList({
         key={`${item.date}-${item.title}`}
       >
         <JourneyEntry
+          caseStudyLabel={caseStudyLabel}
           contentDebug={contentDebug}
           homeTemplate={homeTemplate}
           item={item}

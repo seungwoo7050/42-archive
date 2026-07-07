@@ -181,6 +181,7 @@ function ClassicHeroSection({
             path="src/content/presentation.json > home.classic.terminal"
           />
           <AnimatedTerminal
+            ariaLabel={content.presentation.ui.animatedTerminalAriaLabel}
             profile={profile}
             projectCount={content.projects.length}
             stackCount={content.techStack.length}
