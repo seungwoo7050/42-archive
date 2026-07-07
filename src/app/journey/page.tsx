@@ -99,6 +99,23 @@ export default async function JourneyPage({
           />
         </div>
       </section>
+      <section>
+        <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+          <SectionHeading
+            contentDebug={contentDebug}
+            contentHint="src/content/journey-narrative.json > currentPosition"
+            title={pageCopy.now.title}
+          />
+          <div className="rounded-lg border border-line bg-surface p-6">
+            <h3 className="text-base font-semibold text-foreground">
+              {narrative.currentPosition.title}
+            </h3>
+            <p className="mt-4 text-sm leading-6 text-muted md:text-base md:leading-7">
+              {narrative.currentPosition.body}
+            </p>
+          </div>
+        </div>
+      </section>
     </PageShell>
   );
 }
