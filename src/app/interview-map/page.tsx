@@ -163,6 +163,38 @@ function TrackSection({
             {track.body}
           </p>
         </div>
+        <div className="overflow-hidden rounded-lg border border-line bg-surface">
+          <table className="w-full border-collapse text-left text-sm">
+            <thead>
+              <tr className="border-b border-line bg-surface-soft text-xs font-semibold uppercase tracking-[0.08em] text-muted">
+                <th className="px-4 py-3" scope="col">
+                  {pageCopy.tracks.questionLabel}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {track.items.map((item) => (
+                <tr
+                  className="border-b border-line align-top last:border-b-0"
+                  key={item.label}
+                >
+                  <td className="px-4 py-4">
+                    <p className="font-semibold text-foreground">{item.label}</p>
+                    <a
+                      className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-muted transition hover:text-foreground"
+                      href={item.reference}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      {pageCopy.tracks.referenceLabel}
+                      <ArrowRightIcon className="-rotate-45" />
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );
