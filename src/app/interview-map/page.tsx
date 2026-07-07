@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRightIcon } from "@/components/icons";
 import { ContentHint } from "@/components/portfolio/content-hint";
@@ -5,6 +6,7 @@ import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
 import {
   getPortfolioContent,
+  getTemplateHref,
   isSitePageEnabled,
   resolveContentDebug,
   resolveHomeTemplateId,
@@ -139,6 +141,10 @@ function TrackSection({
   pageCopy: PortfolioContent["presentation"]["pages"]["interviewMap"];
   track: InterviewMapTrack;
 }) {
+  const projectsById = new Map(
+    content.projects.map((project) => [project.id, project]),
+  );
+
   return (
     <section
       className={`border-b border-line ${index % 2 === 0 ? "" : "bg-background-soft"}`}
@@ -170,6 +176,12 @@ function TrackSection({
                 <th className="px-4 py-3" scope="col">
                   {pageCopy.tracks.questionLabel}
                 </th>
+                <th className="px-4 py-3" scope="col">
+                  {pageCopy.tracks.answerLabel}
+                </th>
+                <th className="px-4 py-3" scope="col">
+                  {pageCopy.tracks.depthLabel}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -189,6 +201,47 @@ function TrackSection({
                       {pageCopy.tracks.referenceLabel}
                       <ArrowRightIcon className="-rotate-45" />
                     </a>
+                  </td>
+                  <td className="px-4 py-4">
+                    <ul className="grid gap-2">
+                      {item.answers.map((answer) => {
+                        const project = projectsById.get(answer.projectId);
+
+                        if (!project) {
+                          return (
+                            <li
+                              className="text-xs leading-5 text-muted"
+                              key={answer.projectId}
+                            >
+                              {answer.projectId}
+                            </li>
+                          );
+                        }
+
+                        return (
+                          <li key={answer.projectId}>
+                            <Link
+                              className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition hover:text-accent-strong"
+                              href={getTemplateHref(
+                                `/projects/${project.id}`,
+                                homeTemplate,
+                                { contentDebug },
+                              )}
+                            >
+                              {project.title}
+                              <ArrowRightIcon />
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </td>
+                  <td className="px-4 py-4 text-sm leading-6 text-muted">
+                    <ul className="grid gap-2">
+                      {item.answers.map((answer) => (
+                        <li key={`${answer.projectId}-depth`}>{answer.depth}</li>
+                      ))}
+                    </ul>
                   </td>
                 </tr>
               ))}
