@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack -p 3100",
+    "prebuild": "npm run content:check",
     "build": "next build",
     "start": "next start -p 3100",
     "lint": "eslint .",
