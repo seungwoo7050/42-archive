@@ -1,9 +1,11 @@
 import { ArrowRightIcon } from "@/components/icons";
+import { notFound } from "next/navigation";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { ContentLinkView } from "@/components/portfolio/content-link";
 import { PageShell } from "@/components/portfolio/site-shell";
 import {
   getPortfolioContent,
+  isSitePageEnabled,
   getPreferredContactLinks,
   resolveContentDebug,
   resolveHomeTemplateId,
@@ -16,6 +18,7 @@ export default async function ContactPage({
   searchParams?: RouteSearchParams;
 }) {
   const content = getPortfolioContent();
+  if (!isSitePageEnabled("contact", content)) notFound();
   const params = searchParams ? await searchParams : {};
   const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
   const contentDebug = resolveContentDebug(params.debug);

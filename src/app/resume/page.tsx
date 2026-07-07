@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { ArrowRightIcon } from "@/components/icons";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { PageShell } from "@/components/portfolio/site-shell";
 import { StackList } from "@/components/portfolio/stack-list";
 import {
   getPortfolioContent,
+  isSitePageEnabled,
   getResumeProjects,
   getTemplateHref,
   resolveContentDebug,
@@ -18,6 +20,7 @@ export default async function ResumePage({
   searchParams?: RouteSearchParams;
 }) {
   const content = getPortfolioContent();
+  if (!isSitePageEnabled("resume", content)) notFound();
   const params = searchParams ? await searchParams : {};
   const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
   const contentDebug = resolveContentDebug(params.debug);

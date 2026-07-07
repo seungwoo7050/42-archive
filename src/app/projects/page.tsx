@@ -1,8 +1,10 @@
 import { PageShell } from "@/components/portfolio/site-shell";
+import { notFound } from "next/navigation";
 import { ClassicProjectsView } from "@/designs/classic/projects/projects-route";
 import { DesignProjectsView } from "@/designs/design/projects/projects-route";
 import {
   getPortfolioContent,
+  isSitePageEnabled,
   getProjectMetricValue,
   resolveContentDebug,
   resolveHomeTemplateId,
@@ -16,6 +18,7 @@ export default async function ProjectsPage({
   searchParams?: RouteSearchParams;
 }) {
   const content = getPortfolioContent();
+  if (!isSitePageEnabled("projects", content)) notFound();
   const params = searchParams ? await searchParams : {};
   const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
   const contentDebug = resolveContentDebug(params.debug);

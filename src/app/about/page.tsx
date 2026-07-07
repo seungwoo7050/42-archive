@@ -1,10 +1,12 @@
 import { ContentHint } from "@/components/portfolio/content-hint";
+import { notFound } from "next/navigation";
 import { JourneyList } from "@/components/portfolio/journey-list";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
 import { StackList } from "@/components/portfolio/stack-list";
 import {
   getPortfolioContent,
+  isSitePageEnabled,
   resolveContentDebug,
   resolveHomeTemplateId,
   type RouteSearchParams,
@@ -16,6 +18,7 @@ export default async function AboutPage({
   searchParams?: RouteSearchParams;
 }) {
   const content = getPortfolioContent();
+  if (!isSitePageEnabled("about", content)) notFound();
   const params = searchParams ? await searchParams : {};
   const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
   const contentDebug = resolveContentDebug(params.debug);

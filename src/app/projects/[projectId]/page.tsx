@@ -3,6 +3,7 @@ import { ProjectDetailView } from "@/components/portfolio/project-detail-view";
 import { PageShell } from "@/components/portfolio/site-shell";
 import {
   getPortfolioContent,
+  isSitePageEnabled,
   getProjectById,
   resolveContentDebug,
   resolveHomeTemplateId,
@@ -23,6 +24,7 @@ export default async function ProjectDetailPage({
   searchParams?: RouteSearchParams;
 }) {
   const content = getPortfolioContent();
+  if (!isSitePageEnabled("projects", content)) notFound();
   const { projectId } = await params;
   const query = searchParams ? await searchParams : {};
   const activeTemplate = resolveHomeTemplateId(query.view, content.presentation);
