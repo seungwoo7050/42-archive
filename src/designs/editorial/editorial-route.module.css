@@ -854,3 +854,103 @@
   padding: clamp(60px, 8vw, 120px) clamp(20px, 5vw, 80px);
   border-bottom: 1px solid var(--ink);
 }
+
+.archiveGroup > header {
+  position: sticky;
+  top: 30px;
+  align-self: start;
+}
+
+.archiveGroup > header > span {
+  color: var(--vermilion-text);
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.archiveGroup > header h2 {
+  margin-top: 18px;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(2.1rem, 4vw, 4rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.archiveGroup > header p {
+  margin-top: 22px;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+.caseStudy {
+  counter-reset: case-section;
+}
+
+.caseHero {
+  display: grid;
+  grid-template-columns: 0.32fr 1.15fr 0.7fr;
+  gap: clamp(30px, 5vw, 80px);
+  align-items: end;
+  min-height: 660px;
+  padding: clamp(52px, 8vw, 120px) clamp(20px, 5vw, 80px) clamp(46px, 7vw, 90px);
+}
+
+.caseMetaRail {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  align-self: stretch;
+  border-right: 1px solid var(--hairline);
+  padding-right: 25px;
+  color: var(--ink-soft);
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.caseMetaRail a {
+  margin-bottom: auto;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.caseTitle > p:not(.caseStandfirst) {
+  margin-bottom: 16px;
+  color: var(--vermilion-text);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.caseTitle h1 {
+  max-width: 11ch;
+  font-family: "Noto Serif KR", "Iowan Old Style", Georgia, serif;
+  font-size: clamp(4.2rem, 9vw, 10rem);
+  font-weight: 500;
+  line-height: 0.88;
+  letter-spacing: -0.075em;
+}
+
+.caseStandfirst {
+  margin-top: 35px !important;
+  max-width: 45rem;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(1.15rem, 1.9vw, 1.65rem);
+  line-height: 1.5;
+}
+
+.caseDescription {
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  line-height: 1.75;
+}
+
+.caseLinks {
+  grid-column: 3;
+  display: grid;
+  gap: 0;
+}
