@@ -1,0 +1,112 @@
+.root {
+  position: relative;
+  z-index: 50;
+}
+
+.root summary {
+  align-items: center;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 0.65rem;
+  min-height: 2.75rem;
+  list-style: none;
+  padding: 0.55rem 0.85rem;
+  user-select: none;
+}
+
+.root summary::-webkit-details-marker {
+  display: none;
+}
+
+.root summary:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.count {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  opacity: 0.72;
+  text-transform: uppercase;
+}
+
+.label {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid #191919;
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.16);
+  color: #171614;
+  min-width: min(23rem, calc(100vw - 2rem));
+  padding: 0.6rem;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.55rem);
+}
+
+.list {
+  display: grid;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sheetHeader {
+  display: none;
+}
+
+.link {
+  align-items: center;
+  color: inherit;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 3.2rem 1fr auto;
+  min-height: 3.5rem;
+  padding: 0.55rem;
+  text-decoration: none;
+}
+
+.link:hover,
+.link:focus-visible,
+.active {
+  background: #171614;
+  color: #fff;
+  outline: none;
+}
+
+.swatch {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: 1.65rem;
+  overflow: hidden;
+}
+
+.swatch span {
+  display: block;
+}
+
+.copy strong,
+.copy small {
+  display: block;
+}
+
+.copy strong {
+  font-size: 0.8rem;
+}
+
+.copy small {
+  font-size: 0.66rem;
+  line-height: 1.35;
+  margin-top: 0.15rem;
+  opacity: 0.7;
+}
+
+.number {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.65rem;
+}
