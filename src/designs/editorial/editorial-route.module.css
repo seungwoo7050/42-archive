@@ -636,3 +636,112 @@
 .columnFeature {
   padding: clamp(56px, 8vw, 120px) clamp(20px, 5vw, 80px);
 }
+
+.principleList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 42px;
+  margin-top: 52px;
+}
+
+.principleList article {
+  min-height: 210px;
+  border-top: 1px solid var(--hairline);
+  padding: 18px 0 30px;
+}
+
+.principleList article span,
+.principlesSpread article > span,
+.resumeSections > section > span,
+.skillsIntro > span {
+  color: var(--vermilion-text);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 0.72rem;
+  font-style: italic;
+}
+
+.principleList h3 {
+  margin-top: 22px;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 1.45rem;
+  font-weight: 600;
+}
+
+.principleList p {
+  margin-top: 12px;
+  color: var(--ink-soft);
+  font-size: 0.83rem;
+  line-height: 1.7;
+}
+
+.sidebarFeature {
+  padding: clamp(56px, 8vw, 120px) clamp(24px, 4vw, 64px);
+  border-left: 1px solid var(--ink);
+  background: var(--paper-deep);
+}
+
+.sidebarFeature h2 {
+  margin-top: 20px;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(2rem, 3.2vw, 3.8rem);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.05em;
+}
+
+.sidebarFeature > p:not(.sidebarLabel) {
+  margin-top: 20px;
+  color: var(--ink-soft);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.sidebarFeature > a {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 30px;
+  border-bottom: 1px solid var(--ink);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.sidebarRule {
+  height: 1px;
+  margin: 58px 0 30px;
+  background: var(--ink);
+}
+
+.textTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px !important;
+}
+
+.textTags li {
+  border: 1px solid var(--hairline);
+  padding: 7px 9px;
+  font-size: 0.64rem;
+}
+
+.contactStrip {
+  display: grid;
+  grid-template-columns: 0.7fr 1.15fr 1fr;
+  gap: 30px;
+  align-items: center;
+  padding: clamp(50px, 7vw, 90px) clamp(20px, 5vw, 80px);
+  border-bottom: 1px solid var(--ink);
+  background: var(--vermilion);
+  color: #fff9ec;
+}
+
+.contactStrip > p {
+  max-width: 23rem;
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
