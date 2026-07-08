@@ -6,9 +6,9 @@ import { PageShell } from "@/components/portfolio/site-shell";
 import { StackList } from "@/components/portfolio/stack-list";
 import {
   getPortfolioContent,
-  isSitePageEnabled,
   getResumeProjects,
   getTemplateHref,
+  isSitePageEnabled,
   resolveContentDebug,
   resolveHomeTemplateId,
   type RouteSearchParams,
@@ -24,6 +24,7 @@ export default async function ResumePage({
   const params = searchParams ? await searchParams : {};
   const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
   const contentDebug = resolveContentDebug(params.debug);
+
   const pageCopy = content.presentation.pages.resume;
   const resumeProjects = getResumeProjects(content);
 
@@ -56,6 +57,24 @@ export default async function ResumePage({
             <p className="mt-6 max-w-2xl text-base leading-7 text-muted">
               {pageCopy.hero.body}
             </p>
+            <dl className="mt-8 grid max-w-2xl gap-4 sm:grid-cols-2">
+              <div className="rounded-lg border border-line bg-surface p-4">
+                <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">
+                  {pageCopy.identity.locationLabel}
+                </dt>
+                <dd className="mt-2 text-sm text-foreground">
+                  {content.profile.location}
+                </dd>
+              </div>
+              <div className="rounded-lg border border-line bg-surface p-4">
+                <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">
+                  {pageCopy.identity.availabilityLabel}
+                </dt>
+                <dd className="mt-2 text-sm leading-6 text-foreground">
+                  {content.profile.availability}
+                </dd>
+              </div>
+            </dl>
           </div>
           {content.resume.downloadUrl ? (
             <a
@@ -93,18 +112,13 @@ export default async function ResumePage({
           </h2>
           <div className="grid gap-4">
             {resumeProjects.map((project) => (
-              <article
-                className="rounded-lg border border-line bg-surface p-5"
-                key={project.id}
-              >
+              <article className="rounded-lg border border-line bg-surface p-5" key={project.id}>
                 <ContentHint
                   enabled={contentDebug}
                   path={`src/content/resume.json > projectIds[] + src/content/projects.json > projects[id=${project.id}]`}
                 />
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h3 className="font-semibold text-foreground">
-                    {project.title}
-                  </h3>
+                  <h3 className="font-semibold text-foreground">{project.title}</h3>
                   <span className="text-sm text-muted">{project.period}</span>
                 </div>
                 <p className="mt-3 text-sm leading-6 text-muted">
@@ -136,10 +150,7 @@ export default async function ResumePage({
           </h2>
           <div className="grid gap-4">
             {content.resume.training.map((item) => (
-              <article
-                className="rounded-lg border border-line bg-surface p-5"
-                key={item.name}
-              >
+              <article className="rounded-lg border border-line bg-surface p-5" key={item.name}>
                 <ContentHint
                   enabled={contentDebug}
                   path={`src/content/resume.json > training[name=${item.name}]`}
