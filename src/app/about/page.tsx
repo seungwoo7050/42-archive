@@ -7,6 +7,7 @@ import { ProfilePhoto } from "@/components/portfolio/profile-photo";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
 import { StackList } from "@/components/portfolio/stack-list";
+import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import {
   getPortfolioContent,
   getTemplateHref,
@@ -29,6 +30,15 @@ export default async function AboutPage({
   const params = searchParams ? await searchParams : {};
   const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
   const contentDebug = resolveContentDebug(params.debug);
+
+  if (hasDedicatedRouteRenderer(activeTemplate)) {
+    return renderDesignRoute(activeTemplate, {
+      content,
+      contentDebug,
+      currentPath: "/about",
+      route: "about",
+    });
+  }
 
   const pageCopy = content.presentation.pages.about;
 

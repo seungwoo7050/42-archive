@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { ProjectDetailView } from "@/components/portfolio/project-detail-view";
 import { PageShell } from "@/components/portfolio/site-shell";
+import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import {
   getPortfolioContent,
   isSitePageEnabled,
@@ -33,6 +34,16 @@ export default async function ProjectDetailPage({
 
   if (!project) {
     notFound();
+  }
+
+  if (hasDedicatedRouteRenderer(activeTemplate)) {
+    return renderDesignRoute(activeTemplate, {
+      content,
+      contentDebug,
+      currentPath: `/projects/${project.id}`,
+      project,
+      route: "project-detail",
+    });
   }
 
   return (

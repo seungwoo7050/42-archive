@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { ContentLinkView } from "@/components/portfolio/content-link";
 import { PageShell } from "@/components/portfolio/site-shell";
+import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import {
   getPortfolioContent,
   isSitePageEnabled,
@@ -22,6 +23,15 @@ export default async function ContactPage({
   const params = searchParams ? await searchParams : {};
   const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
   const contentDebug = resolveContentDebug(params.debug);
+
+  if (hasDedicatedRouteRenderer(activeTemplate)) {
+    return renderDesignRoute(activeTemplate, {
+      content,
+      contentDebug,
+      currentPath: "/contact",
+      route: "contact",
+    });
+  }
 
   const pageCopy = content.presentation.pages.contact;
   const preferredLinks = getPreferredContactLinks(content);

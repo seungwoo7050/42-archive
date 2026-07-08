@@ -5,6 +5,7 @@ import { ContentHint } from "@/components/portfolio/content-hint";
 import { JourneyList } from "@/components/portfolio/journey-list";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
+import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import {
   getPortfolioContent,
   getTemplateHref,
@@ -28,6 +29,15 @@ export default async function JourneyPage({
   const params = searchParams ? await searchParams : {};
   const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
   const contentDebug = resolveContentDebug(params.debug);
+
+  if (hasDedicatedRouteRenderer(activeTemplate)) {
+    return renderDesignRoute(activeTemplate, {
+      content,
+      contentDebug,
+      currentPath: "/journey",
+      route: "journey",
+    });
+  }
 
   const pageCopy = content.presentation.pages.journey;
   const narrative = content.journeyNarrative;
