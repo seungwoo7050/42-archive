@@ -49,6 +49,53 @@ export function DesignSwitcher({
         <span className={styles.count}>{countLabel}</span>
         <span className={styles.label}>{activeLabel}</span>
       </summary>
+      <nav aria-label={ui.designNavigationAriaLabel} className={styles.panel}>
+        <div className={styles.sheetHeader}>
+          <strong>{ui.designNavigationAriaLabel}</strong>
+          <button
+            aria-label={ui.designSwitcherCloseLabel}
+            onClick={() => {
+              detailsRef.current?.removeAttribute("open");
+              summaryRef.current?.focus();
+            }}
+            type="button"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <ul className={styles.list}>
+          {SITE_DESIGNS.map((design, index) => {
+            const copy = templateCopy.get(design.id);
+            const isActive = design.id === activeId;
+
+            return (
+              <li key={design.id}>
+                <Link
+                  aria-current={isActive ? "page" : undefined}
+                  className={`${styles.link} ${isActive ? styles.active : ""}`}
+                  href={getTemplateHref(currentPath, design.id, {
+                    contentDebug,
+                  })}
+                  onClick={() => detailsRef.current?.removeAttribute("open")}
+                >
+                  <span aria-hidden="true" className={styles.swatch}>
+                    {design.swatch.map((color) => (
+                      <span key={color} style={{ background: color }} />
+                    ))}
+                  </span>
+                  <span className={styles.copy}>
+                    <strong>{copy?.label ?? design.id}</strong>
+                    <small>{copy?.description}</small>
+                  </span>
+                  <span className={styles.number}>
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
     </details>
   );
 }
