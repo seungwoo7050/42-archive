@@ -1061,3 +1061,113 @@
 .darkSectionTitle > span {
   color: var(--vermilion-text);
 }
+
+.darkSectionTitle h2 {
+  margin-top: 30px;
+  margin-bottom: 0;
+}
+
+.architectureBody > p {
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgb(242 235 221 / 28%);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(1.2rem, 2vw, 1.75rem);
+  line-height: 1.6;
+}
+
+.architectureSpread aside {
+  border-left: 1px solid rgb(242 235 221 / 28%);
+  padding-left: 24px;
+}
+
+.architectureSpread aside > p {
+  margin-bottom: 20px;
+  color: var(--vermilion-text);
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.architectureSpread aside > span {
+  display: block;
+  margin-bottom: 7px;
+  color: rgb(242 235 221 / 58%);
+  font-size: 0.58rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.architectureSpread aside li {
+  border-top: 1px solid rgb(242 235 221 / 20%);
+  padding: 9px 0;
+  font-size: 0.69rem;
+}
+
+.evidenceList {
+  display: grid;
+}
+
+.evidenceList li {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 14px;
+  border-bottom: 1px solid currentColor;
+  border-color: rgb(95 90 82 / 32%);
+  padding: 16px 0;
+}
+
+.architectureSpread .evidenceList li {
+  border-color: rgb(242 235 221 / 22%);
+}
+
+.evidenceList span {
+  color: var(--vermilion-text);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 0.68rem;
+  font-style: italic;
+}
+
+.evidenceList p {
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+
+.emptyCopy {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.evidenceGallery > div:last-child {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(24px, 5vw, 80px);
+  margin-top: 50px;
+  align-items: start;
+}
+
+.offsetImage {
+  margin-top: clamp(50px, 10vw, 150px) !important;
+}
+
+.highlightsSpread .evidenceList {
+  max-width: 68rem;
+  margin: 48px 0 0 auto;
+}
+
+.decisionColumns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(40px, 8vw, 140px);
+  margin-top: 60px;
+}
+
+.decisionColumns > section {
+  border-top: 4px solid var(--vermilion);
+  padding-top: 20px;
+}
+
+.decisionColumns h2 {
+  margin-top: 22px;
+}
