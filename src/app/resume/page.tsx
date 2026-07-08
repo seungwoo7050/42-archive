@@ -167,6 +167,33 @@ export default async function ResumePage({
           </div>
         </div>
       </section>
+      {content.experience.length > 0 ? (
+        <section className="border-t border-line bg-background-soft">
+          <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+            <h2 className="text-3xl font-semibold text-foreground">
+              {pageCopy.experience.title}
+            </h2>
+            <div className="grid gap-4">
+              {content.experience.map((item) => (
+                <article
+                  className="rounded-lg border border-line bg-surface p-5"
+                  key={`${item.period}-${item.title}`}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h3 className="font-semibold text-foreground">
+                      {item.title}
+                    </h3>
+                    <span className="text-sm text-muted">{item.period}</span>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    {item.body}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
     </PageShell>
   );
 }
