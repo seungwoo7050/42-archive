@@ -219,6 +219,25 @@ export default async function ResumePage({
           </div>
         </section>
       ) : null}
+      {content.resume.notes.length > 0 ? (
+        <section className="border-t border-line bg-background-soft">
+          <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+            <h2 className="text-3xl font-semibold text-foreground">
+              {pageCopy.notes.title}
+            </h2>
+            <ul className="grid gap-3">
+              {content.resume.notes.map((note) => (
+                <li
+                  className="rounded-lg border border-line bg-surface p-4 text-sm leading-6 text-muted"
+                  key={note}
+                >
+                  {note}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
     </PageShell>
   );
 }
