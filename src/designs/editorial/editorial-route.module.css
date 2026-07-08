@@ -318,3 +318,110 @@
   letter-spacing: -0.072em;
   text-wrap: balance;
 }
+
+.heroTitleBlock h1::first-letter {
+  color: var(--vermilion-text);
+}
+
+.heroSummary {
+  grid-column: 3 / 8;
+  max-width: 42rem;
+  align-self: end;
+  font-family: "Noto Serif KR", "Iowan Old Style", Georgia, serif;
+  font-size: clamp(1.1rem, 1.7vw, 1.45rem);
+  line-height: 1.65;
+}
+
+.heroByline {
+  grid-column: 9 / 12;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  align-self: end;
+  border-top: 1px solid var(--hairline);
+  padding-top: 15px;
+}
+
+.heroByline > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.heroByline strong {
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 1rem;
+}
+
+.heroByline span:not(.portraitFallback) {
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: 0.67rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.portrait,
+.portraitFallback {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 auto;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  object-fit: cover;
+  filter: grayscale(0.85) contrast(1.08);
+}
+
+.portraitFallback {
+  display: grid;
+  place-items: center;
+  background: var(--vermilion);
+  color: var(--paper);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 1.6rem;
+}
+
+.heroAction {
+  grid-column: 9 / 13;
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  align-self: end;
+  border-bottom: 2px solid var(--ink);
+  padding: 10px 0;
+  font-size: 0.76rem;
+  font-weight: 800;
+  transition: border-color 180ms ease, color 180ms ease;
+}
+
+.heroAction span {
+  color: var(--vermilion-text);
+  font-size: 1.3rem;
+}
+
+.heroAction:hover {
+  border-color: var(--vermilion);
+  color: var(--vermilion-text);
+}
+
+.leadStory,
+.selectedStories,
+.principlesSpread,
+.experienceSpread,
+.evidenceGallery,
+.decisionSpread,
+.highlightsSpread,
+.milestoneSpread {
+  padding: clamp(56px, 8vw, 120px) clamp(20px, 5vw, 80px);
+  border-bottom: 1px solid var(--ink);
+}
+
+.leadStoryGrid {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.75fr) minmax(450px, 1.25fr);
+  gap: clamp(30px, 5vw, 80px);
+  margin-top: clamp(36px, 5vw, 72px);
+  align-items: start;
+}
