@@ -252,6 +252,38 @@ function CurationSection({
             ))}
           </ul>
         </div>
+        <div className="grid gap-9 lg:grid-cols-[0.8fr_1.2fr]">
+          <div>
+            <h3 className="text-xl font-semibold text-foreground">
+              {pageCopy.omissionsTitle}
+            </h3>
+            <p className="mt-3 text-sm leading-6 text-muted">{data.omissions.body}</p>
+          </div>
+          <ul className="grid gap-3">
+            {data.omissions.items.map((item) => (
+              <li
+                className="rounded-lg border border-line bg-surface p-4"
+                key={item.title}
+              >
+                <h4 className="text-sm font-semibold text-foreground">
+                  {item.title}
+                </h4>
+                <p className="mt-2 text-sm leading-6 text-muted">{item.body}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="grid gap-9 lg:grid-cols-[0.8fr_1.2fr]">
+          <h3 className="text-xl font-semibold text-foreground">
+            {pageCopy.nextReviewTitle}
+          </h3>
+          <div className="rounded-lg border border-line bg-surface p-5">
+            <h4 className="text-sm font-semibold text-foreground">
+              {data.nextReview.title}
+            </h4>
+            <p className="mt-3 text-sm leading-6 text-muted">{data.nextReview.body}</p>
+          </div>
+        </div>
       </div>
     </section>
   );
