@@ -954,3 +954,110 @@
   display: grid;
   gap: 0;
 }
+
+.caseLinks a {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--hairline);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.caseLinks a:last-child {
+  border-bottom: 1px solid var(--hairline);
+}
+
+.caseCover {
+  padding: 0 clamp(20px, 5vw, 80px) clamp(60px, 10vw, 150px);
+  border-bottom: 1px solid var(--ink);
+}
+
+.caseCover .imageFrame {
+  max-height: none;
+}
+
+.caseCover .image {
+  min-height: min(68vw, 760px);
+  max-height: none;
+}
+
+.caseNarrative {
+  display: grid;
+  grid-template-columns: 0.25fr 1fr 1fr;
+  gap: clamp(30px, 5vw, 80px);
+  padding: clamp(70px, 10vw, 150px) clamp(20px, 5vw, 80px);
+  border-bottom: 1px solid var(--ink);
+}
+
+.caseNarrative aside span,
+.darkSectionTitle > span,
+.resultsSpread > div > span {
+  color: var(--vermilion-text);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 2rem;
+  font-style: italic;
+}
+
+.caseNarrative aside p,
+.darkSectionTitle > p,
+.resultsSpread > div > p {
+  margin-top: 8px;
+  font-size: 0.63rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.caseNarrative h2,
+.decisionColumns h2,
+.darkSectionTitle h2,
+.resultsSpread h2 {
+  margin-bottom: 28px;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(2rem, 4vw, 4.4rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.caseNarrative > div > p {
+  color: var(--ink-soft);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 1.03rem;
+  line-height: 1.86;
+}
+
+.caseNarrative .overline {
+  margin-bottom: 10px;
+  color: var(--vermilion-text);
+  font-family: Geist, sans-serif;
+  font-size: 0.63rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.dropcap::first-letter {
+  float: left;
+  margin: 0.05em 0.11em 0 0;
+  color: var(--vermilion-text);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 5.4em;
+  line-height: 0.74;
+}
+
+.architectureSpread {
+  display: grid;
+  grid-template-columns: 0.55fr 1fr 0.45fr;
+  gap: clamp(28px, 5vw, 80px);
+  padding: clamp(70px, 10vw, 150px) clamp(20px, 5vw, 80px);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.darkSectionTitle > span {
+  color: var(--vermilion-text);
+}
