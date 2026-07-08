@@ -211,3 +211,110 @@
   font-family: Geist, sans-serif;
   font-size: 0.6em;
 }
+
+.footerFineprint {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--hairline);
+  padding-top: 18px;
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.debugNote {
+  display: inline-flex;
+  margin-bottom: 12px;
+  border: 1px dashed var(--vermilion);
+  padding: 5px 8px;
+  color: var(--vermilion-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.62rem;
+  line-height: 1.3;
+}
+
+.sectionKicker {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  align-items: center;
+  gap: 20px;
+  border-top: 1px solid var(--ink);
+  padding-top: 12px;
+}
+
+.sectionKicker span {
+  color: var(--vermilion-text);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
+.sectionKicker p {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.overline,
+.sidebarLabel {
+  color: var(--vermilion-text);
+  font-size: 0.67rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.standfirst {
+  font-family: "Noto Serif KR", "Iowan Old Style", Georgia, serif;
+  font-size: clamp(1.2rem, 2.1vw, 1.85rem);
+  line-height: 1.48;
+  letter-spacing: -0.025em;
+}
+
+.homeHero {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: auto auto auto;
+  gap: clamp(24px, 4vw, 64px) 20px;
+  min-height: min(850px, calc(100vh - 126px));
+  padding: clamp(38px, 7vw, 110px) clamp(20px, 5vw, 80px) clamp(56px, 8vw, 120px);
+  border-bottom: 1px solid var(--ink);
+}
+
+.heroIssue {
+  grid-column: 1 / 3;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-self: start;
+  color: var(--ink-soft);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+}
+
+.heroTitleBlock {
+  grid-column: 3 / 12;
+}
+
+.heroRole {
+  margin-bottom: 16px !important;
+  color: var(--vermilion-text);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.heroTitleBlock h1 {
+  max-width: 12ch;
+  font-family: "Noto Serif KR", "Iowan Old Style", Baskerville, Georgia, serif;
+  font-size: clamp(3.8rem, 8.5vw, 9.5rem);
+  font-weight: 500;
+  line-height: 0.94;
+  letter-spacing: -0.072em;
+  text-wrap: balance;
+}
