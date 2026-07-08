@@ -15,6 +15,12 @@ type TemplateSwitcherProps = {
   templates: PresentationTemplate[];
 };
 
+function isCurrentNavigation(href: string, currentPath: string | undefined) {
+  if (!currentPath) return false;
+  if (href === "/") return currentPath === "/";
+  return currentPath === href || currentPath.startsWith(`${href}/`);
+}
+
 export function SiteHeader({
   templateSwitcher,
   profile,
@@ -25,8 +31,11 @@ export function SiteHeader({
   site: SiteContent;
 }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-line/90 bg-background/88 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+    <header
+      className="sticky top-0 z-30 border-b border-line/90 bg-background/88 backdrop-blur"
+      data-site-header
+    >
+      <div className="mx-auto flex min-h-16 max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-2 sm:px-8">
         <Link
           className="text-sm font-semibold tracking-normal text-foreground"
           href={getTemplateHref("/", templateSwitcher?.activeId, {
@@ -35,9 +44,17 @@ export function SiteHeader({
         >
           {profile.handle}
         </Link>
-        <nav aria-label="Primary navigation" className="hidden items-center gap-6 md:flex">
+        <nav
+          aria-label="Primary navigation"
+          className="hidden items-center gap-6 md:flex"
+        >
           {site.navigation.map((item) => (
             <Link
+              aria-current={
+                isCurrentNavigation(item.href, templateSwitcher?.currentPath)
+                  ? "page"
+                  : undefined
+              }
               className="text-sm font-medium text-muted transition hover:text-foreground"
               href={getTemplateHref(item.href, templateSwitcher?.activeId, {
                 contentDebug: templateSwitcher?.contentDebug,
@@ -48,39 +65,32 @@ export function SiteHeader({
             </Link>
           ))}
         </nav>
-        {templateSwitcher ? (
+        <details className="relative md:hidden">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center rounded border border-line px-3 text-xs font-semibold uppercase tracking-wide text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+            Menu
+          </summary>
           <nav
-            aria-label="Home template"
-            className="flex rounded-md border border-line bg-surface p-1"
+            aria-label="Mobile navigation"
+            className="absolute right-0 top-[calc(100%+0.5rem)] grid min-w-52 gap-1 border border-line bg-surface p-2 shadow-xl"
           >
-            {templateSwitcher.templates.map((template) => {
-              const isActive = template.id === templateSwitcher.activeId;
-
-              return (
-                <Link
-                  aria-current={isActive ? "page" : undefined}
-                  className={`rounded px-3 py-1.5 text-xs font-semibold transition ${
-                    isActive
-                      ? "bg-accent text-background"
-                      : "text-muted hover:bg-surface-soft hover:text-foreground"
-                  }`}
-                  href={getTemplateHref(
-                    templateSwitcher.currentPath,
-                    template.id,
-                    {
-                      alwaysInclude: true,
-                      contentDebug: templateSwitcher.contentDebug,
-                    },
-                  )}
-                  key={template.id}
-                  title={template.description}
-                >
-                  {template.label}
-                </Link>
-              );
-            })}
+            {site.navigation.map((item) => (
+              <Link
+                aria-current={
+                  isCurrentNavigation(item.href, templateSwitcher?.currentPath)
+                    ? "page"
+                    : undefined
+                }
+                className="flex min-h-11 items-center px-3 text-sm font-medium text-muted hover:bg-surface-soft hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                href={getTemplateHref(item.href, templateSwitcher?.activeId, {
+                  contentDebug: templateSwitcher?.contentDebug,
+                })}
+                key={item.href}
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
-        ) : null}
+        </details>
       </div>
     </header>
   );
