@@ -425,3 +425,106 @@
   margin-top: clamp(36px, 5vw, 72px);
   align-items: start;
 }
+
+.leadStoryCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.leadStoryCopy h2 {
+  margin-top: 16px;
+  font-family: "Noto Serif KR", "Iowan Old Style", Georgia, serif;
+  font-size: clamp(2.8rem, 5.6vw, 6.7rem);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+}
+
+.leadStoryCopy h2 a {
+  background-image: linear-gradient(var(--vermilion), var(--vermilion));
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0 4px;
+  transition: background-size 300ms ease;
+}
+
+.leadStoryCopy h2 a:hover {
+  background-size: 100% 4px;
+}
+
+.leadStoryCopy .standfirst {
+  margin-top: 30px;
+}
+
+.leadStoryCopy > p:not(.overline, .standfirst) {
+  margin-top: 20px;
+  color: var(--ink-soft);
+  font-size: 0.94rem;
+  line-height: 1.75;
+}
+
+.inlineFacts {
+  display: grid;
+  gap: 0;
+  width: 100%;
+  margin-top: 30px !important;
+  border-top: 1px solid var(--hairline);
+}
+
+.inlineFacts li {
+  border-bottom: 1px solid var(--hairline);
+  padding: 12px 0;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.leadVisualLink {
+  display: block;
+}
+
+.leadVisualLink > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  border-top: 1px solid var(--ink);
+  padding-top: 10px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.imageFrame {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--ink);
+  background: var(--paper-deep);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 260px;
+  max-height: 760px;
+  object-fit: cover;
+  filter: saturate(0.76) contrast(1.03);
+  transition: transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 400ms ease;
+}
+
+.imageFrame:hover .image,
+.leadVisualLink:hover .image {
+  transform: scale(1.018);
+  filter: saturate(1) contrast(1.01);
+}
+
+.imageFrame figcaption {
+  border-top: 1px solid var(--ink);
+  padding: 8px 11px;
+  color: var(--ink-soft);
+  font-size: 0.62rem;
+  line-height: 1.4;
+}
