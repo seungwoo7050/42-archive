@@ -101,3 +101,113 @@
   min-height: 94px;
   padding-inline: clamp(20px, 4vw, 64px);
 }
+
+.wordmark {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 48px;
+  padding-right: 28px;
+}
+
+.wordmark > span {
+  font-family: "Noto Serif KR", "Iowan Old Style", Baskerville, Georgia, serif;
+  font-size: clamp(1.45rem, 2vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+}
+
+.wordmark > small {
+  margin-top: 4px;
+  color: var(--ink-soft);
+  font-size: 0.62rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.desktopNav {
+  display: flex;
+  align-items: stretch;
+  border-inline: 1px solid var(--hairline);
+}
+
+.navLink {
+  display: flex;
+  flex: 1;
+  min-width: 92px;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: 0.74rem;
+  font-weight: 750;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.navLink + .navLink {
+  border-left: 1px solid var(--hairline);
+}
+
+.navLink span {
+  color: var(--vermilion-text);
+  font-size: 0.55rem;
+  vertical-align: super;
+}
+
+.navLink:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.switcherSlot {
+  display: flex;
+  min-width: 164px;
+  align-items: center;
+  justify-content: flex-end;
+  padding-left: 24px;
+}
+
+.mobileMenu {
+  display: none;
+}
+
+.footer {
+  border-top: 1px solid var(--ink);
+  padding: clamp(48px, 7vw, 100px) clamp(20px, 5vw, 80px) 24px;
+}
+
+.footerLead {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  align-items: end;
+  gap: 40px;
+  padding-bottom: 70px;
+}
+
+.footerLead p {
+  max-width: 34rem;
+  color: var(--ink-soft);
+  font-family: "Noto Serif KR", "Iowan Old Style", Georgia, serif;
+  font-size: clamp(1.15rem, 2vw, 1.75rem);
+  line-height: 1.45;
+}
+
+.footerLead a {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--vermilion);
+  padding: 0 0 12px;
+  font-family: "Noto Serif KR", "Iowan Old Style", Georgia, serif;
+  font-size: clamp(2rem, 5vw, 5rem);
+  line-height: 0.96;
+  letter-spacing: -0.055em;
+}
+
+.footerLead a span {
+  color: var(--vermilion-text);
+  font-family: Geist, sans-serif;
+  font-size: 0.6em;
+}
