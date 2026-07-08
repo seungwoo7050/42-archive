@@ -1,0 +1,103 @@
+.root {
+  --paper: #f2ebdd;
+  --paper-deep: #e6ddcc;
+  --ink: #171614;
+  --ink-soft: #5f5a52;
+  --vermilion: #d64b32;
+  --vermilion-text: #a93222;
+  --hairline: rgb(23 22 20 / 24%);
+  min-height: 100vh;
+  overflow: clip;
+  background:
+    linear-gradient(rgb(23 22 20 / 2%) 1px, transparent 1px),
+    var(--paper);
+  background-size: 100% 32px;
+  color: var(--ink);
+  font-family: Geist, "Helvetica Neue", Arial, sans-serif;
+}
+
+.root *,
+.root *::before,
+.root *::after {
+  box-sizing: border-box;
+}
+
+.root :where(a, button, summary) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.root :where(a, button, summary):focus-visible {
+  outline: 3px solid var(--vermilion);
+  outline-offset: 4px;
+}
+
+.root a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.root h1,
+.root h2,
+.root h3,
+.root p {
+  margin: 0;
+}
+
+.root ul,
+.root ol,
+.root dl,
+.root figure {
+  margin: 0;
+  padding: 0;
+}
+
+.root li {
+  list-style: none;
+}
+
+.skipLink {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 100;
+  transform: translateY(-160%);
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  padding: 12px 18px;
+  font-size: 0.8rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.skipLink:focus {
+  transform: translateY(0);
+}
+
+.masthead {
+  position: relative;
+  z-index: 30;
+  border-bottom: 1px solid var(--ink);
+  background: rgb(242 235 221 / 94%);
+  backdrop-filter: blur(12px);
+}
+
+.mastheadRule {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--hairline);
+  padding: 8px clamp(20px, 4vw, 64px);
+  color: var(--ink-soft);
+  font-size: 0.63rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.mastheadMain {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.72fr) minmax(400px, 1.3fr) auto;
+  align-items: stretch;
+  min-height: 94px;
+  padding-inline: clamp(20px, 4vw, 64px);
+}
