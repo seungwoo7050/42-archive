@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { ArrowRightIcon } from "@/components/icons";
+import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
   getTemplateHref,
   type HomeTemplateId,
+  type PresentationContent,
   type PresentationTemplate,
   type ProfileContent,
   type SiteContent,
@@ -25,10 +27,12 @@ export function SiteHeader({
   templateSwitcher,
   profile,
   site,
+  ui,
 }: {
   templateSwitcher?: TemplateSwitcherProps;
   profile: ProfileContent;
   site: SiteContent;
+  ui: PresentationContent["ui"];
 }) {
   return (
     <header
@@ -45,7 +49,7 @@ export function SiteHeader({
           {profile.handle}
         </Link>
         <nav
-          aria-label="Primary navigation"
+          aria-label={ui.primaryNavigationAriaLabel}
           className="hidden items-center gap-6 md:flex"
         >
           {site.navigation.map((item) => (
@@ -67,10 +71,10 @@ export function SiteHeader({
         </nav>
         <details className="relative md:hidden">
           <summary className="flex min-h-11 cursor-pointer list-none items-center rounded border border-line px-3 text-xs font-semibold uppercase tracking-wide text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent">
-            Menu
+            {ui.menuLabel}
           </summary>
           <nav
-            aria-label="Mobile navigation"
+            aria-label={ui.mobileNavigationAriaLabel}
             className="absolute right-0 top-[calc(100%+0.5rem)] grid min-w-52 gap-1 border border-line bg-surface p-2 shadow-xl"
           >
             {site.navigation.map((item) => (
@@ -91,6 +95,15 @@ export function SiteHeader({
             ))}
           </nav>
         </details>
+        {templateSwitcher ? (
+          <DesignSwitcher
+            activeId={templateSwitcher.activeId}
+            contentDebug={templateSwitcher.contentDebug}
+            currentPath={templateSwitcher.currentPath}
+            templates={templateSwitcher.templates}
+            ui={ui}
+          />
+        ) : null}
       </div>
     </header>
   );
@@ -128,6 +141,7 @@ export function PageShell({
   profile,
   site,
   templateSwitcher,
+  ui,
 }: {
   children: React.ReactNode;
   contentDebug?: boolean;
@@ -135,24 +149,33 @@ export function PageShell({
   profile: ProfileContent;
   site: SiteContent;
   templateSwitcher?: TemplateSwitcherProps;
+  ui: PresentationContent["ui"];
 }) {
   return (
-    <main
+    <div
       className="min-h-screen bg-background text-foreground"
-      data-home-template={homeTemplate}
       data-site-design={homeTemplate}
     >
+      <a
+        className="fixed left-4 top-[-5rem] z-[100] bg-foreground px-4 py-3 text-sm font-semibold text-background focus:top-4"
+        href="#main-content"
+      >
+        {ui.skipLinkLabel}
+      </a>
       <SiteHeader
         profile={profile}
         site={site}
         templateSwitcher={templateSwitcher}
+        ui={ui}
       />
-      {children}
+      <main data-home-template={homeTemplate} id="main-content">
+        {children}
+      </main>
       <SiteFooter
         contentDebug={contentDebug}
         homeTemplate={homeTemplate}
         site={site}
       />
-    </main>
+    </div>
   );
 }

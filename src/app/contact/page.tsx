@@ -32,6 +32,7 @@ export default async function ContactPage({
       homeTemplate={activeTemplate}
       profile={content.profile}
       site={content.site}
+      ui={content.presentation.ui}
       templateSwitcher={{
         activeId: activeTemplate,
         contentDebug,
