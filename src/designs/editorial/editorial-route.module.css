@@ -2132,3 +2132,109 @@
   background: var(--vermilion);
   color: #fff9ec;
 }
+
+.currentPositionLabel {
+  display: grid;
+  gap: 8px;
+}
+
+.currentPositionLabel > span {
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(2.5rem, 5vw, 5.5rem);
+  font-style: italic;
+}
+
+.currentPositionLabel > small {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.currentPosition h2 {
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(2.3rem, 4.5vw, 5rem);
+  font-weight: 500;
+  line-height: 0.96;
+  letter-spacing: -0.055em;
+}
+
+.currentPosition p {
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.referenceLink {
+  margin-top: 28px;
+}
+
+.chapterNav {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--ink);
+  background: rgb(242 235 221 / 95%);
+  padding-inline: clamp(20px, 5vw, 80px);
+  backdrop-filter: blur(10px);
+}
+
+.chapterNavLabel {
+  display: flex;
+  min-width: max-content;
+  min-height: 58px;
+  align-items: center;
+  padding-right: 24px;
+  color: var(--ink-soft);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.chapterNav a {
+  display: flex;
+  min-width: max-content;
+  min-height: 58px;
+  align-items: center;
+  gap: 10px;
+  border-left: 1px solid var(--hairline);
+  padding: 10px 24px;
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.chapterNav a:last-child {
+  border-right: 1px solid var(--hairline);
+}
+
+.chapterNav a span {
+  color: var(--vermilion-text);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-style: italic;
+}
+
+.chapterNav a:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.interviewTracks > section {
+  display: grid;
+  grid-template-columns: 0.38fr 1fr;
+  gap: clamp(40px, 7vw, 120px);
+  scroll-margin-top: 65px;
+  padding: clamp(70px, 10vw, 150px) clamp(20px, 5vw, 80px);
+  border-bottom: 1px solid var(--ink);
+}
+
+.interviewTracks > section:nth-child(even) {
+  background: var(--paper-deep);
+}
+
+.interviewTracks > section > header {
+  position: sticky;
+  top: 80px;
+  align-self: start;
+}
