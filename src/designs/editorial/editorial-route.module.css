@@ -1492,3 +1492,111 @@
   display: grid;
   gap: clamp(54px, 7vw, 96px);
 }
+
+.curationPanel {
+  display: grid;
+  gap: 28px;
+}
+
+.curationPanelHeader {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 18px;
+  align-items: start;
+  border-top: 1px solid var(--ink);
+  padding-top: 14px;
+}
+
+.curationPanelHeader > span {
+  color: var(--vermilion-text);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 0.82rem;
+  font-style: italic;
+}
+
+.curationPanelHeader h3,
+.curationPanelHeader > h3 {
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(1.65rem, 2.6vw, 2.8rem);
+  font-weight: 550;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+
+.curationPanelHeader p {
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  font-weight: 750;
+  line-height: 1.6;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.curationPanelHeader div > h3 {
+  margin-top: 7px;
+}
+
+.curationPanelHeader div > p:last-child {
+  margin-top: 12px;
+  max-width: 54rem;
+  font-size: 0.76rem;
+  font-weight: 400;
+  line-height: 1.7;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.curationGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--ink);
+}
+
+.curationGrid article {
+  border-bottom: 1px solid var(--hairline);
+  padding: 20px;
+}
+
+.curationGrid article:nth-child(odd) {
+  border-right: 1px solid var(--hairline);
+}
+
+.curationGrid h4,
+.curationCategories h4,
+.curationOmissions h4 {
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 1.15rem;
+}
+
+.curationGrid p,
+.curationCategories article > p,
+.curationOmissions p,
+.nextReview article p {
+  margin-top: 11px;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  line-height: 1.7;
+}
+
+.curationCategories,
+.curationOmissions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+}
+
+.curationCategories > article,
+.curationOmissions > article {
+  min-width: 0;
+  border-right: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 24px;
+}
+
+.curationProjectLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 22px !important;
+}
