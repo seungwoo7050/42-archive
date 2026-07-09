@@ -112,3 +112,41 @@ function EditorialImage({
     </figure>
   );
 }
+
+function EditorialContentLink({
+  children,
+  className,
+  contentDebug,
+  link,
+}: {
+  children?: ReactNode;
+  className?: string;
+  contentDebug: boolean;
+  link: ContentLink;
+}) {
+  if (link.href.startsWith("/") && !link.href.startsWith("//")) {
+    return (
+      <Link
+        className={className}
+        href={editorialHref(link.href, contentDebug)}
+      >
+        {children ?? link.label}
+      </Link>
+    );
+  }
+
+  return (
+    <a
+      className={className}
+      href={link.href}
+      rel={link.external ? "noreferrer" : undefined}
+      target={link.external ? "_blank" : undefined}
+    >
+      {children ?? link.label}
+    </a>
+  );
+}
+
+function Arrow() {
+  return <span aria-hidden="true">↗</span>;
+}
