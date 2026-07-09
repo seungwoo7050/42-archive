@@ -408,6 +408,26 @@ function HomeRoute({ content, contentDebug }: EditorialRouteProps) {
                 )}
               </section>
             );
+          case "featured":
+            return (
+              <section className={styles.selectedStories} key={section}>
+                <SectionKicker number="02">{homeCopy.featured.title}</SectionKicker>
+                <div className={styles.projectIndex}>
+                  {selected.length > 0 ? (
+                    selected.slice(lead ? 1 : 0, 5).map((project) => (
+                      <ProjectIndexItem
+                        contentDebug={contentDebug}
+                        key={project.id}
+                        project={project}
+                        readCaseStudyAriaTemplate={ui.readCaseStudyAriaTemplate}
+                      />
+                    ))
+                  ) : (
+                    <p className={styles.emptyCopy}>{ui.emptyStates.projectsHome}</p>
+                  )}
+                </div>
+              </section>
+            );
         }
       })}
     </>
