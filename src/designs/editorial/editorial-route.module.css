@@ -2739,3 +2739,122 @@
     border-left: 0;
   }
 }
+
+@media (max-width: 640px) {
+.principlesSpread article,
+  .timelineSpread > ol li {
+    border-left: 1px solid var(--ink);
+  }
+
+.curationGrid article:nth-child(odd) {
+    border-right: 0;
+  }
+
+.contactStrip {
+    grid-template-columns: 1fr;
+  }
+
+.contactStrip > div {
+    grid-column: auto;
+  }
+
+.pageHero {
+    min-height: auto;
+    align-items: start;
+  }
+
+.pageHeroNumber {
+    font-size: 3rem;
+  }
+
+.pageHero h1,
+  .resumeHeader h1,
+  .contactHero h1 {
+    font-size: clamp(3.3rem, 16vw, 5.5rem);
+  }
+
+.pageHero > p,
+  .pageHero > div:last-child {
+    grid-column: auto;
+  }
+
+.archiveOverview {
+    grid-template-columns: 1fr 1fr;
+  }
+
+.archiveOverview > div:nth-child(3) {
+    border-top: 1px solid var(--hairline);
+  }
+
+.archiveOverview > div:nth-child(4) {
+    border-top: 1px solid var(--hairline);
+  }
+
+.caseMetaRail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-right: 0;
+    border-bottom: 1px solid var(--hairline);
+    padding: 0 0 20px;
+  }
+
+.caseMetaRail a {
+    grid-column: 1 / -1;
+    margin-bottom: 14px;
+  }
+
+.caseDescription,
+  .caseLinks {
+    grid-column: auto;
+  }
+
+.caseLinks {
+    margin-top: 14px;
+  }
+
+.caseNarrative > div:last-child,
+  .architectureSpread aside {
+    grid-column: auto;
+  }
+
+.offsetImage {
+    margin-top: 0 !important;
+  }
+
+.resultsSpread {
+    gap: 30px;
+  }
+
+.profileHero {
+    min-height: auto;
+  }
+
+.profileHero .standfirst {
+    margin-bottom: 20px;
+  }
+
+.profileFacts {
+    margin-bottom: 38px !important;
+  }
+
+.profilePortrait {
+    width: 80%;
+  }
+
+.skillGroups article,
+  .experienceSpread > ol > li,
+  .resumeSections > section,
+  .resumeIdentity,
+  .milestoneSpread > ol > li,
+  .timelineSpread,
+  .questionTitle,
+  .curationCategories,
+  .curationOmissions,
+  .nextReview {
+    grid-template-columns: 1fr;
+  }
+
+.sectionLead {
+    margin-left: 0 !important;
+  }
+}
