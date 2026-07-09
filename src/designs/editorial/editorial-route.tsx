@@ -302,3 +302,74 @@ function ProjectIndexItem({
     </article>
   );
 }
+
+function HomeRoute({ content, contentDebug }: EditorialRouteProps) {
+  const projects = content.projects;
+  const featured = projects.filter((project) => project.featured);
+  const selected = featured.length > 0 ? featured : projects.slice(0, 4);
+  const lead = selected[0];
+  const preferredLinks = getPreferredContactLinks(content);
+  const homeCopy = content.presentation.home.editorial;
+  const sharedCopy = content.presentation.home.shared;
+  const ui = content.presentation.ui;
+
+  return (
+    <>
+      {homeCopy.sections.map((section) => {
+        switch (section) {
+          case "hero":
+            return (
+              <section className={styles.homeHero} key={section}>
+                <div className={styles.heroIssue}>
+                  <span>
+                    {homeCopy.hero.issueTemplate.replace(
+                      "{year}",
+                      String(new Date().getFullYear()),
+                    )}
+                  </span>
+                  <span>{content.profile.location}</span>
+                </div>
+                <div className={styles.heroTitleBlock}>
+                  <DebugNote
+                    enabled={contentDebug}
+                    prefix={ui.debugPrefix}
+                  >
+                    profile.json
+                  </DebugNote>
+                  <p className={styles.heroRole}>{content.profile.role}</p>
+                  <h1>{content.profile.headline}</h1>
+                </div>
+                <p className={styles.heroSummary}>{content.profile.summary}</p>
+                <div className={styles.heroByline}>
+                  {content.profile.photo ? (
+                    <Image
+                      alt={content.profile.photo.alt}
+                      className={styles.portrait}
+                      height={160}
+                      priority
+                      src={content.profile.photo.src}
+                      width={160}
+                    />
+                  ) : (
+                    <span className={styles.portraitFallback} aria-hidden="true">
+                      {content.profile.name.slice(0, 1)}
+                    </span>
+                  )}
+                  <div>
+                    <strong>{content.profile.name}</strong>
+                    <span>{content.profile.availability}</span>
+                  </div>
+                </div>
+                <Link
+                  className={styles.heroAction}
+                  href={editorialHref("/projects", contentDebug)}
+                >
+                  {homeCopy.hero.primaryActionLabel} <Arrow />
+                </Link>
+              </section>
+            );
+        }
+      })}
+    </>
+  );
+}
