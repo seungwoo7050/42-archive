@@ -1919,3 +1919,108 @@
   border-left: 1px solid var(--hairline);
   padding-left: 25px;
 }
+
+.contactNotes ul {
+  margin-top: 24px;
+}
+
+.contactNotes li {
+  border-top: 1px solid var(--hairline);
+  padding: 13px 0;
+  color: var(--ink-soft);
+  font-size: 0.74rem;
+  line-height: 1.6;
+}
+
+.milestoneSpread > ol {
+  margin: 60px auto 0;
+  max-width: 1160px;
+  border-top: 1px solid var(--ink);
+}
+
+.sectionLead {
+  max-width: 54rem;
+  margin: 28px 0 0 72px !important;
+  color: var(--ink-soft);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(1rem, 1.7vw, 1.35rem);
+  line-height: 1.7;
+}
+
+.milestoneSpread > ol > li {
+  display: grid;
+  grid-template-columns: 0.35fr 1fr;
+  gap: clamp(35px, 7vw, 120px);
+  min-height: 410px;
+  border-bottom: 1px solid var(--ink);
+  padding: 45px 0;
+}
+
+.milestoneDate {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  color: var(--vermilion-text);
+}
+
+.milestoneDate b {
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(2.5rem, 5vw, 5.5rem);
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.milestoneDate span {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.milestoneStory > p {
+  color: var(--ink-soft);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.milestoneStory h2 {
+  margin-top: 15px;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(2.2rem, 5vw, 5.5rem);
+  font-weight: 500;
+  line-height: 0.96;
+  letter-spacing: -0.06em;
+}
+
+.milestoneStory dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 35px;
+  margin-top: 42px;
+}
+
+.milestoneStory dt {
+  color: var(--vermilion-text);
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.milestoneStory dd {
+  margin: 10px 0 0;
+  color: var(--ink-soft);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.milestoneLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 25px;
+  margin-top: 36px;
+}
