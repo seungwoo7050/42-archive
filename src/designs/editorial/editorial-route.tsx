@@ -368,6 +368,46 @@ function HomeRoute({ content, contentDebug }: EditorialRouteProps) {
                 </Link>
               </section>
             );
+          case "lead":
+            return (
+              <section className={styles.leadStory} key={section}>
+                <SectionKicker number="01">{homeCopy.lead.label}</SectionKicker>
+                {lead ? (
+                  <div className={styles.leadStoryGrid}>
+                    <div className={styles.leadStoryCopy}>
+                      <p className={styles.overline}>
+                        {lead.category} · {lead.period}
+                      </p>
+                      <h2>
+                        <Link href={editorialHref(`/projects/${lead.id}`, contentDebug)}>
+                          {lead.title}
+                        </Link>
+                      </h2>
+                      <p className={styles.standfirst}>{lead.summary}</p>
+                      <p>{lead.description}</p>
+                      <ul className={styles.inlineFacts}>
+                        {lead.highlights.slice(0, 3).map((highlight) => (
+                          <li key={highlight}>{highlight}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <Link
+                      aria-label={ui.openItemAriaTemplate.replace(
+                        "{title}",
+                        lead.title,
+                      )}
+                      className={styles.leadVisualLink}
+                      href={editorialHref(`/projects/${lead.id}`, contentDebug)}
+                    >
+                      <EditorialImage image={lead.screenshot} priority />
+                      <span>{homeCopy.lead.actionLabel} <Arrow /></span>
+                    </Link>
+                  </div>
+                ) : (
+                  <p className={styles.emptyCopy}>{ui.emptyStates.projectsHome}</p>
+                )}
+              </section>
+            );
         }
       })}
     </>
