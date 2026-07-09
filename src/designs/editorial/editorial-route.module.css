@@ -2616,3 +2616,9 @@
     padding: 25px 0 0;
   }
 }
+
+@media (max-width: 900px) {
+.timelineSpread > div {
+    max-width: 36rem;
+  }
+}
