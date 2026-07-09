@@ -428,6 +428,40 @@ function HomeRoute({ content, contentDebug }: EditorialRouteProps) {
                 </div>
               </section>
             );
+          case "principles":
+            return (
+              <section className={styles.editorialColumns} key={section}>
+                <div className={styles.columnFeature}>
+                  <SectionKicker number="03">
+                    {content.presentation.pages.about.principles.title}
+                  </SectionKicker>
+                  <div className={styles.principleList}>
+                    {content.profile.principles.map((principle, index) => (
+                      <article key={`${principle.title}-${index}`}>
+                        <span>{twoDigits(index)}</span>
+                        <h3>{principle.title}</h3>
+                        <p>{principle.body}</p>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+                <aside className={styles.sidebarFeature}>
+                  <p className={styles.sidebarLabel}>{sharedCopy.journey.title}</p>
+                  <h2>{content.journeyNarrative.currentPosition.title}</h2>
+                  <p>{content.journeyNarrative.currentPosition.body}</p>
+                  <Link href={editorialHref("/journey", contentDebug)}>
+                    {homeCopy.current.actionLabel} <Arrow />
+                  </Link>
+                  <div className={styles.sidebarRule} />
+                  <p className={styles.sidebarLabel}>{sharedCopy.stack.title}</p>
+                  <ul className={styles.textTags}>
+                    {content.techStack.slice(0, 9).map((item) => (
+                      <li key={item.id}>{item.label}</li>
+                    ))}
+                  </ul>
+                </aside>
+              </section>
+            );
         }
       })}
     </>
