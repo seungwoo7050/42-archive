@@ -2501,3 +2501,118 @@
     grid-column: 6 / 9;
   }
 }
+
+@media (max-width: 900px) {
+.leadStoryGrid,
+  .editorialColumns,
+  .archiveGroup,
+  .profileHero,
+  .skillsSpread,
+  .curationSpread,
+  .resumeBody,
+  .contactDesk,
+  .timelineSpread,
+  .interviewTracks > section,
+  .gapsSpread {
+    grid-template-columns: 1fr;
+  }
+
+.leadStoryGrid {
+    gap: 45px;
+  }
+
+.sidebarFeature {
+    border-top: 1px solid var(--ink);
+    border-left: 0;
+  }
+
+.contactStrip {
+    grid-template-columns: 0.55fr 1fr;
+  }
+
+.contactStrip > div {
+    grid-column: 1 / -1;
+  }
+
+.pageHero {
+    grid-template-columns: 0.23fr 1fr;
+    min-height: 500px;
+  }
+
+.pageHero > p,
+  .pageHero > div:last-child {
+    grid-column: 2;
+  }
+
+.archiveGroup > header,
+  .resumeIdentity,
+  .interviewTracks > section > header {
+    position: static;
+  }
+
+.caseHero {
+    grid-template-columns: 0.25fr 1fr;
+  }
+
+.caseDescription,
+  .caseLinks {
+    grid-column: 2;
+  }
+
+.caseNarrative {
+    grid-template-columns: 0.22fr 1fr;
+  }
+
+.caseNarrative > div:last-child {
+    grid-column: 2;
+  }
+
+.architectureSpread {
+    grid-template-columns: 0.7fr 1.3fr;
+  }
+
+.architectureSpread aside {
+    grid-column: 2;
+    border-top: 1px solid rgb(242 235 221 / 28%);
+    border-left: 0;
+    padding: 24px 0 0;
+  }
+
+.profileHero {
+    padding-bottom: 0;
+  }
+
+.profileHero > div,
+  .profileSummary {
+    max-width: 46rem;
+  }
+
+.profileSummary {
+    margin-bottom: 0 !important;
+  }
+
+.curationIntro {
+    max-width: 48rem;
+  }
+
+.profilePortrait {
+    width: min(65vw, 470px);
+    justify-self: end;
+  }
+
+.resumeIdentity {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+.resumeIdentity dl {
+    margin-top: 0;
+  }
+
+.contactNotes {
+    border-top: 1px solid var(--hairline);
+    border-left: 0;
+    padding: 25px 0 0;
+  }
+}
