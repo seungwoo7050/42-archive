@@ -2341,3 +2341,63 @@
   font-size: 0.73rem;
   line-height: 1.65;
 }
+
+.gapsSpread {
+  display: grid;
+  grid-template-columns: 0.7fr 1.3fr;
+  gap: clamp(40px, 8vw, 140px);
+  padding: clamp(70px, 10vw, 150px) clamp(20px, 5vw, 80px);
+  border-bottom: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.gapsSpread > div > span {
+  color: var(--vermilion-text);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.gapsSpread h2 {
+  margin-top: 24px;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(2.4rem, 5vw, 5.5rem);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+}
+
+.gapsSpread > div > p {
+  margin-top: 24px;
+  color: rgb(242 235 221 / 70%);
+  font-size: 0.8rem;
+  line-height: 1.75;
+}
+
+@media (max-width: 1180px) {
+  .mastheadMain {
+    grid-template-columns: 0.7fr 1.3fr auto;
+  }
+
+  .navLink {
+    min-width: 78px;
+    padding-inline: 9px;
+  }
+
+  .navLink span {
+    display: none;
+  }
+
+  .projectIndexItem {
+    grid-template-columns: 48px minmax(200px, 0.8fr) 1.2fr 44px;
+  }
+
+  .projectIndexMeta {
+    display: none;
+  }
+
+  .caseHero {
+    grid-template-columns: 0.25fr 1.2fr 0.65fr;
+  }
+}
