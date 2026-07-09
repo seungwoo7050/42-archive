@@ -2858,3 +2858,84 @@
     margin-left: 0 !important;
   }
 }
+
+@media (max-width: 640px) {
+.curationPanelHeader {
+    grid-template-columns: 36px 1fr;
+  }
+
+.experienceSpread li > b {
+    display: none;
+  }
+
+.resumeIdentity h2 {
+    margin-bottom: 20px;
+  }
+
+.resumeSections {
+    gap: 65px;
+  }
+
+.resumeSections > section > h2 {
+    margin-bottom: 20px;
+  }
+
+.contactHero {
+    min-height: 480px;
+  }
+
+.contactHero > p:last-child {
+    margin-top: 35px;
+  }
+
+.milestoneSpread > ol > li {
+    min-height: 0;
+  }
+
+.milestoneDate {
+    justify-content: flex-start;
+    gap: 25px;
+  }
+
+.milestoneStory dl {
+    grid-template-columns: 1fr;
+  }
+
+.timelineSpread > ol {
+    border-top: 0;
+  }
+
+.currentPosition {
+    align-items: start;
+  }
+
+.chapterNav {
+    padding-inline: 0;
+  }
+
+.interviewTracks > section > header {
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--ink);
+  }
+
+.questionTitle a {
+    grid-column: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root *,
+  .root *::before,
+  .root *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .imageFrame:hover .image,
+  .leadVisualLink:hover .image,
+  .indexArrow:hover {
+    transform: none;
+  }
+}
