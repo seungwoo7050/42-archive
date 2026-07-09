@@ -1807,3 +1807,115 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
+
+.resumeCaseLink {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 13px;
+  border-bottom: 1px solid var(--ink);
+  color: var(--ink);
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.resumeCaseLink:hover {
+  border-color: var(--vermilion);
+  color: var(--vermilion-text);
+}
+
+.contactHero {
+  min-height: 600px;
+  padding: clamp(70px, 10vw, 150px) clamp(20px, 5vw, 80px) clamp(60px, 8vw, 120px);
+  border-bottom: 1px solid var(--ink);
+}
+
+.contactHero h1 {
+  max-width: 10ch;
+}
+
+.contactHero > p:last-child {
+  max-width: 52rem;
+  margin: 45px 0 0 auto;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(1.15rem, 2.2vw, 1.9rem);
+  line-height: 1.6;
+}
+
+.contactDesk {
+  display: grid;
+  grid-template-columns: 0.55fr 1fr 0.55fr;
+  gap: clamp(30px, 5vw, 80px);
+  padding: clamp(60px, 9vw, 140px) clamp(20px, 5vw, 80px);
+  border-bottom: 1px solid var(--ink);
+}
+
+.availabilityCard {
+  border-top: 4px solid var(--vermilion);
+  padding-top: 16px;
+}
+
+.availabilityCard > span {
+  color: var(--vermilion-text);
+  font-size: 0.63rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.availabilityCard h2 {
+  margin-top: 22px;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(1.8rem, 3vw, 3.2rem);
+  font-weight: 500;
+  line-height: 1.05;
+}
+
+.availabilityCard p {
+  margin-top: 20px;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  line-height: 1.75;
+}
+
+.contactLinks {
+  border-top: 1px solid var(--ink);
+}
+
+.contactLinkCard {
+  display: grid;
+  grid-template-columns: 48px 1fr 40px;
+  gap: 15px;
+  align-items: center;
+  min-height: 112px;
+  border-bottom: 1px solid var(--hairline);
+  transition: color 180ms ease, padding 180ms ease;
+}
+
+.contactLinkCard:hover {
+  padding-inline: 12px;
+  color: var(--vermilion-text);
+}
+
+.contactLinkCard > span:first-child {
+  color: var(--vermilion-text);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 0.72rem;
+  font-style: italic;
+}
+
+.contactLinkCard strong {
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(1.5rem, 2.8vw, 2.7rem);
+  font-weight: 550;
+}
+
+.contactLinkCard > span:last-child {
+  font-size: 1.2rem;
+}
+
+.contactNotes {
+  border-left: 1px solid var(--hairline);
+  padding-left: 25px;
+}
