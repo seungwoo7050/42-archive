@@ -2024,3 +2024,111 @@
   gap: 10px 25px;
   margin-top: 36px;
 }
+
+.milestoneLinks a {
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 4px;
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.timelineSpread {
+  display: grid;
+  grid-template-columns: 0.4fr 1fr;
+  gap: clamp(40px, 8vw, 140px);
+  padding: clamp(70px, 10vw, 150px) clamp(20px, 5vw, 80px);
+  border-bottom: 1px solid var(--ink);
+  background: var(--paper-deep);
+}
+
+.timelineSpread > div > span {
+  color: var(--vermilion-text);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-style: italic;
+}
+
+.timelineSpread > div h2 {
+  margin-top: 20px;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(2.5rem, 5vw, 5.4rem);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+
+.timelineSpread > div p {
+  margin-top: 22px;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+
+.timelineSpread > ol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+}
+
+.timelineSpread > ol li {
+  min-height: 240px;
+  border-right: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 22px;
+}
+
+.timelineSpread time,
+.timelineSpread li > p {
+  color: var(--vermilion-text);
+  font-size: 0.61rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.timelineSpread li > p {
+  margin-top: 8px;
+  color: var(--ink-soft);
+}
+
+.timelineSpread h3 {
+  margin-top: 25px;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.timelineSpread li > span {
+  display: block;
+  margin-top: 12px;
+  color: var(--ink-soft);
+  font-size: 0.73rem;
+  line-height: 1.65;
+}
+
+.timelineProjectLink {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 6px;
+  margin-top: 17px;
+  border-bottom: 1px solid var(--ink);
+  font-size: 0.65rem;
+  font-weight: 750;
+}
+
+.timelineProjectLink:hover {
+  border-color: var(--vermilion);
+  color: var(--vermilion-text);
+}
+
+.currentPosition {
+  display: grid;
+  grid-template-columns: 0.22fr 0.7fr 1fr;
+  gap: clamp(30px, 6vw, 100px);
+  align-items: center;
+  padding: clamp(60px, 8vw, 120px) clamp(20px, 5vw, 80px);
+  border-bottom: 1px solid var(--ink);
+  background: var(--vermilion);
+  color: #fff9ec;
+}
