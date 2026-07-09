@@ -1383,3 +1383,112 @@
   align-content: center;
   padding: clamp(60px, 9vw, 130px) clamp(20px, 5vw, 80px);
 }
+
+.skillGroups article {
+  display: grid;
+  grid-template-columns: 0.35fr 1fr;
+  gap: 30px;
+  border-top: 1px solid var(--hairline);
+  padding: 22px 0;
+}
+
+.skillGroups article > p {
+  color: var(--vermilion-text);
+  font-size: 0.67rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.skillGroups ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 14px;
+}
+
+.skillGroups li {
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 0.9rem;
+}
+
+.experienceSpread > ol {
+  margin-top: 52px;
+  border-top: 1px solid var(--ink);
+}
+
+.experienceSpread > ol > li {
+  display: grid;
+  grid-template-columns: 0.35fr 1fr 60px;
+  gap: 30px;
+  min-height: 160px;
+  border-bottom: 1px solid var(--hairline);
+  padding: 25px 0;
+}
+
+.experienceSpread li > span,
+.experienceSpread li > b {
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.experienceSpread li > b {
+  color: var(--vermilion-text);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-style: italic;
+  text-align: right;
+}
+
+.experienceSpread h3 {
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 1.5rem;
+}
+
+.experienceSpread li div p {
+  max-width: 48rem;
+  margin-top: 12px;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  line-height: 1.75;
+}
+
+.curationSpread {
+  display: grid;
+  grid-template-columns: 0.7fr 1.3fr;
+  gap: clamp(40px, 8vw, 140px);
+  padding: clamp(70px, 9vw, 130px) clamp(20px, 5vw, 80px);
+  border-bottom: 1px solid var(--ink);
+  background: var(--paper-deep);
+}
+
+.curationIntro {
+  align-self: start;
+}
+
+.curationIntro h2 {
+  margin-top: 18px;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(2.5rem, 5vw, 5.7rem);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+}
+
+.curationIntro > p:not(.overline) {
+  margin-top: 24px;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  line-height: 1.75;
+}
+
+.curationIntro > p:last-child {
+  border-top: 1px solid var(--hairline);
+  padding-top: 24px;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 1rem;
+}
+
+.curationBody {
+  display: grid;
+  gap: clamp(54px, 7vw, 96px);
+}
