@@ -67,3 +67,48 @@ function twoDigits(index: number) {
 function getProjectTags(project: PortfolioProject) {
   return project.tags.slice(0, 4);
 }
+
+function DebugNote({
+  children,
+  enabled,
+  prefix,
+}: {
+  children: string;
+  enabled: boolean;
+  prefix: string;
+}) {
+  if (!enabled) {
+    return null;
+  }
+
+  return <small className={styles.debugNote}>{prefix} · {children}</small>;
+}
+
+function EditorialImage({
+  caption,
+  className = "",
+  image,
+  priority = false,
+  sizes = "(max-width: 768px) 100vw, 72vw",
+}: {
+  caption?: string;
+  className?: string;
+  image: ProjectImage;
+  priority?: boolean;
+  sizes?: string;
+}) {
+  return (
+    <figure className={`${styles.imageFrame} ${className}`}>
+      <Image
+        alt={image.alt}
+        className={styles.image}
+        height={1000}
+        priority={priority}
+        sizes={sizes}
+        src={image.src}
+        width={1600}
+      />
+      <figcaption>{caption ?? image.alt}</figcaption>
+    </figure>
+  );
+}
