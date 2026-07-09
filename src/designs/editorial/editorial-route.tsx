@@ -150,3 +150,105 @@ function EditorialContentLink({
 function Arrow() {
   return <span aria-hidden="true">↗</span>;
 }
+
+function EditorialShell({
+  children,
+  content,
+  contentDebug,
+  currentPath,
+  route,
+}: EditorialRouteProps & { children: ReactNode }) {
+  const primaryNavigation = content.site.navigation;
+  const ui = content.presentation.ui;
+  const shellCopy = content.presentation.editorial.shell;
+  const footerLinks = content.links.filter((link) =>
+    link.placements?.includes("footer"),
+  );
+
+  return (
+    <div className={styles.root} data-site-design="editorial">
+      <a className={styles.skipLink} href="#editorial-main">
+        {ui.skipLinkLabel}
+      </a>
+      <header className={styles.masthead}>
+        <div className={styles.mastheadRule}>
+          <span>{shellCopy.kicker}</span>
+          <span aria-hidden="true">{shellCopy.volumeLabel} {routeNumbers[route]}</span>
+        </div>
+        <div className={styles.mastheadMain}>
+          <Link
+            className={styles.wordmark}
+            href={editorialHref("/", contentDebug)}
+          >
+            <span>{content.profile.name}</span>
+            <small>{content.profile.role}</small>
+          </Link>
+          <nav aria-label={ui.primaryNavigationAriaLabel} className={styles.desktopNav}>
+            {primaryNavigation.map((item, index) => (
+              <Link
+                aria-current={
+                  isCurrentNavigation(item.href, currentPath) ? "page" : undefined
+                }
+                className={styles.navLink}
+                href={editorialHref(item.href, contentDebug)}
+                key={`${item.href}-${index}`}
+              >
+                <span>{twoDigits(index)}</span>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          <div className={styles.switcherSlot}>
+            <DesignSwitcher
+              activeId={DESIGN_ID}
+              contentDebug={contentDebug}
+              currentPath={currentPath}
+              templates={content.presentation.templates}
+              ui={ui}
+            />
+          </div>
+          <details className={styles.mobileMenu}>
+            <summary>{ui.menuLabel}</summary>
+            <nav aria-label={ui.mobileNavigationAriaLabel}>
+              {primaryNavigation.map((item, index) => (
+                <Link
+                  aria-current={
+                    isCurrentNavigation(item.href, currentPath)
+                      ? "page"
+                      : undefined
+                  }
+                  href={editorialHref(item.href, contentDebug)}
+                  key={`${item.href}-mobile-${index}`}
+                >
+                  <span>{twoDigits(index)}</span>
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </details>
+        </div>
+      </header>
+      <main id="editorial-main">{children}</main>
+      <footer className={styles.footer}>
+        <div className={styles.footerLead}>
+          <p>{content.site.footer.note}</p>
+          {footerLinks.map((link) => (
+            <EditorialContentLink
+              contentDebug={contentDebug}
+              key={link.id ?? link.href}
+              link={link}
+            >
+              {link.label} <Arrow />
+            </EditorialContentLink>
+          ))}
+        </div>
+        <div className={styles.footerFineprint}>
+          <span>{content.site.footer.copyright}</span>
+          <span>
+            {content.profile.location} · {content.profile.handle}
+          </span>
+        </div>
+      </footer>
+    </div>
+  );
+}
