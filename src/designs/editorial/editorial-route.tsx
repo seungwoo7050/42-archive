@@ -462,6 +462,25 @@ function HomeRoute({ content, contentDebug }: EditorialRouteProps) {
                 </aside>
               </section>
             );
+          case "contact":
+            return (
+              <section className={styles.contactStrip} key={section}>
+                <p>{content.contact.availability}</p>
+                <h2>{content.contact.title}</h2>
+                <div>
+                  {preferredLinks.slice(0, 3).map((link) => (
+                    <EditorialContentLink
+                      className={styles.contactStripLink}
+                      contentDebug={contentDebug}
+                      key={link.id ?? link.href}
+                      link={link}
+                    >
+                      {link.label} <Arrow />
+                    </EditorialContentLink>
+                  ))}
+                </div>
+              </section>
+            );
         }
       })}
     </>
