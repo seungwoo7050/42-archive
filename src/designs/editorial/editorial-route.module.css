@@ -2238,3 +2238,106 @@
   top: 80px;
   align-self: start;
 }
+
+.interviewTracks > section > header > span {
+  color: var(--vermilion-text);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(2.5rem, 5vw, 5.5rem);
+  font-style: italic;
+}
+
+.interviewTracks > section > header h2 {
+  margin-top: 20px;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(2.2rem, 4.7vw, 5rem);
+  font-weight: 500;
+  line-height: 0.96;
+  letter-spacing: -0.055em;
+}
+
+.interviewTracks > section > header p {
+  margin-top: 24px;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  line-height: 1.75;
+}
+
+.questionLedger {
+  border-top: 1px solid var(--ink);
+}
+
+.questionLedger > article {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 35px;
+  border-bottom: 1px solid var(--hairline);
+  padding: 28px 0;
+}
+
+.questionTitle {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-content: start;
+  gap: 6px 12px;
+}
+
+.questionTitle > span {
+  color: var(--vermilion-text);
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 0.68rem;
+  font-style: italic;
+}
+
+.questionTitle h3 {
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 1.2rem;
+  line-height: 1.3;
+}
+
+.questionTitle a {
+  grid-column: 2;
+  justify-self: start;
+  margin-top: 8px;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 3px;
+  color: var(--ink-soft);
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.answerEvidence {
+  display: grid;
+  gap: 14px;
+}
+
+.answerEvidence > div {
+  border-left: 2px solid var(--vermilion);
+  padding-left: 15px;
+}
+
+.answerEvidence small {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--vermilion-text);
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.answerEvidence a,
+.answerEvidence strong {
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.answerEvidence a:hover {
+  color: var(--vermilion-text);
+}
+
+.answerEvidence p {
+  margin-top: 6px;
+  color: var(--ink-soft);
+  font-size: 0.73rem;
+  line-height: 1.65;
+}
