@@ -2622,3 +2622,120 @@
     max-width: 36rem;
   }
 }
+
+@media (max-width: 640px) {
+.masthead {
+    backdrop-filter: none;
+  }
+
+.mastheadRule span:first-child {
+    display: none;
+  }
+
+.mastheadRule {
+    justify-content: flex-end;
+  }
+
+.wordmark > small {
+    display: none;
+  }
+
+.switcherSlot {
+    max-width: 132px;
+    padding-inline: 8px;
+  }
+
+.footerLead,
+  .pageHero,
+  .caseHero,
+  .caseNarrative,
+  .architectureSpread,
+  .resultsSpread,
+  .resumeHeader,
+  .currentPosition {
+    grid-template-columns: 1fr;
+  }
+
+.footerLead {
+    gap: 42px;
+  }
+
+.footerFineprint {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+.homeHero {
+    display: flex;
+    min-height: auto;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+.heroIssue {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+.heroTitleBlock h1 {
+    font-size: clamp(3.3rem, 16vw, 5.5rem);
+  }
+
+.heroSummary {
+    font-size: 1.05rem;
+  }
+
+.heroByline {
+    width: 100%;
+  }
+
+.heroAction {
+    width: 100%;
+  }
+
+.leadStoryGrid {
+    grid-template-columns: 1fr;
+  }
+
+.leadStoryCopy h2 {
+    font-size: 3.2rem;
+  }
+
+.projectIndexItem {
+    grid-template-columns: 35px 1fr 44px;
+    gap: 13px;
+    min-height: 0;
+    padding: 20px 0;
+  }
+
+.projectIndexSummary,
+  .projectIndexMeta {
+    grid-column: 2 / 4;
+  }
+
+.projectIndexSummary {
+    display: block;
+    font-size: 0.82rem;
+  }
+
+.indexArrow {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+.principleList,
+  .principlesSpread > div:last-child,
+  .focusAreas,
+  .curationGrid,
+  .timelineSpread > ol,
+  .decisionColumns,
+  .evidenceGallery > div:last-child,
+  .questionLedger > article {
+    grid-template-columns: 1fr;
+  }
+
+.principlesSpread > div:last-child,
+  .timelineSpread > ol {
+    border-left: 0;
+  }
+}
