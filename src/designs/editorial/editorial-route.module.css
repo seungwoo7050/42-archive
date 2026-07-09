@@ -1701,3 +1701,109 @@
   text-transform: uppercase;
   letter-spacing: 0.12em;
 }
+
+.resumeIdentity h2 {
+  margin-top: 18px;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(2rem, 3.5vw, 3.8rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.resumeIdentity dl {
+  margin-top: 40px;
+  border-top: 1px solid var(--hairline);
+}
+
+.resumeIdentity dl > div {
+  border-bottom: 1px solid var(--hairline);
+  padding: 14px 0;
+}
+
+.resumeIdentity dt {
+  color: var(--ink-soft);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.resumeIdentity dd {
+  margin: 7px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.resumeSections {
+  display: grid;
+  gap: 90px;
+}
+
+.resumeSections > section {
+  display: grid;
+  grid-template-columns: 50px minmax(150px, 0.32fr) 1fr;
+  gap: 25px;
+  border-top: 1px solid var(--ink);
+  padding-top: 20px;
+}
+
+.resumeSections > section > h2 {
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: clamp(1.65rem, 3vw, 3rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.resumeSummary {
+  display: grid;
+  gap: 20px;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.resumeProjects,
+.trainingList {
+  display: grid;
+}
+
+.resumeProjects article,
+.trainingList article {
+  border-bottom: 1px solid var(--hairline);
+  padding: 0 0 24px;
+  margin-bottom: 24px;
+}
+
+.resumeProjects article > p:first-child,
+.trainingList article > p:first-child {
+  color: var(--vermilion-text);
+  font-size: 0.63rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.resumeProjects h3,
+.trainingList h3 {
+  margin-top: 10px;
+  font-family: "Noto Serif KR", Georgia, serif;
+  font-size: 1.4rem;
+}
+
+.resumeProjects article > p:nth-of-type(2),
+.trainingList article > p:nth-of-type(2) {
+  margin-top: 11px;
+  color: var(--ink-soft);
+  font-size: 0.77rem;
+  line-height: 1.7;
+}
+
+.resumeProjects article > span {
+  display: block;
+  margin-top: 12px;
+  color: var(--ink-soft);
+  font-size: 0.61rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
