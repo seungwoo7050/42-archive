@@ -252,3 +252,53 @@ function EditorialShell({
     </div>
   );
 }
+
+function SectionKicker({ children, number }: { children: ReactNode; number: string }) {
+  return (
+    <div className={styles.sectionKicker}>
+      <span>{number}</span>
+      <p>{children}</p>
+    </div>
+  );
+}
+
+function ProjectIndexItem({
+  contentDebug,
+  project,
+  readCaseStudyAriaTemplate,
+}: {
+  contentDebug: boolean;
+  project: PortfolioProject;
+  readCaseStudyAriaTemplate: string;
+}) {
+  const tags = getProjectTags(project);
+
+  return (
+    <article className={styles.projectIndexItem}>
+      <span className={styles.projectOrdinal}>{project.order}</span>
+      <div className={styles.projectIndexTitle}>
+        <p>{project.category}</p>
+        <h3>
+          <Link href={editorialHref(`/projects/${project.id}`, contentDebug)}>
+            {project.title}
+          </Link>
+        </h3>
+      </div>
+      <p className={styles.projectIndexSummary}>
+        {project.summary}
+      </p>
+      <div className={styles.projectIndexMeta}>
+        <span>{project.period}</span>
+        <span>{project.deployment.label}</span>
+        {tags.length > 0 ? <span>{tags.slice(0, 3).join(" · ")}</span> : null}
+      </div>
+      <Link
+        aria-label={readCaseStudyAriaTemplate.replace("{title}", project.title)}
+        className={styles.indexArrow}
+        href={editorialHref(`/projects/${project.id}`, contentDebug)}
+      >
+        <Arrow />
+      </Link>
+    </article>
+  );
+}
