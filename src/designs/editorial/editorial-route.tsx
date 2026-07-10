@@ -761,3 +761,59 @@ function ProjectDetailRoute({ content, contentDebug, project }: EditorialRoutePr
     </article>
   );
 }
+function AboutRoute({ content, contentDebug }: EditorialRouteProps) {
+  const pageCopy = content.presentation.pages.about;
+  const ui = content.presentation.ui;
+
+  return (
+    <>
+      <section className={styles.profileHero}>
+        <div>
+          <p className={styles.overline}>
+            {pageCopy.editorial.heroEyebrowTemplate.replace(
+              "{handle}",
+              content.profile.handle,
+            )}
+          </p>
+          <DebugNote enabled={contentDebug} prefix={ui.debugPrefix}>
+            profile.json
+          </DebugNote>
+          <h1>{pageCopy.hero.title}</h1>
+          <p className={styles.standfirst}>{content.profile.headline}</p>
+          <ul className={styles.profileFacts} aria-label={pageCopy.hero.title}>
+            <li>{content.profile.name} · {content.profile.koreanName}</li>
+            <li>{content.profile.role}</li>
+            <li>{content.profile.location}</li>
+            <li>{content.profile.availability}</li>
+          </ul>
+        </div>
+        <p className={styles.profileSummary}>{content.profile.summary}</p>
+        {content.profile.photo ? (
+          <figure className={styles.profilePortrait}>
+            <Image
+              alt={content.profile.photo.alt}
+              height={1000}
+              priority
+              sizes="(max-width: 768px) 90vw, 35vw"
+              src={content.profile.photo.src}
+              width={800}
+            />
+          </figure>
+        ) : null}
+      </section>
+
+      <section className={styles.principlesSpread}>
+        <SectionKicker number="01">{pageCopy.principles.title}</SectionKicker>
+        <div>
+          {content.profile.principles.map((principle, index) => (
+            <article key={`${principle.title}-${index}`}>
+              <span>{twoDigits(index)}</span>
+              <h2>{principle.title}</h2>
+              <p>{principle.body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
