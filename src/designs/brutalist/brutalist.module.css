@@ -409,3 +409,109 @@
   border-bottom: 3px solid var(--ink);
   padding: clamp(3.5rem, 7vw, 7rem) clamp(1.2rem, 4vw, 4rem);
 }
+
+.sectionHeader {
+  align-items: start;
+  border: 3px solid var(--ink);
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1.1fr) minmax(16rem, 0.9fr);
+  margin-bottom: clamp(2.5rem, 5vw, 5rem);
+}
+
+.sectionHeader > * {
+  margin: 0;
+  min-height: 6.5rem;
+  padding: 1.2rem;
+}
+
+.sectionHeader > * + * {
+  border-left: 3px solid var(--ink);
+}
+
+.sectionNumber {
+  align-items: flex-start;
+  background: var(--ink);
+  color: var(--yellow);
+  display: flex;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.sectionHeader h2 {
+  font-size: clamp(2.1rem, 4.2vw, 5rem);
+  font-weight: 950;
+  letter-spacing: -0.075em;
+  line-height: 0.9;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.sectionHeader p {
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.projectIndex,
+.groupProjectList {
+  display: grid;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.projectIndexItem {
+  min-width: 0;
+}
+
+.projectIndexItem:nth-child(even) {
+  margin-left: clamp(0rem, 4vw, 4rem);
+}
+
+.projectIndexItem > a {
+  align-items: stretch;
+  background: var(--white);
+  border: 3px solid var(--ink);
+  color: var(--ink);
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1.6fr) minmax(11rem, 0.75fr) 4rem;
+  min-height: 10rem;
+  text-decoration: none;
+  transition: background 100ms linear, box-shadow 120ms linear,
+    transform 120ms linear;
+}
+
+.projectIndexItem > a > * {
+  min-width: 0;
+  padding: 1.15rem;
+}
+
+.projectIndexItem > a > * + * {
+  border-left: 3px solid var(--ink);
+}
+
+.projectIndexItem > a:hover,
+.projectIndexItem > a:focus-visible {
+  background: var(--yellow);
+  box-shadow: 8px 8px 0 var(--ink);
+  transform: translate(-4px, -4px);
+}
+
+.projectIndexNumber {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.projectIndexMain {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.projectIndexMeta,
+.projectIndexSummary {
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
