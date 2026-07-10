@@ -303,3 +303,109 @@
   flex-wrap: wrap;
   gap: 0.75rem;
 }
+
+.primaryAction,
+.secondaryAction {
+  align-items: center;
+  border: 3px solid var(--ink);
+  display: inline-flex;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  gap: 0.8rem;
+  justify-content: space-between;
+  letter-spacing: 0.03em;
+  min-height: 3.25rem;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: box-shadow 120ms linear, transform 120ms linear;
+}
+
+.primaryAction {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.secondaryAction {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.primaryAction:hover,
+.secondaryAction:hover {
+  box-shadow: 6px 6px 0 var(--ink);
+  transform: translate(-3px, -3px);
+}
+
+.metricsGrid {
+  border-top: 3px solid var(--ink);
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+}
+
+.metricBlock {
+  border-right: 3px solid var(--ink);
+  min-height: 10rem;
+  padding: 1.2rem;
+  position: relative;
+}
+
+.metricBlock:last-child {
+  border-right: 0;
+}
+
+.metricBlock dt {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.65rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.metricBlock dd {
+  font-size: clamp(3.5rem, 7vw, 7rem);
+  font-weight: 950;
+  letter-spacing: -0.09em;
+  line-height: 0.8;
+  margin: 1.5rem 0 0;
+}
+
+.metricBlock p {
+  font-size: 0.68rem;
+  line-height: 1.4;
+  margin: 1rem 0 0;
+  max-width: 16rem;
+}
+
+.metricBlock:nth-child(2n) {
+  background: var(--yellow);
+}
+
+.signalStrip {
+  background: var(--ink);
+  border-bottom: 3px solid var(--ink);
+  color: var(--yellow);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: clamp(1.4rem, 3vw, 3rem);
+  font-weight: 800;
+  line-height: 1;
+  overflow: hidden;
+  padding: 1rem 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.signalStrip > div {
+  animation: crawl 18s linear infinite;
+  display: flex;
+  gap: 2rem;
+  width: max-content;
+}
+
+.section {
+  border-bottom: 3px solid var(--ink);
+  padding: clamp(3.5rem, 7vw, 7rem) clamp(1.2rem, 4vw, 4rem);
+}
