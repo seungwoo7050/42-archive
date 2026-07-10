@@ -1,0 +1,97 @@
+.root {
+  --paper: #f4f0e8;
+  --ink: #101010;
+  --blue: #2e5bff;
+  --yellow: #e6ff3f;
+  --white: #fffdf6;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), "Apple SD Gothic Neo", "Noto Sans KR",
+    sans-serif;
+  min-height: 100vh;
+  overflow: clip;
+  width: 100%;
+}
+
+.root,
+.root * {
+  box-sizing: border-box;
+}
+
+.root :where(a, button, summary) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.root :where(a, button, summary):focus-visible {
+  outline: 4px solid var(--yellow);
+  outline-offset: 4px;
+}
+
+.root ::selection {
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.skipLink {
+  background: var(--yellow);
+  border: 3px solid var(--ink);
+  color: var(--ink);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.75rem;
+  font-weight: 800;
+  left: 1rem;
+  padding: 0.8rem 1rem;
+  position: fixed;
+  text-decoration: none;
+  top: 1rem;
+  transform: translateY(-180%);
+  z-index: 200;
+}
+
+.skipLink:focus {
+  transform: translateY(0);
+}
+
+.header {
+  background: var(--paper);
+  border-bottom: 3px solid var(--ink);
+  position: relative;
+  z-index: 30;
+}
+
+.headerBar {
+  align-items: stretch;
+  display: grid;
+  grid-template-columns: minmax(11rem, 0.7fr) minmax(16rem, 1fr) auto;
+  min-height: 4.8rem;
+}
+
+.brand,
+.headerStatus,
+.switcher {
+  align-items: center;
+  display: flex;
+  min-width: 0;
+  padding: 0.85rem 1.35rem;
+}
+
+.brand {
+  color: var(--ink);
+  font-size: clamp(1rem, 2vw, 1.35rem);
+  font-weight: 900;
+  gap: 0.75rem;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.brand:hover .brandMark {
+  color: var(--blue);
+  transform: rotate(45deg);
+}
+
+.brandMark {
+  color: var(--ink);
+  font-size: 1rem;
+  transition: color 140ms linear, transform 140ms linear;
+}
