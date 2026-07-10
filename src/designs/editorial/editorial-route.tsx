@@ -1265,6 +1265,7 @@ function JourneyRoute({ content, contentDebug }: EditorialRouteProps) {
     </>
   );
 }
+
 function InterviewMapRoute({ content, contentDebug }: EditorialRouteProps) {
   const copy = content.presentation.pages.interviewMap;
   const data = content.interviewMap;
@@ -1304,6 +1305,83 @@ function InterviewMapRoute({ content, contentDebug }: EditorialRouteProps) {
           </a>
         ))}
       </nav>
+
+      <div className={styles.interviewTracks}>
+        {data.tracks.length > 0 ? data.tracks.map((track, trackIndex) => (
+          <section id={`editorial-track-${track.id}`} key={track.id}>
+            <header>
+              <span>{twoDigits(trackIndex)}</span>
+              <h2>{track.label}</h2>
+              <p>{track.body}</p>
+            </header>
+            <div className={styles.questionLedger}>
+              {track.items.length > 0 ? track.items.map((item, itemIndex) => (
+                <article key={`${track.id}-${item.label}`}>
+                  <div className={styles.questionTitle}>
+                    <span>{twoDigits(itemIndex)}</span>
+                    <h3>{item.label}</h3>
+                    <a href={item.reference} rel="noreferrer" target="_blank">
+                      {copy.tracks.referenceLabel} <Arrow />
+                    </a>
+                  </div>
+                  <div className={styles.answerEvidence}>
+                    {item.answers.length > 0 ? item.answers.map((answer) => {
+                      const answerProject = projectById.get(answer.projectId);
+
+                      if (!answerProject) {
+                        return (
+                          <div key={`${item.label}-${answer.projectId}`}>
+                            <small>{copy.tracks.answerLabel}</small>
+                            <p>{ui.emptyStates.noMappedEvidence}</p>
+                            <p>
+                              <strong>{copy.tracks.depthLabel}</strong> {answer.depth}
+                            </p>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div key={`${item.label}-${answer.projectId}`}>
+                          <small>{copy.tracks.answerLabel}</small>
+                          <Link
+                            href={editorialHref(
+                              `/projects/${answerProject.id}`,
+                              contentDebug,
+                            )}
+                          >
+                            {answerProject.title} <Arrow />
+                          </Link>
+                          <p>
+                            <strong>{copy.tracks.depthLabel}</strong> {answer.depth}
+                          </p>
+                        </div>
+                      );
+                    }) : (
+                      <p>{ui.emptyStates.noMappedEvidence}</p>
+                    )}
+                  </div>
+                </article>
+              )) : (
+                <p className={styles.emptyCopy}>{copy.tracks.emptyLabel}</p>
+              )}
+            </div>
+          </section>
+        )) : (
+          <p className={styles.emptyCopy}>{copy.tracks.emptyLabel}</p>
+        )}
+      </div>
+
+      <section className={styles.gapsSpread} aria-label={copy.gaps.ariaLabel}>
+        <div>
+          <span>{copy.gaps.eyebrow}</span>
+          <h2>{data.gaps.title}</h2>
+          <p>{data.gaps.body}</p>
+        </div>
+        <EvidenceList
+          emptyLabel={ui.emptyStates.additionalNotes}
+          items={data.gaps.items}
+        />
+      </section>
     </>
   );
 }
