@@ -1385,3 +1385,28 @@ function InterviewMapRoute({ content, contentDebug }: EditorialRouteProps) {
     </>
   );
 }
+
+function renderRoute(props: EditorialRouteProps) {
+  switch (props.route) {
+    case "home":
+      return <HomeRoute {...props} />;
+    case "projects":
+      return <ProjectsRoute {...props} />;
+    case "project-detail":
+      return <ProjectDetailRoute {...props} />;
+    case "about":
+      return <AboutRoute {...props} />;
+    case "resume":
+      return <ResumeRoute {...props} />;
+    case "contact":
+      return <ContactRoute {...props} />;
+    case "journey":
+      return <JourneyRoute {...props} />;
+    case "interview-map":
+      return <InterviewMapRoute {...props} />;
+  }
+}
+
+export function EditorialRoute(props: EditorialRouteProps) {
+  return <EditorialShell {...props}>{renderRoute(props)}</EditorialShell>;
+}
