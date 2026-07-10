@@ -486,3 +486,95 @@ function HomeRoute({ content, contentDebug }: EditorialRouteProps) {
     </>
   );
 }
+
+function ProjectsRoute({ content, contentDebug }: EditorialRouteProps) {
+  const projects = content.projects;
+  const grouped = content.projectGroups
+    .map((group) => ({
+      group,
+      items: projects.filter((project) => project.groupId === group.id),
+    }))
+    .filter(({ items }) => items.length > 0);
+  const copy = content.presentation.pages.projects.editorial;
+  const ui = content.presentation.ui;
+
+  return (
+    <>
+      <section className={styles.pageHero}>
+        <div className={styles.pageHeroNumber}>01</div>
+        <div>
+          <DebugNote enabled={contentDebug} prefix={ui.debugPrefix}>
+            projects.json / presentation.pages.projects
+          </DebugNote>
+          <h1>{copy.hero.title}</h1>
+        </div>
+        <p>{copy.hero.body}</p>
+      </section>
+
+      <section className={styles.archiveOverview} aria-label={copy.archiveAriaLabel}>
+        {content.projectMetrics.map((metric) => (
+          <div key={metric.id}>
+            <strong>{getProjectMetricValue(metric.id, content)}</strong>
+            <span>{metric.label}</span>
+          </div>
+        ))}
+      </section>
+
+      <div className={styles.archiveSections}>
+        {grouped.length > 0 ? grouped.map(({ group, items }, groupIndex) => (
+          <section className={styles.archiveGroup} key={group.id}>
+            <header>
+              <span>
+                {copy.groupKickerTemplate.replace(
+                  "{number}",
+                  twoDigits(groupIndex),
+                )}
+              </span>
+              <h2>{group.label}</h2>
+              <p>{group.description}</p>
+            </header>
+            <div className={styles.projectIndex}>
+              {items.map((project) => (
+                <ProjectIndexItem
+                  contentDebug={contentDebug}
+                  key={project.id}
+                  project={project}
+                  readCaseStudyAriaTemplate={ui.readCaseStudyAriaTemplate}
+                />
+              ))}
+            </div>
+          </section>
+        )) : (
+          <p className={styles.emptyCopy}>{ui.emptyStates.projectsArchive}</p>
+        )}
+      </div>
+    </>
+  );
+}
+
+function EvidenceList({
+  emptyLabel,
+  items,
+  ordered = false,
+}: {
+  emptyLabel: string;
+  items: string[];
+  ordered?: boolean;
+}) {
+  if (items.length === 0) {
+    return <p className={styles.emptyCopy}>{emptyLabel}</p>;
+  }
+
+  const List = ordered ? "ol" : "ul";
+
+  return (
+    <List className={styles.evidenceList}>
+      {items.map((item, index) => (
+        <li key={`${item}-${index}`}>
+          <span>{twoDigits(index)}</span>
+          <p>{item}</p>
+        </li>
+      ))}
+    </List>
+  );
+}
