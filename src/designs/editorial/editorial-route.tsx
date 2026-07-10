@@ -761,6 +761,7 @@ function ProjectDetailRoute({ content, contentDebug, project }: EditorialRoutePr
     </article>
   );
 }
+
 function AboutRoute({ content, contentDebug }: EditorialRouteProps) {
   const pageCopy = content.presentation.pages.about;
   const ui = content.presentation.ui;
@@ -814,6 +815,7 @@ function AboutRoute({ content, contentDebug }: EditorialRouteProps) {
           ))}
         </div>
       </section>
+
       <section className={styles.skillsSpread}>
         <div className={styles.skillsIntro}>
           <span>02</span>
@@ -856,6 +858,7 @@ function AboutRoute({ content, contentDebug }: EditorialRouteProps) {
           ))}
         </ol>
       </section>
+
       {isSitePageEnabled("curation", content) ? (
         <section
           aria-labelledby="editorial-curation-title"
@@ -923,6 +926,36 @@ function AboutRoute({ content, contentDebug }: EditorialRouteProps) {
                   );
                 })}
               </div>
+            </section>
+
+            <section className={styles.curationPanel}>
+              <header className={styles.curationPanelHeader}>
+                <span>03</span>
+                <div>
+                  <p>{pageCopy.curation.omissionsTitle}</p>
+                  <h3>{content.curation.omissions.title}</h3>
+                  <p>{content.curation.omissions.body}</p>
+                </div>
+              </header>
+              <div className={styles.curationOmissions}>
+                {content.curation.omissions.items.map((item) => (
+                  <article key={item.title}>
+                    <h4>{item.title}</h4>
+                    <p>{item.body}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className={`${styles.curationPanel} ${styles.nextReview}`}>
+              <header className={styles.curationPanelHeader}>
+                <span>04</span>
+                <p>{pageCopy.curation.nextReviewTitle}</p>
+              </header>
+              <article>
+                <h3>{content.curation.nextReview.title}</h3>
+                <p>{content.curation.nextReview.body}</p>
+              </article>
             </section>
           </div>
         </section>
