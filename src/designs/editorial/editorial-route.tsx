@@ -578,3 +578,114 @@ function EvidenceList({
     </List>
   );
 }
+function ProjectDetailRoute({ content, contentDebug, project }: EditorialRouteProps) {
+  const copy = content.presentation.pages.projectDetail;
+  const ui = content.presentation.ui;
+
+  if (!project) {
+    return (
+      <section className={styles.missingPage}>
+        <p className={styles.overline}>{copy.missing.eyebrow}</p>
+        <h1>{copy.missing.title}</h1>
+        <p>{copy.missing.body}</p>
+        <Link href={editorialHref("/projects", contentDebug)}>
+          {copy.missing.actionLabel}
+        </Link>
+      </section>
+    );
+  }
+
+  const supportingImages = project.screenshots.filter(
+    (image) => image.src !== project.screenshot.src,
+  );
+  const detailLinks = getProjectDetailLinks(project);
+  const stackById = new Map(content.techStack.map((item) => [item.id, item]));
+
+  return (
+    <article className={styles.caseStudy}>
+      <header className={styles.caseHero}>
+        <div className={styles.caseMetaRail}>
+          <Link href={editorialHref("/projects", contentDebug)}>
+            ← {copy.backLabel}
+          </Link>
+          <span>{project.category}</span>
+          <span>{project.period}</span>
+          <span>{copy.facts.roleLabel} · {project.role}</span>
+          <span>{copy.facts.statusLabel} · {project.deployment.label}</span>
+        </div>
+        <div className={styles.caseTitle}>
+          <DebugNote enabled={contentDebug} prefix={ui.debugPrefix}>
+            {`projects.items[id=${project.id}]`}
+          </DebugNote>
+          <p>{copy.caseLabel} {project.order} · {project.role}</p>
+          <h1>{project.title}</h1>
+          <p className={styles.caseStandfirst}>{project.summary}</p>
+        </div>
+        <p className={styles.caseDescription}>{project.description}</p>
+        {detailLinks.length > 0 ? (
+          <nav
+            aria-label={ui.projectNavigationAriaLabel}
+            className={styles.caseLinks}
+          >
+            {detailLinks.map((link) => (
+              <EditorialContentLink
+                contentDebug={contentDebug}
+                key={`${link.type}-${link.href}`}
+                link={link}
+              >
+                {link.label} <Arrow />
+              </EditorialContentLink>
+            ))}
+          </nav>
+        ) : null}
+      </header>
+
+      <div className={styles.caseCover}>
+        <EditorialImage image={project.screenshot} priority sizes="100vw" />
+      </div>
+
+      <section className={styles.caseNarrative}>
+        <aside>
+          <span>I</span>
+          <p>{copy.sections.problem.eyebrow}</p>
+        </aside>
+        <div>
+          <h2>{copy.sections.problem.title}</h2>
+          <p className={styles.dropcap}>{project.problem}</p>
+        </div>
+        <div>
+          <p className={styles.overline}>{copy.sections.solution.eyebrow}</p>
+          <h2>{copy.sections.solution.title}</h2>
+          <p>{project.solution}</p>
+        </div>
+      </section>
+
+      <section className={styles.architectureSpread}>
+        <div className={styles.darkSectionTitle}>
+          <span>II</span>
+          <p>{copy.sections.architecture.eyebrow}</p>
+          <h2>{copy.sections.architecture.title}</h2>
+        </div>
+        <div className={styles.architectureBody}>
+          <p>{project.architecture.summary}</p>
+          <EvidenceList
+            emptyLabel={ui.emptyStates.additionalNotes}
+            items={project.architecture.items}
+            ordered
+          />
+        </div>
+        <aside>
+          <span>{copy.sections.stack.eyebrow}</span>
+          <p>{copy.sections.stack.title}</p>
+          <ul>
+            {project.stack.map((stackId) => (
+              <li key={stackId}>
+                {stackById.get(stackId)?.label ?? stackId}
+              </li>
+            ))}
+          </ul>
+        </aside>
+      </section>
+    </article>
+  );
+}
