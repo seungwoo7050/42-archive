@@ -1145,6 +1145,7 @@ function ContactRoute({ content, contentDebug }: EditorialRouteProps) {
     </>
   );
 }
+
 function JourneyRoute({ content, contentDebug }: EditorialRouteProps) {
   const copy = content.presentation.pages.journey;
   const narrative = content.journeyNarrative;
@@ -1214,6 +1215,52 @@ function JourneyRoute({ content, contentDebug }: EditorialRouteProps) {
             <li className={styles.emptyCopy}>{ui.emptyStates.journey}</li>
           )}
         </ol>
+      </section>
+
+      <section className={styles.timelineSpread}>
+        <div>
+          <span>02</span>
+          <h2>{copy.timeline.title}</h2>
+          <p>{copy.timeline.body}</p>
+        </div>
+        <ol>
+          {content.journey.length > 0 ? content.journey.map((item, index) => {
+            const linkedProject = item.projectId
+              ? content.projects.find((project) => project.id === item.projectId)
+              : null;
+
+            return (
+              <li key={`${item.date}-${item.title}-${index}`}>
+                <time>{item.date}{item.endDate ? ` — ${item.endDate}` : ""}</time>
+                <p>{item.category}</p>
+                <h3>{item.title}</h3>
+                <span>{item.body}</span>
+                {linkedProject ? (
+                  <Link
+                    className={styles.timelineProjectLink}
+                    href={editorialHref(
+                      `/projects/${linkedProject.id}`,
+                      contentDebug,
+                    )}
+                  >
+                    {copy.now.anchorLabel} · {linkedProject.title} <Arrow />
+                  </Link>
+                ) : null}
+              </li>
+            );
+          }) : (
+            <li className={styles.emptyCopy}>{ui.emptyStates.journey}</li>
+          )}
+        </ol>
+      </section>
+
+      <section className={styles.currentPosition}>
+        <div className={styles.currentPositionLabel}>
+          <span>{ui.nowLabel}</span>
+          <small>{copy.now.title}</small>
+        </div>
+        <h2>{narrative.currentPosition.title}</h2>
+        <p>{narrative.currentPosition.body}</p>
       </section>
     </>
   );
