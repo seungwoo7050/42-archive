@@ -1265,3 +1265,45 @@ function JourneyRoute({ content, contentDebug }: EditorialRouteProps) {
     </>
   );
 }
+function InterviewMapRoute({ content, contentDebug }: EditorialRouteProps) {
+  const copy = content.presentation.pages.interviewMap;
+  const data = content.interviewMap;
+  const projectById = new Map(content.projects.map((project) => [project.id, project]));
+  const ui = content.presentation.ui;
+
+  return (
+    <>
+      <section className={styles.pageHero}>
+        <div className={styles.pageHeroNumber}>06</div>
+        <div>
+          <p className={styles.overline}>{copy.hero.eyebrow}</p>
+          <DebugNote enabled={contentDebug} prefix={ui.debugPrefix}>
+            interview-map.json
+          </DebugNote>
+          <h1>{copy.hero.title}</h1>
+        </div>
+        <div>
+          <p>{data.intro}</p>
+          <a
+            className={styles.referenceLink}
+            href={data.referenceRepo.href}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {data.referenceRepo.label} <Arrow />
+          </a>
+        </div>
+      </section>
+
+      <nav aria-label={copy.tracks.title} className={styles.chapterNav}>
+        <strong className={styles.chapterNavLabel}>{copy.tracks.indexLabel}</strong>
+        {data.tracks.map((track, index) => (
+          <a href={`#editorial-track-${track.id}`} key={track.id}>
+            <span>{twoDigits(index)}</span>
+            {track.label}
+          </a>
+        ))}
+      </nav>
+    </>
+  );
+}
