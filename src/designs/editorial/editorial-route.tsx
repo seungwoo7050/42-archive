@@ -856,6 +856,38 @@ function AboutRoute({ content, contentDebug }: EditorialRouteProps) {
           ))}
         </ol>
       </section>
+      {isSitePageEnabled("curation", content) ? (
+        <section
+          aria-labelledby="editorial-curation-title"
+          className={styles.curationSpread}
+        >
+          <div className={styles.curationIntro}>
+            <p className={styles.overline}>{pageCopy.editorial.curationEyebrow}</p>
+            <h2 id="editorial-curation-title">{pageCopy.curation.title}</h2>
+            <p>{pageCopy.curation.body}</p>
+            <p>{content.curation.intro}</p>
+          </div>
+          <div className={styles.curationBody}>
+            <section className={styles.curationPanel}>
+              <header className={styles.curationPanelHeader}>
+                <span>01</span>
+                <div>
+                  <p>{pageCopy.curation.criteriaTitle}</p>
+                  <h3>{content.curation.criteria.title}</h3>
+                </div>
+              </header>
+              <div className={styles.curationGrid}>
+                {content.curation.criteria.items.map((item) => (
+                  <article key={item.title}>
+                    <h4>{item.title}</h4>
+                    <p>{item.body}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }
