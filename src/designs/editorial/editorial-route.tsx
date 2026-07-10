@@ -963,3 +963,80 @@ function AboutRoute({ content, contentDebug }: EditorialRouteProps) {
     </>
   );
 }
+function ResumeRoute({ content, contentDebug }: EditorialRouteProps) {
+  const pageCopy = content.presentation.pages.resume;
+  const projects = getResumeProjects(content);
+  const ui = content.presentation.ui;
+
+  return (
+    <>
+      <section className={styles.resumeHeader}>
+        <div>
+          <p className={styles.overline}>{pageCopy.editorial.heroEyebrow}</p>
+          <DebugNote enabled={contentDebug} prefix={ui.debugPrefix}>
+            resume.json
+          </DebugNote>
+          <h1>{pageCopy.hero.title}</h1>
+        </div>
+        <p>{pageCopy.hero.body}</p>
+        {content.resume.downloadUrl ? (
+          <a className={styles.downloadLink} href={content.resume.downloadUrl}>
+            {pageCopy.hero.downloadLabel} <Arrow />
+          </a>
+        ) : null}
+      </section>
+
+      <div className={styles.resumeBody}>
+        <aside className={styles.resumeIdentity}>
+          <p>{content.profile.name} · {content.profile.koreanName}</p>
+          <h2>{content.profile.role}</h2>
+          <dl>
+            <div>
+              <dt>{pageCopy.identity.locationLabel}</dt>
+              <dd>{content.profile.location}</dd>
+            </div>
+            <div>
+              <dt>{pageCopy.identity.availabilityLabel}</dt>
+              <dd>{content.profile.availability}</dd>
+            </div>
+          </dl>
+        </aside>
+        <div className={styles.resumeSections}>
+          <section>
+            <span>01</span>
+            <h2>{pageCopy.summary.title}</h2>
+            <div className={styles.resumeSummary}>
+              {content.resume.summary.map((paragraph, index) => (
+                <p key={`${paragraph}-${index}`}>{paragraph}</p>
+              ))}
+            </div>
+          </section>
+          <section>
+            <span>02</span>
+            <h2>{pageCopy.projects.title}</h2>
+            <div className={styles.resumeProjects}>
+              {projects.length > 0 ? (
+                projects.map((project, index) => (
+                  <article key={project.id}>
+                    <p>{twoDigits(index)} · {project.period} · {project.role}</p>
+                    <h3>{project.title}</h3>
+                    <p>{project.summary}</p>
+                    <span>{getProjectTags(project).join(" · ")}</span>
+                    <Link
+                      className={styles.resumeCaseLink}
+                      href={editorialHref(`/projects/${project.id}`, contentDebug)}
+                    >
+                      {pageCopy.projects.caseStudyLabel} <Arrow />
+                    </Link>
+                  </article>
+                ))
+              ) : (
+                <p className={styles.emptyCopy}>{ui.emptyStates.projectsArchive}</p>
+              )}
+            </div>
+          </section>
+        </div>
+      </div>
+    </>
+  );
+}
