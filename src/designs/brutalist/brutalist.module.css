@@ -95,3 +95,112 @@
   font-size: 1rem;
   transition: color 140ms linear, transform 140ms linear;
 }
+
+.headerStatus {
+  border-left: 3px solid var(--ink);
+  border-right: 3px solid var(--ink);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.66rem;
+  font-weight: 700;
+  gap: 0.7rem;
+  justify-content: space-between;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.switcher {
+  justify-content: flex-end;
+  padding-block: 0;
+}
+
+.navigation {
+  border-top: 3px solid var(--ink);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.navigationList {
+  display: grid;
+  grid-auto-columns: minmax(8.5rem, 1fr);
+  grid-auto-flow: column;
+  list-style: none;
+  margin: 0;
+  min-width: max-content;
+  padding: 0;
+  width: 100%;
+}
+
+.navigationList li {
+  border-right: 3px solid var(--ink);
+}
+
+.navigationList li:last-child {
+  border-right: 0;
+}
+
+.navigationLink {
+  align-items: center;
+  color: var(--ink);
+  display: flex;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.72rem;
+  font-weight: 750;
+  gap: 0.7rem;
+  min-height: 3.35rem;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 100ms linear, color 100ms linear;
+}
+
+.navigationLink:hover,
+.navigationLink[aria-current="page"] {
+  background: var(--ink);
+  color: var(--yellow);
+}
+
+.navigationIndex {
+  color: var(--blue);
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+}
+
+.navigationLink:hover .navigationIndex,
+.navigationLink[aria-current="page"] .navigationIndex {
+  color: var(--yellow);
+}
+
+.mobileMenu {
+  display: none;
+}
+
+.debugBanner {
+  align-items: center;
+  background: var(--yellow);
+  border-bottom: 3px solid var(--ink);
+  display: flex;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+  gap: 1rem;
+  justify-content: space-between;
+  letter-spacing: 0.04em;
+  padding: 0.75rem 1.35rem;
+  text-transform: uppercase;
+}
+
+.debugBanner strong {
+  background: var(--ink);
+  color: var(--yellow);
+  padding: 0.25rem 0.45rem;
+}
+
+.main {
+  display: block;
+}
+
+.homeHero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.65fr);
+  grid-template-rows: auto auto auto;
+  min-height: min(53rem, calc(100svh - 8rem));
+}
