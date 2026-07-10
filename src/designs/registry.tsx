@@ -6,7 +6,9 @@ type DesignModule = {
   default: ComponentType<DesignRouteProps>;
 };
 
-const routeLoaders: Partial<Record<SiteDesignId, () => Promise<DesignModule>>> = {};
+const routeLoaders: Partial<Record<SiteDesignId, () => Promise<DesignModule>>> = {
+  editorial: () => import("./editorial"),
+};
 
 export function hasDedicatedRouteRenderer(
   designId: SiteDesignId,

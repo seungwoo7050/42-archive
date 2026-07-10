@@ -40,6 +40,7 @@ export type ContentValidationIssue = {
 const supportedDesignIdList = [
   "design",
   "classic",
+  "editorial",
 ] as const;
 const supportedDesignIds = new Set<string>(supportedDesignIdList);
 

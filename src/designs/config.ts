@@ -14,6 +14,10 @@ export const SITE_DESIGNS: SiteDesignDefinition[] = [
     id: "classic",
     swatch: ["#1f2023", "#9cc8b1", "#7aa7ff"],
   },
+  {
+    id: "editorial",
+    swatch: ["#f2ebdd", "#171614", "#d64b32"],
+  },
 ];
 
 export const SITE_DESIGN_IDS = SITE_DESIGNS.map((design) => design.id);

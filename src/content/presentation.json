@@ -1,5 +1,5 @@
 {
-  "defaultHomeTemplate": "design",
+  "defaultHomeTemplate": "editorial",
   "templates": [
     {
       "id": "design",
@@ -10,6 +10,11 @@
       "id": "classic",
       "label": "Classic",
       "description": "A compact terminal-led portfolio with an indexed archive."
+    },
+    {
+      "id": "editorial",
+      "label": "Editorial",
+      "description": "An asymmetric print folio with evidence-led case-study spreads."
     }
   ],
   "ui": {
