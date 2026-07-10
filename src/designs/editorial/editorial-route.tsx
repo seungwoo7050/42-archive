@@ -814,6 +814,48 @@ function AboutRoute({ content, contentDebug }: EditorialRouteProps) {
           ))}
         </div>
       </section>
+      <section className={styles.skillsSpread}>
+        <div className={styles.skillsIntro}>
+          <span>02</span>
+          <h2>{pageCopy.skills.title}</h2>
+          <div className={styles.focusAreas}>
+            {content.skills.focusAreas.map((area) => (
+              <article key={area.title}>
+                <h3>{area.title}</h3>
+                <p>{area.body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+        <div className={styles.skillGroups}>
+          {content.skills.groups.map((group) => (
+            <article key={group.title}>
+              <p>{group.title}</p>
+              <ul>
+                {group.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.experienceSpread}>
+        <SectionKicker number="03">{pageCopy.journey.title}</SectionKicker>
+        <ol>
+          {content.experience.map((item, index) => (
+            <li key={`${item.period}-${item.title}`}>
+              <span>{item.period}</span>
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </div>
+              <b>{twoDigits(index)}</b>
+            </li>
+          ))}
+        </ol>
+      </section>
     </>
   );
 }
