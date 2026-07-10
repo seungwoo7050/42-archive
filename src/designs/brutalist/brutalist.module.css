@@ -936,3 +936,104 @@
   line-height: 1.45;
   margin: 0;
 }
+
+.detailFacts {
+  border-bottom: 3px solid var(--ink);
+  border-top: 3px solid var(--ink);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 2rem 0;
+}
+
+.detailFacts div {
+  padding: 0.8rem 0;
+}
+
+.detailFacts div + div {
+  border-left: 3px solid var(--ink);
+  padding-left: 1rem;
+}
+
+.detailFacts dt {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.6rem;
+  font-weight: 800;
+}
+
+.detailFacts dd {
+  font-size: 0.76rem;
+  line-height: 1.4;
+  margin: 0.5rem 0 0;
+}
+
+.mediaFrame {
+  background: var(--blue);
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  min-height: 20rem;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.mediaFrame figcaption {
+  background: var(--ink);
+  color: var(--yellow);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.64rem;
+  font-weight: 800;
+  padding: 0.7rem 0.9rem;
+  text-transform: uppercase;
+}
+
+.mediaInner {
+  flex: 1;
+  min-height: 20rem;
+  position: relative;
+}
+
+.mediaInner img {
+  background: var(--paper);
+  object-fit: contain;
+  padding: clamp(0.75rem, 2vw, 2rem);
+  transition: filter 160ms linear, transform 220ms ease;
+}
+
+.mediaFrame:hover img {
+  filter: contrast(1.06) saturate(1.1);
+  transform: scale(1.015);
+}
+
+.mediaPlaceholder {
+  align-items: center;
+  color: var(--white);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  justify-content: center;
+}
+
+.detailIntro {
+  align-items: start;
+  background: var(--yellow);
+  border-bottom: 3px solid var(--ink);
+  display: grid;
+  gap: 3rem;
+  grid-template-columns: minmax(12rem, 0.35fr) minmax(0, 0.65fr);
+  padding: clamp(2rem, 5vw, 5rem) clamp(1.2rem, 4vw, 4rem);
+}
+
+.detailIntro span {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.detailIntro p {
+  font-size: clamp(1.1rem, 1.8vw, 1.6rem);
+  font-weight: 650;
+  line-height: 1.45;
+  margin: 0;
+}
