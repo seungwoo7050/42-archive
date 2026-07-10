@@ -1145,3 +1145,76 @@ function ContactRoute({ content, contentDebug }: EditorialRouteProps) {
     </>
   );
 }
+function JourneyRoute({ content, contentDebug }: EditorialRouteProps) {
+  const copy = content.presentation.pages.journey;
+  const narrative = content.journeyNarrative;
+  const ui = content.presentation.ui;
+
+  return (
+    <>
+      <section className={styles.pageHero}>
+        <div className={styles.pageHeroNumber}>05</div>
+        <div>
+          <p className={styles.overline}>{copy.hero.eyebrow}</p>
+          <DebugNote enabled={contentDebug} prefix={ui.debugPrefix}>
+            journey-narrative.json
+          </DebugNote>
+          <h1>{copy.hero.title}</h1>
+        </div>
+        <p>{narrative.intro}</p>
+      </section>
+
+      <section className={styles.milestoneSpread}>
+        <SectionKicker number="01">{copy.narrative.title}</SectionKicker>
+        <p className={styles.sectionLead}>{copy.narrative.body}</p>
+        <ol>
+          {narrative.milestones.length > 0 ? narrative.milestones.map((milestone, index) => {
+            const anchorProjects = milestone.anchorProjectIds
+              .map((id) => content.projects.find((project) => project.id === id))
+              .filter((item): item is PortfolioProject => Boolean(item));
+
+            return (
+              <li key={milestone.id}>
+                <div className={styles.milestoneDate}>
+                  <b>{twoDigits(index)}</b>
+                  <span>{milestone.date}</span>
+                </div>
+                <div className={styles.milestoneStory}>
+                  <p>{copy.narrative.labels.state} · {milestone.state}</p>
+                  <h2>{milestone.title}</h2>
+                  <dl>
+                    <div>
+                      <dt>{copy.narrative.labels.reason}</dt>
+                      <dd>{milestone.reason}</dd>
+                    </div>
+                    <div>
+                      <dt>{copy.narrative.labels.result}</dt>
+                      <dd>{milestone.result}</dd>
+                    </div>
+                  </dl>
+                  {anchorProjects.length > 0 ? (
+                    <nav
+                      aria-label={ui.projectNavigationAriaLabel}
+                      className={styles.milestoneLinks}
+                    >
+                      {anchorProjects.map((project) => (
+                        <Link
+                          href={editorialHref(`/projects/${project.id}`, contentDebug)}
+                          key={project.id}
+                        >
+                          {project.title} <Arrow />
+                        </Link>
+                      ))}
+                    </nav>
+                  ) : null}
+                </div>
+              </li>
+            );
+          }) : (
+            <li className={styles.emptyCopy}>{ui.emptyStates.journey}</li>
+          )}
+        </ol>
+      </section>
+    </>
+  );
+}
