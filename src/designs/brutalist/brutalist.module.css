@@ -515,3 +515,111 @@
   font-size: 0.7rem;
   line-height: 1.45;
 }
+
+.projectIndexMeta {
+  font-family: var(--font-geist-mono), monospace;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.projectIndexMain strong {
+  font-size: clamp(1.4rem, 2.4vw, 2.65rem);
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+  margin: 0.75rem 0;
+  overflow-wrap: anywhere;
+}
+
+.projectIndexSummary {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.projectTags {
+  align-content: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.projectTags span,
+.stackWall span {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  display: inline-flex;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.62rem;
+  font-weight: 750;
+  line-height: 1;
+  padding: 0.5rem 0.6rem;
+  text-transform: uppercase;
+}
+
+.projectIndexArrow {
+  align-items: center;
+  background: var(--blue);
+  color: var(--white);
+  display: flex;
+  font-size: 1.5rem;
+  justify-content: center;
+}
+
+.fullWidthAction {
+  align-items: center;
+  background: var(--ink);
+  border: 3px solid var(--ink);
+  color: var(--yellow);
+  display: flex;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: clamp(0.82rem, 1.3vw, 1.15rem);
+  font-weight: 800;
+  justify-content: space-between;
+  margin-top: 1.25rem;
+  min-height: 4rem;
+  padding: 1rem 1.25rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.fullWidthAction:hover {
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.blueSection {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.yellowSection {
+  background: var(--yellow);
+}
+
+.principleGrid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.principleCard {
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  box-shadow: 10px 10px 0 var(--ink);
+  color: var(--ink);
+  min-height: 20rem;
+  padding: 1.4rem;
+}
+
+.principleCard:nth-child(2) {
+  transform: translateY(2rem);
+}
+
+.cardNumber {
+  display: block;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
