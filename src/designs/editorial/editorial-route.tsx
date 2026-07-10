@@ -1088,3 +1088,60 @@ function ResumeRoute({ content, contentDebug }: EditorialRouteProps) {
     </>
   );
 }
+
+function ContactRoute({ content, contentDebug }: EditorialRouteProps) {
+  const preferredLinks = getPreferredContactLinks(content);
+  const pageCopy = content.presentation.pages.contact;
+  const ui = content.presentation.ui;
+
+  return (
+    <>
+      <section className={styles.contactHero}>
+        <p className={styles.overline}>
+          {pageCopy.editorial.heroEyebrowTemplate.replace(
+            "{location}",
+            content.profile.location,
+          )}
+        </p>
+        <DebugNote enabled={contentDebug} prefix={ui.debugPrefix}>
+          contact.json / links.json
+        </DebugNote>
+        <h1>{content.contact.title}</h1>
+        <p>{content.contact.intro}</p>
+      </section>
+      <section className={styles.contactDesk}>
+        <div className={styles.availabilityCard}>
+          <span>{ui.nowLabel}</span>
+          <h2>{pageCopy.availability.title}</h2>
+          <p>{content.contact.availability}</p>
+        </div>
+        <div className={styles.contactLinks}>
+          {preferredLinks.length > 0 ? (
+            preferredLinks.map((link, index) => (
+              <EditorialContentLink
+                className={styles.contactLinkCard}
+                contentDebug={contentDebug}
+                key={link.id ?? link.href}
+                link={link}
+              >
+                <span>{twoDigits(index)}</span>
+                <strong>{link.label}</strong>
+                <Arrow />
+              </EditorialContentLink>
+            ))
+          ) : (
+            <p className={styles.emptyCopy}>{ui.emptyStates.contactLinks}</p>
+          )}
+        </div>
+        <aside className={styles.contactNotes}>
+          <p className={styles.overline}>{pageCopy.notes.title}</p>
+          <ul>
+            {content.contact.notes.map((note) => (
+              <li key={note}>{note}</li>
+            ))}
+          </ul>
+        </aside>
+      </section>
+    </>
+  );
+}
