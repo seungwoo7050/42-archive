@@ -623,3 +623,100 @@
   font-size: 0.68rem;
   font-weight: 800;
 }
+
+.principleCard h3 {
+  font-size: clamp(1.8rem, 3.2vw, 3.5rem);
+  font-weight: 950;
+  letter-spacing: -0.07em;
+  line-height: 0.92;
+  margin: 4rem 0 1rem;
+  text-transform: uppercase;
+}
+
+.principleCard p {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.stackWall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 4rem;
+}
+
+.blueSection .stackWall span {
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.compactTimeline {
+  border-top: 3px solid var(--ink);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.compactTimeline li {
+  align-items: start;
+  border-bottom: 3px solid var(--ink);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 4rem 9rem minmax(12rem, 0.55fr) minmax(0, 1fr);
+  padding: 1.5rem 0;
+}
+
+.compactTimeline span,
+.compactTimeline time {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.compactTimeline strong {
+  font-size: 1.2rem;
+  letter-spacing: -0.03em;
+}
+
+.compactTimeline p {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.contactBand {
+  align-items: end;
+  background: var(--yellow);
+  border-bottom: 3px solid var(--ink);
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1.2fr) minmax(12rem, 0.8fr) auto;
+  padding: clamp(3rem, 8vw, 8rem) clamp(1.2rem, 4vw, 4rem);
+}
+
+.contactBand > span {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+  font-weight: 800;
+  grid-column: 1 / -1;
+  letter-spacing: 0.05em;
+}
+
+.contactBand h2 {
+  font-size: clamp(4rem, 13vw, 13rem);
+  font-weight: 950;
+  grid-column: 1 / -1;
+  letter-spacing: -0.095em;
+  line-height: 0.7;
+  margin: 1rem 0 3rem;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.contactBand p {
+  font-size: clamp(1.1rem, 2vw, 1.8rem);
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+}
