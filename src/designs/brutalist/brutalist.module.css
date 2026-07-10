@@ -826,3 +826,113 @@
 .projectGroup:last-child {
   border-bottom: 0;
 }
+
+.projectGroup:nth-child(even) .projectGroupHeader {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.projectGroupHeader {
+  align-content: start;
+  border-right: 3px solid var(--ink);
+  display: grid;
+  min-width: 0;
+  padding: clamp(2rem, 4vw, 4rem);
+  position: relative;
+}
+
+.projectGroupHeader > span,
+.projectGroupHeader > strong {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+}
+
+.projectGroupHeader h2 {
+  font-size: clamp(2.6rem, 5vw, 5.5rem);
+  font-weight: 950;
+  letter-spacing: -0.075em;
+  line-height: 0.85;
+  margin: 4rem 0 1.5rem;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.projectGroupHeader p {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.projectGroupHeader strong {
+  font-size: clamp(4rem, 8vw, 8rem);
+  letter-spacing: -0.08em;
+  margin-top: 4rem;
+}
+
+.groupProjectList {
+  align-content: start;
+  gap: 0;
+  padding: 1.5rem;
+}
+
+.groupProjectList .projectIndexItem {
+  margin: 0 0 -3px;
+}
+
+.groupProjectList .projectIndexItem > a {
+  grid-template-columns: 4rem minmax(0, 1fr) 3.5rem;
+  min-height: 8.5rem;
+}
+
+.groupProjectList .projectTags {
+  display: none;
+}
+
+.detailHero {
+  border-bottom: 3px solid var(--ink);
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(22rem, 1.1fr);
+  min-height: 43rem;
+}
+
+.detailHeroCopy {
+  border-right: 3px solid var(--ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-width: 0;
+  padding: clamp(2rem, 5vw, 5rem);
+}
+
+.backLink {
+  align-self: flex-start;
+  color: var(--ink);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin-bottom: auto;
+  padding-block: 0.75rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.backLink:hover {
+  background: var(--yellow);
+}
+
+.detailHero h1 {
+  font-size: clamp(3.8rem, 7.5vw, 8rem);
+  font-weight: 950;
+  letter-spacing: -0.085em;
+  line-height: 0.82;
+  margin: 2rem 0;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.detailLead {
+  font-size: clamp(1rem, 1.5vw, 1.3rem);
+  font-weight: 620;
+  line-height: 1.45;
+  margin: 0;
+}
