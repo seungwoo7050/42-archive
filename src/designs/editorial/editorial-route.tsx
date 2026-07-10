@@ -963,6 +963,7 @@ function AboutRoute({ content, contentDebug }: EditorialRouteProps) {
     </>
   );
 }
+
 function ResumeRoute({ content, contentDebug }: EditorialRouteProps) {
   const pageCopy = content.presentation.pages.resume;
   const projects = getResumeProjects(content);
@@ -1034,6 +1035,53 @@ function ResumeRoute({ content, contentDebug }: EditorialRouteProps) {
                 <p className={styles.emptyCopy}>{ui.emptyStates.projectsArchive}</p>
               )}
             </div>
+          </section>
+          <section>
+            <span>03</span>
+            <h2>{pageCopy.experience.title}</h2>
+            <div className={styles.trainingList}>
+              {content.experience.map((item) => (
+                <article key={`${item.title}-${item.period}`}>
+                  <p>{item.period}</p>
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+          <section>
+            <span>04</span>
+            <h2>{pageCopy.training.title}</h2>
+            <div className={styles.trainingList}>
+              {content.resume.training.map((item) => (
+                <article key={`${item.name}-${item.period}`}>
+                  <p>{item.period}</p>
+                  <h3>{item.name}</h3>
+                  <p>{item.description}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+          <section>
+            <span>05</span>
+            <h2>{pageCopy.education.title}</h2>
+            <div className={styles.trainingList}>
+              {content.resume.education.map((item) => (
+                <article key={`${item.name}-${item.period}`}>
+                  <p>{item.period}</p>
+                  <h3>{item.name}</h3>
+                  <p>{item.description}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+          <section>
+            <span>06</span>
+            <h2>{pageCopy.notes.title}</h2>
+            <EvidenceList
+              emptyLabel={ui.emptyStates.additionalNotes}
+              items={content.resume.notes}
+            />
           </section>
         </div>
       </div>
