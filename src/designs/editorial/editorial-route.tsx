@@ -885,6 +885,45 @@ function AboutRoute({ content, contentDebug }: EditorialRouteProps) {
                 ))}
               </div>
             </section>
+
+            <section className={styles.curationPanel}>
+              <header className={styles.curationPanelHeader}>
+                <span>02</span>
+                <h3>{pageCopy.curation.categoriesTitle}</h3>
+              </header>
+              <div className={styles.curationCategories}>
+                {content.curation.categories.map((category) => {
+                  const projects = category.projectIds
+                    .map((projectId) =>
+                      content.projects.find((project) => project.id === projectId),
+                    )
+                    .filter((item): item is PortfolioProject => Boolean(item));
+
+                  return (
+                    <article key={category.id}>
+                      <h4>{category.label}</h4>
+                      <p>{category.rationale}</p>
+                      {projects.length > 0 ? (
+                        <ul className={styles.curationProjectLinks}>
+                          {projects.map((project) => (
+                            <li key={project.id}>
+                              <Link
+                                href={editorialHref(
+                                  `/projects/${project.id}`,
+                                  contentDebug,
+                                )}
+                              >
+                                {project.title} <Arrow />
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
           </div>
         </section>
       ) : null}
