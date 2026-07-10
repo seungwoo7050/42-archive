@@ -578,6 +578,7 @@ function EvidenceList({
     </List>
   );
 }
+
 function ProjectDetailRoute({ content, contentDebug, project }: EditorialRouteProps) {
   const copy = content.presentation.pages.projectDetail;
   const ui = content.presentation.ui;
@@ -686,6 +687,77 @@ function ProjectDetailRoute({ content, contentDebug, project }: EditorialRoutePr
           </ul>
         </aside>
       </section>
+
+      <section className={styles.highlightsSpread}>
+        <SectionKicker number="III">
+          {copy.sections.highlights.eyebrow} / {copy.sections.highlights.title}
+        </SectionKicker>
+        <EvidenceList
+          emptyLabel={ui.emptyStates.additionalNotes}
+          items={project.highlights}
+          ordered
+        />
+      </section>
+
+      {supportingImages.length > 0 ? (
+        <section className={styles.evidenceGallery}>
+          <SectionKicker number="IV">
+            {copy.sections.screenshots.eyebrow} / {copy.sections.screenshots.title}
+          </SectionKicker>
+          <div>
+            {supportingImages.map((image, index) => (
+              <EditorialImage
+                caption={`${copy.frameLabel} ${twoDigits(index)} · ${image.alt}`}
+                className={index % 2 === 1 ? styles.offsetImage : ""}
+                image={image}
+                key={`${image.src}-${index}`}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      <section className={styles.decisionSpread}>
+        <SectionKicker number="V">{copy.editorial.decisionSpreadTitle}</SectionKicker>
+        <div className={styles.decisionColumns}>
+          <section>
+            <p className={styles.overline}>{copy.sections.decisions.eyebrow}</p>
+            <h2>{copy.sections.decisions.title}</h2>
+            <EvidenceList
+              emptyLabel={ui.emptyStates.additionalNotes}
+              items={project.decisions}
+              ordered
+            />
+          </section>
+          <section>
+            <p className={styles.overline}>{copy.sections.tradeoffs.eyebrow}</p>
+            <h2>{copy.sections.tradeoffs.title}</h2>
+            <EvidenceList
+              emptyLabel={ui.emptyStates.additionalNotes}
+              items={project.tradeoffs}
+              ordered
+            />
+          </section>
+        </div>
+      </section>
+
+      <section className={styles.resultsSpread}>
+        <div>
+          <span>VI</span>
+          <p>{copy.sections.result.eyebrow}</p>
+          <h2>{copy.sections.result.title}</h2>
+        </div>
+        <EvidenceList
+          emptyLabel={ui.emptyStates.additionalNotes}
+          items={project.results}
+        />
+      </section>
+      <footer className={styles.caseOutro}>
+        <span>{copy.outroLabel}</span>
+        <Link href={editorialHref("/projects", contentDebug)}>
+          {copy.returnToIndexLabel} <Arrow />
+        </Link>
+      </footer>
     </article>
   );
 }
