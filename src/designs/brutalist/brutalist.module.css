@@ -720,3 +720,109 @@
   line-height: 1.25;
   margin: 0;
 }
+
+.contactBand a {
+  align-items: center;
+  background: var(--ink);
+  border: 3px solid var(--ink);
+  color: var(--yellow);
+  display: flex;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  gap: 2rem;
+  justify-content: space-between;
+  min-height: 3.5rem;
+  padding: 0.8rem 1rem;
+  text-decoration: none;
+}
+
+.contactBand a:hover {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.pageHero {
+  border-bottom: 3px solid var(--ink);
+  display: grid;
+  gap: clamp(2rem, 5vw, 5rem);
+  grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
+  padding: clamp(3.5rem, 8vw, 8rem) clamp(1.2rem, 4vw, 4rem);
+}
+
+.pageLabel {
+  grid-column: 1 / -1;
+}
+
+.pageLabel span {
+  align-items: center;
+  background: var(--blue);
+  color: var(--white);
+  display: inline-flex;
+  height: 2rem;
+  justify-content: center;
+  width: 2rem;
+}
+
+.pageHero h1,
+.contactHero h1,
+.notFound h1 {
+  font-size: clamp(4.5rem, 14vw, 14rem);
+  font-weight: 950;
+  grid-column: 1 / -1;
+  letter-spacing: -0.1em;
+  line-height: 0.7;
+  margin: 0;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.pageHero > p:not(.pageLabel) {
+  font-size: clamp(1rem, 1.7vw, 1.45rem);
+  font-weight: 600;
+  line-height: 1.45;
+  margin: 0;
+  max-width: 54rem;
+}
+
+.inlineMetrics {
+  align-self: start;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+}
+
+.inlineMetrics div {
+  border: 3px solid var(--ink);
+  margin-left: -3px;
+  min-width: 0;
+  padding: 0.8rem;
+}
+
+.inlineMetrics dt {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.56rem;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.inlineMetrics dd {
+  font-size: clamp(2rem, 4vw, 4rem);
+  font-weight: 950;
+  letter-spacing: -0.08em;
+  margin: 0.75rem 0 0;
+}
+
+.groupArchive {
+  border-bottom: 3px solid var(--ink);
+}
+
+.projectGroup {
+  border-bottom: 3px solid var(--ink);
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.34fr) minmax(0, 0.66fr);
+}
+
+.projectGroup:last-child {
+  border-bottom: 0;
+}
