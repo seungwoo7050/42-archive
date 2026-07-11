@@ -2788,3 +2788,80 @@
     padding: 3rem 1rem;
   }
 }
+
+@media (max-width: 430px) {
+  .headerBar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .brand {
+    font-size: 0.92rem;
+  }
+
+  .brandMark {
+    display: none;
+  }
+
+  .projectIndexItem > a,
+  .groupProjectList .projectIndexItem > a {
+    grid-template-columns: 2.6rem minmax(0, 1fr) 2.5rem;
+  }
+
+  .projectIndexItem > a > * {
+    padding: 0.6rem;
+  }
+
+  .projectIndexMeta {
+    font-size: 0.58rem;
+  }
+
+  .detailList li {
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    padding: 0.9rem;
+  }
+
+  .resumeProjects li {
+    grid-template-columns: 2rem minmax(0, 1fr);
+  }
+
+  .resumeProjects a {
+    grid-column: 2;
+  }
+
+  .notesList li,
+  .gapList li {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root *,
+  .root *::before,
+  .root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .signalStrip > div {
+    transform: none;
+  }
+}
+
+@media print {
+  .header,
+  .footer,
+  .signalStrip,
+  .debugBanner {
+    display: none;
+  }
+
+  .root {
+    background: #fff;
+  }
+
+  .main {
+    color: #000;
+  }
+}
