@@ -140,6 +140,7 @@ export function BrutalistShell({
   currentPath: string;
   route: DesignRouteProps["route"];
 }) {
+  const shellCopy = content.presentation.brutalist.shell;
   const ui = content.presentation.ui;
   return (
     <div
@@ -176,10 +177,93 @@ export function BrutalistShell({
             />
           </div>
         </div>
+        <nav
+          aria-label={ui.primaryNavigationAriaLabel}
+          className={styles.navigation}
+        >
+          <ol className={styles.navigationList}>
+            {content.site.navigation.map((item, index) => (
+              <li key={`${item.href}-${item.label}`}>
+                <Link
+                  aria-current={
+                    isCurrentNavigation(item.href, currentPath) ? "page" : undefined
+                  }
+                  className={styles.navigationLink}
+                  href={brutalistHref(item.href, contentDebug)}
+                >
+                  <span className={styles.navigationIndex}>
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span>{item.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </nav>
+        <details className={styles.mobileMenu}>
+          <summary>{ui.menuLabel}</summary>
+          <nav aria-label={ui.mobileNavigationAriaLabel}>
+            {content.site.navigation.map((item, index) => (
+              <Link
+                aria-current={
+                  isCurrentNavigation(item.href, currentPath) ? "page" : undefined
+                }
+                href={brutalistHref(item.href, contentDebug)}
+                key={`${item.href}-mobile`}
+              >
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </details>
       </header>
+      {contentDebug ? (
+        <aside className={styles.debugBanner} role="status">
+          <strong>{shellCopy.debugLabel}</strong>
+          <span>
+            {ui.debugPrefix}: {shellCopy.debugHint}
+          </span>
+        </aside>
+      ) : null}
       <main className={styles.main} id="brutalist-main">
         {children}
       </main>
     </div>
+  );
+}
+
+export function ActionLink({
+  children,
+  className,
+  contentDebug,
+  href,
+  isExternal,
+}: {
+  children: React.ReactNode;
+  className: string;
+  contentDebug: boolean;
+  href: string;
+  isExternal?: boolean;
+}) {
+  const external = isExternal || /^https?:\/\//.test(href) || href.startsWith("mailto:");
+
+  if (external) {
+    return (
+      <a
+        className={className}
+        href={href}
+        rel={href.startsWith("mailto:") ? undefined : "noreferrer"}
+        target={href.startsWith("mailto:") ? undefined : "_blank"}
+      >
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <Link className={className} href={brutalistHref(href, contentDebug)}>
+      {children}
+    </Link>
   );
 }
