@@ -1,8 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
 import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
   getProjectMetricValue,
   getTemplateHref,
+  type ContentLink,
   type PortfolioContent,
   type PortfolioProject,
 } from "@/lib/portfolio";
@@ -514,6 +516,7 @@ export function ProjectsView({
   return (
     <>
       <section className={styles.pageHero}>
+        <PageLabel index="01" label={brutalistCopy.hero.eyebrow} />
         <h1>{brutalistCopy.hero.title}</h1>
         <p>{brutalistCopy.hero.body}</p>
         <dl className={styles.inlineMetrics}>
@@ -559,6 +562,60 @@ export function ProjectsView({
   );
 }
 
+export function ProjectMedia({
+  image,
+  label,
+  priority = false,
+}: {
+  image: PortfolioProject["screenshot"];
+  label?: string;
+  priority?: boolean;
+}) {
+  return (
+    <figure className={styles.mediaFrame}>
+      {label ? <figcaption>{label}</figcaption> : null}
+      <div className={styles.mediaInner}>
+        <Image
+          alt={image.alt}
+          fill
+          priority={priority}
+          sizes="(max-width: 900px) 100vw, 55vw"
+          src={image.src}
+        />
+      </div>
+    </figure>
+  );
+}
+
+export function ProjectActions({
+  contentDebug,
+  links,
+}: {
+  contentDebug: boolean;
+  links: ContentLink[];
+}) {
+  if (links.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className={styles.actionRow}>
+      {links.map((link, index) => (
+        <ActionLink
+          className={index === 0 ? styles.primaryAction : styles.secondaryAction}
+          contentDebug={contentDebug}
+          href={link.href}
+          isExternal={link.external}
+          key={`${link.type}-${link.href}`}
+        >
+          {link.label} <span aria-hidden="true">↗</span>
+        </ActionLink>
+      ))}
+    </div>
+  );
+}
+
+
 export function ActionLink({
   children,
   className,
@@ -593,6 +650,54 @@ export function ActionLink({
     </Link>
   );
 }
+
+export function DetailTextSection({
+  body,
+  eyebrow,
+  number,
+  title,
+}: {
+  body: string;
+  eyebrow: string;
+  number: string;
+  title: string;
+}) {
+  return (
+    <section className={styles.detailSection}>
+      <SectionHeader number={number} title={title} />
+      <div className={styles.detailTextBlock}>
+        <span>{eyebrow}</span>
+        <p>{body}</p>
+      </div>
+    </section>
+  );
+}
+
+
+export function PageLabel({ index, label }: { index: string; label: string }) {
+  return (
+    <p className={styles.pageLabel}>
+      <span>{index}</span>
+      {label}
+    </p>
+  );
+}
+
+export function CurationHeading({
+  label,
+  title,
+}: {
+  label?: string;
+  title: string;
+}) {
+  return (
+    <header className={styles.curationHeading}>
+      {label ? <span>{label}</span> : null}
+      <h3 className={label ? undefined : styles.curationHeadingWide}>{title}</h3>
+    </header>
+  );
+}
+
 
 export function ContactBand({
   content,
