@@ -1578,3 +1578,105 @@
   margin: 2rem 0 0.75rem;
   text-transform: uppercase;
 }
+
+.resumeEntries p {
+  font-size: 0.86rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.resumeProjects {
+  list-style: none;
+}
+
+.resumeProjects li {
+  align-items: start;
+  border-bottom: 3px solid var(--white);
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 3rem minmax(0, 1fr) 3rem;
+  padding: 1.5rem 0;
+}
+
+.resumeProjects li:first-child {
+  padding-top: 0;
+}
+
+.resumeProjects li > div > p:first-child {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.resumeProjects h3 {
+  font-size: clamp(1.5rem, 3vw, 3.2rem);
+  letter-spacing: -0.06em;
+  line-height: 0.95;
+  margin: 1rem 0;
+  text-transform: uppercase;
+}
+
+.resumeProjects p {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.resumeProjects a {
+  align-items: center;
+  background: var(--yellow);
+  border: 3px solid var(--ink);
+  color: var(--ink);
+  display: flex;
+  font-size: 1.25rem;
+  height: 3rem;
+  justify-content: center;
+  text-decoration: none;
+  width: 3rem;
+}
+
+.resumeNotes {
+  background: var(--yellow);
+  border-bottom: 3px solid var(--ink);
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: minmax(12rem, 0.3fr) minmax(0, 0.7fr);
+  padding: 2rem clamp(1.2rem, 4vw, 4rem);
+}
+
+.resumeNotes strong {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+}
+
+.resumeNotes ul {
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.contactHero {
+  background: var(--blue);
+  border-bottom: 3px solid var(--ink);
+  color: var(--white);
+  display: grid;
+  gap: 3rem;
+  padding: clamp(3.5rem, 8vw, 8rem) clamp(1.2rem, 4vw, 4rem);
+}
+
+.contactHero .pageLabel span {
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.contactHero > p:not(.pageLabel) {
+  font-size: clamp(1.1rem, 2vw, 1.7rem);
+  font-weight: 600;
+  line-height: 1.45;
+  margin: 0;
+  max-width: 54rem;
+}
