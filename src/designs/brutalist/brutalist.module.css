@@ -1680,3 +1680,113 @@
   margin: 0;
   max-width: 54rem;
 }
+
+.contactAvailability {
+  align-items: center;
+  border: 3px solid var(--white);
+  display: flex;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+  font-weight: 750;
+  gap: 0.8rem;
+  justify-self: start;
+  padding: 0.8rem 1rem;
+  text-transform: uppercase;
+}
+
+.contactAvailability > span {
+  animation: blink 1.4s steps(2, jump-none) infinite;
+  background: var(--yellow);
+  height: 0.7rem;
+  width: 0.7rem;
+}
+
+.contactGrid {
+  border-bottom: 3px solid var(--ink);
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.35fr) minmax(0, 0.65fr);
+}
+
+.contactHeading {
+  border-right: 3px solid var(--ink);
+  padding: clamp(2rem, 4vw, 4rem);
+}
+
+.contactHeading > span {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.contactHeading h2 {
+  font-size: clamp(2.8rem, 6vw, 6rem);
+  font-weight: 950;
+  letter-spacing: -0.08em;
+  line-height: 0.84;
+  margin: 4rem 0 1.5rem;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.contactHeading p {
+  font-size: 0.86rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.contactLinks {
+  list-style: none;
+  margin: 0;
+  padding: 1.5rem;
+}
+
+.contactLinks li {
+  margin-bottom: -3px;
+}
+
+.contactLinks .contactEmpty {
+  margin-bottom: 0;
+}
+
+.contactLink {
+  align-items: center;
+  background: var(--white);
+  border: 3px solid var(--ink);
+  color: var(--ink);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 3rem minmax(0, 1fr) 3rem;
+  min-height: 6rem;
+  padding: 1rem;
+  text-decoration: none;
+}
+
+.contactLink > span {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.contactLink > span:last-child {
+  font-size: 1.35rem;
+  text-align: right;
+}
+
+.contactLink strong {
+  font-size: clamp(1.4rem, 3vw, 3rem);
+  letter-spacing: -0.055em;
+  text-transform: uppercase;
+}
+
+.contactLink:hover {
+  background: var(--yellow);
+}
+
+.notesList,
+.gapList {
+  display: grid;
+  gap: 0;
+  list-style: none;
+  margin: 0 0 0 35%;
+  padding: 0;
+}
