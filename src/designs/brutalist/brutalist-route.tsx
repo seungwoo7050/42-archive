@@ -271,6 +271,8 @@ export function HomeView({
   const featured = content.projects.filter((project) => project.featured);
   const selected = (featured.length > 0 ? featured : content.projects).slice(0, 5);
   const metrics = getHomeMetrics(content);
+  const recentJourney = content.journey.slice(-4).reverse();
+
   return (
     <>
       {homeCopy.sections.map((section) => {
@@ -387,6 +389,47 @@ export function HomeView({
                 </div>
               </section>
             );
+          case "journey":
+            return (
+              <section className={styles.section} key={section}>
+                <SectionHeader
+                  body={content.presentation.home.shared.journey.body}
+                  number="03"
+                  title={content.presentation.home.shared.journey.title}
+                />
+                {recentJourney.length > 0 ? (
+                  <ol className={styles.compactTimeline}>
+                    {recentJourney.map((item, index) => (
+                      <li key={`${item.date}-${item.title}`}>
+                        <span>{String(index + 1).padStart(2, "0")}</span>
+                        <time>
+                          {item.endDate ? `${item.date}—${item.endDate}` : item.date}
+                        </time>
+                        <strong>{item.title}</strong>
+                        <p>{item.body}</p>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <EmptyBlock message={ui.emptyStates.journey} />
+                )}
+                <Link
+                  className={styles.fullWidthAction}
+                  href={brutalistHref("/journey", contentDebug)}
+                >
+                  {homeCopy.journeyActionLabel}{" "}
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </section>
+            );
+          case "contact":
+            return (
+              <ContactBand
+                content={content}
+                contentDebug={contentDebug}
+                key={section}
+              />
+            );
         }
       })}
     </>
@@ -463,6 +506,7 @@ export function ProjectsView({
   content: PortfolioContent;
   contentDebug: boolean;
 }) {
+  const groups = groupProjects(content);
   const pageCopy = content.presentation.pages.projects;
   const brutalistCopy = pageCopy.brutalist;
   const metrics = getHomeMetrics(content);
@@ -481,6 +525,35 @@ export function ProjectsView({
           ))}
         </dl>
       </section>
+
+      <div className={styles.groupArchive}>
+        {groups.length > 0 ? (
+          groups.map((group, groupIndex) => (
+            <section className={styles.projectGroup} key={group.id}>
+              <header className={styles.projectGroupHeader}>
+                <span>{String(groupIndex + 1).padStart(2, "0")}</span>
+                <h2>{group.label}</h2>
+                <p>{group.description}</p>
+                <strong>{String(group.projects.length).padStart(2, "0")}</strong>
+              </header>
+              <ol className={styles.groupProjectList}>
+                {group.projects.map((project) => (
+                  <ProjectIndexRow
+                    contentDebug={contentDebug}
+                    key={project.id}
+                    project={project}
+                  />
+                ))}
+              </ol>
+            </section>
+          ))
+        ) : (
+          <EmptyBlock
+            message={content.presentation.ui.emptyStates.projectsArchive}
+          />
+        )}
+      </div>
+
       <ContactBand content={content} contentDebug={contentDebug} />
     </>
   );
