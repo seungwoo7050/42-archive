@@ -267,6 +267,9 @@ export function HomeView({
   contentDebug: boolean;
 }) {
   const homeCopy = content.presentation.home.brutalist;
+  const ui = content.presentation.ui;
+  const featured = content.projects.filter((project) => project.featured);
+  const selected = (featured.length > 0 ? featured : content.projects).slice(0, 5);
   const metrics = getHomeMetrics(content);
   return (
     <>
@@ -320,6 +323,68 @@ export function HomeView({
                     </div>
                   ))}
                 </dl>
+              </section>
+            );
+          case "signal":
+            return <SignalStrip key={section} text={homeCopy.signalText} />;
+          case "featured":
+            return (
+              <section className={styles.section} key={section}>
+                <SectionHeader
+                  body={homeCopy.featured.body}
+                  number="01"
+                  title={homeCopy.featured.title}
+                />
+                {selected.length > 0 ? (
+                  <ol className={styles.projectIndex}>
+                    {selected.map((project) => (
+                      <ProjectIndexRow
+                        contentDebug={contentDebug}
+                        key={project.id}
+                        project={project}
+                      />
+                    ))}
+                  </ol>
+                ) : (
+                  <EmptyBlock message={ui.emptyStates.projectsHome} />
+                )}
+                <Link
+                  className={styles.fullWidthAction}
+                  href={brutalistHref("/projects", contentDebug)}
+                >
+                  {homeCopy.featured.actionLabel}{" "}
+                  ({String(content.projects.length).padStart(2, "0")})
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </section>
+            );
+          case "system":
+            return (
+              <section
+                className={`${styles.section} ${styles.blueSection}`}
+                key={section}
+              >
+                <SectionHeader
+                  body={homeCopy.system.body}
+                  number="02"
+                  title={homeCopy.system.title}
+                />
+                <div className={styles.principleGrid}>
+                  {content.profile.principles.map((principle, index) => (
+                    <article className={styles.principleCard} key={principle.title}>
+                      <span className={styles.cardNumber}>
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <h3>{principle.title}</h3>
+                      <p>{principle.body}</p>
+                    </article>
+                  ))}
+                </div>
+                <div className={styles.stackWall} aria-label={homeCopy.system.title}>
+                  {content.techStack.slice(0, 18).map((item) => (
+                    <span key={item.id}>{item.label}</span>
+                  ))}
+                </div>
               </section>
             );
         }
@@ -390,6 +455,36 @@ export function ProjectIndexRow({
   );
 }
 
+
+export function ProjectsView({
+  content,
+  contentDebug,
+}: {
+  content: PortfolioContent;
+  contentDebug: boolean;
+}) {
+  const pageCopy = content.presentation.pages.projects;
+  const brutalistCopy = pageCopy.brutalist;
+  const metrics = getHomeMetrics(content);
+
+  return (
+    <>
+      <section className={styles.pageHero}>
+        <h1>{brutalistCopy.hero.title}</h1>
+        <p>{brutalistCopy.hero.body}</p>
+        <dl className={styles.inlineMetrics}>
+          {metrics.slice(0, 3).map((metric) => (
+            <div key={metric.id}>
+              <dt>{metric.label}</dt>
+              <dd>{String(metric.value).padStart(2, "0")}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+      <ContactBand content={content} contentDebug={contentDebug} />
+    </>
+  );
+}
 
 export function ActionLink({
   children,
