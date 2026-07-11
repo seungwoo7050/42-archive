@@ -1790,3 +1790,113 @@
   margin: 0 0 0 35%;
   padding: 0;
 }
+
+.notesList li,
+.gapList li {
+  align-items: start;
+  border-bottom: 3px solid var(--ink);
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 5rem minmax(0, 1fr);
+  padding: 1.25rem 0;
+}
+
+.notesList span,
+.gapList span {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.66rem;
+  font-weight: 800;
+}
+
+.notesList p,
+.gapList p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.milestoneList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.milestoneList > li {
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  box-shadow: 10px 10px 0 var(--ink);
+  margin: 0 0 2rem;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.milestoneList > li:nth-child(even) {
+  margin-left: 8%;
+}
+
+.milestoneList > li > header {
+  align-items: start;
+  border-bottom: 3px solid var(--ink);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 3rem 7rem minmax(0, 1fr);
+  padding-bottom: 1.5rem;
+}
+
+.milestoneList header span,
+.milestoneList header time {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.milestoneList h3 {
+  font-size: clamp(1.7rem, 3.5vw, 3.7rem);
+  letter-spacing: -0.065em;
+  line-height: 0.95;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.milestoneList dl {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 1.5rem 0 0;
+}
+
+.milestoneList dl div {
+  border: 2px solid var(--ink);
+  padding: 1rem;
+}
+
+.milestoneList dt {
+  color: var(--blue);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.milestoneList dd {
+  font-size: 0.8rem;
+  line-height: 1.55;
+  margin: 1rem 0 0;
+}
+
+.anchorLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.anchorLinks a {
+  background: var(--blue);
+  border: 2px solid var(--ink);
+  color: var(--white);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.64rem;
+  font-weight: 750;
+  padding: 0.65rem 0.75rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
