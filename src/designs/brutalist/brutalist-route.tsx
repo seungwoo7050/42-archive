@@ -328,6 +328,69 @@ export function HomeView({
   );
 }
 
+export function SignalStrip({ text }: { text: string }) {
+  return (
+    <div aria-hidden="true" className={styles.signalStrip}>
+      <div>
+        <span>{text}</span>
+        <span>{text}</span>
+      </div>
+    </div>
+  );
+}
+
+export function SectionHeader({
+  body,
+  number,
+  title,
+}: {
+  body?: string;
+  number: string;
+  title: string;
+}) {
+  return (
+    <header className={styles.sectionHeader}>
+      <span className={styles.sectionNumber}>{number}</span>
+      <h2>{title}</h2>
+      {body ? <p>{body}</p> : <span aria-hidden="true" />}
+    </header>
+  );
+}
+
+export function ProjectIndexRow({
+  contentDebug,
+  project,
+}: {
+  contentDebug: boolean;
+  project: PortfolioProject;
+}) {
+  return (
+    <li className={styles.projectIndexItem}>
+      <Link href={brutalistHref(`/projects/${project.id}`, contentDebug)}>
+        <span className={styles.projectIndexNumber}>
+          {project.order}
+        </span>
+        <span className={styles.projectIndexMain}>
+          <span className={styles.projectIndexMeta}>
+            {project.category} / {project.period}
+          </span>
+          <strong>{project.title}</strong>
+          <span className={styles.projectIndexSummary}>{project.summary}</span>
+        </span>
+        <span className={styles.projectTags}>
+          {getProjectTags(project).map((tag) => (
+            <span key={tag}>{tag}</span>
+          ))}
+        </span>
+        <span className={styles.projectIndexArrow} aria-hidden="true">
+          ↗
+        </span>
+      </Link>
+    </li>
+  );
+}
+
+
 export function ActionLink({
   children,
   className,
@@ -360,5 +423,36 @@ export function ActionLink({
     <Link className={className} href={brutalistHref(href, contentDebug)}>
       {children}
     </Link>
+  );
+}
+
+export function ContactBand({
+  content,
+  contentDebug,
+}: {
+  content: PortfolioContent;
+  contentDebug: boolean;
+}) {
+  return (
+    <section className={styles.contactBand}>
+      <span>
+        {content.presentation.ui.nowLabel} / {content.profile.location}
+      </span>
+      <h2>{content.contact.title}</h2>
+      <p>{content.contact.availability}</p>
+      <Link href={brutalistHref("/contact", contentDebug)}>
+        {content.presentation.home.brutalist.contactActionLabel}{" "}
+        <span aria-hidden="true">↗</span>
+      </Link>
+    </section>
+  );
+}
+
+export function EmptyBlock({ message }: { message: string }) {
+  return (
+    <div className={styles.emptyBlock} role="status">
+      <span aria-hidden="true">□</span>
+      <p>{message}</p>
+    </div>
   );
 }
