@@ -2263,3 +2263,89 @@
     opacity: 0.2;
   }
 }
+
+@media (max-width: 980px) {
+  .headerBar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .headerStatus {
+    border-left: 0;
+    border-right: 0;
+    border-top: 3px solid var(--ink);
+    grid-column: 1 / -1;
+    grid-row: 2;
+    order: 3;
+  }
+
+  .homeHero,
+  .detailHero,
+  .projectGroup,
+  .resumeSection,
+  .contactGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroCopy,
+  .detailHeroCopy,
+  .projectGroupHeader,
+  .resumeSection > header,
+  .contactHeading {
+    border-bottom: 3px solid var(--ink);
+    border-right: 0;
+  }
+
+  .homeHero {
+    min-height: 0;
+  }
+
+  .heroSummary {
+    min-height: 18rem;
+  }
+
+  .metricsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .metricBlock:nth-child(2) {
+    border-right: 0;
+  }
+
+  .metricBlock:nth-child(-n + 2) {
+    border-bottom: 3px solid var(--ink);
+  }
+
+  .projectIndexItem > a {
+    grid-template-columns: 4rem minmax(0, 1fr) 3.5rem;
+  }
+
+  .projectTags {
+    display: none;
+  }
+
+  .principleGrid,
+  .skillGrid,
+  .curationCategories {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .principleCard:nth-child(2) {
+    transform: none;
+  }
+
+  .contactBand {
+    grid-template-columns: 1fr auto;
+  }
+
+  .contactBand h2 {
+    line-height: 0.78;
+  }
+
+  .detailHero .mediaFrame {
+    min-height: 34rem;
+  }
+
+  .resumeSection > header h2 {
+    margin-top: 2rem;
+  }
+}
