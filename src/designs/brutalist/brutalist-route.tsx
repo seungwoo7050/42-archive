@@ -590,6 +590,7 @@ export function ProjectDetailView({
     );
   }
 
+  const screenshots = project.screenshots;
 
   return (
     <>
@@ -630,6 +631,54 @@ export function ProjectDetailView({
           <p>{project.description}</p>
         </div>
 
+        <div className={styles.detailBody}>
+          <DetailTextSection
+            body={project.problem}
+            eyebrow={copy.sections.problem.eyebrow}
+            number="01"
+            title={copy.sections.problem.title}
+          />
+          <DetailTextSection
+            body={project.solution}
+            eyebrow={copy.sections.solution.eyebrow}
+            number="02"
+            title={copy.sections.solution.title}
+          />
+          <DetailListSection
+            emptyMessage={content.presentation.ui.emptyStates.projectDetails}
+            eyebrow={copy.sections.architecture.eyebrow}
+            intro={project.architecture.summary}
+            items={project.architecture.items}
+            number="03"
+            title={copy.sections.architecture.title}
+          />
+          {screenshots.length > 0 ? (
+            <section className={styles.detailSection}>
+              <SectionHeader
+                number="04"
+                title={copy.sections.screenshots.title}
+              />
+              <div className={styles.galleryGrid}>
+                {screenshots.map((image, index) => (
+                  <ProjectMedia
+                    image={image}
+                    key={`${image.src}-${index}`}
+                    label={`${copy.frameLabel} ${String(index + 1).padStart(2, "0")}`}
+                  />
+                ))}
+              </div>
+            </section>
+          ) : null}
+          <section className={styles.detailSection}>
+            <SectionHeader number="05" title={copy.sections.stack.title} />
+            <div className={styles.stackWall}>
+              {project.stack.map((stackId) => {
+                const stack = content.techStack.find((item) => item.id === stackId);
+                return <span key={stackId}>{stack!.label}</span>;
+              })}
+            </div>
+          </section>
+        </div>
       </article>
       <nav
         aria-label={content.presentation.ui.projectNavigationAriaLabel}
@@ -751,6 +800,53 @@ export function DetailTextSection({
         <span>{eyebrow}</span>
         <p>{body}</p>
       </div>
+    </section>
+  );
+}
+
+
+export function DetailListSection({
+  emptyMessage,
+  eyebrow,
+  intro,
+  items,
+  number,
+  title,
+  tone,
+}: {
+  emptyMessage: string;
+  eyebrow?: string;
+  intro?: string;
+  items: string[];
+  number: string;
+  title: string;
+  tone?: "blue" | "yellow";
+}) {
+  return (
+    <section className={styles.detailSection}>
+      <SectionHeader number={number} title={title} />
+      {eyebrow ? <p className={styles.detailSectionLabel}>{eyebrow}</p> : null}
+      {intro ? <p className={styles.detailSectionIntro}>{intro}</p> : null}
+      {items.length > 0 ? (
+        <ol
+          className={`${styles.detailList} ${
+            tone === "blue"
+              ? styles.detailListBlue
+              : tone === "yellow"
+                ? styles.detailListYellow
+                : ""
+          }`}
+        >
+          {items.map((item, index) => (
+            <li key={`${index}-${item}`}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <p>{item}</p>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <EmptyBlock message={emptyMessage} />
+      )}
     </section>
   );
 }
