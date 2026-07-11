@@ -2460,3 +2460,118 @@
     text-align: left;
   }
 }
+
+@media (max-width: 720px) {
+.heroCopy,
+  .heroSummary {
+    padding: 1.4rem 1rem;
+  }
+
+.megaTitle {
+    font-size: clamp(4rem, 24vw, 7.5rem);
+    letter-spacing: -0.085em;
+    line-height: 0.76;
+    margin-top: 4rem;
+  }
+
+.megaTitleAccent {
+    margin-left: 0;
+    -webkit-text-stroke-width: 1.5px;
+  }
+
+.heroHeadline {
+    margin-left: 0;
+  }
+
+.metricsGrid {
+    grid-template-columns: 1fr;
+  }
+
+.metricBlock,
+  .metricBlock:nth-child(2) {
+    border-bottom: 3px solid var(--ink);
+    border-right: 0;
+    min-height: 8rem;
+  }
+
+.metricBlock:last-child {
+    border-bottom: 0;
+  }
+
+.metricBlock dd {
+    font-size: 4rem;
+  }
+
+.section,
+  .detailSection {
+    padding: 3.5rem 1rem;
+  }
+
+.sectionHeader {
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+  }
+
+.sectionHeader > * {
+    min-height: 5rem;
+    padding: 0.85rem;
+  }
+
+.sectionHeader p,
+  .sectionHeader > span:last-child {
+    border-left: 0;
+    border-top: 3px solid var(--ink);
+    grid-column: 1 / -1;
+    min-height: auto;
+  }
+
+.sectionHeader h2 {
+    font-size: clamp(1.8rem, 11vw, 3.5rem);
+  }
+
+.projectIndexItem:nth-child(even),
+  .milestoneList > li:nth-child(even) {
+    margin-left: 0;
+  }
+
+.projectIndexItem > a,
+  .groupProjectList .projectIndexItem > a {
+    grid-template-columns: 3.25rem minmax(0, 1fr) 3rem;
+  }
+
+.projectIndexItem > a > * {
+    padding: 0.8rem;
+  }
+
+.projectIndexMain strong {
+    font-size: 1.35rem;
+  }
+
+.projectIndexSummary {
+    display: none;
+  }
+
+.principleGrid,
+  .skillGrid,
+  .criteriaGrid,
+  .curationCategories,
+  .galleryGrid {
+    grid-template-columns: 1fr;
+  }
+
+.principleCard {
+    min-height: 16rem;
+  }
+
+.principleCard h3 {
+    margin-top: 3rem;
+  }
+
+.compactTimeline li {
+    grid-template-columns: 3rem 1fr;
+  }
+
+.compactTimeline strong,
+  .compactTimeline p {
+    grid-column: 2;
+  }
+}
