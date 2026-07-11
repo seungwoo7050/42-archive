@@ -2215,3 +2215,51 @@
   max-width: 35rem;
   text-transform: uppercase;
 }
+
+.footerMeta {
+  flex-direction: column;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 750;
+  justify-content: space-between;
+  text-transform: uppercase;
+}
+
+.footerMeta a {
+  color: var(--blue);
+  font-size: 0.75rem;
+  text-decoration: none;
+}
+
+.emptyBlock {
+  align-items: center;
+  border: 3px dashed var(--ink);
+  display: flex;
+  gap: 1rem;
+  min-height: 8rem;
+  padding: 1.25rem;
+}
+
+.emptyBlock > span {
+  font-size: 2rem;
+}
+
+.emptyBlock p {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+@keyframes crawl {
+  to {
+    transform: translateX(calc(-50% - 1rem));
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.2;
+  }
+}
