@@ -142,6 +142,10 @@ export function BrutalistShell({
 }) {
   const shellCopy = content.presentation.brutalist.shell;
   const ui = content.presentation.ui;
+  const footerLinks = content.links.filter((link) =>
+    link.placements?.includes("footer"),
+  );
+
   return (
     <div
       className={styles.root}
@@ -229,7 +233,98 @@ export function BrutalistShell({
       <main className={styles.main} id="brutalist-main">
         {children}
       </main>
+      <footer className={styles.footer}>
+        <div className={styles.footerLead}>
+          <span className={styles.footerSymbol} aria-hidden="true">
+            ↳
+          </span>
+          <p>{content.site.footer.note}</p>
+        </div>
+        <div className={styles.footerMeta}>
+          <span>{content.site.footer.copyright}</span>
+          {footerLinks.map((link) => (
+            <ActionLink
+              className=""
+              contentDebug={contentDebug}
+              href={link.href}
+              isExternal={link.external}
+              key={link.id ?? `${link.type}-${link.href}`}
+            >
+              {link.label} <span aria-hidden="true">↗</span>
+            </ActionLink>
+          ))}
+        </div>
+      </footer>
     </div>
+  );
+}
+
+export function HomeView({
+  content,
+  contentDebug,
+}: {
+  content: PortfolioContent;
+  contentDebug: boolean;
+}) {
+  const homeCopy = content.presentation.home.brutalist;
+  const metrics = getHomeMetrics(content);
+  return (
+    <>
+      {homeCopy.sections.map((section) => {
+        switch (section) {
+          case "hero":
+            return (
+              <section className={styles.homeHero} key={section}>
+                <div className={styles.heroStamp}>
+                  <span>
+                    {homeCopy.stampLabel} / {new Date().getFullYear()}
+                  </span>
+                  <span>{content.profile.availability}</span>
+                </div>
+                <div className={styles.heroCopy}>
+                  <p className={styles.eyebrow}>{content.profile.role}</p>
+                  <h1 className={styles.megaTitle}>
+                    <span>{content.profile.name}</span>
+                    <span className={styles.megaTitleAccent}>
+                      {content.profile.handle}
+                    </span>
+                  </h1>
+                  <p className={styles.heroHeadline}>{content.profile.headline}</p>
+                </div>
+                <div className={styles.heroSummary}>
+                  <p>{content.profile.summary}</p>
+                  <div className={styles.actionRow}>
+                    <Link
+                      className={styles.primaryAction}
+                      href={brutalistHref("/projects", contentDebug)}
+                    >
+                      {homeCopy.hero.primaryActionLabel}{" "}
+                      <span aria-hidden="true">↗</span>
+                    </Link>
+                    <Link
+                      className={styles.secondaryAction}
+                      href={brutalistHref("/contact", contentDebug)}
+                    >
+                      {homeCopy.hero.secondaryActionLabel}
+                    </Link>
+                  </div>
+                </div>
+                <dl className={styles.metricsGrid}>
+                  {metrics.map((metric, index) => (
+                    <div className={styles.metricBlock} key={metric.id}>
+                      <dt>
+                        {String(index + 1).padStart(2, "0")} / {metric.label}
+                      </dt>
+                      <dd>{String(metric.value).padStart(2, "0")}</dd>
+                      {metric.description ? <p>{metric.description}</p> : null}
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            );
+        }
+      })}
+    </>
   );
 }
 
