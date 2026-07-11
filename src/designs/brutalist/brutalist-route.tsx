@@ -1,9 +1,13 @@
+import Link from "next/link";
+import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
   getProjectMetricValue,
   getTemplateHref,
   type PortfolioContent,
   type PortfolioProject,
 } from "@/lib/portfolio";
+import type { DesignRouteProps } from "@/designs/types";
+import styles from "./brutalist.module.css";
 
 const DESIGN_ID = "brutalist" as const;
 
@@ -81,5 +85,101 @@ export function getNavigationLabel(
 ) {
   return (
     content.site.navigation.find((item) => item.href === href)?.label ?? fallback
+  );
+}
+
+export function getRouteLabel(
+  content: PortfolioContent,
+  route: DesignRouteProps["route"],
+) {
+  const pages = content.presentation.pages;
+
+  switch (route) {
+    case "home":
+      return getNavigationLabel(
+        content,
+        "/",
+        content.presentation.home.brutalist.stampLabel,
+      );
+    case "projects":
+      return getNavigationLabel(
+        content,
+        "/projects",
+        pages.projects.brutalist.hero.title,
+      );
+    case "project-detail":
+      return pages.projectDetail.caseLabel;
+    case "about":
+      return getNavigationLabel(content, "/about", pages.about.hero.title);
+    case "resume":
+      return getNavigationLabel(content, "/resume", pages.resume.hero.title);
+    case "contact":
+      return getNavigationLabel(content, "/contact", content.contact.title);
+    case "journey":
+      return getNavigationLabel(content, "/journey", pages.journey.hero.title);
+    case "interview-map":
+      return getNavigationLabel(
+        content,
+        "/interview-map",
+        pages.interviewMap.hero.title,
+      );
+  }
+}
+
+
+export function BrutalistShell({
+  children,
+  content,
+  contentDebug,
+  currentPath,
+  route,
+}: {
+  children: React.ReactNode;
+  content: PortfolioContent;
+  contentDebug: boolean;
+  currentPath: string;
+  route: DesignRouteProps["route"];
+}) {
+  const ui = content.presentation.ui;
+  return (
+    <div
+      className={styles.root}
+      data-content-debug={contentDebug ? "true" : "false"}
+      data-site-design={DESIGN_ID}
+    >
+      <a className={styles.skipLink} href="#brutalist-main">
+        {ui.skipLinkLabel}
+      </a>
+      <header className={styles.header}>
+        <div className={styles.headerBar}>
+          <Link
+            className={styles.brand}
+            href={brutalistHref("/", contentDebug)}
+          >
+            <span className={styles.brandMark} aria-hidden="true">
+              ■
+            </span>
+            <span>{content.site.brand}</span>
+          </Link>
+          <div className={styles.headerStatus}>
+            <span>{getRouteLabel(content, route)}</span>
+            <span aria-hidden="true">/</span>
+            <span>{content.profile.location}</span>
+          </div>
+          <div className={styles.switcher}>
+            <DesignSwitcher
+              activeId={DESIGN_ID}
+              contentDebug={contentDebug}
+              currentPath={currentPath}
+              templates={content.presentation.templates}
+              ui={content.presentation.ui}
+            />
+          </div>
+        </div>
+      </header>
+      <main className={styles.main} id="brutalist-main">
+        {children}
+      </main>
+    </div>
   );
 }
