@@ -1470,3 +1470,111 @@
   margin-top: 4rem;
   padding: clamp(1.25rem, 3vw, 2.5rem);
 }
+
+.nextReview > span {
+  color: var(--yellow);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.nextReview h3 {
+  font-size: clamp(2rem, 4vw, 4rem);
+  letter-spacing: -0.06em;
+  line-height: 0.95;
+  margin: 0 0 1.25rem;
+  text-transform: uppercase;
+}
+
+.nextReview p {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.resumeHero .primaryAction {
+  align-self: end;
+  justify-self: start;
+}
+
+.resumeSection {
+  border-bottom: 3px solid var(--ink);
+  display: grid;
+  grid-template-columns: minmax(14rem, 0.3fr) minmax(0, 0.7fr);
+}
+
+.resumeSection > header {
+  border-right: 3px solid var(--ink);
+  padding: clamp(2rem, 4vw, 4rem);
+}
+
+.resumeSection > header span {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.resumeSection > header h2 {
+  font-size: clamp(2.6rem, 5vw, 5rem);
+  font-weight: 950;
+  letter-spacing: -0.075em;
+  line-height: 0.85;
+  margin: 4rem 0 0;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.resumeSummary,
+.resumeEntries,
+.resumeProjects {
+  margin: 0;
+  padding: clamp(2rem, 4vw, 4rem);
+}
+
+.resumeSummary p {
+  border-bottom: 3px solid var(--ink);
+  display: grid;
+  font-size: clamp(1.1rem, 2vw, 1.7rem);
+  font-weight: 620;
+  gap: 1rem;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  line-height: 1.45;
+  margin: 0;
+  padding: 1.5rem 0;
+}
+
+.resumeSummary p:first-child {
+  padding-top: 0;
+}
+
+.resumeSummary span,
+.resumeProjects > li > span {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.resumeEntries {
+  display: grid;
+  gap: 1rem;
+}
+
+.resumeEntries article {
+  background: var(--white);
+  border: 3px solid var(--ink);
+  padding: 1.25rem;
+}
+
+.resumeEntries time {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.66rem;
+  font-weight: 800;
+}
+
+.resumeEntries h3 {
+  font-size: clamp(1.4rem, 2.6vw, 2.5rem);
+  letter-spacing: -0.05em;
+  margin: 2rem 0 0.75rem;
+  text-transform: uppercase;
+}
