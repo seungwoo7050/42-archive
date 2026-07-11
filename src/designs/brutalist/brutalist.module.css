@@ -1250,3 +1250,115 @@
   font-size: 0.65rem;
   font-weight: 800;
 }
+
+.focusCard h3,
+.skillCard h3 {
+  font-size: clamp(1.5rem, 2.5vw, 2.6rem);
+  letter-spacing: -0.055em;
+  line-height: 0.95;
+  margin: 3rem 0 1rem;
+  text-transform: uppercase;
+}
+
+.focusCard p {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.skillCard {
+  background: var(--white);
+}
+
+.skillCard ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+}
+
+.skillCard li {
+  border: 2px solid var(--ink);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.45rem 0.55rem;
+}
+
+.curationSection {
+  background: var(--ink);
+  color: var(--white);
+}
+
+.curationSection .sectionHeader {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.curationIntro {
+  font-size: clamp(1.3rem, 2.6vw, 2.4rem);
+  font-weight: 650;
+  line-height: 1.35;
+  margin: 0 0 4rem 35%;
+  max-width: 55rem;
+}
+
+.curationHeading {
+  align-items: end;
+  border-bottom: 3px solid var(--white);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(8rem, 0.35fr) minmax(0, 0.65fr);
+  margin: 4rem 0 1.5rem;
+  padding-bottom: 1rem;
+}
+
+.curationIntro + .curationHeading {
+  margin-top: 0;
+}
+
+.curationHeading span {
+  color: var(--yellow);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.curationHeading h3 {
+  font-size: clamp(2rem, 4vw, 4rem);
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.curationHeading .curationHeadingWide {
+  grid-column: 1 / -1;
+}
+
+.criteriaGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.criteriaGrid article {
+  border: 3px solid var(--white);
+  min-height: 15rem;
+  padding: 1.25rem;
+}
+
+.criteriaGrid article:nth-child(2n) {
+  background: var(--yellow);
+  border-color: var(--yellow);
+  color: var(--ink);
+}
+
+.criteriaGrid span {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
