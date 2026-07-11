@@ -2575,3 +2575,115 @@
     grid-column: 2;
   }
 }
+
+@media (max-width: 720px) {
+.contactBand {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+    padding: 3.5rem 1rem;
+  }
+
+.contactBand h2 {
+    font-size: clamp(4rem, 21vw, 8rem);
+    margin-bottom: 1rem;
+  }
+
+.contactBand a {
+    min-height: 3.5rem;
+  }
+
+.pageHero,
+  .contactHero {
+    gap: 2rem;
+    grid-template-columns: 1fr;
+    padding: 4rem 1rem;
+  }
+
+.pageHero h1,
+  .contactHero h1,
+  .notFound h1 {
+    font-size: clamp(4rem, 22vw, 8rem);
+    line-height: 0.75;
+  }
+
+.inlineMetrics {
+    grid-template-columns: 1fr;
+  }
+
+.inlineMetrics div {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin: -3px 0 0;
+  }
+
+.inlineMetrics dd {
+    margin: 0;
+  }
+
+.projectGroupHeader,
+  .detailHeroCopy,
+  .resumeSection > header,
+  .contactHeading {
+    padding: 2.5rem 1rem;
+  }
+
+.projectGroupHeader h2,
+  .resumeSection > header h2,
+  .contactHeading h2 {
+    margin-top: 2.5rem;
+  }
+
+.groupProjectList,
+  .contactLinks,
+  .questionList {
+    padding: 1rem;
+  }
+
+.detailHero {
+    min-height: 0;
+  }
+
+.detailHero .mediaFrame {
+    min-height: 22rem;
+  }
+
+.detailHero h1 {
+    font-size: clamp(3.5rem, 17vw, 6rem);
+  }
+
+.detailFacts,
+  .detailIntro,
+  .detailTextBlock,
+  .curationHeading,
+  .omissionGrid,
+  .nextReview,
+  .resumeNotes,
+  .currentPosition {
+    grid-template-columns: 1fr;
+  }
+
+.detailFacts div + div {
+    border-left: 0;
+    border-top: 3px solid var(--ink);
+    padding-left: 0;
+  }
+
+.detailIntro {
+    gap: 1.5rem;
+    padding: 2.5rem 1rem;
+  }
+
+.detailSectionIntro,
+  .detailSectionLabel,
+  .detailList,
+  .notesList,
+  .gapList,
+  .curationIntro {
+    margin-left: 0;
+  }
+
+.galleryGrid .mediaFrame:nth-child(3n) {
+    grid-column: auto;
+  }
+}
