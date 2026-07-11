@@ -2111,3 +2111,107 @@
   min-width: 0;
   padding: 1.25rem;
 }
+
+.questionPrompt > span {
+  color: var(--blue);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.questionPrompt h3 {
+  font-size: clamp(1.2rem, 2.2vw, 2.2rem);
+  letter-spacing: -0.045em;
+  line-height: 1;
+  margin: 2.5rem 0 1.5rem;
+}
+
+.questionPrompt a {
+  color: var(--ink);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.64rem;
+  font-weight: 750;
+  margin-top: auto;
+}
+
+.answerGrid {
+  display: grid;
+  gap: 0;
+}
+
+.answerGrid article {
+  background: var(--white);
+  padding: 1.25rem;
+}
+
+.answerGrid article + article {
+  border-top: 3px solid var(--ink);
+}
+
+.answerGrid article > span {
+  display: block;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.answerGrid article > a,
+.answerGrid article > strong {
+  color: var(--blue);
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 800;
+  margin-top: 0.75rem;
+}
+
+.answerGrid article p {
+  font-size: 0.78rem;
+  line-height: 1.55;
+  margin: 0.75rem 0 0;
+}
+
+.emptyAnswer {
+  margin: 0;
+  padding: 1.25rem;
+}
+
+.blueSection .gapList li {
+  border-color: var(--white);
+}
+
+.footer {
+  background: var(--paper);
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(20rem, 0.75fr);
+  min-height: 15rem;
+}
+
+.footerLead,
+.footerMeta {
+  display: flex;
+  padding: 2rem;
+}
+
+.footerLead {
+  align-items: flex-start;
+  border-right: 3px solid var(--ink);
+  gap: 2rem;
+}
+
+.footerSymbol {
+  color: var(--blue);
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.footerLead p {
+  font-size: clamp(1.4rem, 3vw, 3rem);
+  font-weight: 850;
+  letter-spacing: -0.055em;
+  line-height: 1;
+  margin: 0;
+  max-width: 35rem;
+  text-transform: uppercase;
+}
