@@ -2005,3 +2005,109 @@
   font-weight: 800;
   padding: 1rem;
 }
+
+.trackNavigation ol {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.trackNavigation li {
+  border-right: 3px solid var(--ink);
+}
+
+.trackNavigation a {
+  align-items: center;
+  color: var(--ink);
+  display: flex;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 750;
+  gap: 0.6rem;
+  min-height: 3.5rem;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+}
+
+.trackNavigation a:hover {
+  background: var(--ink);
+  color: var(--yellow);
+}
+
+.trackNavigation a span {
+  color: var(--blue);
+  font-size: 0.58rem;
+}
+
+.trackArchive {
+  border-bottom: 3px solid var(--ink);
+}
+
+.trackSection {
+  border-bottom: 3px solid var(--ink);
+  scroll-margin-top: 1rem;
+}
+
+.trackSection:last-child {
+  border-bottom: 0;
+}
+
+.trackSection > header {
+  align-items: start;
+  background: var(--ink);
+  color: var(--white);
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 4rem minmax(13rem, 0.35fr) minmax(0, 0.65fr) 5rem;
+  padding: 2rem clamp(1.2rem, 4vw, 4rem);
+}
+
+.trackSection > header > span,
+.trackSection > header > strong {
+  color: var(--yellow);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+}
+
+.trackSection > header h2 {
+  font-size: clamp(2rem, 4vw, 4rem);
+  letter-spacing: -0.065em;
+  line-height: 0.9;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.trackSection > header p {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.trackSection > header strong {
+  font-size: 2.5rem;
+  letter-spacing: -0.06em;
+  text-align: right;
+}
+
+.questionList {
+  list-style: none;
+  margin: 0;
+  padding: 1.5rem clamp(1.2rem, 4vw, 4rem) 3rem;
+}
+
+.questionList > li {
+  border: 3px solid var(--ink);
+  display: grid;
+  grid-template-columns: minmax(14rem, 0.35fr) minmax(0, 0.65fr);
+  margin-bottom: -3px;
+}
+
+.questionPrompt {
+  border-right: 3px solid var(--ink);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 1.25rem;
+}
