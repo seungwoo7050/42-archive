@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
+  getProjectDetailLinks,
   getProjectMetricValue,
   getTemplateHref,
   type ContentLink,
@@ -558,6 +559,87 @@ export function ProjectsView({
       </div>
 
       <ContactBand content={content} contentDebug={contentDebug} />
+    </>
+  );
+}
+
+export function ProjectDetailView({
+  content,
+  contentDebug,
+  project,
+}: {
+  content: PortfolioContent;
+  contentDebug: boolean;
+  project?: PortfolioProject;
+}) {
+  const copy = content.presentation.pages.projectDetail;
+
+  if (!project) {
+    return (
+      <section className={styles.notFound}>
+        <span>{copy.missing.eyebrow}</span>
+        <h1>{copy.missing.title}</h1>
+        <p>{copy.missing.body}</p>
+        <Link
+          className={styles.primaryAction}
+          href={brutalistHref("/projects", contentDebug)}
+        >
+          {copy.missing.actionLabel}
+        </Link>
+      </section>
+    );
+  }
+
+
+  return (
+    <>
+      <article>
+        <header className={styles.detailHero}>
+          <div className={styles.detailHeroCopy}>
+            <Link
+              className={styles.backLink}
+              href={brutalistHref("/projects", contentDebug)}
+            >
+              ← {copy.backLabel}
+            </Link>
+            <p className={styles.eyebrow}>
+              {project.order} / {project.category} / {project.period}
+            </p>
+            <h1>{project.title}</h1>
+            <p className={styles.detailLead}>{project.summary}</p>
+            <dl className={styles.detailFacts}>
+              <div>
+                <dt>{copy.facts.roleLabel}</dt>
+                <dd>{project.role}</dd>
+              </div>
+              <div>
+                <dt>{copy.facts.statusLabel}</dt>
+                <dd>{project.deployment.label}</dd>
+              </div>
+            </dl>
+            <ProjectActions
+              contentDebug={contentDebug}
+              links={getProjectDetailLinks(project)}
+            />
+          </div>
+          <ProjectMedia image={project.screenshot} priority />
+        </header>
+
+        <div className={styles.detailIntro}>
+          <span>{copy.caseLabel} / {project.id}</span>
+          <p>{project.description}</p>
+        </div>
+
+      </article>
+      <nav
+        aria-label={content.presentation.ui.projectNavigationAriaLabel}
+        className={styles.nextProject}
+      >
+        <span>{copy.outroLabel}</span>
+        <Link href={brutalistHref("/projects", contentDebug)}>
+          {copy.returnToIndexLabel} <span aria-hidden="true">→</span>
+        </Link>
+      </nav>
     </>
   );
 }
