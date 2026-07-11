@@ -1900,3 +1900,108 @@
   text-decoration: none;
   text-transform: uppercase;
 }
+
+.archiveTimeline {
+  border-top: 3px solid var(--ink);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.archiveTimeline li {
+  align-items: start;
+  border-bottom: 3px solid var(--ink);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 3rem 9rem minmax(0, 1fr) 3rem;
+  padding: 1.5rem 0;
+}
+
+.archiveTimeline > li > span,
+.archiveTimeline time {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.archiveTimeline div > p:first-child {
+  color: var(--blue);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.archiveTimeline h3 {
+  font-size: clamp(1.2rem, 2vw, 2rem);
+  letter-spacing: -0.035em;
+  margin: 0.6rem 0;
+}
+
+.archiveTimeline div > p:last-child {
+  font-size: 0.8rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.archiveTimeline a {
+  align-items: center;
+  background: var(--yellow);
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  display: flex;
+  height: 2.75rem;
+  justify-content: center;
+  text-decoration: none;
+  width: 2.75rem;
+}
+
+.currentPosition {
+  background: var(--blue);
+  border-bottom: 3px solid var(--ink);
+  color: var(--white);
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: minmax(12rem, 0.3fr) minmax(0, 0.7fr);
+  padding: clamp(3rem, 7vw, 7rem) clamp(1.2rem, 4vw, 4rem);
+}
+
+.currentPosition > span {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.currentPosition h2 {
+  font-size: clamp(2.8rem, 6vw, 6rem);
+  letter-spacing: -0.075em;
+  line-height: 0.9;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.currentPosition p {
+  font-size: 1rem;
+  grid-column: 2;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 55rem;
+}
+
+.trackNavigation {
+  align-items: stretch;
+  background: var(--yellow);
+  border-bottom: 3px solid var(--ink);
+  display: grid;
+  grid-template-columns: 12rem minmax(0, 1fr);
+}
+
+.trackNavigation > span {
+  align-items: center;
+  border-right: 3px solid var(--ink);
+  display: flex;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 1rem;
+}
