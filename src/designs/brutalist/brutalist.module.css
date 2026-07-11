@@ -1143,3 +1143,110 @@
 .galleryGrid .mediaFrame:nth-child(3n) {
   grid-column: 1 / -1;
 }
+
+.nextProject {
+  align-items: center;
+  background: var(--ink);
+  color: var(--white);
+  display: flex;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+  font-weight: 800;
+  justify-content: space-between;
+  padding: 2rem clamp(1.2rem, 4vw, 4rem);
+  text-transform: uppercase;
+}
+
+.nextProject a {
+  color: var(--yellow);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.notFound {
+  align-content: center;
+  display: grid;
+  gap: 2rem;
+  min-height: 70vh;
+  padding: 4rem;
+}
+
+.notFound > span {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.notFound p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.notFound .primaryAction {
+  justify-self: start;
+}
+
+.heroIdentity {
+  align-self: start;
+  border: 3px solid var(--ink);
+  display: grid;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.profileAside {
+  align-self: start;
+  display: grid;
+  gap: 1rem;
+}
+
+.profilePortrait {
+  aspect-ratio: 4 / 3;
+  border: 3px solid var(--ink);
+  margin: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.profilePortrait img {
+  background: var(--yellow);
+  object-fit: cover;
+}
+
+.heroIdentity > * {
+  padding: 0.75rem 1rem;
+}
+
+.heroIdentity > * + * {
+  border-top: 3px solid var(--ink);
+}
+
+.heroIdentity strong {
+  background: var(--yellow);
+  font-size: 0.78rem;
+}
+
+.skillGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.focusCard,
+.skillCard {
+  border: 3px solid var(--ink);
+  min-height: 18rem;
+  padding: 1.25rem;
+}
+
+.focusCard {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.focusCard > span {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
