@@ -679,6 +679,36 @@ export function ProjectDetailView({
               })}
             </div>
           </section>
+          <DetailListSection
+            emptyMessage={content.presentation.ui.emptyStates.projectDetails}
+            eyebrow={copy.sections.highlights.eyebrow}
+            items={project.highlights}
+            number="06"
+            title={copy.sections.highlights.title}
+          />
+          <DetailListSection
+            emptyMessage={content.presentation.ui.emptyStates.projectDetails}
+            eyebrow={copy.sections.decisions.eyebrow}
+            items={project.decisions}
+            number="07"
+            title={copy.sections.decisions.title}
+          />
+          <DetailListSection
+            emptyMessage={content.presentation.ui.emptyStates.projectDetails}
+            eyebrow={copy.sections.tradeoffs.eyebrow}
+            items={project.tradeoffs}
+            number="08"
+            title={copy.sections.tradeoffs.title}
+            tone="yellow"
+          />
+          <DetailListSection
+            emptyMessage={content.presentation.ui.emptyStates.projectDetails}
+            eyebrow={copy.sections.result.eyebrow}
+            items={project.results}
+            number="09"
+            title={copy.sections.result.title}
+            tone="blue"
+          />
         </div>
       </article>
       <nav
