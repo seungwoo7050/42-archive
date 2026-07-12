@@ -1081,6 +1081,10 @@ export function ResumeView({
   contentDebug: boolean;
 }) {
   const copy = content.presentation.pages.resume;
+  const resumeProjects = content.resume.projectIds
+    .map((projectId) => content.projects.find((project) => project.id === projectId))
+    .filter((item): item is PortfolioProject => Boolean(item));
+
   return (
     <>
       <section className={`${styles.pageHero} ${styles.resumeHero}`}>
@@ -1145,6 +1149,78 @@ export function ResumeView({
         </section>
       ) : null}
 
+      <section className={`${styles.resumeSection} ${styles.blueSection}`}>
+        <header>
+          <span>04</span>
+          <h2>{copy.projects.title}</h2>
+        </header>
+        <ol className={styles.resumeProjects}>
+          {resumeProjects.map((project, index) => (
+            <li key={project.id}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <p>{project.period} / {project.role}</p>
+                <h3>{project.title}</h3>
+                <p>{project.summary}</p>
+              </div>
+              <Link
+                aria-label={renderCopyTemplate(
+                  content.presentation.ui.readCaseStudyAriaTemplate,
+                  { title: project.title },
+                )}
+                href={brutalistHref(`/projects/${project.id}`, contentDebug)}
+              >
+                ↗
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className={styles.resumeSection}>
+        <header>
+          <span>05</span>
+          <h2>{copy.training.title}</h2>
+        </header>
+        <div className={styles.resumeEntries}>
+          {content.resume.training.map((item) => (
+            <article key={`${item.period}-${item.name}`}>
+              <time>{item.period}</time>
+              <h3>{item.name}</h3>
+              <p>{item.description}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.resumeSection}>
+        <header>
+          <span>06</span>
+          <h2>{copy.education.title}</h2>
+        </header>
+        <div className={styles.resumeEntries}>
+          {content.resume.education.map((item) => (
+            <article key={`${item.period}-${item.name}`}>
+              <time>{item.period}</time>
+              <h3>{item.name}</h3>
+              <p>{item.description}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <aside className={styles.resumeNotes}>
+        <strong>{copy.notes.title}</strong>
+        {content.resume.notes.length > 0 ? (
+          <ul>
+            {content.resume.notes.map((note) => (
+              <li key={note}>{note}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>{content.presentation.ui.emptyStates.additionalNotes}</p>
+        )}
+      </aside>
     </>
   );
 }
