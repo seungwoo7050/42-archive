@@ -132,8 +132,67 @@ function getRouteLabel(
   }
 }
 
+export function BrutalistRoute({
+  content,
+  contentDebug,
+  currentPath,
+  project,
+  route,
+}: DesignRouteProps) {
+  let view: React.ReactNode;
 
-export function BrutalistShell({
+  switch (route) {
+    case "home":
+      view = <HomeView content={content} contentDebug={contentDebug} />;
+      break;
+    case "projects":
+      view = <ProjectsView content={content} contentDebug={contentDebug} />;
+      break;
+    case "project-detail":
+      view = (
+        <ProjectDetailView
+          content={content}
+          contentDebug={contentDebug}
+          project={project}
+        />
+      );
+      break;
+    case "about":
+      view = <AboutView content={content} contentDebug={contentDebug} />;
+      break;
+    case "resume":
+      view = <ResumeView content={content} contentDebug={contentDebug} />;
+      break;
+    case "contact":
+      view = <ContactView content={content} contentDebug={contentDebug} />;
+      break;
+    case "journey":
+      view = <JourneyView content={content} contentDebug={contentDebug} />;
+      break;
+    case "interview-map":
+      view = (
+        <InterviewMapView
+          content={content}
+          contentDebug={contentDebug}
+          currentPath={currentPath}
+        />
+      );
+      break;
+  }
+
+  return (
+    <BrutalistShell
+      content={content}
+      contentDebug={contentDebug}
+      currentPath={currentPath}
+      route={route}
+    >
+      {view}
+    </BrutalistShell>
+  );
+}
+
+function BrutalistShell({
   children,
   content,
   contentDebug,
@@ -265,7 +324,7 @@ export function BrutalistShell({
   );
 }
 
-export function HomeView({
+function HomeView({
   content,
   contentDebug,
 }: {
@@ -504,8 +563,7 @@ function ProjectIndexRow({
   );
 }
 
-
-export function ProjectsView({
+function ProjectsView({
   content,
   contentDebug,
 }: {
@@ -566,7 +624,7 @@ export function ProjectsView({
   );
 }
 
-export function ProjectDetailView({
+function ProjectDetailView({
   content,
   contentDebug,
   project,
@@ -779,7 +837,6 @@ function ProjectActions({
   );
 }
 
-
 function ActionLink({
   children,
   className,
@@ -837,7 +894,6 @@ function DetailTextSection({
   );
 }
 
-
 function DetailListSection({
   emptyMessage,
   eyebrow,
@@ -884,8 +940,7 @@ function DetailListSection({
   );
 }
 
-
-export function AboutView({
+function AboutView({
   content,
   contentDebug,
 }: {
@@ -1074,8 +1129,7 @@ export function AboutView({
   );
 }
 
-
-export function ResumeView({
+function ResumeView({
   content,
   contentDebug,
 }: {
@@ -1227,7 +1281,7 @@ export function ResumeView({
   );
 }
 
-export function ContactView({
+function ContactView({
   content,
   contentDebug,
 }: {
@@ -1299,7 +1353,7 @@ export function ContactView({
   );
 }
 
-export function JourneyView({
+function JourneyView({
   content,
   contentDebug,
 }: {
@@ -1431,7 +1485,7 @@ export function JourneyView({
   );
 }
 
-export function InterviewMapView({
+function InterviewMapView({
   content,
   contentDebug,
   currentPath,
@@ -1610,7 +1664,6 @@ function CurationHeading({
     </header>
   );
 }
-
 
 function ContactBand({
   content,
