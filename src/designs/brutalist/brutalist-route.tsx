@@ -852,6 +852,92 @@ export function DetailListSection({
 }
 
 
+export function AboutView({
+  content,
+}: {
+  content: PortfolioContent;
+  contentDebug: boolean;
+}) {
+  const pageCopy = content.presentation.pages.about;
+  const brutalistCopy = pageCopy.brutalist;
+  return (
+    <>
+      <section className={styles.pageHero}>
+        <PageLabel
+          index="01"
+          label={renderCopyTemplate(brutalistCopy.heroEyebrowTemplate, {
+            handle: content.profile.handle,
+          })}
+        />
+        <h1>{pageCopy.hero.title}</h1>
+        <p>{content.profile.summary}</p>
+        <div className={styles.profileAside}>
+          <div className={styles.heroIdentity}>
+            <strong>{content.profile.name}</strong>
+            <span>{content.profile.koreanName}</span>
+            <span>{content.profile.handle}</span>
+            <span>{content.profile.location}</span>
+            <span>{content.profile.role}</span>
+          </div>
+          {content.profile.photo ? (
+            <figure className={styles.profilePortrait}>
+              <Image
+                alt={content.profile.photo.alt}
+                fill
+                sizes="(max-width: 720px) 100vw, 28vw"
+                src={content.profile.photo.src}
+              />
+            </figure>
+          ) : null}
+        </div>
+      </section>
+
+      <section className={`${styles.section} ${styles.yellowSection}`}>
+        <SectionHeader number="02" title={pageCopy.principles.title} />
+        <div className={styles.principleGrid}>
+          {content.profile.principles.map((principle, index) => (
+            <article className={styles.principleCard} key={principle.title}>
+              <span className={styles.cardNumber}>
+                {brutalistCopy.principleItemLabel}{" "}
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <h3>{principle.title}</h3>
+              <p>{principle.body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <SectionHeader number="03" title={pageCopy.skills.title} />
+        <div className={styles.skillGrid}>
+          {content.skills.focusAreas.map((area, index) => (
+            <article className={styles.focusCard} key={area.title}>
+              <span>
+                {brutalistCopy.focusItemLabel} /{" "}
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <h3>{area.title}</h3>
+              <p>{area.body}</p>
+            </article>
+          ))}
+          {content.skills.groups.map((group) => (
+            <article className={styles.skillCard} key={group.title}>
+              <h3>{group.title}</h3>
+              <ul>
+                {group.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+
 export function PageLabel({ index, label }: { index: string; label: string }) {
   return (
     <p className={styles.pageLabel}>
