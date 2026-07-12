@@ -32,13 +32,13 @@ type CopyTemplateToken =
   | "title"
   | "year";
 
-export function brutalistHref(path: string, contentDebug: boolean) {
+function brutalistHref(path: string, contentDebug: boolean) {
   return getTemplateHref(path, DESIGN_ID, {
     contentDebug,
   });
 }
 
-export function renderCopyTemplate(
+function renderCopyTemplate(
   template: string,
   values: Partial<Record<CopyTemplateToken, string>>,
 ) {
@@ -48,14 +48,14 @@ export function renderCopyTemplate(
   );
 }
 
-export function getProjectTags(project: PortfolioProject, limit = 4) {
+function getProjectTags(project: PortfolioProject, limit = 4) {
   const tags = project.tags;
   const source = tags && tags.length > 0 ? tags : project.stack;
 
   return source.filter(Boolean).slice(0, limit);
 }
 
-export function groupProjects(content: PortfolioContent): GroupedProjects[] {
+function groupProjects(content: PortfolioContent): GroupedProjects[] {
   return content.projectGroups
     .map((group) => {
       const projects = content.projects.filter((project) => {
@@ -67,7 +67,7 @@ export function groupProjects(content: PortfolioContent): GroupedProjects[] {
     .filter((group) => group.projects.length > 0);
 }
 
-export function getHomeMetrics(content: PortfolioContent) {
+function getHomeMetrics(content: PortfolioContent) {
   return content.projectMetrics.slice(0, 4).map((metric) => ({
     description: metric.description,
     id: metric.id,
@@ -76,7 +76,7 @@ export function getHomeMetrics(content: PortfolioContent) {
   }));
 }
 
-export function isCurrentNavigation(href: string, currentPath: string) {
+function isCurrentNavigation(href: string, currentPath: string) {
   if (href === "/") {
     return currentPath === "/";
   }
@@ -84,7 +84,7 @@ export function isCurrentNavigation(href: string, currentPath: string) {
   return currentPath === href || currentPath.startsWith(`${href}/`);
 }
 
-export function getNavigationLabel(
+function getNavigationLabel(
   content: PortfolioContent,
   href: string,
   fallback: string,
@@ -94,7 +94,7 @@ export function getNavigationLabel(
   );
 }
 
-export function getRouteLabel(
+function getRouteLabel(
   content: PortfolioContent,
   route: DesignRouteProps["route"],
 ) {
@@ -442,7 +442,7 @@ export function HomeView({
   );
 }
 
-export function SignalStrip({ text }: { text: string }) {
+function SignalStrip({ text }: { text: string }) {
   return (
     <div aria-hidden="true" className={styles.signalStrip}>
       <div>
@@ -453,7 +453,7 @@ export function SignalStrip({ text }: { text: string }) {
   );
 }
 
-export function SectionHeader({
+function SectionHeader({
   body,
   number,
   title,
@@ -471,7 +471,7 @@ export function SectionHeader({
   );
 }
 
-export function ProjectIndexRow({
+function ProjectIndexRow({
   contentDebug,
   project,
 }: {
@@ -726,7 +726,7 @@ export function ProjectDetailView({
   );
 }
 
-export function ProjectMedia({
+function ProjectMedia({
   image,
   label,
   priority = false,
@@ -751,7 +751,7 @@ export function ProjectMedia({
   );
 }
 
-export function ProjectActions({
+function ProjectActions({
   contentDebug,
   links,
 }: {
@@ -780,7 +780,7 @@ export function ProjectActions({
 }
 
 
-export function ActionLink({
+function ActionLink({
   children,
   className,
   contentDebug,
@@ -815,7 +815,7 @@ export function ActionLink({
   );
 }
 
-export function DetailTextSection({
+function DetailTextSection({
   body,
   eyebrow,
   number,
@@ -838,7 +838,7 @@ export function DetailTextSection({
 }
 
 
-export function DetailListSection({
+function DetailListSection({
   emptyMessage,
   eyebrow,
   intro,
@@ -1587,7 +1587,7 @@ export function InterviewMapView({
   );
 }
 
-export function PageLabel({ index, label }: { index: string; label: string }) {
+function PageLabel({ index, label }: { index: string; label: string }) {
   return (
     <p className={styles.pageLabel}>
       <span>{index}</span>
@@ -1596,7 +1596,7 @@ export function PageLabel({ index, label }: { index: string; label: string }) {
   );
 }
 
-export function CurationHeading({
+function CurationHeading({
   label,
   title,
 }: {
@@ -1612,7 +1612,7 @@ export function CurationHeading({
 }
 
 
-export function ContactBand({
+function ContactBand({
   content,
   contentDebug,
 }: {
@@ -1634,7 +1634,7 @@ export function ContactBand({
   );
 }
 
-export function EmptyBlock({ message }: { message: string }) {
+function EmptyBlock({ message }: { message: string }) {
   return (
     <div className={styles.emptyBlock} role="status">
       <span aria-hidden="true">□</span>
