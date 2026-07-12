@@ -5,6 +5,7 @@ import {
   getProjectDetailLinks,
   getProjectMetricValue,
   getTemplateHref,
+  isSitePageEnabled,
   type ContentLink,
   type PortfolioContent,
   type PortfolioProject,
@@ -854,12 +855,16 @@ export function DetailListSection({
 
 export function AboutView({
   content,
+  contentDebug,
 }: {
   content: PortfolioContent;
   contentDebug: boolean;
 }) {
   const pageCopy = content.presentation.pages.about;
   const brutalistCopy = pageCopy.brutalist;
+  const curation = content.curation;
+  const showCuration = isSitePageEnabled("curation", content);
+
   return (
     <>
       <section className={styles.pageHero}>
@@ -933,6 +938,106 @@ export function AboutView({
           ))}
         </div>
       </section>
+
+      {content.experience.length > 0 ? (
+        <section className={`${styles.section} ${styles.blueSection}`}>
+          <SectionHeader number="04" title={pageCopy.journey.title} />
+          <div className={styles.resumeEntries}>
+            {content.experience.map((item) => (
+              <article key={`${item.period}-${item.title}`}>
+                <time>{item.period}</time>
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {showCuration ? (
+        <section className={`${styles.section} ${styles.curationSection}`}>
+          <SectionHeader
+            body={pageCopy.curation.body}
+            number="05"
+            title={pageCopy.curation.title}
+          />
+          <p className={styles.curationIntro}>{curation.intro}</p>
+
+          <CurationHeading
+            label={pageCopy.curation.criteriaTitle}
+            title={curation.criteria.title}
+          />
+          <div className={styles.criteriaGrid}>
+            {curation.criteria.items.map((item, index) => (
+              <article key={item.title}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </article>
+            ))}
+          </div>
+
+          <CurationHeading title={pageCopy.curation.categoriesTitle} />
+          <div className={styles.curationCategories}>
+            {curation.categories.map((category) => {
+              const projects = category.projectIds
+                .map((id) =>
+                  content.projects.find((project) => project.id === id),
+                )
+                .filter((item): item is PortfolioProject => Boolean(item));
+
+              return (
+                <article key={category.id}>
+                  <h3>{category.label}</h3>
+                  <p>{category.rationale}</p>
+                  {projects.length > 0 ? (
+                    <ul>
+                      {projects.map((project) => (
+                        <li key={project.id}>
+                          <Link
+                            href={brutalistHref(
+                              `/projects/${project.id}`,
+                              contentDebug,
+                            )}
+                          >
+                            {project.title} <span aria-hidden="true">↗</span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </article>
+              );
+            })}
+          </div>
+
+          <div className={styles.omissionGrid}>
+            <div>
+              <span>{pageCopy.curation.omissionsTitle}</span>
+              <h3>{curation.omissions.title}</h3>
+              <p>{curation.omissions.body}</p>
+            </div>
+            <ul>
+              {curation.omissions.items.map((item) => (
+                <li key={item.title}>
+                  <strong>{item.title}</strong>
+                  <p>{item.body}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <aside className={styles.nextReview}>
+            <span>{pageCopy.curation.nextReviewTitle}</span>
+            <div>
+              <h3>{curation.nextReview.title}</h3>
+              <p>{curation.nextReview.body}</p>
+            </div>
+          </aside>
+        </section>
+      ) : null}
+
+      <ContactBand content={content} contentDebug={contentDebug} />
     </>
   );
 }
