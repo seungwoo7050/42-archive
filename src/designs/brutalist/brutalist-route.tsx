@@ -1308,6 +1308,10 @@ export function JourneyView({
 }) {
   const copy = content.presentation.pages.journey;
   const narrative = content.journeyNarrative;
+  const projectsById = new Map(
+    content.projects.map((project) => [project.id, project]),
+  );
+
   return (
     <>
       <section className={styles.pageHero}>
@@ -1370,6 +1374,109 @@ export function JourneyView({
           <EmptyBlock message={content.presentation.ui.emptyStates.journey} />
         )}
       </section>
+
+      <section className={styles.section}>
+        <SectionHeader
+          body={copy.timeline.body}
+          number="03"
+          title={copy.timeline.title}
+        />
+        {content.journey.length > 0 ? (
+          <ol className={styles.archiveTimeline}>
+            {content.journey.map((item, index) => {
+              const linkedProject = item.projectId
+                ? projectsById.get(item.projectId)
+                : undefined;
+
+              return (
+                <li key={`${item.date}-${item.title}`}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <time>
+                    {item.endDate ? `${item.date}—${item.endDate}` : item.date}
+                  </time>
+                  <div>
+                    <p>{item.category}</p>
+                    <h3>{item.title}</h3>
+                    <p>{item.body}</p>
+                  </div>
+                  {linkedProject ? (
+                    <Link
+                      aria-label={renderCopyTemplate(
+                        content.presentation.ui.openItemAriaTemplate,
+                        { title: item.title },
+                      )}
+                      href={brutalistHref(
+                        `/projects/${linkedProject.id}`,
+                        contentDebug,
+                      )}
+                    >
+                      ↗
+                    </Link>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ol>
+        ) : (
+          <EmptyBlock message={content.presentation.ui.emptyStates.journey} />
+        )}
+      </section>
+
+      <section className={styles.currentPosition}>
+        <span>04 / {copy.now.title}</span>
+        <h2>{narrative.currentPosition.title}</h2>
+        <p>{narrative.currentPosition.body}</p>
+      </section>
+    </>
+  );
+}
+
+export function InterviewMapView({
+  content,
+  contentDebug,
+  currentPath,
+}: {
+  content: PortfolioContent;
+  contentDebug: boolean;
+  currentPath: string;
+}) {
+  const copy = content.presentation.pages.interviewMap;
+  const data = content.interviewMap;
+  return (
+    <>
+      <section className={styles.pageHero}>
+        <PageLabel index="01" label={copy.hero.eyebrow} />
+        <h1>{copy.hero.title}</h1>
+        <p>{data.intro}</p>
+        <ActionLink
+          className={styles.secondaryAction}
+          contentDebug={contentDebug}
+          href={data.referenceRepo.href}
+          isExternal
+        >
+          {data.referenceRepo.label} ↗
+        </ActionLink>
+      </section>
+
+      <nav aria-label={copy.tracks.title} className={styles.trackNavigation}>
+        <span>{copy.tracks.indexLabel}</span>
+        <ol>
+          {data.tracks.map((track, index) => (
+            <li key={track.id}>
+              <Link
+                href={brutalistHref(
+                  `${currentPath}#track-${track.id}`,
+                  contentDebug,
+                )}
+              >
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                {track.label}
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
     </>
   );
 }
