@@ -1565,6 +1565,24 @@ export function InterviewMapView({
           <EmptyBlock message={copy.tracks.emptyLabel} />
         )}
       </div>
+
+      <section className={`${styles.section} ${styles.blueSection}`}>
+        <SectionHeader
+          body={data.gaps.body}
+          number="99"
+          title={data.gaps.title}
+        />
+        <ol aria-label={copy.gaps.ariaLabel} className={styles.gapList}>
+          {data.gaps.items.map((item, index) => (
+            <li key={item}>
+              <span>
+                {copy.gaps.eyebrow} {String(index + 1).padStart(2, "0")}
+              </span>
+              <p>{item}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
     </>
   );
 }
