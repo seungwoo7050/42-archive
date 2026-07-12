@@ -41,6 +41,7 @@ const supportedDesignIdList = [
   "design",
   "classic",
   "editorial",
+  "brutalist",
 ] as const;
 const supportedDesignIds = new Set<string>(supportedDesignIdList);
 

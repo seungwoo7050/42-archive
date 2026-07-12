@@ -15,6 +15,11 @@
       "id": "editorial",
       "label": "Editorial",
       "description": "An asymmetric print folio with evidence-led case-study spreads."
+    },
+    {
+      "id": "brutalist",
+      "label": "Brutalist",
+      "description": "An oversized modular grid with hard, expressive contrast."
     }
   ],
   "ui": {
