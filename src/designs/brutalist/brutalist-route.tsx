@@ -1043,6 +1043,82 @@ export function AboutView({
 }
 
 
+export function ResumeView({
+  content,
+  contentDebug,
+}: {
+  content: PortfolioContent;
+  contentDebug: boolean;
+}) {
+  const copy = content.presentation.pages.resume;
+  return (
+    <>
+      <section className={`${styles.pageHero} ${styles.resumeHero}`}>
+        <PageLabel
+          index="01"
+          label={renderCopyTemplate(copy.brutalist.heroEyebrowTemplate, {
+            name: content.profile.name,
+          })}
+        />
+        <h1>{copy.hero.title}</h1>
+        <p>{copy.hero.body}</p>
+        <div className={styles.heroIdentity}>
+          <strong>{content.profile.role}</strong>
+          <span>
+            {copy.identity.locationLabel}: {content.profile.location}
+          </span>
+          <span>
+            {copy.identity.availabilityLabel}: {content.profile.availability}
+          </span>
+        </div>
+        {content.resume.downloadUrl ? (
+          <ActionLink
+            className={styles.primaryAction}
+            contentDebug={contentDebug}
+            href={content.resume.downloadUrl}
+          >
+            {copy.hero.downloadLabel} ↗
+          </ActionLink>
+        ) : null}
+      </section>
+
+      <section className={styles.resumeSection}>
+        <header>
+          <span>02</span>
+          <h2>{copy.summary.title}</h2>
+        </header>
+        <div className={styles.resumeSummary}>
+          {content.resume.summary.map((item, index) => (
+            <p key={`${index}-${item}`}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              {item}
+            </p>
+          ))}
+        </div>
+      </section>
+
+      {content.experience.length > 0 ? (
+        <section className={styles.resumeSection}>
+          <header>
+            <span>03</span>
+            <h2>{copy.experience.title}</h2>
+          </header>
+          <div className={styles.resumeEntries}>
+            {content.experience.map((item) => (
+              <article key={`${item.period}-${item.title}`}>
+                <time>{item.period}</time>
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+    </>
+  );
+}
+
 export function PageLabel({ index, label }: { index: string; label: string }) {
   return (
     <p className={styles.pageLabel}>
