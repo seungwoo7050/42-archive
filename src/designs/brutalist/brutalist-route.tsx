@@ -1299,6 +1299,81 @@ export function ContactView({
   );
 }
 
+export function JourneyView({
+  content,
+  contentDebug,
+}: {
+  content: PortfolioContent;
+  contentDebug: boolean;
+}) {
+  const copy = content.presentation.pages.journey;
+  const narrative = content.journeyNarrative;
+  return (
+    <>
+      <section className={styles.pageHero}>
+        <PageLabel index="01" label={copy.hero.eyebrow} />
+        <h1>{copy.hero.title}</h1>
+        <p>{narrative.intro}</p>
+      </section>
+
+      <section className={`${styles.section} ${styles.yellowSection}`}>
+        <SectionHeader
+          body={copy.narrative.body}
+          number="02"
+          title={copy.narrative.title}
+        />
+        {narrative.milestones.length > 0 ? (
+          <ol className={styles.milestoneList}>
+            {narrative.milestones.map((milestone, index) => {
+            const projects = milestone.anchorProjectIds
+              .map((id) => content.projects.find((project) => project.id === id))
+              .filter((item): item is PortfolioProject => Boolean(item));
+
+            return (
+              <li key={milestone.id}>
+                <header>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <time>{milestone.date}</time>
+                  <h3>{milestone.title}</h3>
+                </header>
+                <dl>
+                  <div>
+                    <dt>{copy.narrative.labels.state}</dt>
+                    <dd>{milestone.state}</dd>
+                  </div>
+                  <div>
+                    <dt>{copy.narrative.labels.reason}</dt>
+                    <dd>{milestone.reason}</dd>
+                  </div>
+                  <div>
+                    <dt>{copy.narrative.labels.result}</dt>
+                    <dd>{milestone.result}</dd>
+                  </div>
+                </dl>
+                {projects.length > 0 ? (
+                  <div className={styles.anchorLinks}>
+                    {projects.map((project) => (
+                      <Link
+                        href={brutalistHref(`/projects/${project.id}`, contentDebug)}
+                        key={project.id}
+                      >
+                        {project.title} ↗
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+              </li>
+            );
+            })}
+          </ol>
+        ) : (
+          <EmptyBlock message={content.presentation.ui.emptyStates.journey} />
+        )}
+      </section>
+    </>
+  );
+}
+
 export function PageLabel({ index, label }: { index: string; label: string }) {
   return (
     <p className={styles.pageLabel}>
