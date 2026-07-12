@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
+  getContentLinksByPlacement,
+  getPreferredContactLinks,
   getProjectDetailLinks,
   getProjectMetricValue,
   getTemplateHref,
@@ -1221,6 +1223,78 @@ export function ResumeView({
           <p>{content.presentation.ui.emptyStates.additionalNotes}</p>
         )}
       </aside>
+    </>
+  );
+}
+
+export function ContactView({
+  content,
+  contentDebug,
+}: {
+  content: PortfolioContent;
+  contentDebug: boolean;
+}) {
+  const copy = content.presentation.pages.contact;
+  const preferred = getPreferredContactLinks(content);
+  const visibleLinks =
+    preferred.length > 0
+      ? preferred
+      : getContentLinksByPlacement("contact", content);
+
+  return (
+    <>
+      <section className={styles.contactHero}>
+        <PageLabel index="01" label={copy.brutalist.heroEyebrow} />
+        <h1>{content.contact.title}</h1>
+        <p>{content.contact.intro}</p>
+        <span className={styles.contactAvailability}>
+          <span aria-hidden="true" /> {content.contact.availability}
+        </span>
+      </section>
+
+      <section className={styles.contactGrid}>
+        <div className={styles.contactHeading}>
+          <span>02</span>
+          <h2>{copy.availability.title}</h2>
+          <p>{content.profile.availability}</p>
+        </div>
+        <ol className={styles.contactLinks}>
+          {visibleLinks.length > 0 ? (
+            visibleLinks.map((link, index) => (
+              <li key={link.id ?? link.href}>
+                <ActionLink
+                  className={styles.contactLink}
+                  contentDebug={contentDebug}
+                  href={link.href}
+                  isExternal={link.external}
+                >
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <strong>{link.label}</strong>
+                  <span aria-hidden="true">↗</span>
+                </ActionLink>
+              </li>
+            ))
+          ) : (
+            <li className={styles.contactEmpty}>
+              <EmptyBlock
+                message={content.presentation.ui.emptyStates.contactLinks}
+              />
+            </li>
+          )}
+        </ol>
+      </section>
+
+      <section className={`${styles.section} ${styles.yellowSection}`}>
+        <SectionHeader number="03" title={copy.notes.title} />
+        <ul className={styles.notesList}>
+          {content.contact.notes.map((note, index) => (
+            <li key={note}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <p>{note}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
     </>
   );
 }
