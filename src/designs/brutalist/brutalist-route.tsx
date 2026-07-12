@@ -1442,6 +1442,10 @@ export function InterviewMapView({
 }) {
   const copy = content.presentation.pages.interviewMap;
   const data = content.interviewMap;
+  const projectsById = new Map(
+    content.projects.map((project) => [project.id, project]),
+  );
+
   return (
     <>
       <section className={styles.pageHero}>
@@ -1477,6 +1481,90 @@ export function InterviewMapView({
         </ol>
       </nav>
 
+      <div className={styles.trackArchive}>
+        {data.tracks.length > 0 ? (
+          data.tracks.map((track, trackIndex) => (
+            <section
+              className={styles.trackSection}
+              id={`track-${track.id}`}
+              key={track.id}
+            >
+              <header>
+                <span>
+                  {copy.tracks.indexLabel}{" "}
+                  {String(trackIndex + 1).padStart(2, "0")}
+                </span>
+                <h2>{track.label}</h2>
+                <p>{track.body}</p>
+                <strong>
+                  {renderCopyTemplate(copy.tracks.itemCountTemplate, {
+                    count: String(track.items.length),
+                  })}
+                </strong>
+              </header>
+              {track.items.length > 0 ? (
+                <ol className={styles.questionList}>
+                  {track.items.map((item, itemIndex) => (
+                    <li key={item.label}>
+                      <div className={styles.questionPrompt}>
+                        <span>
+                          {copy.tracks.questionLabel}{" "}
+                          {String(itemIndex + 1).padStart(2, "0")}
+                        </span>
+                        <h3>{item.label}</h3>
+                        <a href={item.reference} rel="noreferrer" target="_blank">
+                          {copy.tracks.referenceLabel} ↗
+                        </a>
+                      </div>
+                      <div className={styles.answerGrid}>
+                        {item.answers.some((answer) =>
+                          projectsById.has(answer.projectId),
+                        ) ? (
+                          item.answers.flatMap((answer, answerIndex) => {
+                            const project = projectsById.get(answer.projectId);
+
+                            if (!project) {
+                              return [];
+                            }
+
+                            return [
+                              <article
+                                key={`${answer.projectId}-${answerIndex}`}
+                              >
+                                <span>{copy.tracks.answerLabel}</span>
+                                <Link
+                                  href={brutalistHref(
+                                    `/projects/${project.id}`,
+                                    contentDebug,
+                                  )}
+                                >
+                                  {project.title}{" "}
+                                  <span aria-hidden="true">↗</span>
+                                </Link>
+                                <p>
+                                  <b>{copy.tracks.depthLabel}:</b> {answer.depth}
+                                </p>
+                              </article>,
+                            ];
+                          })
+                        ) : (
+                          <p className={styles.emptyAnswer}>
+                            {content.presentation.ui.emptyStates.noMappedEvidence}
+                          </p>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className={styles.emptyAnswer}>{copy.tracks.emptyLabel}</p>
+              )}
+            </section>
+          ))
+        ) : (
+          <EmptyBlock message={copy.tracks.emptyLabel} />
+        )}
+      </div>
     </>
   );
 }
