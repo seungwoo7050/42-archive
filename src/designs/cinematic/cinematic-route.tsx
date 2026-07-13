@@ -5,6 +5,7 @@ import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
   getProjectDetailLinks,
   getTemplateHref,
+  isSitePageEnabled,
   type ContentLink,
   type PortfolioProject,
 } from "@/lib/portfolio";
@@ -434,8 +435,10 @@ export function ProjectDetailView({ content, contentDebug, project }: DesignRout
   );
 }
 
-export function AboutView({ content }: DesignRouteProps) {
+export function AboutView({ content, contentDebug }: DesignRouteProps) {
   const copy = content.presentation.pages.about;
+  const curation = content.curation;
+
   return (
     <>
       <section className={styles.textHero}>
@@ -494,6 +497,70 @@ export function AboutView({ content }: DesignRouteProps) {
           ))}
         </div>
       </section>
+      {isSitePageEnabled("curation", content) ? (
+        <section className={styles.contentSection}>
+          <ChapterLabel index={3}>{copy.curation.title}</ChapterLabel>
+          <div className={styles.sectionHeading}>
+            <h2>{copy.curation.title}</h2>
+            <p>{copy.curation.body}</p>
+            <p>{curation.intro}</p>
+          </div>
+          <div className={styles.contentGrid}>
+            <section>
+              <h3>{copy.curation.criteriaTitle}</h3>
+              <p>{curation.criteria.title}</p>
+              {curation.criteria.items.map((item) => (
+                <article key={item.title}>
+                  <h4>{item.title}</h4>
+                  <p>{item.body}</p>
+                </article>
+              ))}
+            </section>
+            <section>
+              <h3>{copy.curation.categoriesTitle}</h3>
+              {curation.categories.map((category) => {
+                const projects = category.projectIds
+                  .map((projectId) => content.projects.find((project) => project.id === projectId))
+                  .filter((project): project is PortfolioProject => Boolean(project));
+
+                return (
+                  <article key={category.id}>
+                    <h4>{category.label}</h4>
+                    <p>{category.rationale}</p>
+                    <div className={styles.evidenceLinks}>
+                      {projects.map((project) => (
+                        <Link
+                          href={routeHref(`/projects/${project.id}`, contentDebug)}
+                          key={project.id}
+                        >
+                          {project.title} <span aria-hidden="true">↗</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </article>
+                );
+              })}
+            </section>
+            <section>
+              <h3>{copy.curation.omissionsTitle}</h3>
+              <p>{curation.omissions.body}</p>
+              {curation.omissions.items.map((item) => (
+                <article key={item.title}>
+                  <h4>{item.title}</h4>
+                  <p>{item.body}</p>
+                </article>
+              ))}
+            </section>
+            <section>
+              <h3>{copy.curation.nextReviewTitle}</h3>
+              <article>
+                <h4>{curation.nextReview.title}</h4>
+                <p>{curation.nextReview.body}</p>
+              </article>
+            </section>
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }
