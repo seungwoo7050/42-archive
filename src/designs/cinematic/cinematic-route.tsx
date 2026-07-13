@@ -433,3 +433,67 @@ export function ProjectDetailView({ content, contentDebug, project }: DesignRout
     </article>
   );
 }
+
+export function AboutView({ content }: DesignRouteProps) {
+  const copy = content.presentation.pages.about;
+  return (
+    <>
+      <section className={styles.textHero}>
+        <ChapterLabel index={1}>{copy.hero.title}</ChapterLabel>
+        <h1>{content.profile.headline}</h1>
+        <p className={styles.lede}>{content.profile.summary}</p>
+        <div className={styles.aboutIdentity}>
+          {content.profile.photo ? (
+            <Media
+              alt={content.profile.photo.alt}
+              src={content.profile.photo.src}
+            />
+          ) : null}
+          <ul className={styles.profileFacts}>
+            <li>{content.profile.name}</li>
+            <li>{content.profile.koreanName}</li>
+            <li>{content.profile.handle}</li>
+            <li>{content.profile.location}</li>
+          </ul>
+        </div>
+      </section>
+      <section className={styles.essayGrid}>
+        <div>
+          <h2>{copy.principles.title}</h2>
+          {content.profile.principles.map((principle) => (
+            <article key={principle.title}><h3>{principle.title}</h3><p>{principle.body}</p></article>
+          ))}
+        </div>
+        <div>
+          <h2>{copy.skills.title}</h2>
+          <div className={styles.focusGrid}>
+            {content.skills.focusAreas.map((area) => (
+              <article key={area.title}>
+                <h3>{area.title}</h3>
+                <p>{area.body}</p>
+              </article>
+            ))}
+          </div>
+          {content.skills.groups.map((group) => (
+            <article key={group.title}><h3>{group.title}</h3><p>{group.items.join(" · ")}</p></article>
+          ))}
+        </div>
+      </section>
+      <section className={styles.contentSection}>
+        <ChapterLabel index={2}>{copy.journey.title}</ChapterLabel>
+        <div className={styles.sectionHeading}>
+          <h2>{copy.journey.title}</h2>
+        </div>
+        <div className={styles.entryList}>
+          {content.experience.map((item) => (
+            <article key={`${item.period}-${item.title}`}>
+              <p>{item.period}</p>
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
