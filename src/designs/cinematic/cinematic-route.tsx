@@ -564,3 +564,83 @@ export function AboutView({ content, contentDebug }: DesignRouteProps) {
     </>
   );
 }
+
+
+export function ResumeView({ content, contentDebug }: DesignRouteProps) {
+  const copy = content.presentation.pages.resume;
+  const selected = content.resume.projectIds
+    .map((id) => content.projects.find((project) => project.id === id))
+    .filter((project): project is PortfolioProject => Boolean(project));
+
+  return (
+    <>
+      <section className={styles.textHero}>
+        <ChapterLabel index={1}>{copy.hero.title}</ChapterLabel>
+        <p className={styles.kicker}>{content.profile.role}</p>
+        <h1>{content.profile.name}</h1>
+        <p className={styles.lede}>{copy.hero.body}</p>
+        <dl className={styles.identityList}>
+          <div><dt>{copy.identity.locationLabel}</dt><dd>{content.profile.location}</dd></div>
+          <div><dt>{copy.identity.availabilityLabel}</dt><dd>{content.profile.availability}</dd></div>
+        </dl>
+        {content.resume.downloadUrl ? (
+          <a className={styles.textLink} href={content.resume.downloadUrl}>
+            {copy.hero.downloadLabel} <span aria-hidden="true">↗</span>
+          </a>
+        ) : null}
+      </section>
+      <section className={styles.resumeGrid}>
+        <div><h2>{copy.summary.title}</h2>{content.resume.summary.map((line) => <p key={line}>{line}</p>)}</div>
+        <div>
+          <h2>{copy.projects.title}</h2>
+          {selected.map((project) => (
+            <article key={project.id}>
+              <p>{project.period} · {project.role}</p>
+              <h3>{project.title}</h3>
+              <p>{project.summary}</p>
+              <Link href={routeHref(`/projects/${project.id}`, contentDebug)}>
+                {copy.projects.caseStudyLabel}<span aria-hidden="true">↗</span>
+              </Link>
+            </article>
+          ))}
+        </div>
+        <div><h2>{copy.experience.title}</h2>{content.experience.map((item) => <article key={`${item.title}-${item.period}`}><h3>{item.title}</h3><p>{item.period}</p><p>{item.body}</p></article>)}</div>
+        <div><h2>{copy.training.title}</h2>{content.resume.training.map((item) => <article key={`${item.name}-${item.period}`}><h3>{item.name}</h3><p>{item.period}</p><p>{item.description}</p></article>)}</div>
+        <div><h2>{copy.education.title}</h2>{content.resume.education.map((item) => <article key={`${item.name}-${item.period}`}><h3>{item.name}</h3><p>{item.period}</p><p>{item.description}</p></article>)}</div>
+        <div>
+          <h2>{copy.notes.title}</h2>
+          {content.resume.notes.length > 0 ? (
+            <ul>{content.resume.notes.map((note) => <li key={note}>{note}</li>)}</ul>
+          ) : (
+            <p>{content.presentation.ui.emptyStates.additionalNotes}</p>
+          )}
+        </div>
+      </section>
+    </>
+  );
+}
+
+export function ContactView({ content, contentDebug }: DesignRouteProps) {
+  const linksById = new Map(content.links.map((link) => [link.id, link]));
+  const preferred = content.contact.preferred
+    .map((id) => linksById.get(id))
+    .filter((link): link is ContentLink => Boolean(link));
+  const links = preferred.length > 0
+    ? preferred
+    : content.links.filter((link) => link.placements?.includes("contact"));
+
+  return (
+    <section className={styles.contactHero}>
+      <ChapterLabel index={1}>{content.contact.title}</ChapterLabel>
+      <h1>{content.contact.title}</h1>
+      <p className={styles.lede}>{content.contact.intro}</p>
+      <p>{content.contact.availability}</p>
+      {links.length > 0 ? (
+        <LinkList contentDebug={contentDebug} links={links} />
+      ) : (
+        <p>{content.presentation.ui.emptyStates.contactLinks}</p>
+      )}
+      <ul>{content.contact.notes.map((note) => <li key={note}>{note}</li>)}</ul>
+    </section>
+  );
+}
