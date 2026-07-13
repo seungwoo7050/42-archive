@@ -296,3 +296,31 @@ export function HomeView({ content, contentDebug }: DesignRouteProps) {
     </>
   );
 }
+
+export function ProjectsView({ content, contentDebug }: DesignRouteProps) {
+  const copy = content.presentation.pages.projects.cinematic.hero;
+  const homeCopy = content.presentation.home.cinematic;
+
+  return (
+    <>
+      <section className={styles.indexHero}>
+        <p>{copy.eyebrow} / {String(content.projects.length).padStart(2, "0")} {copy.entryLabel}</p>
+        <h1>{copy.title}</h1>
+        <p className={styles.indexSummary}>{copy.body}</p>
+      </section>
+      <section className={styles.chapters}>
+        {content.projects.map((project, index) => (
+          <ProjectChapter
+            actionLabel={homeCopy.caseStudyActionLabel}
+            contentDebug={contentDebug}
+            index={index + 1}
+            key={project.id}
+            openItemAriaTemplate={content.presentation.ui.openItemAriaTemplate}
+            priority={index === 0}
+            project={project}
+          />
+        ))}
+      </section>
+    </>
+  );
+}
