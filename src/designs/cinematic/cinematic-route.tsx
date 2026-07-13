@@ -1,8 +1,11 @@
+import Image from "next/image";
 import Link from "next/link";
+import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
   getTemplateHref,
   type ContentLink,
 } from "@/lib/portfolio";
+import type { DesignRouteProps } from "@/designs/types";
 import styles from "./cinematic.module.css";
 
 export function routeHref(href: string, contentDebug = false) {
@@ -78,6 +81,90 @@ export function LinkList({
         );
       })}
     </div>
+  );
+}
+
+export function Frame({
+  children,
+  content,
+  contentDebug,
+  currentPath,
+}: DesignRouteProps & { children: React.ReactNode }) {
+  const footerLinks = content.links.filter((link) =>
+    link.placements?.includes("footer"),
+  );
+  const ui = content.presentation.ui;
+
+  return (
+    <div className={styles.site} data-site-design="cinematic">
+      <a className={styles.skipLink} href="#cinematic-content">
+        {ui.skipLinkLabel}
+      </a>
+      <header className={styles.header}>
+        <Link className={styles.brand} href={routeHref("/", contentDebug)}>
+          <span>{content.site.brand}</span>
+          <small>{content.presentation.cinematic.shell.brandSubtitle}</small>
+        </Link>
+        <nav aria-label={ui.primaryNavigationAriaLabel} className={styles.desktopNav}>
+          {content.site.navigation.map((item) => (
+            <Link
+              aria-current={isCurrentNavigation(item.href, currentPath) ? "page" : undefined}
+              href={routeHref(item.href, contentDebug)}
+              key={item.href}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        <div className={styles.switcher}>
+          <DesignSwitcher
+            activeId="cinematic"
+            contentDebug={contentDebug}
+            currentPath={currentPath}
+            templates={content.presentation.templates}
+            ui={ui}
+          />
+        </div>
+        <details className={styles.mobileNav}>
+          <summary>{ui.menuLabel}</summary>
+          <nav aria-label={ui.mobileNavigationAriaLabel}>
+            {content.site.navigation.map((item) => (
+              <Link
+                aria-current={isCurrentNavigation(item.href, currentPath) ? "page" : undefined}
+                href={routeHref(item.href, contentDebug)}
+                key={`${item.href}-mobile`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </details>
+      </header>
+      <main id="cinematic-content">{children}</main>
+      <footer className={styles.footer}>
+        <p>{content.site.footer.note}</p>
+        {footerLinks.length > 0 ? (
+          <LinkList contentDebug={contentDebug} links={footerLinks} />
+        ) : null}
+        <p>{content.site.footer.copyright}</p>
+      </footer>
+    </div>
+  );
+}
+
+export function Media({
+  alt,
+  priority = false,
+  src,
+}: {
+  alt: string;
+  priority?: boolean;
+  src: string;
+}) {
+  return (
+    <figure className={styles.media}>
+      <Image alt={alt} fill priority={priority} sizes="(max-width: 900px) 100vw, 72vw" src={src} />
+    </figure>
   );
 }
 
