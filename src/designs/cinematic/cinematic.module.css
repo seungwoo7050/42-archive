@@ -63,3 +63,25 @@ a:hover .media img { filter: saturate(1); transform: scale(1.025); }
 .focusGrid p,.essayGrid p,.resumeGrid p { color: var(--muted); line-height: 1.7; }
 .indexHero,.textHero,.contactHero,.caseHero { min-height: 62vh; padding: 10vw 4vw 7vw; }
 .indexHero p { color: var(--amber); letter-spacing: .12em; text-transform: uppercase; }
+.indexHero .indexSummary { color: var(--muted); font-size: 1rem; letter-spacing: 0; line-height: 1.7; max-width: 42rem; text-transform: none; }
+.indexHero h1,.textHero h1,.contactHero h1,.caseHero h1 { font-size: clamp(3.6rem,9vw,10rem); font-weight: 500; letter-spacing: -.07em; line-height: .86; margin: 2rem 0; max-width: 10ch; }
+.textHero>p:last-child,.contactHero>p,.caseHero>.lede { color: var(--muted); font-size: clamp(1.15rem,2vw,1.8rem); line-height: 1.55; max-width: 42rem; }
+.caseStudy>.media { aspect-ratio: 21/9; }
+.caseBody { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); padding: 5vw 4vw; }
+.caseBody section { border: 1px solid rgba(217,210,196,.16); margin: -1px 0 0 -1px; min-height: 22rem; padding: 3rem; }
+.caseBody section>p,.caseBody li { color: var(--muted); line-height: 1.8; }
+.caseBody ul { padding-left: 1rem; }
+.stack { color: var(--paper) !important; }
+.gallery { display: grid; gap: 1px; grid-template-columns: repeat(2,1fr); }
+.essayGrid,.resumeGrid { display: grid; gap: 1px; grid-template-columns: repeat(2,1fr); padding: 0 4vw 8vw; }
+.essayGrid>div,.resumeGrid>div { border: 1px solid rgba(217,210,196,.16); margin: -1px 0 0 -1px; padding: 3rem; }
+.essayGrid article,.resumeGrid article { border-top: 1px solid rgba(217,210,196,.16); margin-top: 1.5rem; padding-top: 1.5rem; }
+.resumeGrid a { align-items: center; border-bottom: 1px solid var(--amber); display: flex; font-size: .72rem; justify-content: space-between; letter-spacing: .08em; margin-top: 1.25rem; min-height: 2.75rem; text-decoration: none; text-transform: uppercase; }
+.resumeGrid ul { color: var(--muted); line-height: 1.8; padding-left: 1rem; }
+.identityList { display: flex; flex-wrap: wrap; gap: 1.5rem 3rem; margin: 2.5rem 0; }
+.identityList div { border-left: 1px solid var(--amber); padding-left: 1rem; }
+.identityList dt { color: var(--muted); font-size: .65rem; letter-spacing: .12em; text-transform: uppercase; }
+.identityList dd { margin: .45rem 0 0; }
+.aboutIdentity { display: grid; gap: 2rem; grid-template-columns: minmax(16rem,.7fr) minmax(18rem,1.3fr); margin-top: 4rem; max-width: 68rem; }
+.aboutIdentity>.media { align-self: start; }
+.profileFacts { align-content: start; display: grid; list-style: none; margin: 0; padding: 0; }
