@@ -42,3 +42,24 @@
 .heroMedia { min-height: 45rem; min-width: 0; position: relative; }
 .heroMedia>.media { height: 100%; min-height: 45rem; width: 100%; }
 .heroMedia>p { background: rgba(10,11,14,.85); bottom: 1.5rem; font-size: .67rem; left: 1.5rem; letter-spacing: .1em; padding: .75rem 1rem; position: absolute; text-transform: uppercase; }
+.media { aspect-ratio: 16/10; background: #17191e; margin: 0; overflow: hidden; position: relative; }
+.media img { filter: saturate(.74) contrast(1.04); object-fit: cover; transition: filter .7s ease, transform 1.2s cubic-bezier(.2,.8,.2,1); }
+a:hover .media img { filter: saturate(1); transform: scale(1.025); }
+.statement { align-items: start; border-bottom: 1px solid rgba(217,210,196,.16); border-top: 1px solid rgba(217,210,196,.16); display: grid; gap: 4rem; grid-template-columns: 16rem 1fr; padding: 10vw 4vw; }
+.statement>p { font-size: clamp(2rem,5vw,5.8rem); letter-spacing: -.055em; line-height: .98; margin: 0; max-width: 19ch; }
+.chapterLabel { align-items: center; display: flex; gap: .7rem; margin: 0; }
+.chapterLabel span { color: var(--amber); font-family: var(--font-geist-mono),monospace; }
+.chapters { display: grid; }
+.projectChapter { border-bottom: 1px solid rgba(217,210,196,.16); display: grid; gap: 5vw; grid-template-columns: minmax(18rem,.7fr) minmax(0,1.3fr); min-height: 80vh; padding: 6vw 4vw; }
+.stickyCopy { align-self: start; padding-top: 2rem; position: sticky; top: 8rem; }
+.stickyCopy h2 { font-size: clamp(2.8rem,5.8vw,6.5rem); font-weight: 500; letter-spacing: -.06em; line-height: .9; margin: 2rem 0; max-width: 9ch; }
+.stickyCopy>p { color: var(--muted); line-height: 1.75; max-width: 34rem; }
+.projectChapter>a:last-child { align-self: center; }
+.dualPanel { display: grid; gap: 8vw; grid-template-columns: 1.35fr .65fr; padding: 10vw 4vw; }
+.dualPanel h2,.essayGrid h2,.resumeGrid h2 { font-size: clamp(2rem,4vw,4.5rem); font-weight: 500; letter-spacing: -.05em; margin: 2rem 0 3rem; }
+.focusGrid { display: grid; gap: 1px; grid-template-columns: repeat(2,1fr); background: rgba(217,210,196,.16); }
+.focusGrid article { background: var(--ink); padding: 2rem; }
+.focusGrid h3,.essayGrid h3,.resumeGrid h3 { font-size: 1rem; letter-spacing: .04em; }
+.focusGrid p,.essayGrid p,.resumeGrid p { color: var(--muted); line-height: 1.7; }
+.indexHero,.textHero,.contactHero,.caseHero { min-height: 62vh; padding: 10vw 4vw 7vw; }
+.indexHero p { color: var(--amber); letter-spacing: .12em; text-transform: uppercase; }
