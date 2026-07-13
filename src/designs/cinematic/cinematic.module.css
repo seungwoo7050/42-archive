@@ -109,3 +109,24 @@ a:hover .media img { filter: saturate(1); transform: scale(1.025); }
 .timeline { list-style: none; margin: 0; padding: 0; }
 .timeline li { border-top: 1px solid rgba(217,210,196,.16); display: grid; gap: 3rem; grid-template-columns: 5rem 1fr; padding: 4rem 0; }
 .timeline li>span { color: var(--amber); font-family: var(--font-geist-mono),monospace; }
+.timeline h2 { font-size: clamp(2rem,4vw,4rem); font-weight: 500; letter-spacing: -.05em; margin: 1rem 0; }
+.timeline p { color: var(--muted); line-height: 1.7; }
+.milestoneFacts { display: grid; gap: 1rem; grid-template-columns: repeat(3,minmax(0,1fr)); margin: 2rem 0 0; }
+.milestoneFacts div { border-top: 1px solid rgba(217,210,196,.16); padding-top: 1rem; }
+.milestoneFacts dt { color: var(--amber); font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; }
+.milestoneFacts dd { color: var(--muted); line-height: 1.65; margin: .7rem 0 0; }
+.archiveTimeline { list-style: none; margin: 0; padding: 0; }
+.archiveTimeline li { border-top: 1px solid rgba(217,210,196,.16); display: grid; gap: 3rem; grid-template-columns: 5rem 1fr; padding: 2.5rem 0; }
+.archiveTimeline li>span { color: var(--amber); font-family: var(--font-geist-mono),monospace; }
+.archiveTimeline time,.archiveTimeline div>p:first-of-type { color: var(--muted); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
+.archiveTimeline h3 { font-size: clamp(1.5rem,3vw,2.8rem); font-weight: 500; margin: 1rem 0; }
+.archiveTimeline div>p:last-of-type { color: var(--muted); line-height: 1.7; max-width: 52rem; }
+.archiveTimeline a { align-items: center; border-bottom: 1px solid var(--amber); display: inline-flex; font-size: .7rem; letter-spacing: .08em; margin-top: 1rem; min-height: 2.75rem; text-decoration: none; text-transform: uppercase; }
+.currentChapter { background: #111318; border-top: 1px solid rgba(217,210,196,.16); display: grid; gap: 2rem; grid-template-columns: minmax(10rem,.3fr) minmax(16rem,.7fr) minmax(18rem,1fr); padding: 8vw 4vw; }
+.trackGrid { display: grid; gap: 1px; grid-template-columns: repeat(2,1fr); padding: 0 4vw 8vw; }
+.trackGrid>article { border: 1px solid rgba(217,210,196,.16); margin: -1px 0 0 -1px; padding: 3rem; }
+.trackGrid article>div { border-top: 1px solid rgba(217,210,196,.16); margin-top: 2rem; padding-top: 1.5rem; }
+.trackGrid p { color: var(--muted); line-height: 1.65; }
+.answerList { display: grid; gap: 1rem; }
+.answerList article { border-left: 1px solid var(--amber); border-top: 0 !important; margin-top: 0 !important; padding: 0 0 0 1rem !important; }
+.answerList article>span { color: var(--amber); display: block; font-size: .62rem; letter-spacing: .1em; margin-bottom: .5rem; text-transform: uppercase; }
