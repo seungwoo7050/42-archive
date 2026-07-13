@@ -22,6 +22,10 @@ export const SITE_DESIGNS: SiteDesignDefinition[] = [
     id: "brutalist",
     swatch: ["#f4f0e8", "#2e5bff", "#e6ff3f"],
   },
+  {
+    id: "cinematic",
+    swatch: ["#0a0b0e", "#d9d2c4", "#c98a4a"],
+  },
 ];
 
 export const SITE_DESIGN_IDS = SITE_DESIGNS.map((design) => design.id);

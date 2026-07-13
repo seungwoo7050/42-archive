@@ -9,6 +9,7 @@ type DesignModule = {
 const routeLoaders: Partial<Record<SiteDesignId, () => Promise<DesignModule>>> = {
   editorial: () => import("./editorial"),
   brutalist: () => import("./brutalist"),
+  cinematic: () => import("./cinematic"),
 };
 
 export function hasDedicatedRouteRenderer(

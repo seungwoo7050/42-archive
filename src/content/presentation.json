@@ -20,6 +20,11 @@
       "id": "brutalist",
       "label": "Brutalist",
       "description": "An oversized modular grid with hard, expressive contrast."
+    },
+    {
+      "id": "cinematic",
+      "label": "Cinematic",
+      "description": "A quiet image-led archive arranged as visual chapters."
     }
   ],
   "ui": {
