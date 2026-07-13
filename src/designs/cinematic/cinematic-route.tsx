@@ -4,6 +4,7 @@ import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
   getTemplateHref,
   type ContentLink,
+  type PortfolioProject,
 } from "@/lib/portfolio";
 import type { DesignRouteProps } from "@/designs/types";
 import styles from "./cinematic.module.css";
@@ -174,5 +175,40 @@ export function ChapterLabel({ children, index }: { children: React.ReactNode; i
       <span>{String(index).padStart(2, "0")}</span>
       {children}
     </p>
+  );
+}
+
+export function ProjectChapter({
+  actionLabel,
+  index,
+  openItemAriaTemplate,
+  priority,
+  project,
+  contentDebug,
+}: {
+  actionLabel: string;
+  contentDebug: boolean;
+  index: number;
+  openItemAriaTemplate: string;
+  priority?: boolean;
+  project: PortfolioProject;
+}) {
+  return (
+    <article className={styles.projectChapter}>
+      <div className={styles.stickyCopy}>
+        <ChapterLabel index={index}>{project.category}</ChapterLabel>
+        <h2>{project.title}</h2>
+        <p>{project.summary}</p>
+        <Link className={styles.textLink} href={routeHref(`/projects/${project.id}`, contentDebug)}>
+          {actionLabel} <span aria-hidden="true">→</span>
+        </Link>
+      </div>
+      <Link
+        aria-label={openItemAriaTemplate.replace("{title}", project.title)}
+        href={routeHref(`/projects/${project.id}`, contentDebug)}
+      >
+        <Media alt={project.screenshot.alt} priority={priority} src={project.screenshot.src} />
+      </Link>
+    </article>
   );
 }
