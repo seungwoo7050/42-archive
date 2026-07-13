@@ -644,3 +644,90 @@ export function ContactView({ content, contentDebug }: DesignRouteProps) {
     </section>
   );
 }
+
+
+export function JourneyView({ content, contentDebug }: DesignRouteProps) {
+  const copy = content.presentation.pages.journey;
+  const narrative = content.journeyNarrative;
+
+  return (
+    <>
+      <section className={styles.textHero}>
+        <ChapterLabel index={1}>{copy.hero.eyebrow}</ChapterLabel>
+        <h1>{copy.hero.title}</h1>
+        <p>{narrative.intro}</p>
+      </section>
+      <section className={styles.contentSection}>
+        <div className={styles.sectionHeading}>
+          <ChapterLabel index={2}>{copy.narrative.title}</ChapterLabel>
+          <h2>{copy.narrative.title}</h2>
+          <p>{copy.narrative.body}</p>
+        </div>
+      <ol className={styles.timeline}>
+        {narrative.milestones.map((milestone, index) => {
+          const projects = milestone.anchorProjectIds
+            .map((projectId) => content.projects.find((project) => project.id === projectId))
+            .filter((project): project is PortfolioProject => Boolean(project));
+
+          return (
+          <li key={milestone.id}>
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <div>
+              <p>{milestone.date}</p>
+              <h2>{milestone.title}</h2>
+              <dl className={styles.milestoneFacts}>
+                <div><dt>{copy.narrative.labels.state}</dt><dd>{milestone.state}</dd></div>
+                <div><dt>{copy.narrative.labels.reason}</dt><dd>{milestone.reason}</dd></div>
+                <div><dt>{copy.narrative.labels.result}</dt><dd>{milestone.result}</dd></div>
+              </dl>
+              {projects.length > 0 ? (
+                <div className={styles.evidenceLinks}>
+                  {projects.map((project) => (
+                    <Link
+                      href={routeHref(`/projects/${project.id}`, contentDebug)}
+                      key={project.id}
+                    >
+                      {copy.now.anchorLabel}: {project.title} <span aria-hidden="true">↗</span>
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </li>
+          );
+        })}
+      </ol>
+      </section>
+      <section className={styles.contentSection}>
+        <div className={styles.sectionHeading}>
+          <ChapterLabel index={3}>{copy.timeline.title}</ChapterLabel>
+          <h2>{copy.timeline.title}</h2>
+          <p>{copy.timeline.body}</p>
+        </div>
+        <ol className={styles.archiveTimeline}>
+          {content.journey.map((item, index) => (
+            <li key={`${item.date}-${item.title}`}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <time>{item.endDate ? `${item.date} — ${item.endDate}` : item.date}</time>
+                <p>{item.category}</p>
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+                {item.projectId ? (
+                  <Link href={routeHref(`/projects/${item.projectId}`, contentDebug)}>
+                    {copy.now.anchorLabel} <span aria-hidden="true">↗</span>
+                  </Link>
+                ) : null}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+      <section className={styles.currentChapter}>
+        <ChapterLabel index={4}>{copy.now.title}</ChapterLabel>
+        <h2>{narrative.currentPosition.title}</h2>
+        <p>{narrative.currentPosition.body}</p>
+      </section>
+    </>
+  );
+}
