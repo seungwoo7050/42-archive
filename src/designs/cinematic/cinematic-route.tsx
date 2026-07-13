@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Fragment } from "react";
 import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
   getTemplateHref,
@@ -210,5 +211,88 @@ export function ProjectChapter({
         <Media alt={project.screenshot.alt} priority={priority} src={project.screenshot.src} />
       </Link>
     </article>
+  );
+}
+
+export function HomeView({ content, contentDebug }: DesignRouteProps) {
+  const featured = content.projects.filter((project) => project.featured);
+  const lead = featured[0] ?? content.projects[0];
+  const copy = content.presentation.home.cinematic;
+  const ui = content.presentation.ui;
+  const sectionNodes: Record<(typeof copy.sections)[number], React.ReactNode> = {
+    hero: (
+      <section className={styles.hero}>
+        <div className={styles.heroCopy}>
+          <p className={styles.kicker}>{content.profile.name} · {content.profile.location}</p>
+          <h1>{content.profile.role}</h1>
+          <p className={styles.lede}>{content.profile.headline}</p>
+          <p className={styles.summary}>{content.profile.summary}</p>
+          <div className={styles.heroActions}>
+            <Link href={routeHref("/projects", contentDebug)}>{copy.hero.primaryActionLabel}</Link>
+            <Link href={routeHref("/contact", contentDebug)}>{copy.hero.secondaryActionLabel}</Link>
+          </div>
+        </div>
+        {lead ? (
+          <div className={styles.heroMedia}>
+            <Media alt={lead.screenshot.alt} priority src={lead.screenshot.src} />
+            <p>{lead.title} · {lead.period}</p>
+          </div>
+        ) : null}
+      </section>
+    ),
+    statement: (
+      <section className={styles.statement}>
+        <ChapterLabel index={1}>{copy.statementLabel}</ChapterLabel>
+        <p>{content.presentation.home.shared.technicalFocus.body}</p>
+      </section>
+    ),
+    projects: (
+      <section className={styles.chapters}>
+        {(featured.length > 0 ? featured : content.projects.slice(0, 4)).map(
+          (project, index) => (
+            <ProjectChapter
+              actionLabel={copy.caseStudyActionLabel}
+              contentDebug={contentDebug}
+              index={index + 2}
+              key={project.id}
+              openItemAriaTemplate={ui.openItemAriaTemplate}
+              project={project}
+            />
+          ),
+        )}
+      </section>
+    ),
+    focusContact: (
+      <section className={styles.dualPanel}>
+        <div>
+          <ChapterLabel index={featured.length + 2}>{copy.focusLabel}</ChapterLabel>
+          <h2>{content.presentation.home.shared.technicalFocus.title}</h2>
+          <div className={styles.focusGrid}>
+            {content.skills.focusAreas.map((area) => (
+              <article key={area.title}>
+                <h3>{area.title}</h3>
+                <p>{area.body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+        <div>
+          <ChapterLabel index={featured.length + 3}>{ui.nowLabel}</ChapterLabel>
+          <h2>{content.contact.title}</h2>
+          <p>{content.contact.availability}</p>
+          <Link className={styles.textLink} href={routeHref("/contact", contentDebug)}>
+            {copy.contactActionLabel} <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+      </section>
+    ),
+  };
+
+  return (
+    <>
+      {copy.sections.map((sectionId) => (
+        <Fragment key={sectionId}>{sectionNodes[sectionId]}</Fragment>
+      ))}
+    </>
   );
 }
