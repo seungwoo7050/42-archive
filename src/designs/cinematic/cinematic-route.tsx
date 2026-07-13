@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
+  getProjectDetailLinks,
   getTemplateHref,
   type ContentLink,
   type PortfolioProject,
@@ -341,6 +342,17 @@ export function ProjectDetailView({ content, contentDebug, project }: DesignRout
     );
   }
 
+  const detailSections = [
+    { label: copy.sections.problem.title, body: project.problem },
+    { label: copy.sections.solution.title, body: project.solution },
+    { label: copy.sections.architecture.title, body: project.architecture.summary },
+  ].filter((section) => section.body);
+  const stackById = new Map(content.techStack.map((item) => [item.id, item]));
+  const detailLinks = getProjectDetailLinks(project);
+  const supportingImages = project.screenshots.filter(
+    (image) => image.src !== project.screenshot.src,
+  );
+
   return (
     <article className={styles.caseStudy}>
       <header className={styles.caseHero}>
@@ -361,6 +373,63 @@ export function ProjectDetailView({ content, contentDebug, project }: DesignRout
         </dl>
       </header>
       <Media alt={project.screenshot.alt} priority src={project.screenshot.src} />
+      <div className={styles.caseBody}>
+        {detailSections.map((section, index) => (
+          <section key={section.label}>
+            <ChapterLabel index={index + 1}>{section.label}</ChapterLabel>
+            <p>{section.body}</p>
+          </section>
+        ))}
+        {project.architecture?.items?.length ? (
+          <section>
+            <ChapterLabel index={4}>{copy.sections.architecture.eyebrow}</ChapterLabel>
+            <ul>{project.architecture.items.map((item) => <li key={item}>{item}</li>)}</ul>
+          </section>
+        ) : null}
+        {project.decisions.length ? (
+          <section>
+            <ChapterLabel index={5}>{copy.sections.decisions.title}</ChapterLabel>
+            <ul>{project.decisions.map((item) => <li key={item}>{item}</li>)}</ul>
+          </section>
+        ) : null}
+        {project.highlights.length ? (
+          <section>
+            <ChapterLabel index={6}>{copy.sections.highlights.title}</ChapterLabel>
+            <ul>{project.highlights.map((item) => <li key={item}>{item}</li>)}</ul>
+          </section>
+        ) : null}
+        {project.tradeoffs.length ? (
+          <section>
+            <ChapterLabel index={7}>{copy.sections.tradeoffs.title}</ChapterLabel>
+            <ul>{project.tradeoffs.map((item) => <li key={item}>{item}</li>)}</ul>
+          </section>
+        ) : null}
+        {project.results.length ? (
+          <section>
+            <ChapterLabel index={8}>{copy.sections.result.title}</ChapterLabel>
+            <ul>{project.results.map((item) => <li key={item}>{item}</li>)}</ul>
+          </section>
+        ) : null}
+        <section>
+          <ChapterLabel index={9}>{copy.sections.stack.title}</ChapterLabel>
+          <p className={styles.stack}>
+            {project.stack
+              .map((stackId) => stackById.get(stackId)?.label ?? stackId)
+              .join(" · ")}
+          </p>
+          <LinkList
+            contentDebug={contentDebug}
+            links={detailLinks}
+          />
+        </section>
+      </div>
+      {supportingImages.length > 0 ? (
+        <div className={styles.gallery}>
+          {supportingImages.map((image) => (
+            <Media alt={image.alt} key={image.src} src={image.src} />
+          ))}
+        </div>
+      ) : null}
     </article>
   );
 }
