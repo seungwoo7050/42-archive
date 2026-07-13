@@ -324,3 +324,43 @@ export function ProjectsView({ content, contentDebug }: DesignRouteProps) {
     </>
   );
 }
+
+export function ProjectDetailView({ content, contentDebug, project }: DesignRouteProps) {
+  const copy = content.presentation.pages.projectDetail;
+
+  if (!project) {
+    return (
+      <section className={styles.contactHero}>
+        <ChapterLabel index={1}>{copy.missing.eyebrow}</ChapterLabel>
+        <h1>{copy.missing.title}</h1>
+        <p>{copy.missing.body}</p>
+        <Link className={styles.textLink} href={routeHref("/projects", contentDebug)}>
+          {copy.missing.actionLabel} <span aria-hidden="true">→</span>
+        </Link>
+      </section>
+    );
+  }
+
+  return (
+    <article className={styles.caseStudy}>
+      <header className={styles.caseHero}>
+        <Link href={routeHref("/projects", contentDebug)}>← {copy.backLabel}</Link>
+        <p>{project.category} · {project.period}</p>
+        <h1>{project.title}</h1>
+        <p className={styles.lede}>{project.summary}</p>
+        <p>{project.description}</p>
+        <dl className={styles.identityList}>
+          <div>
+            <dt>{copy.facts.roleLabel}</dt>
+            <dd>{project.role}</dd>
+          </div>
+          <div>
+            <dt>{copy.facts.statusLabel}</dt>
+            <dd>{project.deployment.label}</dd>
+          </div>
+        </dl>
+      </header>
+      <Media alt={project.screenshot.alt} priority src={project.screenshot.src} />
+    </article>
+  );
+}
