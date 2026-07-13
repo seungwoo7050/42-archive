@@ -731,3 +731,89 @@ export function JourneyView({ content, contentDebug }: DesignRouteProps) {
     </>
   );
 }
+
+
+export function InterviewMapView({ content, contentDebug }: DesignRouteProps) {
+  const copy = content.presentation.pages.interviewMap;
+  const data = content.interviewMap;
+  const projectsById = new Map(content.projects.map((project) => [project.id, project]));
+
+  return (
+    <>
+      <section className={styles.textHero}>
+        <ChapterLabel index={1}>{copy.hero.title}</ChapterLabel>
+        <h1>{copy.hero.title}</h1>
+        <p className={styles.lede}>{data.intro}</p>
+        <CinematicLink
+          className={styles.textLink}
+          contentDebug={contentDebug}
+          external
+          href={data.referenceRepo.href}
+        >
+          {data.referenceRepo.label} <span aria-hidden="true">↗</span>
+        </CinematicLink>
+      </section>
+      <section className={styles.contentSection}>
+        <div className={styles.sectionHeading}>
+          <ChapterLabel index={2}>{copy.tracks.indexLabel}</ChapterLabel>
+          <h2>{copy.tracks.title}</h2>
+        </div>
+      </section>
+      <section className={styles.trackGrid}>
+        {data.tracks.map((track, trackIndex) => (
+          <article key={track.id}>
+            <ChapterLabel index={trackIndex + 3}>{track.label}</ChapterLabel>
+            <p>{track.body}</p>
+            {track.items.map((item) => (
+              <div key={item.label}>
+                <h3>{item.label}</h3>
+                <CinematicLink
+                  className={styles.referenceLink}
+                  contentDebug={contentDebug}
+                  href={item.reference}
+                >
+                  {copy.tracks.referenceLabel} <span aria-hidden="true">↗</span>
+                </CinematicLink>
+                {item.answers.length > 0 ? (
+                  <div className={styles.answerList}>
+                    {item.answers.map((answer) => {
+                      const project = projectsById.get(answer.projectId);
+
+                      return (
+                        <article key={`${item.label}-${answer.projectId}`}>
+                          <span>{copy.tracks.answerLabel}</span>
+                          {project ? (
+                            <Link href={routeHref(`/projects/${project.id}`, contentDebug)}>
+                              {project.title} <span aria-hidden="true">↗</span>
+                            </Link>
+                          ) : (
+                            <p>{content.presentation.ui.emptyStates.noMappedEvidence}</p>
+                          )}
+                          <p><strong>{copy.tracks.depthLabel}</strong> {answer.depth}</p>
+                        </article>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p>{copy.tracks.emptyLabel}</p>
+                )}
+              </div>
+            ))}
+          </article>
+        ))}
+      </section>
+      <section className={styles.gapsSection} aria-label={copy.gaps.ariaLabel}>
+        <div className={styles.sectionHeading}>
+          <ChapterLabel index={data.tracks.length + 3}>{copy.gaps.eyebrow}</ChapterLabel>
+          <h2>{data.gaps.title}</h2>
+          <p>{data.gaps.body}</p>
+        </div>
+        {data.gaps.items.length > 0 ? (
+          <ul>{data.gaps.items.map((item) => <li key={item}>{item}</li>)}</ul>
+        ) : (
+          <p>{content.presentation.ui.emptyStates.additionalNotes}</p>
+        )}
+      </section>
+    </>
+  );
+}
