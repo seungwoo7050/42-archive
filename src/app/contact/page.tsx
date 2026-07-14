@@ -8,10 +8,9 @@ import {
   getPortfolioContent,
   isSitePageEnabled,
   getPreferredContactLinks,
-  resolveContentDebug,
-  resolveHomeTemplateId,
   type RouteSearchParams,
 } from "@/lib/portfolio";
+import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
 
 export default async function ContactPage({
   searchParams,
@@ -20,9 +19,12 @@ export default async function ContactPage({
 }) {
   const content = getPortfolioContent();
   if (!isSitePageEnabled("contact", content)) notFound();
-  const params = searchParams ? await searchParams : {};
-  const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
-  const contentDebug = resolveContentDebug(params.debug);
+  const { activeTemplate, contentDebug, shellProps } =
+    await resolvePortfolioPageContext({
+      content,
+      currentPath: "/contact",
+      searchParams,
+    });
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
@@ -37,19 +39,7 @@ export default async function ContactPage({
   const preferredLinks = getPreferredContactLinks(content);
 
   return (
-    <PageShell
-      contentDebug={contentDebug}
-      homeTemplate={activeTemplate}
-      profile={content.profile}
-      site={content.site}
-      ui={content.presentation.ui}
-      templateSwitcher={{
-        activeId: activeTemplate,
-        contentDebug,
-        currentPath: "/contact",
-        templates: content.presentation.templates,
-      }}
-    >
+    <PageShell {...shellProps}>
       <section className="border-b border-line">
         <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
           <ContentHint

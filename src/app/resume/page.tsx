@@ -10,10 +10,9 @@ import {
   getResumeProjects,
   getTemplateHref,
   isSitePageEnabled,
-  resolveContentDebug,
-  resolveHomeTemplateId,
   type RouteSearchParams,
 } from "@/lib/portfolio";
+import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
 
 export default async function ResumePage({
   searchParams,
@@ -22,9 +21,12 @@ export default async function ResumePage({
 }) {
   const content = getPortfolioContent();
   if (!isSitePageEnabled("resume", content)) notFound();
-  const params = searchParams ? await searchParams : {};
-  const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
-  const contentDebug = resolveContentDebug(params.debug);
+  const { activeTemplate, contentDebug, shellProps } =
+    await resolvePortfolioPageContext({
+      content,
+      currentPath: "/resume",
+      searchParams,
+    });
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
@@ -39,19 +41,7 @@ export default async function ResumePage({
   const resumeProjects = getResumeProjects(content);
 
   return (
-    <PageShell
-      contentDebug={contentDebug}
-      homeTemplate={activeTemplate}
-      profile={content.profile}
-      site={content.site}
-      ui={content.presentation.ui}
-      templateSwitcher={{
-        activeId: activeTemplate,
-        contentDebug,
-        currentPath: "/resume",
-        templates: content.presentation.templates,
-      }}
-    >
+    <PageShell {...shellProps}>
       <section className="border-b border-line">
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-20 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
