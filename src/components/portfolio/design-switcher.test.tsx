@@ -1,5 +1,8 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { act } from "react";
+import { hydrateRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { getPortfolioContent } from "@/lib/portfolio";
 
@@ -8,6 +11,53 @@ import { DesignSwitcher } from "./design-switcher";
 afterEach(() => cleanup());
 
 describe("DesignSwitcher", () => {
+  it("tolerates native open state changed before hydration", async () => {
+    const content = getPortfolioContent();
+    const switcher = (
+      <DesignSwitcher
+        activeId="editorial"
+        contentDebug
+        currentPath="/projects"
+        templates={content.presentation.templates}
+        ui={content.presentation.ui}
+      />
+    );
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(switcher);
+    document.body.append(container);
+
+    const details = container.querySelector("details");
+    if (!details) {
+      throw new Error("DesignSwitcher must render a details element.");
+    }
+
+    details.open = true;
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    let root: ReturnType<typeof hydrateRoot> | undefined;
+
+    try {
+      await act(async () => {
+        root = hydrateRoot(container, switcher);
+        await Promise.resolve();
+      });
+
+      const hydrationErrors = consoleError.mock.calls
+        .flatMap((call) => call.map(String))
+        .filter((message) =>
+          /hydration|server rendered HTML|did not match/i.test(message),
+        );
+
+      expect(details).toHaveAttribute("open");
+      expect(hydrationErrors).toEqual([]);
+    } finally {
+      if (root) {
+        await act(async () => root?.unmount());
+      }
+      consoleError.mockRestore();
+      container.remove();
+    }
+  });
+
   it("renders selector copy from content and clears native open state", () => {
     const content = getPortfolioContent();
     const ui = {
