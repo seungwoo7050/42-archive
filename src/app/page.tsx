@@ -1,22 +1,19 @@
 import { ClassicHomeRoute } from "@/designs/classic/home-route";
 import { DesignHomeRoute } from "@/designs/design/home-route";
 import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
-import {
-  getPortfolioContent,
-  resolveContentDebug,
-  resolveHomeTemplateId,
-  type RouteSearchParams,
-} from "@/lib/portfolio";
+import { type RouteSearchParams } from "@/lib/portfolio";
+import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
 
 type HomePageProps = {
   searchParams?: RouteSearchParams;
 };
 
 export default async function Home({ searchParams }: HomePageProps) {
-  const content = getPortfolioContent();
-  const params = searchParams ? await searchParams : {};
-  const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
-  const contentDebug = resolveContentDebug(params.debug);
+  const { activeTemplate, content, contentDebug } =
+    await resolvePortfolioPageContext({
+      currentPath: "/",
+      searchParams,
+    });
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
