@@ -7,10 +7,9 @@ import {
   getPortfolioContent,
   isSitePageEnabled,
   getProjectMetricValue,
-  resolveContentDebug,
-  resolveHomeTemplateId,
   type RouteSearchParams,
 } from "@/lib/portfolio";
+import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
 import { groupProjects } from "@/lib/portfolio/project-groups";
 
 export default async function ProjectsPage({
@@ -20,9 +19,12 @@ export default async function ProjectsPage({
 }) {
   const content = getPortfolioContent();
   if (!isSitePageEnabled("projects", content)) notFound();
-  const params = searchParams ? await searchParams : {};
-  const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
-  const contentDebug = resolveContentDebug(params.debug);
+  const { activeTemplate, contentDebug, shellProps } =
+    await resolvePortfolioPageContext({
+      content,
+      currentPath: "/projects",
+      searchParams,
+    });
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
@@ -38,20 +40,6 @@ export default async function ProjectsPage({
   const groupedProjects = groupProjects(trackProjects, pageCopy.groups);
   const sourceOnlyCount = getProjectMetricValue("sourceOnlyCount", content);
   const curriculumCount = getProjectMetricValue("curriculumCount", content);
-  const shellProps = {
-    contentDebug,
-    homeTemplate: activeTemplate,
-    profile: content.profile,
-    site: content.site,
-    ui: content.presentation.ui,
-    templateSwitcher: {
-      activeId: activeTemplate,
-      contentDebug,
-      currentPath: "/projects",
-      templates: content.presentation.templates,
-    },
-  };
-
   if (activeTemplate === "classic") {
     return (
       <PageShell {...shellProps}>

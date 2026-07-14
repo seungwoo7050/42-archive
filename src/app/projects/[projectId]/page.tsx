@@ -6,10 +6,9 @@ import {
   getPortfolioContent,
   isSitePageEnabled,
   getProjectById,
-  resolveContentDebug,
-  resolveHomeTemplateId,
   type RouteSearchParams,
 } from "@/lib/portfolio";
+import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
 
 export function generateStaticParams() {
   return getPortfolioContent().projects.map((project) => ({
@@ -27,9 +26,12 @@ export default async function ProjectDetailPage({
   const content = getPortfolioContent();
   if (!isSitePageEnabled("projects", content)) notFound();
   const { projectId } = await params;
-  const query = searchParams ? await searchParams : {};
-  const activeTemplate = resolveHomeTemplateId(query.view, content.presentation);
-  const contentDebug = resolveContentDebug(query.debug);
+  const { activeTemplate, contentDebug, shellProps } =
+    await resolvePortfolioPageContext({
+      content,
+      currentPath: `/projects/${projectId}`,
+      searchParams,
+    });
   const project = getProjectById(projectId, content);
 
   if (!project) {
@@ -47,19 +49,7 @@ export default async function ProjectDetailPage({
   }
 
   return (
-    <PageShell
-      contentDebug={contentDebug}
-      homeTemplate={activeTemplate}
-      profile={content.profile}
-      site={content.site}
-      ui={content.presentation.ui}
-      templateSwitcher={{
-        activeId: activeTemplate,
-        contentDebug,
-        currentPath: `/projects/${project.id}`,
-        templates: content.presentation.templates,
-      }}
-    >
+    <PageShell {...shellProps}>
       <ProjectDetailView
         contentDebug={contentDebug}
         homeTemplate={activeTemplate}
