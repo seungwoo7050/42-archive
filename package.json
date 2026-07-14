@@ -12,12 +12,14 @@
     "prebuild": "npm run content:check",
     "build": "next build",
     "start": "next start -p 3100",
+    "start:e2e": "next start -p 3200",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "content:check": "node --import tsx scripts/validate-content.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:production": "npm run build && playwright test --config=playwright.production.config.ts"
   },
   "dependencies": {
     "next": "16.2.4",
