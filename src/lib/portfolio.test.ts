@@ -9,6 +9,7 @@ import siteJson from "@/content/site.json";
 import { SITE_DESIGN_IDS } from "@/designs/config";
 import { describe, expect, it } from "vitest";
 
+import * as portfolio from "./portfolio";
 import { validatePortfolioAssets } from "./content-assets";
 import { loadPortfolioSource, PortfolioContentError } from "./content-loader";
 import {
@@ -65,6 +66,45 @@ function captureContentError(run: () => unknown) {
 }
 
 describe("portfolio content", () => {
+  it("preserves the public module surface and clone boundaries", () => {
+    expect(Object.keys(portfolio).sort()).toEqual(
+      [
+        "getContentLinksByPlacement",
+        "getEnabledLinks",
+        "getExternalLinkProps",
+        "getFeaturedProjects",
+        "getPortfolioContent",
+        "getPreferredContactLinks",
+        "getProjectById",
+        "getProjectCardLinks",
+        "getProjectDetailLinks",
+        "getProjectLink",
+        "getProjectLinksForPlacement",
+        "getProjectMetricValue",
+        "getResumeProjects",
+        "getTemplateHref",
+        "isProjectLive",
+        "isSitePageEnabled",
+        "resolveContentDebug",
+        "resolveHomeTemplateId",
+        "resolveTechStackItem",
+      ].sort(),
+    );
+
+    const first = getPortfolioContent();
+    const second = getPortfolioContent();
+
+    expect(first).not.toBe(second);
+    expect(first.projects).not.toBe(second.projects);
+    expect(first.projects[0]).not.toBe(second.projects[0]);
+    expect(first.projects[0].links).not.toBe(second.projects[0].links);
+    expect(first.links).not.toBe(second.links);
+    expect(first.site).toBe(second.site);
+    expect(first.profile).toBe(second.profile);
+    expect(first.presentation).toBe(second.presentation);
+    expect(first.journey).toBe(second.journey);
+  });
+
   it("loads and derives the reusable projects content model", () => {
     const source = validatePortfolioAssets(
       loadPortfolioSource(),
