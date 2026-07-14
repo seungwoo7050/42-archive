@@ -17,64 +17,15 @@ function isVisibleProjectLink(project: PortfolioProject, link: ContentLink) {
   return true;
 }
 
-export function ProjectLinks({
-  contentDebug,
-  excludeCaseStudy = false,
-  homeTemplate,
-  project,
-}: {
-  contentDebug?: boolean;
-  excludeCaseStudy?: boolean;
-  homeTemplate?: HomeTemplateId;
-  project: PortfolioProject;
-}) {
-  const links = getProjectDetailLinks(project).filter(
-    (link) =>
-      (!excludeCaseStudy || link.type !== "case-study") &&
-      isVisibleProjectLink(project, link),
-  );
-
-  if (!links.length) {
-    return null;
-  }
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {links.map((link) => {
-        const primary = link.type === "demo";
-
-        return (
-          <ContentLinkView
-            className={`inline-flex min-h-11 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background ${
-              primary
-                ? "border-accent bg-accent text-background hover:bg-accent-strong"
-                : "border-line bg-surface text-muted hover:border-accent hover:text-foreground"
-            }`}
-            contentDebug={contentDebug}
-            key={`${link.type}-${link.href}`}
-            homeTemplate={homeTemplate}
-            link={link}
-          >
-            {link.label}
-            {link.external ? <ExternalLinkIcon /> : <ArrowUpRightIcon />}
-          </ContentLinkView>
-        );
-      })}
-    </div>
-  );
-}
-
-export function ProjectCardLinks({
+function ProjectLinkList({
   contentDebug,
   homeTemplate,
-  project,
+  links,
 }: {
   contentDebug?: boolean;
   homeTemplate?: HomeTemplateId;
-  project: PortfolioProject;
+  links: ContentLink[];
 }) {
-  const links = getProjectCardLinks(project);
-
   if (!links.length) {
     return null;
   }
@@ -98,5 +49,51 @@ export function ProjectCardLinks({
         </ContentLinkView>
       ))}
     </div>
+  );
+}
+
+export function ProjectLinks({
+  contentDebug,
+  excludeCaseStudy = false,
+  homeTemplate,
+  project,
+}: {
+  contentDebug?: boolean;
+  excludeCaseStudy?: boolean;
+  homeTemplate?: HomeTemplateId;
+  project: PortfolioProject;
+}) {
+  const links = getProjectDetailLinks(project).filter(
+    (link) =>
+      (!excludeCaseStudy || link.type !== "case-study") &&
+      isVisibleProjectLink(project, link),
+  );
+
+  return (
+    <ProjectLinkList
+      contentDebug={contentDebug}
+      homeTemplate={homeTemplate}
+      links={links}
+    />
+  );
+}
+
+export function ProjectCardLinks({
+  contentDebug,
+  homeTemplate,
+  project,
+}: {
+  contentDebug?: boolean;
+  homeTemplate?: HomeTemplateId;
+  project: PortfolioProject;
+}) {
+  const links = getProjectCardLinks(project);
+
+  return (
+    <ProjectLinkList
+      contentDebug={contentDebug}
+      homeTemplate={homeTemplate}
+      links={links}
+    />
   );
 }
