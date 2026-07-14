@@ -10,14 +10,13 @@ import {
   getPortfolioContent,
   getTemplateHref,
   isSitePageEnabled,
-  resolveContentDebug,
-  resolveHomeTemplateId,
   type HomeTemplateId,
   type JourneyMilestone,
   type PortfolioContent,
   type PresentationContent,
   type RouteSearchParams,
 } from "@/lib/portfolio";
+import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
 
 export default async function JourneyPage({
   searchParams,
@@ -26,9 +25,12 @@ export default async function JourneyPage({
 }) {
   const content = getPortfolioContent();
   if (!isSitePageEnabled("journey", content)) notFound();
-  const params = searchParams ? await searchParams : {};
-  const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
-  const contentDebug = resolveContentDebug(params.debug);
+  const { activeTemplate, contentDebug, shellProps } =
+    await resolvePortfolioPageContext({
+      content,
+      currentPath: "/journey",
+      searchParams,
+    });
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
@@ -43,19 +45,7 @@ export default async function JourneyPage({
   const narrative = content.journeyNarrative;
 
   return (
-    <PageShell
-      contentDebug={contentDebug}
-      homeTemplate={activeTemplate}
-      profile={content.profile}
-      site={content.site}
-      ui={content.presentation.ui}
-      templateSwitcher={{
-        activeId: activeTemplate,
-        contentDebug,
-        currentPath: "/journey",
-        templates: content.presentation.templates,
-      }}
-    >
+    <PageShell {...shellProps}>
       <section className="border-b border-line">
         <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
           <ContentHint

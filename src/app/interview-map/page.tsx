@@ -9,13 +9,12 @@ import {
   getPortfolioContent,
   getTemplateHref,
   isSitePageEnabled,
-  resolveContentDebug,
-  resolveHomeTemplateId,
   type HomeTemplateId,
   type InterviewMapTrack,
   type PortfolioContent,
   type RouteSearchParams,
 } from "@/lib/portfolio";
+import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
 
 export default async function InterviewMapPage({
   searchParams,
@@ -24,9 +23,12 @@ export default async function InterviewMapPage({
 }) {
   const content = getPortfolioContent();
   if (!isSitePageEnabled("interviewMap", content)) notFound();
-  const params = searchParams ? await searchParams : {};
-  const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
-  const contentDebug = resolveContentDebug(params.debug);
+  const { activeTemplate, contentDebug, shellProps } =
+    await resolvePortfolioPageContext({
+      content,
+      currentPath: "/interview-map",
+      searchParams,
+    });
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
@@ -41,19 +43,7 @@ export default async function InterviewMapPage({
   const data = content.interviewMap;
 
   return (
-    <PageShell
-      contentDebug={contentDebug}
-      homeTemplate={activeTemplate}
-      profile={content.profile}
-      site={content.site}
-      ui={content.presentation.ui}
-      templateSwitcher={{
-        activeId: activeTemplate,
-        contentDebug,
-        currentPath: "/interview-map",
-        templates: content.presentation.templates,
-      }}
-    >
+    <PageShell {...shellProps}>
       <section className="border-b border-line">
         <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
           <ContentHint

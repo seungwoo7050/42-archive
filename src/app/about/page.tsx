@@ -12,13 +12,12 @@ import {
   getPortfolioContent,
   getTemplateHref,
   isSitePageEnabled,
-  resolveContentDebug,
-  resolveHomeTemplateId,
   type CurationCategory,
   type HomeTemplateId,
   type PortfolioContent,
   type RouteSearchParams,
 } from "@/lib/portfolio";
+import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
 
 export default async function AboutPage({
   searchParams,
@@ -27,9 +26,12 @@ export default async function AboutPage({
 }) {
   const content = getPortfolioContent();
   if (!isSitePageEnabled("about", content)) notFound();
-  const params = searchParams ? await searchParams : {};
-  const activeTemplate = resolveHomeTemplateId(params.view, content.presentation);
-  const contentDebug = resolveContentDebug(params.debug);
+  const { activeTemplate, contentDebug, shellProps } =
+    await resolvePortfolioPageContext({
+      content,
+      currentPath: "/about",
+      searchParams,
+    });
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
@@ -43,19 +45,7 @@ export default async function AboutPage({
   const pageCopy = content.presentation.pages.about;
 
   return (
-    <PageShell
-      contentDebug={contentDebug}
-      homeTemplate={activeTemplate}
-      profile={content.profile}
-      site={content.site}
-      ui={content.presentation.ui}
-      templateSwitcher={{
-        activeId: activeTemplate,
-        contentDebug,
-        currentPath: "/about",
-        templates: content.presentation.templates,
-      }}
-    >
+    <PageShell {...shellProps}>
       <section className="border-b border-line">
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-20 sm:px-8 lg:grid-cols-[1fr_20rem] lg:items-center">
           <div>
