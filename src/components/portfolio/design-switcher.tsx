@@ -38,7 +38,7 @@ export function DesignSwitcher({
     .replace("{total}", String(SITE_DESIGNS.length).padStart(2, "0"));
 
   return (
-    <details className={styles.root} ref={detailsRef}>
+    <details className={styles.root} ref={detailsRef} suppressHydrationWarning>
       <summary
         aria-label={ui.designSwitcherAriaTemplate.replace(
           "{label}",
