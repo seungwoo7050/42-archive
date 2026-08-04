@@ -1019,6 +1019,23 @@ def validate_rotation_runtime_boundary() -> None:
             fail(f"rotation runtime boundary is missing {required!r}")
 
 
+def validate_readme() -> None:
+    text = require_file("README.md").read_text()
+    for phrase in (
+        "container-stack",
+        "Docker Compose",
+        "nginx",
+        "MariaDB",
+        "WordPress",
+        "secrets",
+        "make test",
+        "make smoke",
+    ):
+        if phrase not in text:
+            fail(f"README.md must mention {phrase}")
+    if not re.search(r"[가-힣]", text):
+        fail("README.md must be written in Korean")
+
 def main() -> None:
     validate_source_only()
     validate_forbidden_project_wording()
@@ -1030,6 +1047,7 @@ def main() -> None:
     validate_runtime_control_flow()
     validate_bootstrap_recovery()
     validate_ci()
+    validate_readme()
     validate_rotation_runtime_boundary()
     print("static stack validation passed")
 
