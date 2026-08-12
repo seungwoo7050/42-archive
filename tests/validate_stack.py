@@ -304,6 +304,20 @@ def validate_dockerfiles() -> None:
         if required not in entrypoint:
             fail(f"WordPress atomic artifact publication is missing {required!r}")
 
+    runtime = require_file("tests/runtime_stack.py").read_text()
+    for required in (
+        "DEBIAN_PACKAGE_MINIMUMS",
+        "1.22.1-9+deb12u9",
+        "3.0.20-1~deb12u2",
+        "8.2.33-1~deb12u1",
+        "1:10.11.18-0+deb12u1",
+        "dpkg --compare-versions",
+        "WORDPRESS_REQUIRED_PHP = (7, 2, 24)",
+        "WORDPRESS_REQUIRED_MYSQL = (5, 5, 5)",
+    ):
+        if required not in runtime:
+            fail(f"runtime supply-chain check is missing {required!r}")
+
 
 def validate_configs() -> None:
     require_text(
