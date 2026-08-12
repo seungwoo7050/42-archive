@@ -1,9 +1,9 @@
-FROM debian:bookworm-20241202-slim@sha256:1537a6a1cbc4b4fd401da800ee9480207e7dc1f23560c21259f681db56768f63
+FROM debian:bookworm-20260803-slim@sha256:abd67ffcfa541b485a3dff59865ab629aa048a6c613e639d36e7456b0b229241
 
 RUN printf '%s\n' \
-        'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20241214T000000Z bookworm main' \
-        'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20241214T000000Z bookworm-updates main' \
-        'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20241214T000000Z bookworm-security main' \
+        'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20260812T000000Z bookworm main' \
+        'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20260812T000000Z bookworm-updates main' \
+        'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20260812T000000Z bookworm-security main' \
         > /etc/apt/sources.list \
     && rm -f /etc/apt/sources.list.d/debian.sources
 
@@ -25,7 +25,7 @@ RUN apt-get -o Acquire::Check-Valid-Until=false update \
     && rm -rf /var/lib/apt/lists/*
 
 ENV WP_CLI_VERSION=2.11.0 \
-    WORDPRESS_VERSION=6.7.1
+    WORDPRESS_VERSION=6.7.7
 
 RUN curl -fsSL \
         "https://github.com/wp-cli/wp-cli/releases/download/v${WP_CLI_VERSION}/wp-cli-${WP_CLI_VERSION}.phar" \
@@ -35,7 +35,7 @@ RUN curl -fsSL \
     && chmod 0755 /usr/local/bin/wp \
     && curl -fsSL "https://wordpress.org/wordpress-${WORDPRESS_VERSION}.tar.gz" \
         -o /tmp/wordpress.tar.gz \
-    && echo '33529cd638c845007e8e0d26c91d60c9c16b822c849c8deead03d0c851a26deb  /tmp/wordpress.tar.gz' \
+    && echo 'dadac21d0fd6f54f7c0565d8935d3e4baea5e649486ac6f40fe89792da498350  /tmp/wordpress.tar.gz' \
         | sha256sum -c - \
     && mkdir -p /usr/src/wordpress /run/php /var/www/html /var/www/config \
     && tar -xzf /tmp/wordpress.tar.gz --strip-components=1 -C /usr/src/wordpress \
