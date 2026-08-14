@@ -70,6 +70,27 @@ export type AboutViewModel = RouteViewModelBase & {
   curationCategories: CurationCategoryViewModel[];
 };
 
+export type ResumeViewModel = RouteViewModelBase & {
+  route: "resume";
+  resumeProjects: PortfolioProject[];
+};
+
+export type ContactViewModel = RouteViewModelBase & {
+  route: "contact";
+  cinematicLinks: ContentLink[];
+  contactPlacementLinks: ContentLink[];
+  preferredLinks: ContentLink[];
+  preferredOrContactLinks: ContentLink[];
+};
+
+export type PortfolioRouteViewModel =
+  | HomeViewModel
+  | ProjectIndexViewModel
+  | ProjectDetailViewModel
+  | AboutViewModel
+  | ResumeViewModel
+  | ContactViewModel;
+
 function createRouteViewModelBase(
   content: PortfolioContent,
 ): RouteViewModelBase {
@@ -243,5 +264,41 @@ export function createAboutViewModel(
     })),
     projects: [],
     route: "about",
+  };
+}
+
+export function createResumeViewModel(
+  content: PortfolioContent,
+): ResumeViewModel {
+  const projectById = new Map(
+    content.projects.map((project) => [project.id, project]),
+  );
+
+  return {
+    ...createRouteViewModelBase(content),
+    resumeProjects: content.resume.projectIds
+      .map((projectId) => projectById.get(projectId))
+      .filter((project): project is PortfolioProject => Boolean(project)),
+    projects: [],
+    route: "resume",
+  };
+}
+
+export function createContactViewModel(
+  content: PortfolioContent,
+): ContactViewModel {
+  const contactPlacementLinks = getContentLinksByPlacement("contact", content);
+  const preferredLinks = getPreferredContactLinks(content);
+  const preferredOrContactLinks =
+    preferredLinks.length > 0 ? preferredLinks : contactPlacementLinks;
+
+  return {
+    ...createRouteViewModelBase(content),
+    cinematicLinks: preferredOrContactLinks,
+    contactPlacementLinks,
+    preferredLinks,
+    preferredOrContactLinks,
+    projects: [],
+    route: "contact",
   };
 }
