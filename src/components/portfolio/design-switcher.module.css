@@ -24,7 +24,7 @@
 }
 
 .count {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
   font-size: 0.68rem;
   letter-spacing: 0.08em;
   opacity: 0.72;
@@ -107,7 +107,7 @@
 }
 
 .number {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
   font-size: 0.65rem;
 }
 

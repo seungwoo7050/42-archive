@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
+import type { CSSProperties } from "react";
 import { StructuredData } from "@/components/portfolio/structured-data";
 import {
   resolvePortfolioContentMode,
@@ -14,21 +15,22 @@ import {
 import "./globals.css";
 
 const geistSans = localFont({
-  display: "swap",
+  display: "optional",
   src: "./fonts/Geist-Variable.woff2",
   variable: "--font-geist-sans",
   weight: "100 900",
 });
 
 const geistMono = localFont({
-  display: "swap",
+  display: "optional",
+  preload: false,
   src: "./fonts/GeistMono-Variable.woff2",
   variable: "--font-geist-mono",
   weight: "100 900",
 });
 
 const koreanSerif = localFont({
-  display: "swap",
+  display: "optional",
   preload: false,
   src: "./fonts/SourceHanSerifKR-Variable.woff2",
   variable: "--font-noto-serif-kr",
@@ -36,6 +38,10 @@ const koreanSerif = localFont({
 });
 
 const { site } = getPortfolioContent();
+const usesKoreanSerif = site.language.toLowerCase().startsWith("ko");
+const serifFallback = {
+  "--font-noto-serif-kr": '"Iowan Old Style", Baskerville, Georgia, serif',
+} as CSSProperties;
 
 export async function generateMetadata(): Promise<Metadata> {
   const mode = resolvePortfolioContentMode(
@@ -82,7 +88,8 @@ export default function RootLayout({
     <html
       lang={site.language}
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} ${koreanSerif.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${usesKoreanSerif ? koreanSerif.variable : ""} h-full antialiased`}
+      style={usesKoreanSerif ? undefined : serifFallback}
     >
       <body className="min-h-full flex flex-col">
         {siteStructuredData ? <StructuredData data={siteStructuredData} /> : null}
