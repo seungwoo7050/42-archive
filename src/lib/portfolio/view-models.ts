@@ -7,6 +7,9 @@ import {
 import type {
   ContentLink,
   CurationCategory,
+  InterviewMapAnswer,
+  InterviewMapItem,
+  InterviewMapTrack,
   JourneyItem,
   JourneyMilestone,
   PortfolioContent,
@@ -99,6 +102,23 @@ export type JourneyViewModel = RouteViewModelBase & {
   timelineItems: JourneyItemViewModel[];
 };
 
+export type InterviewMapAnswerViewModel = InterviewMapAnswer & {
+  project: PortfolioProject | null;
+};
+
+export type InterviewMapItemViewModel = Omit<InterviewMapItem, "answers"> & {
+  answers: InterviewMapAnswerViewModel[];
+};
+
+export type InterviewMapTrackViewModel = Omit<InterviewMapTrack, "items"> & {
+  items: InterviewMapItemViewModel[];
+};
+
+export type InterviewMapViewModel = RouteViewModelBase & {
+  route: "interview-map";
+  tracks: InterviewMapTrackViewModel[];
+};
+
 export type PortfolioRouteViewModel =
   | HomeViewModel
   | ProjectIndexViewModel
@@ -106,7 +126,8 @@ export type PortfolioRouteViewModel =
   | AboutViewModel
   | ResumeViewModel
   | ContactViewModel
-  | JourneyViewModel;
+  | JourneyViewModel
+  | InterviewMapViewModel;
 
 function createRouteViewModelBase(
   content: PortfolioContent,
@@ -340,6 +361,30 @@ export function createJourneyViewModel(
     timelineItems: content.journey.map((item) => ({
       ...item,
       project: item.projectId ? (projectById.get(item.projectId) ?? null) : null,
+    })),
+  };
+}
+
+export function createInterviewMapViewModel(
+  content: PortfolioContent,
+): InterviewMapViewModel {
+  const projectById = new Map(
+    content.projects.map((project) => [project.id, project]),
+  );
+
+  return {
+    ...createRouteViewModelBase(content),
+    projects: [],
+    route: "interview-map",
+    tracks: content.interviewMap.tracks.map((track) => ({
+      ...track,
+      items: track.items.map((item) => ({
+        ...item,
+        answers: item.answers.map((answer) => ({
+          ...answer,
+          project: projectById.get(answer.projectId) ?? null,
+        })),
+      })),
     })),
   };
 }
