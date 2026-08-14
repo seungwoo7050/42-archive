@@ -161,9 +161,10 @@ function EditorialShell({
   const primaryNavigation = content.site.navigation;
   const ui = content.presentation.ui;
   const shellCopy = content.presentation.editorial.shell;
-  const footerLinks = content.links.filter((link) =>
-    link.placements?.includes("footer"),
-  );
+  const footerLinks =
+    "footerLinks" in content
+      ? (content.footerLinks as ContentLink[])
+      : content.links.filter((link) => link.placements?.includes("footer"));
 
   return (
     <div className={styles.root} data-site-design="editorial">

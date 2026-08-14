@@ -94,9 +94,10 @@ function Frame({
   contentDebug,
   currentPath,
 }: DesignRouteProps & { children: React.ReactNode }) {
-  const footerLinks = content.links.filter((link) =>
-    link.placements?.includes("footer"),
-  );
+  const footerLinks =
+    "footerLinks" in content
+      ? (content.footerLinks as ContentLink[])
+      : content.links.filter((link) => link.placements?.includes("footer"));
   const ui = content.presentation.ui;
 
   return (

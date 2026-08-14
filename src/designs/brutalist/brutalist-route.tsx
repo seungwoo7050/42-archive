@@ -207,9 +207,10 @@ function BrutalistShell({
 }) {
   const shellCopy = content.presentation.brutalist.shell;
   const ui = content.presentation.ui;
-  const footerLinks = content.links.filter((link) =>
-    link.placements?.includes("footer"),
-  );
+  const footerLinks =
+    "footerLinks" in content
+      ? (content.footerLinks as ContentLink[])
+      : content.links.filter((link) => link.placements?.includes("footer"));
 
   return (
     <div
