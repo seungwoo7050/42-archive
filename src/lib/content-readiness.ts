@@ -126,3 +126,91 @@ export function collectPlaceholderIssues(
     );
   }
 }
+
+export function addProductionAssetIssue(
+  issues: PortfolioReadinessIssue[],
+  file: string,
+  path: string,
+  assetPath: string,
+) {
+  if (!assetPath.startsWith("/content/")) {
+    issues.push({
+      file,
+      path,
+      message: `Use a production asset under public/content instead of "${assetPath}".`,
+    });
+  }
+}
+
+export function isReservedHostname(hostname: string) {
+  return (
+    ["example.com", "example.net", "example.org"].some(
+      (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
+    ) ||
+    [".example", ".invalid", ".test"].some((suffix) =>
+      hostname.endsWith(suffix),
+    )
+  );
+}
+
+export function parsePublicSiteUrl(
+  value: string | undefined,
+  issues: PortfolioReadinessIssue[],
+) {
+  if (!value) {
+    issues.push({
+      file: "environment",
+      path: "SITE_URL",
+      message: "SITE_URL is required in production content mode.",
+    });
+    return undefined;
+  }
+
+  let siteUrl: URL;
+  try {
+    siteUrl = new URL(value);
+  } catch {
+    issues.push({
+      file: "environment",
+      path: "SITE_URL",
+      message: "SITE_URL must be an absolute http(s) URL.",
+    });
+    return undefined;
+  }
+
+  const hostname = siteUrl.hostname.toLowerCase();
+  const isLocal =
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "::1" ||
+    hostname.endsWith(".localhost");
+
+  if (
+    !["http:", "https:"].includes(siteUrl.protocol) ||
+    isLocal ||
+    isReservedHostname(hostname) ||
+    siteUrl.username !== "" ||
+    siteUrl.password !== ""
+  ) {
+    issues.push({
+      file: "environment",
+      path: "SITE_URL",
+      message:
+        "SITE_URL must use a real public http(s) origin, not a local or placeholder address.",
+    });
+    return undefined;
+  }
+
+  return siteUrl;
+}
+
+export function resolveProductionSiteUrl(value: string | undefined) {
+  const issues: PortfolioReadinessIssue[] = [];
+  const siteUrl = parsePublicSiteUrl(value, issues);
+
+  if (!siteUrl || issues.length > 0) {
+    throw new PortfolioReadinessError(issues);
+  }
+
+  return siteUrl;
+}
