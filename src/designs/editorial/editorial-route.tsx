@@ -233,7 +233,9 @@ function EditorialShell({
           </details>
         </div>
       </header>
-      <main id="editorial-main">{children}</main>
+      <main id="editorial-main" tabIndex={-1}>
+        {children}
+      </main>
       <footer className={styles.footer}>
         <div className={styles.footerLead}>
           <p>{content.site.footer.note}</p>

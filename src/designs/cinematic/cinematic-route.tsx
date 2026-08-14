@@ -151,7 +151,9 @@ function Frame({
           </nav>
         </details>
       </header>
-      <main id="cinematic-content">{children}</main>
+      <main id="cinematic-content" tabIndex={-1}>
+        {children}
+      </main>
       <footer className={styles.footer}>
         <p>{content.site.footer.note}</p>
         {footerLinks.length > 0 ? (

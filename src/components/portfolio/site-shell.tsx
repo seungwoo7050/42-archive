@@ -168,7 +168,7 @@ export function PageShell({
         templateSwitcher={templateSwitcher}
         ui={ui}
       />
-      <main data-home-template={homeTemplate} id="main-content">
+      <main data-home-template={homeTemplate} id="main-content" tabIndex={-1}>
         {children}
       </main>
       <SiteFooter
