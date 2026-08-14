@@ -20,28 +20,27 @@ import type {
   TechStackItem,
 } from "./types";
 
-type RouteViewModelBase = PortfolioContent & {
-  footerLinks: ContentLink[];
-};
-
-type ScopedRouteViewModelBase = {
+type RouteViewModelBase = {
   footerLinks: ContentLink[];
   presentation: PortfolioContent["presentation"];
   profile: PortfolioContent["profile"];
   site: PortfolioContent["site"];
 };
 
-type ScopedSharedContentKey = "presentation" | "profile" | "site";
+type SharedContentKey = "presentation" | "profile" | "site";
 
-type ScopedRouteViewModel<
+// Some legacy renderers still type their local helpers as PortfolioContent.
+// Marking unavailable source fields as never keeps those calls compatible
+// without copying the fields into the runtime view model.
+type RouteViewModel<
   VisibleContentKey extends keyof PortfolioContent,
   RouteFields extends object,
-> = ScopedRouteViewModelBase &
+> = RouteViewModelBase &
   Pick<PortfolioContent, VisibleContentKey> &
   RouteFields & {
     readonly [Key in Exclude<
       keyof PortfolioContent,
-      ScopedSharedContentKey | VisibleContentKey
+      SharedContentKey | VisibleContentKey
     >]: never;
   };
 
@@ -57,7 +56,7 @@ export type CurationCategoryViewModel = CurationCategory & {
   projects: PortfolioProject[];
 };
 
-export type HomeViewModel = ScopedRouteViewModel<
+export type HomeViewModel = RouteViewModel<
   "contact" | "journey" | "journeyNarrative" | "skills" | "techStack",
   {
     route: "home";
@@ -74,7 +73,7 @@ export type HomeViewModel = ScopedRouteViewModel<
   }
 >;
 
-export type ProjectIndexViewModel = ScopedRouteViewModel<
+export type ProjectIndexViewModel = RouteViewModel<
   "contact" | "projects",
   {
     route: "projects";
@@ -89,7 +88,7 @@ export type ProjectIndexViewModel = ScopedRouteViewModel<
   }
 >;
 
-export type ProjectDetailViewModel = ScopedRouteViewModel<
+export type ProjectDetailViewModel = RouteViewModel<
   never,
   {
     route: "project-detail";
@@ -100,7 +99,7 @@ export type ProjectDetailViewModel = ScopedRouteViewModel<
   }
 >;
 
-export type AboutViewModel = ScopedRouteViewModel<
+export type AboutViewModel = RouteViewModel<
   "contact" | "curation" | "experience" | "journey" | "skills",
   {
     route: "about";
@@ -108,7 +107,7 @@ export type AboutViewModel = ScopedRouteViewModel<
   }
 >;
 
-export type ResumeViewModel = ScopedRouteViewModel<
+export type ResumeViewModel = RouteViewModel<
   "experience" | "resume",
   {
     route: "resume";
@@ -116,7 +115,7 @@ export type ResumeViewModel = ScopedRouteViewModel<
   }
 >;
 
-export type ContactViewModel = ScopedRouteViewModel<
+export type ContactViewModel = RouteViewModel<
   "contact",
   {
     route: "contact";
@@ -135,7 +134,7 @@ export type JourneyItemViewModel = JourneyItem & {
   project: PortfolioProject | null;
 };
 
-export type JourneyViewModel = ScopedRouteViewModel<
+export type JourneyViewModel = RouteViewModel<
   "journey" | "journeyNarrative",
   {
     route: "journey";
@@ -156,7 +155,7 @@ export type InterviewMapTrackViewModel = Omit<InterviewMapTrack, "items"> & {
   items: InterviewMapItemViewModel[];
 };
 
-export type InterviewMapViewModel = ScopedRouteViewModel<
+export type InterviewMapViewModel = RouteViewModel<
   "interviewMap",
   {
     route: "interview-map";
@@ -178,11 +177,10 @@ function createRouteViewModelBase(
   content: PortfolioContent,
 ): RouteViewModelBase {
   return {
-    ...content,
     footerLinks: getContentLinksByPlacement("footer", content),
-    links: [],
-    projectGroups: [],
-    projectMetrics: [],
+    presentation: content.presentation,
+    profile: content.profile,
+    site: content.site,
   };
 }
 
