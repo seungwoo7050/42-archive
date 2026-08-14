@@ -147,6 +147,49 @@ export function createSitemap({
   return routes.map((path) => ({ url: absoluteSiteUrl(path, siteUrl) }));
 }
 
+export function createSiteStructuredData({
+  content,
+  siteUrl,
+}: {
+  content: PortfolioContent;
+  siteUrl: URL;
+}): StructuredData {
+  const personId = absoluteSiteUrl("/#person", siteUrl);
+  const websiteId = absoluteSiteUrl("/#website", siteUrl);
+
+  const person: StructuredData = {
+    "@id": personId,
+    "@type": "Person",
+    description: content.profile.summary,
+    jobTitle: content.profile.role,
+    name: content.profile.name,
+    url: absoluteSiteUrl("/", siteUrl),
+  };
+
+  if (content.profile.koreanName) {
+    person.alternateName = content.profile.koreanName;
+  }
+  if (content.profile.photo) {
+    person.image = absoluteSiteUrl(content.profile.photo.src, siteUrl);
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      person,
+      {
+        "@id": websiteId,
+        "@type": "WebSite",
+        author: { "@id": personId },
+        description: content.site.description,
+        inLanguage: content.site.language,
+        name: content.site.brand,
+        url: absoluteSiteUrl("/", siteUrl),
+      },
+    ],
+  };
+}
+
 export function serializeStructuredData(data: StructuredData) {
   return JSON.stringify(data)
     .replaceAll("<", "\\u003c")
