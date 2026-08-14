@@ -111,6 +111,15 @@ function FeaturedProjectsSection({
             contentHint="src/content/presentation.json > home.design.featured"
             title={copy.title}
           />
+          <Link
+            className="inline-flex h-10 w-fit items-center gap-2 rounded-md border border-line bg-surface px-4 text-sm font-semibold text-muted transition hover:border-accent hover:text-foreground"
+            href={getTemplateHref("/projects", activeTemplate, {
+              contentDebug,
+            })}
+          >
+            {copy.actionLabel}
+            <ArrowRightIcon />
+          </Link>
         </div>
         <div className="grid gap-5">
           {projects.slice(0, 1).map((project) => (
@@ -201,6 +210,15 @@ function HeroSection({
             ))}
           </dl>
           <div className="mt-9 flex flex-wrap gap-3">
+            <Link
+              className="inline-flex h-10 items-center gap-2 rounded-md border border-accent bg-accent px-4 text-sm font-semibold text-background transition hover:-translate-y-0.5 hover:bg-accent-strong focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background"
+              href={getTemplateHref("/projects", activeTemplate, {
+                contentDebug,
+              })}
+            >
+              {copy.primaryActionLabel}
+              <ArrowRightIcon />
+            </Link>
             {links.map((link) => (
               <ContentLinkView
                 className="inline-flex h-10 items-center gap-2 rounded-md border border-line bg-surface px-4 text-sm font-semibold text-muted transition hover:-translate-y-0.5 hover:border-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background"
