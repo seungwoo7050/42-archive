@@ -14,6 +14,8 @@ type RouteMetadataInput = {
   type?: "article" | "website";
 };
 
+type StructuredData = Record<string, unknown>;
+
 function absoluteSiteUrl(path: string, siteUrl: URL) {
   return new URL(path, siteUrl.origin).toString();
 }
@@ -143,4 +145,11 @@ export function createSitemap({
   if (pages?.interviewMap !== false) routes.push("/interview-map");
 
   return routes.map((path) => ({ url: absoluteSiteUrl(path, siteUrl) }));
+}
+
+export function serializeStructuredData(data: StructuredData) {
+  return JSON.stringify(data)
+    .replaceAll("<", "\\u003c")
+    .replaceAll(">", "\\u003e")
+    .replaceAll("&", "\\u0026");
 }
