@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { PageShell } from "@/components/portfolio/site-shell";
 import { notFound } from "next/navigation";
-import { ClassicProjectsView } from "@/designs/classic/projects/projects-route";
+import ClassicProjectsRoute from "@/designs/classic/projects-route";
 import DesignProjectsRoute from "@/designs/design/projects-route";
 import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import {
@@ -33,7 +32,7 @@ export default async function ProjectsPage({
 }) {
   const content = getPortfolioContent();
   if (!isSitePageEnabled("projects", content)) notFound();
-  const { activeTemplate, contentDebug, shellProps } =
+  const { activeTemplate, contentDebug } =
     await resolvePortfolioPageContext({
       content,
       currentPath: "/projects",
@@ -49,25 +48,15 @@ export default async function ProjectsPage({
       viewModel,
     });
   }
-  const pageCopy = viewModel.presentation.pages.projects;
-  const featuredProjects = viewModel.featuredProjects;
-  const groupedProjects = viewModel.archiveGroupEntries;
-  const sourceOnlyCount = viewModel.metricValues.sourceOnlyCount ?? 0;
-  const curriculumCount = viewModel.metricValues.curriculumCount ?? 0;
+
   if (activeTemplate === "classic") {
     return (
-      <PageShell {...shellProps}>
-        <ClassicProjectsView
-          activeTemplate={activeTemplate}
-          contentDebug={contentDebug}
-          curriculumCount={curriculumCount}
-          featuredProjects={featuredProjects}
-          groupedProjects={groupedProjects}
-          pageCopy={pageCopy}
-          projects={viewModel.projects}
-          sourceOnlyCount={sourceOnlyCount}
-        />
-      </PageShell>
+      <ClassicProjectsRoute
+        content={viewModel}
+        contentDebug={contentDebug}
+        currentPath="/projects"
+        route="projects"
+      />
     );
   }
 

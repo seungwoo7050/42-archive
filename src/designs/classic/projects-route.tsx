@@ -3,16 +3,55 @@ import { ArrowRightIcon } from "@/components/icons";
 import { AvailabilityBadge } from "@/components/portfolio/availability-badge";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { ProjectCard } from "@/components/portfolio/project-card";
+import { PageShell } from "@/components/portfolio/site-shell";
 import { StackList } from "@/components/portfolio/stack-list";
-import { getTemplateHref } from "@/lib/portfolio";
-import type {
-  HomeTemplateId,
-  PortfolioProject,
-  ProjectPageContent,
+import {
+  getTemplateHref,
+  type HomeTemplateId,
+  type ProjectPageContent,
+  type PortfolioProject,
 } from "@/lib/portfolio";
-import type { GroupedProjects } from "@/lib/portfolio/project-groups";
+import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
+import { createDesignShellProps } from "@/designs/shell-props";
 
-export function ClassicProjectsView({
+export default function ProjectsRoute({
+  content,
+  contentDebug,
+  currentPath,
+}: DesignRouteProps) {
+  if (content.route !== "projects") return null;
+
+  const activeTemplate = "classic";
+  const shellProps = createDesignShellProps(
+    content,
+    contentDebug,
+    currentPath,
+    activeTemplate,
+  );
+  const pageCopy = content.presentation.pages.projects;
+  const featuredProjects = content.featuredProjects;
+  const groupedProjects = content.archiveGroupEntries;
+  const sourceOnlyCount = content.metricValues.sourceOnlyCount ?? 0;
+  const curriculumCount = content.metricValues.curriculumCount ?? 0;
+
+  return (
+    <PageShell {...shellProps}>
+      <ClassicProjectsView
+        activeTemplate={activeTemplate}
+        contentDebug={contentDebug}
+        curriculumCount={curriculumCount}
+        featuredProjects={featuredProjects}
+        groupedProjects={groupedProjects}
+        pageCopy={pageCopy}
+        projects={content.projects}
+        sourceOnlyCount={sourceOnlyCount}
+      />
+    </PageShell>
+  );
+}
+
+
+function ClassicProjectsView({
   activeTemplate,
   contentDebug,
   curriculumCount,
@@ -26,13 +65,13 @@ export function ClassicProjectsView({
   contentDebug: boolean;
   curriculumCount: number;
   featuredProjects: PortfolioProject[];
-  groupedProjects: GroupedProjects;
+  groupedProjects: [string, PortfolioProject[]][];
   pageCopy: ProjectPageContent;
   projects: PortfolioProject[];
   sourceOnlyCount: number;
 }) {
-  const copy = pageCopy.classic;
   const leadProject = featuredProjects[0];
+  const copy = pageCopy.classic;
   const groupCopy = new Map(pageCopy.groups.map((group) => [group.category, group.body]));
   const counts = {
     curriculumCount,
@@ -44,69 +83,67 @@ export function ClassicProjectsView({
     <>
       <section className="classic-projects-hero border-b border-line">
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
-        <div>
-          <ContentHint
-            enabled={contentDebug}
-            path="src/content/presentation.json > pages.projects.classic.hero"
-          />
-          <p className="text-sm font-medium text-muted">
-            {copy.hero.eyebrow}
-          </p>
-          <h1 className="mt-5 max-w-3xl text-5xl font-semibold leading-tight text-foreground md:text-6xl">
-            {copy.hero.title}
-          </h1>
-          <p className="mt-6 max-w-2xl text-base leading-7 text-muted">
-            {copy.hero.body}
-          </p>
-          <dl className="mt-8 grid max-w-2xl grid-cols-3 overflow-hidden rounded-md border border-line bg-surface">
-            {copy.hero.stats.map((stat, index) => (
-              <div
-                className={
-                  index < copy.hero.stats.length - 1 ? "border-r border-line p-4" : "p-4"
-                }
-                key={stat.label}
-              >
-                <dt className="text-xs font-semibold uppercase text-muted">
-                  {stat.label}
-                </dt>
-                <dd className="mt-1 text-2xl font-semibold text-foreground">
-                  {counts[stat.countKey]}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-        <aside
-          aria-label={copy.terminal.ariaLabel}
-          className="terminal-window mx-auto w-full max-w-xl"
-        >
-          <ContentHint
-            enabled={contentDebug}
-            path="src/content/presentation.json > pages.projects.classic.terminal"
-          />
-          <div className="terminal-titlebar">
-            <span className="bg-[#ff6b5f]" />
-            <span className="bg-[#f6c76f]" />
-            <span className="bg-[#67d391]" />
-            <p>{copy.terminal.title}</p>
-          </div>
-          <div className="terminal-body">
-            <p className="terminal-line">
-              <span className="text-accent">{copy.terminal.promptUser}</span>
-              <span className="text-muted">:</span>
-              <span className="text-signal">{copy.terminal.promptPath}</span>
-              <span className="text-muted">$ </span>
-              {copy.terminal.command}
+          <div>
+            <ContentHint
+              enabled={contentDebug}
+              path="src/content/presentation.json > pages.projects.classic.hero"
+            />
+            <p className="text-sm font-medium text-muted">
+              {copy.hero.eyebrow}
             </p>
-            <div className="mt-5 grid gap-3">
-              {groupedProjects.slice(0, copy.terminal.maxGroups).map(([category, items]) => (
-                <p className="terminal-line terminal-output" key={category}>
-                  {category.padEnd(26, ".")} {items.length} {copy.terminal.entryLabel}
-                </p>
+            <h1 className="mt-5 max-w-3xl text-5xl font-semibold leading-tight text-foreground md:text-6xl">
+              {copy.hero.title}
+            </h1>
+            <p className="mt-6 max-w-2xl text-base leading-7 text-muted">
+              {copy.hero.body}
+            </p>
+            <dl className="mt-8 grid max-w-2xl grid-cols-3 overflow-hidden rounded-md border border-line bg-surface">
+              {copy.hero.stats.map((stat, index) => (
+                <div
+                  className={index < copy.hero.stats.length - 1 ? "border-r border-line p-4" : "p-4"}
+                  key={stat.label}
+                >
+                  <dt className="text-xs font-semibold uppercase text-muted">
+                    {stat.label}
+                  </dt>
+                  <dd className="mt-1 text-2xl font-semibold text-foreground">
+                    {counts[stat.countKey]}
+                  </dd>
+                </div>
               ))}
-            </div>
+            </dl>
           </div>
-        </aside>
+          <aside
+            aria-label={copy.terminal.ariaLabel}
+            className="terminal-window mx-auto w-full max-w-xl"
+          >
+            <ContentHint
+              enabled={contentDebug}
+              path="src/content/presentation.json > pages.projects.classic.terminal"
+            />
+            <div className="terminal-titlebar">
+              <span className="bg-[#ff6b5f]" />
+              <span className="bg-[#f6c76f]" />
+              <span className="bg-[#67d391]" />
+              <p>{copy.terminal.title}</p>
+            </div>
+            <div className="terminal-body">
+              <p className="terminal-line">
+                <span className="text-accent">{copy.terminal.promptUser}</span>
+                <span className="text-muted">:</span>
+                <span className="text-signal">{copy.terminal.promptPath}</span>
+                <span className="text-muted">$ </span>
+                {copy.terminal.command}
+              </p>
+              <div className="mt-5 grid gap-3">
+                {groupedProjects.slice(0, copy.terminal.maxGroups).map(([category, items]) => (
+                  <p className="terminal-line terminal-output" key={category}>
+                    {category.padEnd(26, ".")} {items.length} {copy.terminal.entryLabel}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </aside>
         </div>
       </section>
       {leadProject ? (
