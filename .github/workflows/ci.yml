@@ -49,7 +49,16 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Build and run production E2E tests
-        run: npm run test:e2e:production
+        run: npm run test:e2e:ci
 
       - name: Verify standalone output
         run: npm run build:verify
+
+      - name: Check route bundle budgets
+        run: npm run bundle:check
+
+      - name: Locate Playwright Chromium for Lighthouse
+        run: echo "CHROME_PATH=$(node -e 'process.stdout.write(require(\"playwright\").chromium.executablePath())')" >> "$GITHUB_ENV"
+
+      - name: Run production Lighthouse budgets
+        run: npm run lighthouse:audit
