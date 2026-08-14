@@ -261,6 +261,95 @@ export function validateProductionReadiness(
     collectPlaceholderIssues(content[key], file, "$", issues);
   }
 
+  if (!content.site.socialImage) {
+    issues.push({
+      file: "src/content/site.json",
+      path: "$.socialImage",
+      message: "Add a social image under public/content for production.",
+    });
+  } else {
+    addProductionAssetIssue(
+      issues,
+      "src/content/site.json",
+      "$.socialImage",
+      content.site.socialImage,
+    );
+  }
+
+  if (!content.profile.photo) {
+    issues.push({
+      file: "src/content/profile.json",
+      path: "$.photo",
+      message: "Add a profile image under public/content for production.",
+    });
+  } else {
+    addProductionAssetIssue(
+      issues,
+      "src/content/profile.json",
+      "$.photo.src",
+      content.profile.photo.src,
+    );
+  }
+
+  if (!content.resume.downloadUrl) {
+    issues.push({
+      file: "src/content/resume.json",
+      path: "$.downloadUrl",
+      message: "Add a downloadable resume under public/content for production.",
+    });
+  } else {
+    addProductionAssetIssue(
+      issues,
+      "src/content/resume.json",
+      "$.downloadUrl",
+      content.resume.downloadUrl,
+    );
+  }
+
+  const enabledProjects = content.projects.items.filter(
+    (project) => project.enabled !== false,
+  );
+
+  if (enabledProjects.length === 0) {
+    issues.push({
+      file: "src/content/projects.json",
+      path: "$.items",
+      message: "Enable at least one real project for production.",
+    });
+  }
+
+  content.projects.items.forEach((project, projectIndex) => {
+    if (project.enabled === false) {
+      return;
+    }
+
+    addProductionAssetIssue(
+      issues,
+      "src/content/projects.json",
+      `$.items[${projectIndex}].screenshot.src`,
+      project.screenshot.src,
+    );
+    project.screenshots.forEach((screenshot, screenshotIndex) =>
+      addProductionAssetIssue(
+        issues,
+        "src/content/projects.json",
+        `$.items[${projectIndex}].screenshots[${screenshotIndex}].src`,
+        screenshot.src,
+      ),
+    );
+
+    if (
+      !project.links.some(
+        (link) => link.enabled !== false && isUsablePublicUrl(link.href),
+      )
+    ) {
+      issues.push({
+        file: "src/content/projects.json",
+        path: `$.items[${projectIndex}].links`,
+        message: "Add at least one enabled public project URL for production.",
+      });
+    }
+  });
   if (!siteUrl || issues.length > 0) {
     throw new PortfolioReadinessError(issues);
   }
