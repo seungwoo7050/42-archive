@@ -326,6 +326,28 @@ test("design switching preserves the current route and content debug query", asy
   expect(hydrationErrors).toEqual([]);
 });
 
+test("content mode controls page metadata and robots.txt", async ({
+  page,
+  request,
+}) => {
+  const isProductionContent =
+    process.env.PORTFOLIO_CONTENT_MODE === "production";
+  const response = await page.goto("/");
+  expect(response?.ok()).toBe(true);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    "content",
+    isProductionContent ? /index.*follow/i : /noindex.*nofollow/i,
+  );
+
+  const robotsResponse = await request.get("/robots.txt");
+  expect(robotsResponse.ok()).toBe(true);
+  expect(await robotsResponse.text()).toMatch(
+    isProductionContent
+      ? /User-Agent:\s*\*[\s\S]*Allow:\s*\//i
+      : /User-Agent:\s*\*[\s\S]*Disallow:\s*\//i,
+  );
+});
+
 test("an invalid design query falls back to editorial", async ({ page }) => {
   const response = await page.goto("/?view=not-a-design");
 
