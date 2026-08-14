@@ -1,4 +1,6 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { act } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
@@ -11,6 +13,19 @@ import { DesignSwitcher } from "./design-switcher";
 afterEach(() => cleanup());
 
 describe("DesignSwitcher", () => {
+  it("keeps the selector markup in a server component", async () => {
+    const source = await readFile(
+      path.join(
+        process.cwd(),
+        "src/components/portfolio/design-switcher.tsx",
+      ),
+      "utf8",
+    );
+
+    expect(source).not.toContain('"use client"');
+    expect(source).not.toContain("useRef");
+  });
+
   it("tolerates native open state changed before hydration", async () => {
     const content = getPortfolioContent();
     const switcher = (
