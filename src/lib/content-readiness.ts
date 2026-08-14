@@ -22,7 +22,7 @@ type ProductionReadinessResult = Extract<
   { mode: "production" }
 >;
 
-export const contentFiles = [
+const contentFiles = [
   ["site", "src/content/site.json"],
   ["profile", "src/content/profile.json"],
   ["projects", "src/content/projects.json"],
@@ -41,7 +41,7 @@ export const contentFiles = [
   readonly [keyof PortfolioSource, `src/content/${string}.json`]
 >;
 
-export const placeholderMarkers = [
+const placeholderMarkers = [
   { label: "Your Name", pattern: /\byour name\b/i },
   { label: "your-handle", pattern: /\byour-handle\b/i },
   { label: "Your City", pattern: /\byour city\b/i },
@@ -86,7 +86,7 @@ export function resolvePortfolioContentMode(
   );
 }
 
-export function appendPath(path: string, key: string | number) {
+function appendPath(path: string, key: string | number) {
   if (typeof key === "number") {
     return `${path}[${key}]`;
   }
@@ -96,11 +96,11 @@ export function appendPath(path: string, key: string | number) {
     : `${path}[${JSON.stringify(key)}]`;
 }
 
-export function findPlaceholderMarker(value: string) {
+function findPlaceholderMarker(value: string) {
   return placeholderMarkers.find(({ pattern }) => pattern.test(value));
 }
 
-export function collectPlaceholderIssues(
+function collectPlaceholderIssues(
   value: unknown,
   file: string,
   path: string,
@@ -132,7 +132,7 @@ export function collectPlaceholderIssues(
   }
 }
 
-export function addProductionAssetIssue(
+function addProductionAssetIssue(
   issues: PortfolioReadinessIssue[],
   file: string,
   path: string,
@@ -147,7 +147,7 @@ export function addProductionAssetIssue(
   }
 }
 
-export function isReservedHostname(hostname: string) {
+function isReservedHostname(hostname: string) {
   return (
     ["example.com", "example.net", "example.org"].some(
       (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
@@ -158,7 +158,7 @@ export function isReservedHostname(hostname: string) {
   );
 }
 
-export function parsePublicSiteUrl(
+function parsePublicSiteUrl(
   value: string | undefined,
   issues: PortfolioReadinessIssue[],
 ) {
@@ -220,7 +220,7 @@ export function resolveProductionSiteUrl(value: string | undefined) {
   return siteUrl;
 }
 
-export function isUsablePublicUrl(href: string) {
+function isUsablePublicUrl(href: string) {
   if (findPlaceholderMarker(href)) {
     return false;
   }
@@ -238,7 +238,7 @@ export function isUsablePublicUrl(href: string) {
   }
 }
 
-export function isUsableContactHref(href: string) {
+function isUsableContactHref(href: string) {
   if (findPlaceholderMarker(href)) {
     return false;
   }
@@ -350,9 +350,41 @@ export function validateProductionReadiness(
       });
     }
   });
+
+  const hasContactMethod = content.links.some(
+    (link) =>
+      link.enabled !== false &&
+      link.placements?.includes("contact") &&
+      ["email", "github", "website"].includes(link.type) &&
+      isUsableContactHref(link.href),
+  );
+
+  if (!hasContactMethod) {
+    issues.push({
+      file: "src/content/links.json",
+      path: "$",
+      message: "Enable at least one non-placeholder contact method for production.",
+    });
+  }
+
   if (!siteUrl || issues.length > 0) {
     throw new PortfolioReadinessError(issues);
   }
 
   return { mode: "production", siteUrl };
+}
+
+export function validateBuildReadiness(
+  content: PortfolioSource,
+  environment: PortfolioReadinessEnvironment,
+): PortfolioReadinessResult {
+  const mode = resolvePortfolioContentMode(
+    environment.PORTFOLIO_CONTENT_MODE,
+  );
+
+  if (mode === "template") {
+    return { mode, siteUrl: undefined };
+  }
+
+  return validateProductionReadiness(content, environment);
 }
