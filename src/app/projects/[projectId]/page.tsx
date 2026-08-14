@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ProjectDetailView } from "@/designs/classic/project-detail-route";
-import { PageShell } from "@/components/portfolio/site-shell";
 import { StructuredData } from "@/components/portfolio/structured-data";
+import ClassicProjectDetailRoute from "@/designs/classic/project-detail-route";
 import DesignProjectDetailRoute from "@/designs/design/project-detail-route";
 import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import {
@@ -60,7 +59,7 @@ export default async function ProjectDetailPage({
   const content = getPortfolioContent();
   if (!isSitePageEnabled("projects", content)) notFound();
   const { projectId } = await params;
-  const { activeTemplate, contentDebug, shellProps } =
+  const { activeTemplate, contentDebug } =
     await resolvePortfolioPageContext({
       content,
       currentPath: `/projects/${projectId}`,
@@ -118,14 +117,12 @@ export default async function ProjectDetailPage({
   return (
     <>
       {structuredData ? <StructuredData data={structuredData} /> : null}
-      <PageShell {...shellProps}>
-        <ProjectDetailView
-          contentDebug={contentDebug}
-          homeTemplate={activeTemplate}
-          pageCopy={viewModel.presentation.pages.projectDetail}
-          project={project}
-        />
-      </PageShell>
+      <ClassicProjectDetailRoute
+        content={viewModel}
+        contentDebug={contentDebug}
+        currentPath={`/projects/${project.id}`}
+        route="project-detail"
+      />
     </>
   );
 }
