@@ -212,6 +212,7 @@ function HeroSection({
               href={getTemplateHref("/projects", activeTemplate, {
                 contentDebug,
               })}
+              prefetch={false}
             >
               {copy.primaryActionLabel}
               <ArrowRightIcon />
@@ -253,6 +254,7 @@ function HeroSection({
                     activeTemplate,
                     { contentDebug },
                   )}
+                  prefetch={false}
                 >
                   {copy.leadActionLabel}
                   <ArrowRightIcon />
@@ -271,6 +273,7 @@ function HeroSection({
                       { contentDebug },
                     )}
                     key={project.id}
+                    prefetch={false}
                   >
                     <p className="text-xs font-semibold uppercase text-muted">
                       {project.category}
@@ -321,6 +324,7 @@ function FeaturedProjectsSection({
             href={getTemplateHref("/projects", activeTemplate, {
               contentDebug,
             })}
+            prefetch={false}
           >
             {copy.actionLabel}
             <ArrowRightIcon />

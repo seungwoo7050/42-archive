@@ -33,6 +33,7 @@ export function ContentLinkView({
     <Link
       className={className}
       href={getTemplateHref(link.href, homeTemplate, { contentDebug })}
+      prefetch={false}
     >
       {children}
     </Link>

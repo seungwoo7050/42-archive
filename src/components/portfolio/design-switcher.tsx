@@ -67,6 +67,7 @@ export function DesignSwitcher({
                     defaultId,
                     { contentDebug },
                   )}
+                  prefetch={false}
                 >
                   <span aria-hidden="true" className={styles.swatch}>
                     {design.swatch.map((color) => (

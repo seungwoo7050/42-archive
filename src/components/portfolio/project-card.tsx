@@ -39,6 +39,7 @@ export function ProjectCard({
         aria-label={`${project.title} case study`}
         className="block focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background"
         href={caseStudyHref}
+        prefetch={false}
       >
         <ProjectScreenshot image={project.screenshot} priority={priority} />
       </Link>
@@ -57,6 +58,7 @@ export function ProjectCard({
           <Link
             className="group/title inline-flex items-center gap-2 text-xl font-semibold text-foreground hover:text-accent-strong"
             href={caseStudyHref}
+            prefetch={false}
           >
             {project.title}
             <ArrowUpRightIcon className="opacity-0 transition group-hover/title:opacity-100" />

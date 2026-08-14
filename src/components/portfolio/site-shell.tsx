@@ -46,6 +46,7 @@ export function SiteHeader({
           href={getTemplateHref("/", templateSwitcher?.activeId, {
             contentDebug: templateSwitcher?.contentDebug,
           })}
+          prefetch={false}
         >
           {profile.handle}
         </Link>
@@ -65,6 +66,7 @@ export function SiteHeader({
                 contentDebug: templateSwitcher?.contentDebug,
               })}
               key={item.href}
+              prefetch={false}
             >
               {item.label}
             </Link>
@@ -90,6 +92,7 @@ export function SiteHeader({
                   contentDebug: templateSwitcher?.contentDebug,
                 })}
                 key={item.href}
+                prefetch={false}
               >
                 {item.label}
               </Link>
@@ -127,6 +130,7 @@ export function SiteFooter({
         <Link
           className="inline-flex items-center gap-2 font-semibold text-foreground transition hover:text-accent-strong"
           href={getTemplateHref("/", homeTemplate, { contentDebug })}
+          prefetch={false}
         >
           {site.footer.copyright}
           <ArrowRightIcon className="-rotate-45" />

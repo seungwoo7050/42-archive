@@ -135,6 +135,7 @@ function EditorialContentLink({
       <Link
         className={className}
         href={editorialHref(link.href, contentDebug)}
+        prefetch={false}
       >
         {children ?? link.label}
       </Link>
@@ -183,6 +184,7 @@ function EditorialShell({
           <Link
             className={styles.wordmark}
             href={editorialHref("/", contentDebug)}
+            prefetch={false}
           >
             <span>{content.profile.name}</span>
             <small>{content.profile.role}</small>
@@ -196,6 +198,7 @@ function EditorialShell({
                 className={styles.navLink}
                 href={editorialHref(item.href, contentDebug)}
                 key={`${item.href}-${index}`}
+                prefetch={false}
               >
                 <span>{twoDigits(index)}</span>
                 {item.label}
@@ -224,6 +227,7 @@ function EditorialShell({
                   }
                   href={editorialHref(item.href, contentDebug)}
                   key={`${item.href}-mobile-${index}`}
+                  prefetch={false}
                 >
                   <span>{twoDigits(index)}</span>
                   {item.label}
@@ -286,7 +290,10 @@ function ProjectIndexItem({
       <div className={styles.projectIndexTitle}>
         <p>{project.category}</p>
         <h3>
-          <Link href={editorialHref(`/projects/${project.id}`, contentDebug)}>
+          <Link
+            href={editorialHref(`/projects/${project.id}`, contentDebug)}
+            prefetch={false}
+          >
             {project.title}
           </Link>
         </h3>
@@ -303,6 +310,7 @@ function ProjectIndexItem({
         aria-label={readCaseStudyAriaTemplate.replace("{title}", project.title)}
         className={styles.indexArrow}
         href={editorialHref(`/projects/${project.id}`, contentDebug)}
+        prefetch={false}
       >
         <Arrow />
       </Link>
@@ -371,6 +379,7 @@ function HomeRoute({ content, contentDebug }: EditorialRouteProps) {
                 <Link
                   className={styles.heroAction}
                   href={editorialHref("/projects", contentDebug)}
+                  prefetch={false}
                 >
                   {homeCopy.hero.primaryActionLabel} <Arrow />
                 </Link>
@@ -387,7 +396,10 @@ function HomeRoute({ content, contentDebug }: EditorialRouteProps) {
                         {lead.category} · {lead.period}
                       </p>
                       <h2>
-                        <Link href={editorialHref(`/projects/${lead.id}`, contentDebug)}>
+                        <Link
+                          href={editorialHref(`/projects/${lead.id}`, contentDebug)}
+                          prefetch={false}
+                        >
                           {lead.title}
                         </Link>
                       </h2>
@@ -406,6 +418,7 @@ function HomeRoute({ content, contentDebug }: EditorialRouteProps) {
                       )}
                       className={styles.leadVisualLink}
                       href={editorialHref(`/projects/${lead.id}`, contentDebug)}
+                      prefetch={false}
                     >
                       <EditorialImage image={lead.screenshot} priority />
                       <span>{homeCopy.lead.actionLabel} <Arrow /></span>
@@ -457,7 +470,10 @@ function HomeRoute({ content, contentDebug }: EditorialRouteProps) {
                   <p className={styles.sidebarLabel}>{sharedCopy.journey.title}</p>
                   <h2>{content.journeyNarrative.currentPosition.title}</h2>
                   <p>{content.journeyNarrative.currentPosition.body}</p>
-                  <Link href={editorialHref("/journey", contentDebug)}>
+                  <Link
+                    href={editorialHref("/journey", contentDebug)}
+                    prefetch={false}
+                  >
                     {homeCopy.current.actionLabel} <Arrow />
                   </Link>
                   <div className={styles.sidebarRule} />
@@ -610,7 +626,10 @@ function ProjectDetailRoute({ content, contentDebug, project }: EditorialRoutePr
     <article className={styles.caseStudy}>
       <header className={styles.caseHero}>
         <div className={styles.caseMetaRail}>
-          <Link href={editorialHref("/projects", contentDebug)}>
+          <Link
+            href={editorialHref("/projects", contentDebug)}
+            prefetch={false}
+          >
             ← {copy.backLabel}
           </Link>
           <span>{project.category}</span>

@@ -67,6 +67,7 @@ function ProjectHero({
           <Link
             className="inline-flex items-center gap-2 text-sm font-semibold text-muted transition hover:text-foreground"
             href={getTemplateHref("/projects", homeTemplate, { contentDebug })}
+            prefetch={false}
           >
             <ArrowRightIcon className="rotate-180" />
             {pageCopy.backLabel}

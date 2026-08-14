@@ -207,6 +207,7 @@ function BrutalistShell({
           <Link
             className={styles.brand}
             href={brutalistHref("/", contentDebug)}
+            prefetch={false}
           >
             <span className={styles.brandMark} aria-hidden="true">
               ■
@@ -242,6 +243,7 @@ function BrutalistShell({
                   }
                   className={styles.navigationLink}
                   href={brutalistHref(item.href, contentDebug)}
+                  prefetch={false}
                 >
                   <span className={styles.navigationIndex}>
                     {String(index + 1).padStart(2, "0")}
@@ -262,6 +264,7 @@ function BrutalistShell({
                 }
                 href={brutalistHref(item.href, contentDebug)}
                 key={`${item.href}-mobile`}
+                prefetch={false}
               >
                 <span>{String(index + 1).padStart(2, "0")}</span>
                 {item.label}
@@ -350,6 +353,7 @@ function HomeView({
                     <Link
                       className={styles.primaryAction}
                       href={brutalistHref("/projects", contentDebug)}
+                      prefetch={false}
                     >
                       {homeCopy.hero.primaryActionLabel}{" "}
                       <span aria-hidden="true">↗</span>
@@ -357,6 +361,7 @@ function HomeView({
                     <Link
                       className={styles.secondaryAction}
                       href={brutalistHref("/contact", contentDebug)}
+                      prefetch={false}
                     >
                       {homeCopy.hero.secondaryActionLabel}
                     </Link>
@@ -405,6 +410,7 @@ function HomeView({
                 <Link
                   className={styles.fullWidthAction}
                   href={brutalistHref("/projects", contentDebug)}
+                  prefetch={false}
                 >
                   {homeCopy.featured.actionLabel}{" "}
                   ({String(viewModel.projectCount).padStart(2, "0")})
@@ -468,6 +474,7 @@ function HomeView({
                 <Link
                   className={styles.fullWidthAction}
                   href={brutalistHref("/journey", contentDebug)}
+                  prefetch={false}
                 >
                   {homeCopy.journeyActionLabel}{" "}
                   <span aria-hidden="true">→</span>
@@ -650,6 +657,7 @@ function ProjectDetailView({
             <Link
               className={styles.backLink}
               href={brutalistHref("/projects", contentDebug)}
+              prefetch={false}
             >
               ← {copy.backLabel}
             </Link>

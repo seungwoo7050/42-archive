@@ -44,7 +44,11 @@ function CinematicLink({
 }) {
   if (href.startsWith("/") && !href.startsWith("//")) {
     return (
-      <Link className={className} href={routeHref(href, contentDebug)}>
+      <Link
+        className={className}
+        href={routeHref(href, contentDebug)}
+        prefetch={false}
+      >
         {children}
       </Link>
     );
@@ -111,7 +115,11 @@ function Frame({
         {ui.skipLinkLabel}
       </a>
       <header className={styles.header}>
-        <Link className={styles.brand} href={routeHref("/", contentDebug)}>
+        <Link
+          className={styles.brand}
+          href={routeHref("/", contentDebug)}
+          prefetch={false}
+        >
           <span>{content.site.brand}</span>
           <small>{content.presentation.cinematic.shell.brandSubtitle}</small>
         </Link>
@@ -121,6 +129,7 @@ function Frame({
               aria-current={isCurrentNavigation(item.href, currentPath) ? "page" : undefined}
               href={routeHref(item.href, contentDebug)}
               key={item.href}
+              prefetch={false}
             >
               {item.label}
             </Link>
@@ -144,6 +153,7 @@ function Frame({
                 aria-current={isCurrentNavigation(item.href, currentPath) ? "page" : undefined}
                 href={routeHref(item.href, contentDebug)}
                 key={`${item.href}-mobile`}
+                prefetch={false}
               >
                 {item.label}
               </Link>
@@ -211,13 +221,18 @@ function ProjectChapter({
         <ChapterLabel index={index}>{project.category}</ChapterLabel>
         <h2>{project.title}</h2>
         <p>{project.summary}</p>
-        <Link className={styles.textLink} href={routeHref(`/projects/${project.id}`, contentDebug)}>
+        <Link
+          className={styles.textLink}
+          href={routeHref(`/projects/${project.id}`, contentDebug)}
+          prefetch={false}
+        >
           {actionLabel} <span aria-hidden="true">→</span>
         </Link>
       </div>
       <Link
         aria-label={openItemAriaTemplate.replace("{title}", project.title)}
         href={routeHref(`/projects/${project.id}`, contentDebug)}
+        prefetch={false}
       >
         <Media alt={project.screenshot.alt} priority={priority} src={project.screenshot.src} />
       </Link>
@@ -240,8 +255,12 @@ function HomeView({ content, contentDebug }: DesignRouteProps) {
           <p className={styles.lede}>{content.profile.headline}</p>
           <p className={styles.summary}>{content.profile.summary}</p>
           <div className={styles.heroActions}>
-            <Link href={routeHref("/projects", contentDebug)}>{copy.hero.primaryActionLabel}</Link>
-            <Link href={routeHref("/contact", contentDebug)}>{copy.hero.secondaryActionLabel}</Link>
+            <Link href={routeHref("/projects", contentDebug)} prefetch={false}>
+              {copy.hero.primaryActionLabel}
+            </Link>
+            <Link href={routeHref("/contact", contentDebug)} prefetch={false}>
+              {copy.hero.secondaryActionLabel}
+            </Link>
           </div>
         </div>
         {lead ? (
@@ -368,7 +387,9 @@ function ProjectDetailView({ content, contentDebug, project }: DesignRouteProps)
   return (
     <article className={styles.caseStudy}>
       <header className={styles.caseHero}>
-        <Link href={routeHref("/projects", contentDebug)}>← {copy.backLabel}</Link>
+        <Link href={routeHref("/projects", contentDebug)} prefetch={false}>
+          ← {copy.backLabel}
+        </Link>
         <p>{project.category} · {project.period}</p>
         <h1>{project.title}</h1>
         <p className={styles.lede}>{project.summary}</p>

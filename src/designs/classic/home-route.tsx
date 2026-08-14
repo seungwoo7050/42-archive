@@ -190,6 +190,7 @@ function ClassicHeroSection({
               href={getTemplateHref("/projects", activeTemplate, {
                 contentDebug,
               })}
+              prefetch={false}
             >
               {copy.primaryActionLabel}
               <ArrowRightIcon />
@@ -255,6 +256,7 @@ function ClassicFeaturedProjectsSection({
             href={getTemplateHref("/projects", activeTemplate, {
               contentDebug,
             })}
+            prefetch={false}
           >
             {copy.actionLabel}
             <ArrowRightIcon />
