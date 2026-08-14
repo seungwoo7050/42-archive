@@ -4,7 +4,10 @@ import { AvailabilityBadge } from "@/components/portfolio/availability-badge";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { ProjectLinks } from "@/components/portfolio/project-links";
 import { ProjectScreenshot } from "@/components/portfolio/project-screenshot";
+import { PageShell } from "@/components/portfolio/site-shell";
 import { StackList } from "@/components/portfolio/stack-list";
+import { createDesignShellProps } from "@/designs/shell-props";
+import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
 import {
   getTemplateHref,
   type HomeTemplateId,
@@ -12,7 +15,41 @@ import {
   type PortfolioProject,
 } from "@/lib/portfolio";
 
-export function ProjectHero({
+export default function ProjectDetailRoute({
+  content,
+  contentDebug,
+  currentPath,
+}: DesignRouteProps) {
+  if (content.route !== "project-detail") return null;
+
+  const activeTemplate = "design";
+  const shellProps = createDesignShellProps(
+    content,
+    contentDebug,
+    currentPath,
+    activeTemplate,
+  );
+  const project = content.project;
+  const pageCopy = content.presentation.pages.projectDetail;
+
+  return (
+    <PageShell {...shellProps}>
+      <ProjectHero
+        contentDebug={contentDebug}
+        homeTemplate={activeTemplate}
+        pageCopy={pageCopy}
+        project={project}
+      />
+      <ProjectBody
+        contentDebug={contentDebug}
+        pageCopy={pageCopy}
+        project={project}
+      />
+    </PageShell>
+  );
+}
+
+function ProjectHero({
   contentDebug,
   homeTemplate,
   pageCopy,
@@ -70,7 +107,7 @@ export function ProjectHero({
   );
 }
 
-export function SectionTitle({
+function SectionTitle({
   eyebrow,
   title,
 }: {
@@ -87,7 +124,7 @@ export function SectionTitle({
   );
 }
 
-export function TwoColumnSection({
+function TwoColumnSection({
   body,
   eyebrow,
   title,
@@ -104,7 +141,7 @@ export function TwoColumnSection({
   );
 }
 
-export function ListSection({
+function ListSection({
   eyebrow,
   items,
   title,
@@ -130,7 +167,7 @@ export function ListSection({
   );
 }
 
-export function ProjectBody({
+function ProjectBody({
   contentDebug,
   pageCopy,
   project,

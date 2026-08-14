@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ProjectDetailView } from "@/components/portfolio/project-detail-view";
 import { PageShell } from "@/components/portfolio/site-shell";
 import { StructuredData } from "@/components/portfolio/structured-data";
+import DesignProjectDetailRoute from "@/designs/design/project-detail-route";
 import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import {
   resolvePortfolioContentMode,
@@ -96,6 +97,20 @@ export default async function ProjectDetailPage({
       <>
         {structuredData ? <StructuredData data={structuredData} /> : null}
         {designRoute}
+      </>
+    );
+  }
+
+  if (activeTemplate === "design") {
+    return (
+      <>
+        {structuredData ? <StructuredData data={structuredData} /> : null}
+        <DesignProjectDetailRoute
+          content={viewModel}
+          contentDebug={contentDebug}
+          currentPath={`/projects/${project.id}`}
+          route="project-detail"
+        />
       </>
     );
   }
