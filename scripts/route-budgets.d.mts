@@ -1,3 +1,10 @@
+export type RouteBundleSize = {
+  cssBytes: number;
+  jsBytes: number;
+};
+
+export type RouteBundleMeasurement = Record<string, RouteBundleSize>;
+
 export type ClientReferenceManifest = {
   entryCSSFiles?: Record<
     string,
@@ -10,3 +17,7 @@ export function parseClientReferenceManifest(
   source: string,
   filename: string,
 ): ClientReferenceManifest;
+
+export function collectRouteBundleMeasurements(
+  buildDirectory?: string,
+): Promise<RouteBundleMeasurement>;
