@@ -7,6 +7,8 @@ import {
 import type {
   ContentLink,
   CurationCategory,
+  JourneyItem,
+  JourneyMilestone,
   PortfolioContent,
   PortfolioProject,
   ProjectGroup,
@@ -83,13 +85,28 @@ export type ContactViewModel = RouteViewModelBase & {
   preferredOrContactLinks: ContentLink[];
 };
 
+export type JourneyMilestoneViewModel = JourneyMilestone & {
+  anchorProjects: PortfolioProject[];
+};
+
+export type JourneyItemViewModel = JourneyItem & {
+  project: PortfolioProject | null;
+};
+
+export type JourneyViewModel = RouteViewModelBase & {
+  route: "journey";
+  milestones: JourneyMilestoneViewModel[];
+  timelineItems: JourneyItemViewModel[];
+};
+
 export type PortfolioRouteViewModel =
   | HomeViewModel
   | ProjectIndexViewModel
   | ProjectDetailViewModel
   | AboutViewModel
   | ResumeViewModel
-  | ContactViewModel;
+  | ContactViewModel
+  | JourneyViewModel;
 
 function createRouteViewModelBase(
   content: PortfolioContent,
@@ -300,5 +317,29 @@ export function createContactViewModel(
     preferredOrContactLinks,
     projects: [],
     route: "contact",
+  };
+}
+
+export function createJourneyViewModel(
+  content: PortfolioContent,
+): JourneyViewModel {
+  const projectById = new Map(
+    content.projects.map((project) => [project.id, project]),
+  );
+
+  return {
+    ...createRouteViewModelBase(content),
+    milestones: content.journeyNarrative.milestones.map((milestone) => ({
+      ...milestone,
+      anchorProjects: milestone.anchorProjectIds
+        .map((projectId) => projectById.get(projectId))
+        .filter((project): project is PortfolioProject => Boolean(project)),
+    })),
+    projects: [],
+    route: "journey",
+    timelineItems: content.journey.map((item) => ({
+      ...item,
+      project: item.projectId ? (projectById.get(item.projectId) ?? null) : null,
+    })),
   };
 }
