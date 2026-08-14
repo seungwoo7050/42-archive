@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
+import { StructuredData } from "@/components/portfolio/structured-data";
 import {
   resolvePortfolioContentMode,
   resolveProductionSiteUrl,
 } from "@/lib/content-readiness";
 import { getPortfolioContent } from "@/lib/portfolio";
-import { createPortfolioMetadata } from "@/lib/site-metadata";
+import {
+  createPortfolioMetadata,
+  createSiteStructuredData,
+} from "@/lib/site-metadata";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -63,13 +67,27 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const mode = resolvePortfolioContentMode(
+    process.env.PORTFOLIO_CONTENT_MODE,
+  );
+  const siteStructuredData =
+    mode === "production"
+      ? createSiteStructuredData({
+          content: getPortfolioContent(),
+          siteUrl: resolveProductionSiteUrl(process.env.SITE_URL),
+        })
+      : undefined;
+
   return (
     <html
       lang={site.language}
       data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} ${koreanSerif.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {siteStructuredData ? <StructuredData data={siteStructuredData} /> : null}
+        {children}
+      </body>
     </html>
   );
 }
