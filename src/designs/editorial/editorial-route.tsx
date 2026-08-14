@@ -5,7 +5,6 @@ import type { ReactNode } from "react";
 import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
   getPreferredContactLinks,
-  getProjectDetailLinks,
   getResumeProjects,
   getTemplateHref,
   isSitePageEnabled,
@@ -16,6 +15,7 @@ import {
 } from "@/lib/portfolio";
 import type {
   HomeViewModel,
+  ProjectDetailViewModel,
   ProjectIndexViewModel,
 } from "@/lib/portfolio/view-models";
 
@@ -583,6 +583,7 @@ function EvidenceList({
 }
 
 function ProjectDetailRoute({ content, contentDebug, project }: EditorialRouteProps) {
+  const viewModel = content as ProjectDetailViewModel;
   const copy = content.presentation.pages.projectDetail;
   const ui = content.presentation.ui;
 
@@ -599,11 +600,8 @@ function ProjectDetailRoute({ content, contentDebug, project }: EditorialRoutePr
     );
   }
 
-  const supportingImages = project.screenshots.filter(
-    (image) => image.src !== project.screenshot.src,
-  );
-  const detailLinks = getProjectDetailLinks(project);
-  const stackById = new Map(content.techStack.map((item) => [item.id, item]));
+  const supportingImages = viewModel.supportingImages;
+  const detailLinks = viewModel.detailLinks;
 
   return (
     <article className={styles.caseStudy}>
@@ -682,10 +680,8 @@ function ProjectDetailRoute({ content, contentDebug, project }: EditorialRoutePr
           <span>{copy.sections.stack.eyebrow}</span>
           <p>{copy.sections.stack.title}</p>
           <ul>
-            {project.stack.map((stackId) => (
-              <li key={stackId}>
-                {stackById.get(stackId)?.label ?? stackId}
-              </li>
+            {viewModel.stackItems.map((stack) => (
+              <li key={stack.id}>{stack.label}</li>
             ))}
           </ul>
         </aside>

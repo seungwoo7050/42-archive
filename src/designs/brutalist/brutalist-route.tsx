@@ -4,7 +4,6 @@ import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
   getContentLinksByPlacement,
   getPreferredContactLinks,
-  getProjectDetailLinks,
   getTemplateHref,
   isSitePageEnabled,
   type ContentLink,
@@ -13,6 +12,7 @@ import {
 } from "@/lib/portfolio";
 import type {
   HomeViewModel,
+  ProjectDetailViewModel,
   ProjectIndexViewModel,
 } from "@/lib/portfolio/view-models";
 import type { DesignRouteProps } from "@/designs/types";
@@ -610,6 +610,7 @@ function ProjectDetailView({
   contentDebug: boolean;
   project?: PortfolioProject;
 }) {
+  const viewModel = content as ProjectDetailViewModel;
   const copy = content.presentation.pages.projectDetail;
 
   if (!project) {
@@ -658,7 +659,7 @@ function ProjectDetailView({
             </dl>
             <ProjectActions
               contentDebug={contentDebug}
-              links={getProjectDetailLinks(project)}
+              links={viewModel.detailLinks}
             />
           </div>
           <ProjectMedia image={project.screenshot} priority />
@@ -710,10 +711,9 @@ function ProjectDetailView({
           <section className={styles.detailSection}>
             <SectionHeader number="05" title={copy.sections.stack.title} />
             <div className={styles.stackWall}>
-              {project.stack.map((stackId) => {
-                const stack = content.techStack.find((item) => item.id === stackId);
-                return <span key={stackId}>{stack!.label}</span>;
-              })}
+              {viewModel.stackItems.map((stack) => (
+                <span key={stack.id}>{stack.label}</span>
+              ))}
             </div>
           </section>
           <DetailListSection

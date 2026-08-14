@@ -85,16 +85,17 @@ export default async function ProjectDetailPage({
       : undefined;
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
+    const designRoute = await renderDesignRoute(activeTemplate, {
+      contentDebug,
+      currentPath: `/projects/${project.id}`,
+      route: "project-detail",
+      viewModel,
+    });
+
     return (
       <>
         {structuredData ? <StructuredData data={structuredData} /> : null}
-        {renderDesignRoute(activeTemplate, {
-          content,
-          contentDebug,
-          currentPath: `/projects/${project.id}`,
-          project,
-          route: "project-detail",
-        })}
+        {designRoute}
       </>
     );
   }

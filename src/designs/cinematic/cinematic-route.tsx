@@ -3,13 +3,15 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
-  getProjectDetailLinks,
   getTemplateHref,
   isSitePageEnabled,
   type ContentLink,
   type PortfolioProject,
 } from "@/lib/portfolio";
-import type { HomeViewModel } from "@/lib/portfolio/view-models";
+import type {
+  HomeViewModel,
+  ProjectDetailViewModel,
+} from "@/lib/portfolio/view-models";
 import type { DesignRouteProps } from "@/designs/types";
 import styles from "./cinematic.module.css";
 
@@ -334,6 +336,7 @@ function ProjectsView({ content, contentDebug }: DesignRouteProps) {
 }
 
 function ProjectDetailView({ content, contentDebug, project }: DesignRouteProps) {
+  const viewModel = content as ProjectDetailViewModel;
   const copy = content.presentation.pages.projectDetail;
 
   if (!project) {
@@ -354,11 +357,8 @@ function ProjectDetailView({ content, contentDebug, project }: DesignRouteProps)
     { label: copy.sections.solution.title, body: project.solution },
     { label: copy.sections.architecture.title, body: project.architecture.summary },
   ].filter((section) => section.body);
-  const stackById = new Map(content.techStack.map((item) => [item.id, item]));
-  const detailLinks = getProjectDetailLinks(project);
-  const supportingImages = project.screenshots.filter(
-    (image) => image.src !== project.screenshot.src,
-  );
+  const detailLinks = viewModel.detailLinks;
+  const supportingImages = viewModel.supportingImages;
 
   return (
     <article className={styles.caseStudy}>
@@ -420,9 +420,7 @@ function ProjectDetailView({ content, contentDebug, project }: DesignRouteProps)
         <section>
           <ChapterLabel index={9}>{copy.sections.stack.title}</ChapterLabel>
           <p className={styles.stack}>
-            {project.stack
-              .map((stackId) => stackById.get(stackId)?.label ?? stackId)
-              .join(" · ")}
+            {viewModel.stackItems.map((stack) => stack.label).join(" · ")}
           </p>
           <LinkList
             contentDebug={contentDebug}
