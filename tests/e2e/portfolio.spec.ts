@@ -13,15 +13,13 @@ import resumeJson from "../../src/content/resume.json";
 import siteJson from "../../src/content/site.json";
 import skillsJson from "../../src/content/skills.json";
 import techStackJson from "../../src/content/tech-stack.json";
-
-const designIds = [
-  "design",
-  "classic",
-  "editorial",
-  "brutalist",
-  "cinematic",
-] as const;
-type DesignId = (typeof designIds)[number];
+import {
+  designIds,
+  enabledRoutes,
+  firstEnabledProject,
+  withExplicitDesign,
+  type DesignId,
+} from "./site-matrix";
 
 function requireFixture<T>(value: T | undefined, message: string): T {
   if (value === undefined) {
@@ -32,7 +30,7 @@ function requireFixture<T>(value: T | undefined, message: string): T {
 }
 
 const firstProject = requireFixture(
-  projectsJson.items.find((project) => project.enabled !== false),
+  firstEnabledProject,
   "The portfolio needs at least one enabled project.",
 );
 const firstProjectTechnology = requireFixture(
@@ -55,33 +53,12 @@ const templateLabels = new Map(
   presentationJson.templates.map((template) => [template.id, template.label]),
 );
 
-const routeDefinitions = [
-  { path: "/", pageId: undefined },
-  { path: "/projects", pageId: "projects" },
-  { path: `/projects/${firstProject.id}`, pageId: "projects" },
-  { path: "/about", pageId: "about" },
-  { path: "/resume", pageId: "resume" },
-  { path: "/contact", pageId: "contact" },
-  { path: "/journey", pageId: "journey" },
-  { path: "/interview-map", pageId: "interviewMap" },
-] as const;
-
-const enabledRoutes = routeDefinitions.filter(
-  ({ pageId }) => !pageId || siteJson.pages?.[pageId] !== false,
-);
-
 const projectsNavigation = siteJson.navigation.find(
   (item) => item.href === "/projects",
 );
 
 if (!projectsNavigation) {
   throw new Error("site.json must include a /projects navigation item.");
-}
-
-function withExplicitDesign(path: string, designId: DesignId) {
-  const url = new URL(path, "https://portfolio.test");
-  url.searchParams.set("view", designId);
-  return `${url.pathname}${url.search}${url.hash}`;
 }
 
 function expectedInternalHref(
