@@ -32,10 +32,10 @@ export default async function Home({ searchParams }: HomePageProps) {
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
-      content,
       contentDebug,
       currentPath: "/",
       route: "home",
+      viewModel,
     });
   }
 

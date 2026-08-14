@@ -12,6 +12,7 @@ import {
   type PortfolioContent,
   type PortfolioProject,
 } from "@/lib/portfolio";
+import type { HomeViewModel } from "@/lib/portfolio/view-models";
 import type { DesignRouteProps } from "@/designs/types";
 import styles from "./brutalist.module.css";
 
@@ -332,12 +333,12 @@ function HomeView({
   content: PortfolioContent;
   contentDebug: boolean;
 }) {
+  const viewModel = content as HomeViewModel;
   const homeCopy = content.presentation.home.brutalist;
   const ui = content.presentation.ui;
-  const featured = content.projects.filter((project) => project.featured);
-  const selected = (featured.length > 0 ? featured : content.projects).slice(0, 5);
-  const metrics = getHomeMetrics(content);
-  const recentJourney = content.journey.slice(-4).reverse();
+  const selected = viewModel.featuredOrAllProjects.slice(0, 5);
+  const metrics = viewModel.metrics.slice(0, 4);
+  const recentJourney = viewModel.recentJourney;
 
   return (
     <>
@@ -348,7 +349,7 @@ function HomeView({
               <section className={styles.homeHero} key={section}>
                 <div className={styles.heroStamp}>
                   <span>
-                    {homeCopy.stampLabel} / {new Date().getFullYear()}
+                    {homeCopy.stampLabel} / {viewModel.currentYear}
                   </span>
                   <span>{content.profile.availability}</span>
                 </div>
@@ -421,7 +422,7 @@ function HomeView({
                   href={brutalistHref("/projects", contentDebug)}
                 >
                   {homeCopy.featured.actionLabel}{" "}
-                  ({String(content.projects.length).padStart(2, "0")})
+                  ({String(viewModel.projectCount).padStart(2, "0")})
                   <span aria-hidden="true">→</span>
                 </Link>
               </section>

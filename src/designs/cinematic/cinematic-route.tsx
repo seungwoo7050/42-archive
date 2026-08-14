@@ -9,6 +9,7 @@ import {
   type ContentLink,
   type PortfolioProject,
 } from "@/lib/portfolio";
+import type { HomeViewModel } from "@/lib/portfolio/view-models";
 import type { DesignRouteProps } from "@/designs/types";
 import styles from "./cinematic.module.css";
 
@@ -218,8 +219,9 @@ function ProjectChapter({
 }
 
 function HomeView({ content, contentDebug }: DesignRouteProps) {
-  const featured = content.projects.filter((project) => project.featured);
-  const lead = featured[0] ?? content.projects[0];
+  const viewModel = content as HomeViewModel;
+  const featured = viewModel.featuredProjects;
+  const lead = viewModel.leadProject;
   const copy = content.presentation.home.cinematic;
   const ui = content.presentation.ui;
   const sectionNodes: Record<(typeof copy.sections)[number], React.ReactNode> = {
@@ -251,7 +253,10 @@ function HomeView({ content, contentDebug }: DesignRouteProps) {
     ),
     projects: (
       <section className={styles.chapters}>
-        {(featured.length > 0 ? featured : content.projects.slice(0, 4)).map(
+        {(featured.length > 0
+          ? featured
+          : viewModel.featuredOrAllProjects.slice(0, 4)
+        ).map(
           (project, index) => (
             <ProjectChapter
               actionLabel={copy.caseStudyActionLabel}

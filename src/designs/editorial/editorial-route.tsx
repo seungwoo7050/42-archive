@@ -15,6 +15,7 @@ import {
   type PortfolioProject,
   type ProjectImage,
 } from "@/lib/portfolio";
+import type { HomeViewModel } from "@/lib/portfolio/view-models";
 
 import styles from "./editorial-route.module.css";
 
@@ -305,11 +306,12 @@ function ProjectIndexItem({
 }
 
 function HomeRoute({ content, contentDebug }: EditorialRouteProps) {
-  const projects = content.projects;
-  const featured = projects.filter((project) => project.featured);
-  const selected = featured.length > 0 ? featured : projects.slice(0, 4);
+  const viewModel = content as HomeViewModel;
+  const featured = viewModel.featuredProjects;
+  const selected =
+    featured.length > 0 ? featured : viewModel.featuredOrAllProjects.slice(0, 4);
   const lead = selected[0];
-  const preferredLinks = getPreferredContactLinks(content);
+  const preferredLinks = viewModel.preferredContactLinks;
   const homeCopy = content.presentation.home.editorial;
   const sharedCopy = content.presentation.home.shared;
   const ui = content.presentation.ui;
@@ -325,7 +327,7 @@ function HomeRoute({ content, contentDebug }: EditorialRouteProps) {
                   <span>
                     {homeCopy.hero.issueTemplate.replace(
                       "{year}",
-                      String(new Date().getFullYear()),
+                      String(viewModel.currentYear),
                     )}
                   </span>
                   <span>{content.profile.location}</span>
