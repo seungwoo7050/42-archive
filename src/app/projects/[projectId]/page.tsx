@@ -2,7 +2,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProjectDetailView } from "@/components/portfolio/project-detail-view";
 import { PageShell } from "@/components/portfolio/site-shell";
+import { StructuredData } from "@/components/portfolio/structured-data";
 import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
+import {
+  resolvePortfolioContentMode,
+  resolveProductionSiteUrl,
+} from "@/lib/content-readiness";
 import {
   getPortfolioContent,
   isSitePageEnabled,
@@ -10,7 +15,10 @@ import {
   type RouteSearchParams,
 } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
-import { createRouteMetadata } from "@/lib/site-metadata";
+import {
+  createProjectStructuredData,
+  createRouteMetadata,
+} from "@/lib/site-metadata";
 
 type ProjectDetailPageProps = {
   params: Promise<{ projectId: string }>;
@@ -62,24 +70,44 @@ export default async function ProjectDetailPage({
     notFound();
   }
 
+  const mode = resolvePortfolioContentMode(
+    process.env.PORTFOLIO_CONTENT_MODE,
+  );
+  const structuredData =
+    mode === "production"
+      ? createProjectStructuredData({
+          content,
+          project,
+          siteUrl: resolveProductionSiteUrl(process.env.SITE_URL),
+        })
+      : undefined;
+
   if (hasDedicatedRouteRenderer(activeTemplate)) {
-    return renderDesignRoute(activeTemplate, {
-      content,
-      contentDebug,
-      currentPath: `/projects/${project.id}`,
-      project,
-      route: "project-detail",
-    });
+    return (
+      <>
+        {structuredData ? <StructuredData data={structuredData} /> : null}
+        {renderDesignRoute(activeTemplate, {
+          content,
+          contentDebug,
+          currentPath: `/projects/${project.id}`,
+          project,
+          route: "project-detail",
+        })}
+      </>
+    );
   }
 
   return (
-    <PageShell {...shellProps}>
-      <ProjectDetailView
-        contentDebug={contentDebug}
-        homeTemplate={activeTemplate}
-        pageCopy={content.presentation.pages.projectDetail}
-        project={project}
-      />
-    </PageShell>
+    <>
+      {structuredData ? <StructuredData data={structuredData} /> : null}
+      <PageShell {...shellProps}>
+        <ProjectDetailView
+          contentDebug={contentDebug}
+          homeTemplate={activeTemplate}
+          pageCopy={content.presentation.pages.projectDetail}
+          project={project}
+        />
+      </PageShell>
+    </>
   );
 }
