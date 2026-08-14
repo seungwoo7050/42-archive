@@ -373,8 +373,10 @@
   margin: 1.5rem 0 0;
 }
 
-.metricBlock p {
+.metricBlock .metricDescription {
   font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: normal;
   line-height: 1.4;
   margin: 1rem 0 0;
   max-width: 16rem;

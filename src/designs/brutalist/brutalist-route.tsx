@@ -272,7 +272,7 @@ function BrutalistShell({
           </span>
         </aside>
       ) : null}
-      <main className={styles.main} id="brutalist-main">
+      <main className={styles.main} id="brutalist-main" tabIndex={-1}>
         {children}
       </main>
       <footer className={styles.footer}>
@@ -363,7 +363,11 @@ function HomeView({
                         {String(index + 1).padStart(2, "0")} / {metric.label}
                       </dt>
                       <dd>{String(metric.value).padStart(2, "0")}</dd>
-                      {metric.description ? <p>{metric.description}</p> : null}
+                      {metric.description ? (
+                        <dd className={styles.metricDescription}>
+                          {metric.description}
+                        </dd>
+                      ) : null}
                     </div>
                   ))}
                 </dl>
