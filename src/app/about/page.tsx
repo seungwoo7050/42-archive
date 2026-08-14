@@ -8,6 +8,7 @@ import { ProfilePhoto } from "@/components/portfolio/profile-photo";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
 import { StackList } from "@/components/portfolio/stack-list";
+import DesignAboutRoute from "@/designs/design/about-route";
 import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import {
   getPortfolioContent,
@@ -58,6 +59,17 @@ export default async function AboutPage({
       route: "about",
       viewModel: content,
     });
+  }
+
+  if (activeTemplate === "design") {
+    return (
+      <DesignAboutRoute
+        content={content}
+        contentDebug={contentDebug}
+        currentPath="/about"
+        route="about"
+      />
+    );
   }
 
   const pageCopy = content.presentation.pages.about;

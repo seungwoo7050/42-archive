@@ -6,16 +6,17 @@ import { ProfilePhoto } from "@/components/portfolio/profile-photo";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
 import { StackList } from "@/components/portfolio/stack-list";
-import { createDesignShellProps } from "@/designs/shell-props";
-import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
+import {
+  type AboutViewModel,
+  type CurationCategoryViewModel,
+} from "@/lib/portfolio/view-models";
 import {
   getTemplateHref,
+  isSitePageEnabled,
   type HomeTemplateId,
 } from "@/lib/portfolio";
-import type {
-  AboutViewModel,
-  CurationCategoryViewModel,
-} from "@/lib/portfolio/view-models";
+import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
+import { createDesignShellProps } from "@/designs/shell-props";
 
 export default function AboutRoute({
   content,
@@ -144,11 +145,43 @@ export default function AboutRoute({
           </div>
         </div>
       </section>
+      <section className="border-b border-line bg-background-soft">
+        <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+          <SectionHeading
+            contentDebug={contentDebug}
+            contentHint="src/content/experience.json"
+            title={pageCopy.journey.title}
+          />
+          <ol className="grid gap-4">
+            {content.experience.map((item) => (
+              <li
+                className="rounded-lg border border-line bg-surface p-5"
+                key={`${item.period}-${item.title}`}
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-accent">
+                  {item.period}
+                </p>
+                <h2 className="mt-3 text-base font-semibold text-foreground">
+                  {item.title}
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-muted">{item.body}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+      {isSitePageEnabled("curation", content) ? (
+        <CurationSection
+          content={content}
+          contentDebug={contentDebug}
+          homeTemplate={activeTemplate}
+        />
+      ) : null}
     </PageShell>
   );
 }
 
-export function CurationSection({
+function CurationSection({
   content,
   contentDebug,
   homeTemplate,
@@ -246,7 +279,7 @@ export function CurationSection({
   );
 }
 
-export function CurationCategoryCard({
+function CurationCategoryCard({
   category,
   contentDebug,
   homeTemplate,
