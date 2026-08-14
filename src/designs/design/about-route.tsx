@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { ArrowRightIcon } from "@/components/icons";
 import { ContentHint } from "@/components/portfolio/content-hint";
+import { JourneyList } from "@/components/portfolio/journey-list";
 import { ProfilePhoto } from "@/components/portfolio/profile-photo";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
+import { StackList } from "@/components/portfolio/stack-list";
 import { createDesignShellProps } from "@/designs/shell-props";
 import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
 import {
@@ -75,6 +77,70 @@ export default function AboutRoute({
                 </p>
               </article>
             ))}
+          </div>
+        </div>
+      </section>
+      <section className="border-b border-line bg-background-soft">
+        <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+          <SectionHeading
+            contentDebug={contentDebug}
+            contentHint="src/content/presentation.json > pages.about.journey + src/content/journey.json > journey[]"
+            title={pageCopy.journey.title}
+          />
+          <JourneyList
+            caseStudyLabel={content.presentation.ui.journeyCaseStudyLabel}
+            contentDebug={contentDebug}
+            homeTemplate={activeTemplate}
+            items={content.journey}
+          />
+        </div>
+      </section>
+      <section className="border-b border-line">
+        <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+          <SectionHeading
+            contentDebug={contentDebug}
+            contentHint="src/content/presentation.json > pages.about.skills"
+            title={pageCopy.skills.title}
+          />
+          <div className="grid gap-8">
+            <div className="grid gap-4 sm:grid-cols-2">
+              {content.skills.focusAreas.map((area) => (
+                <article
+                  className="rounded-lg border border-line bg-surface p-5"
+                  key={area.title}
+                >
+                  <ContentHint
+                    enabled={contentDebug}
+                    path={`src/content/skills.json > focusAreas[title=${area.title}]`}
+                  />
+                  <h2 className="text-sm font-semibold text-foreground">
+                    {area.title}
+                  </h2>
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    {area.body}
+                  </p>
+                </article>
+              ))}
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {content.skills.groups.map((group) => (
+                <article
+                  className="rounded-lg border border-line bg-surface p-5"
+                  key={group.title}
+                >
+                  <ContentHint
+                    enabled={contentDebug}
+                    path={`src/content/skills.json > groups[title=${group.title}]`}
+                  />
+                  <h2 className="text-sm font-semibold text-foreground">
+                    {group.title}
+                  </h2>
+                  <div className="mt-4">
+                    <StackList items={group.items} />
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </section>
