@@ -12,6 +12,7 @@ import type {
   AboutViewModel,
   ContactViewModel,
   HomeViewModel,
+  InterviewMapViewModel,
   JourneyViewModel,
   ProjectDetailViewModel,
   ProjectIndexViewModel,
@@ -154,7 +155,7 @@ export function BrutalistRoute({
     case "interview-map":
       view = (
         <InterviewMapView
-          content={content}
+          content={content as InterviewMapViewModel}
           contentDebug={contentDebug}
           currentPath={currentPath}
         />
@@ -1459,15 +1460,12 @@ function InterviewMapView({
   contentDebug,
   currentPath,
 }: {
-  content: PortfolioContent;
+  content: InterviewMapViewModel;
   contentDebug: boolean;
   currentPath: string;
 }) {
   const copy = content.presentation.pages.interviewMap;
   const data = content.interviewMap;
-  const projectsById = new Map(
-    content.projects.map((project) => [project.id, project]),
-  );
 
   return (
     <>
@@ -1488,7 +1486,7 @@ function InterviewMapView({
       <nav aria-label={copy.tracks.title} className={styles.trackNavigation}>
         <span>{copy.tracks.indexLabel}</span>
         <ol>
-          {data.tracks.map((track, index) => (
+          {content.tracks.map((track, index) => (
             <li key={track.id}>
               <Link
                 href={brutalistHref(
@@ -1506,7 +1504,7 @@ function InterviewMapView({
 
       <div className={styles.trackArchive}>
         {data.tracks.length > 0 ? (
-          data.tracks.map((track, trackIndex) => (
+          content.tracks.map((track, trackIndex) => (
             <section
               className={styles.trackSection}
               id={`track-${track.id}`}
@@ -1540,11 +1538,9 @@ function InterviewMapView({
                         </a>
                       </div>
                       <div className={styles.answerGrid}>
-                        {item.answers.some((answer) =>
-                          projectsById.has(answer.projectId),
-                        ) ? (
+                        {item.answers.some((answer) => answer.project) ? (
                           item.answers.flatMap((answer, answerIndex) => {
-                            const project = projectsById.get(answer.projectId);
+                            const project = answer.project;
 
                             if (!project) {
                               return [];

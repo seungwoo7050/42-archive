@@ -15,6 +15,7 @@ import type {
   AboutViewModel,
   ContactViewModel,
   HomeViewModel,
+  InterviewMapViewModel,
   JourneyViewModel,
   ProjectDetailViewModel,
   ProjectIndexViewModel,
@@ -1261,9 +1262,9 @@ function JourneyRoute({ content, contentDebug }: EditorialRouteProps) {
 }
 
 function InterviewMapRoute({ content, contentDebug }: EditorialRouteProps) {
+  const viewModel = content as InterviewMapViewModel;
   const copy = content.presentation.pages.interviewMap;
   const data = content.interviewMap;
-  const projectById = new Map(content.projects.map((project) => [project.id, project]));
   const ui = content.presentation.ui;
 
   return (
@@ -1292,7 +1293,7 @@ function InterviewMapRoute({ content, contentDebug }: EditorialRouteProps) {
 
       <nav aria-label={copy.tracks.title} className={styles.chapterNav}>
         <strong className={styles.chapterNavLabel}>{copy.tracks.indexLabel}</strong>
-        {data.tracks.map((track, index) => (
+        {viewModel.tracks.map((track, index) => (
           <a href={`#editorial-track-${track.id}`} key={track.id}>
             <span>{twoDigits(index)}</span>
             {track.label}
@@ -1301,7 +1302,7 @@ function InterviewMapRoute({ content, contentDebug }: EditorialRouteProps) {
       </nav>
 
       <div className={styles.interviewTracks}>
-        {data.tracks.length > 0 ? data.tracks.map((track, trackIndex) => (
+        {viewModel.tracks.length > 0 ? viewModel.tracks.map((track, trackIndex) => (
           <section id={`editorial-track-${track.id}`} key={track.id}>
             <header>
               <span>{twoDigits(trackIndex)}</span>
@@ -1320,7 +1321,7 @@ function InterviewMapRoute({ content, contentDebug }: EditorialRouteProps) {
                   </div>
                   <div className={styles.answerEvidence}>
                     {item.answers.length > 0 ? item.answers.map((answer) => {
-                      const answerProject = projectById.get(answer.projectId);
+                      const answerProject = answer.project;
 
                       if (!answerProject) {
                         return (

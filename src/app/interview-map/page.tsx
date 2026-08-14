@@ -37,17 +37,17 @@ export default async function InterviewMapPage({
       currentPath: "/interview-map",
       searchParams,
     });
+  const viewModel = createInterviewMapViewModel(content);
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
-      content,
       contentDebug,
       currentPath: "/interview-map",
       route: "interview-map",
+      viewModel,
     });
   }
 
-  const viewModel = createInterviewMapViewModel(content);
   const InterviewMapRoute =
     activeTemplate === "design" ? DesignInterviewMapRoute : ClassicInterviewMapRoute;
 

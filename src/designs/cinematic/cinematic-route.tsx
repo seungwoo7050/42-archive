@@ -12,6 +12,7 @@ import type {
   AboutViewModel,
   ContactViewModel,
   HomeViewModel,
+  InterviewMapViewModel,
   JourneyViewModel,
   ProjectDetailViewModel,
   ResumeViewModel,
@@ -730,9 +731,9 @@ function JourneyView({ content, contentDebug }: DesignRouteProps) {
 }
 
 function InterviewMapView({ content, contentDebug }: DesignRouteProps) {
+  const viewModel = content as InterviewMapViewModel;
   const copy = content.presentation.pages.interviewMap;
   const data = content.interviewMap;
-  const projectsById = new Map(content.projects.map((project) => [project.id, project]));
 
   return (
     <>
@@ -756,7 +757,7 @@ function InterviewMapView({ content, contentDebug }: DesignRouteProps) {
         </div>
       </section>
       <section className={styles.trackGrid}>
-        {data.tracks.map((track, trackIndex) => (
+        {viewModel.tracks.map((track, trackIndex) => (
           <article key={track.id}>
             <ChapterLabel index={trackIndex + 3}>{track.label}</ChapterLabel>
             <p>{track.body}</p>
@@ -773,7 +774,7 @@ function InterviewMapView({ content, contentDebug }: DesignRouteProps) {
                 {item.answers.length > 0 ? (
                   <div className={styles.answerList}>
                     {item.answers.map((answer) => {
-                      const project = projectsById.get(answer.projectId);
+                      const project = answer.project;
 
                       return (
                         <article key={`${item.label}-${answer.projectId}`}>
