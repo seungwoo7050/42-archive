@@ -1,14 +1,5 @@
-import type { PortfolioProject, SiteDesignId } from "@/lib/portfolio";
-import type { PortfolioRouteId } from "@/designs/types";
+import type { SiteDesignId } from "@/lib/portfolio";
 import type { PortfolioRouteViewModel } from "@/lib/portfolio/view-models";
-
-export type PreparedDesignRouteProps = {
-  content: PortfolioRouteViewModel;
-  contentDebug: boolean;
-  currentPath: string;
-  project?: PortfolioProject;
-  route: PortfolioRouteId;
-};
 
 export function createDesignShellProps(
   content: PortfolioRouteViewModel,

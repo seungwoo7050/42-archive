@@ -1,4 +1,4 @@
-import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
+import type { DesignRouteProps } from "@/designs/types";
 
 import AboutRoute from "./about-route";
 import ContactRoute from "./contact-route";

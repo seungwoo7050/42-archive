@@ -6,7 +6,7 @@ import { StackList } from "@/components/portfolio/stack-list";
 import {
   getTemplateHref,
 } from "@/lib/portfolio";
-import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
+import type { DesignRouteProps } from "@/designs/types";
 import { createDesignShellProps } from "@/designs/shell-props";
 
 export default function ResumeRoute({

@@ -13,7 +13,7 @@ import {
   type PortfolioProject,
 } from "@/lib/portfolio";
 import { createDesignShellProps } from "@/designs/shell-props";
-import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
+import type { DesignRouteProps } from "@/designs/types";
 
 export default function ProjectDetailRoute({
   content,

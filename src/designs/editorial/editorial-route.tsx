@@ -7,7 +7,6 @@ import {
   getTemplateHref,
   isSitePageEnabled,
   type ContentLink,
-  type PortfolioContent,
   type PortfolioProject,
   type ProjectImage,
 } from "@/lib/portfolio";
@@ -19,6 +18,7 @@ import type {
   JourneyViewModel,
   ProjectDetailViewModel,
   ProjectIndexViewModel,
+  PortfolioRouteViewModel,
   ResumeViewModel,
 } from "@/lib/portfolio/view-models";
 
@@ -36,7 +36,7 @@ export type EditorialRouteName =
 
 export type EditorialRouteProps = {
   route: EditorialRouteName;
-  content: PortfolioContent;
+  content: PortfolioRouteViewModel;
   project?: PortfolioProject;
   currentPath: string;
   contentDebug: boolean;
@@ -167,10 +167,7 @@ function EditorialShell({
   const primaryNavigation = content.site.navigation;
   const ui = content.presentation.ui;
   const shellCopy = content.presentation.editorial.shell;
-  const footerLinks =
-    "footerLinks" in content
-      ? (content.footerLinks as ContentLink[])
-      : content.links.filter((link) => link.placements?.includes("footer"));
+  const footerLinks = content.footerLinks;
 
   return (
     <div className={styles.root} data-site-design="editorial">

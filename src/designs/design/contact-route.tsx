@@ -2,7 +2,7 @@ import { ArrowRightIcon } from "@/components/icons";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { ContentLinkView } from "@/components/portfolio/content-link";
 import { PageShell } from "@/components/portfolio/site-shell";
-import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
+import type { DesignRouteProps } from "@/designs/types";
 import { createDesignShellProps } from "@/designs/shell-props";
 
 export default function ContactRoute({

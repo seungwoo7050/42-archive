@@ -16,6 +16,7 @@ import type {
   JourneyViewModel,
   ProjectDetailViewModel,
   ProjectIndexViewModel,
+  PortfolioRouteViewModel,
   ResumeViewModel,
 } from "@/lib/portfolio/view-models";
 import type { DesignRouteProps } from "@/designs/types";
@@ -183,17 +184,14 @@ function BrutalistShell({
   route,
 }: {
   children: React.ReactNode;
-  content: PortfolioContent;
+  content: PortfolioRouteViewModel;
   contentDebug: boolean;
   currentPath: string;
   route: DesignRouteProps["route"];
 }) {
   const shellCopy = content.presentation.brutalist.shell;
   const ui = content.presentation.ui;
-  const footerLinks =
-    "footerLinks" in content
-      ? (content.footerLinks as ContentLink[])
-      : content.links.filter((link) => link.placements?.includes("footer"));
+  const footerLinks = content.footerLinks;
 
   return (
     <div

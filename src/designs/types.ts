@@ -1,4 +1,4 @@
-import type { PortfolioContent, PortfolioProject } from "@/lib/portfolio";
+import type { PortfolioProject } from "@/lib/portfolio";
 import type { PortfolioRouteViewModel } from "@/lib/portfolio/view-models";
 
 export type PortfolioRouteId =
@@ -12,7 +12,7 @@ export type PortfolioRouteId =
   | "interview-map";
 
 export type DesignRouteProps = {
-  content: PortfolioContent;
+  content: PortfolioRouteViewModel;
   contentDebug: boolean;
   currentPath: string;
   project?: PortfolioProject;
@@ -28,11 +28,4 @@ type ViewModelDesignRouteRequest = {
   };
 }[PortfolioRouteViewModel["route"]];
 
-export type DesignRouteRequestProps =
-  | ViewModelDesignRouteRequest
-  | {
-      content: PortfolioContent;
-      contentDebug: boolean;
-      currentPath: string;
-      route: "journey" | "interview-map";
-    };
+export type DesignRouteRequestProps = ViewModelDesignRouteRequest;
