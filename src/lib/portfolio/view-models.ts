@@ -100,23 +100,32 @@ export type ProjectDetailViewModel = ScopedRouteViewModel<
   }
 >;
 
-export type AboutViewModel = RouteViewModelBase & {
-  route: "about";
-  curationCategories: CurationCategoryViewModel[];
-};
+export type AboutViewModel = ScopedRouteViewModel<
+  "contact" | "curation" | "experience" | "journey" | "skills",
+  {
+    route: "about";
+    curationCategories: CurationCategoryViewModel[];
+  }
+>;
 
-export type ResumeViewModel = RouteViewModelBase & {
-  route: "resume";
-  resumeProjects: PortfolioProject[];
-};
+export type ResumeViewModel = ScopedRouteViewModel<
+  "experience" | "resume",
+  {
+    route: "resume";
+    resumeProjects: PortfolioProject[];
+  }
+>;
 
-export type ContactViewModel = RouteViewModelBase & {
-  route: "contact";
-  cinematicLinks: ContentLink[];
-  contactPlacementLinks: ContentLink[];
-  preferredLinks: ContentLink[];
-  preferredOrContactLinks: ContentLink[];
-};
+export type ContactViewModel = ScopedRouteViewModel<
+  "contact",
+  {
+    route: "contact";
+    cinematicLinks: ContentLink[];
+    contactPlacementLinks: ContentLink[];
+    preferredLinks: ContentLink[];
+    preferredOrContactLinks: ContentLink[];
+  }
+>;
 
 export type JourneyMilestoneViewModel = JourneyMilestone & {
   anchorProjects: PortfolioProject[];
@@ -329,15 +338,19 @@ export function createAboutViewModel(
 
   return {
     ...createRouteViewModelBase(content),
+    contact: content.contact,
+    curation: content.curation,
     curationCategories: content.curation.categories.map((category) => ({
       ...category,
       projects: category.projectIds
         .map((projectId) => projectById.get(projectId))
         .filter((project): project is PortfolioProject => Boolean(project)),
     })),
-    projects: [],
+    experience: content.experience,
+    journey: content.journey,
     route: "about",
-  };
+    skills: content.skills,
+  } as AboutViewModel;
 }
 
 export function createResumeViewModel(
@@ -349,12 +362,13 @@ export function createResumeViewModel(
 
   return {
     ...createRouteViewModelBase(content),
+    experience: content.experience,
+    resume: content.resume,
     resumeProjects: content.resume.projectIds
       .map((projectId) => projectById.get(projectId))
       .filter((project): project is PortfolioProject => Boolean(project)),
-    projects: [],
     route: "resume",
-  };
+  } as ResumeViewModel;
 }
 
 export function createContactViewModel(
@@ -368,12 +382,12 @@ export function createContactViewModel(
   return {
     ...createRouteViewModelBase(content),
     cinematicLinks: preferredOrContactLinks,
+    contact: content.contact,
     contactPlacementLinks,
     preferredLinks,
     preferredOrContactLinks,
-    projects: [],
     route: "contact",
-  };
+  } as ContactViewModel;
 }
 
 export function createJourneyViewModel(
