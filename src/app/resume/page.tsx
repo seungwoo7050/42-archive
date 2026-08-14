@@ -5,6 +5,7 @@ import { ArrowRightIcon } from "@/components/icons";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { PageShell } from "@/components/portfolio/site-shell";
 import { StackList } from "@/components/portfolio/stack-list";
+import DesignResumeRoute from "@/designs/design/resume-route";
 import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import {
   getPortfolioContent,
@@ -51,6 +52,17 @@ export default async function ResumePage({
       route: "resume",
       viewModel: content,
     });
+  }
+
+  if (activeTemplate === "design") {
+    return (
+      <DesignResumeRoute
+        content={content}
+        contentDebug={contentDebug}
+        currentPath="/resume"
+        route="resume"
+      />
+    );
   }
 
   const pageCopy = content.presentation.pages.resume;
