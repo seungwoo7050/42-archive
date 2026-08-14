@@ -15,6 +15,7 @@ import type {
   AboutViewModel,
   ContactViewModel,
   HomeViewModel,
+  JourneyViewModel,
   ProjectDetailViewModel,
   ProjectIndexViewModel,
   ResumeViewModel,
@@ -1147,6 +1148,7 @@ function ContactRoute({ content, contentDebug }: EditorialRouteProps) {
 }
 
 function JourneyRoute({ content, contentDebug }: EditorialRouteProps) {
+  const viewModel = content as JourneyViewModel;
   const copy = content.presentation.pages.journey;
   const narrative = content.journeyNarrative;
   const ui = content.presentation.ui;
@@ -1169,11 +1171,7 @@ function JourneyRoute({ content, contentDebug }: EditorialRouteProps) {
         <SectionKicker number="01">{copy.narrative.title}</SectionKicker>
         <p className={styles.sectionLead}>{copy.narrative.body}</p>
         <ol>
-          {narrative.milestones.length > 0 ? narrative.milestones.map((milestone, index) => {
-            const anchorProjects = milestone.anchorProjectIds
-              .map((id) => content.projects.find((project) => project.id === id))
-              .filter((item): item is PortfolioProject => Boolean(item));
-
+          {viewModel.milestones.length > 0 ? viewModel.milestones.map((milestone, index) => {
             return (
               <li key={milestone.id}>
                 <div className={styles.milestoneDate}>
@@ -1193,12 +1191,12 @@ function JourneyRoute({ content, contentDebug }: EditorialRouteProps) {
                       <dd>{milestone.result}</dd>
                     </div>
                   </dl>
-                  {anchorProjects.length > 0 ? (
+                  {milestone.anchorProjects.length > 0 ? (
                     <nav
                       aria-label={ui.projectNavigationAriaLabel}
                       className={styles.milestoneLinks}
                     >
-                      {anchorProjects.map((project) => (
+                      {milestone.anchorProjects.map((project) => (
                         <Link
                           href={editorialHref(`/projects/${project.id}`, contentDebug)}
                           key={project.id}
@@ -1224,26 +1222,22 @@ function JourneyRoute({ content, contentDebug }: EditorialRouteProps) {
           <p>{copy.timeline.body}</p>
         </div>
         <ol>
-          {content.journey.length > 0 ? content.journey.map((item, index) => {
-            const linkedProject = item.projectId
-              ? content.projects.find((project) => project.id === item.projectId)
-              : null;
-
+          {viewModel.timelineItems.length > 0 ? viewModel.timelineItems.map((item, index) => {
             return (
               <li key={`${item.date}-${item.title}-${index}`}>
                 <time>{item.date}{item.endDate ? ` — ${item.endDate}` : ""}</time>
                 <p>{item.category}</p>
                 <h3>{item.title}</h3>
                 <span>{item.body}</span>
-                {linkedProject ? (
+                {item.project ? (
                   <Link
                     className={styles.timelineProjectLink}
                     href={editorialHref(
-                      `/projects/${linkedProject.id}`,
+                      `/projects/${item.project.id}`,
                       contentDebug,
                     )}
                   >
-                    {copy.now.anchorLabel} · {linkedProject.title} <Arrow />
+                    {copy.now.anchorLabel} · {item.project.title} <Arrow />
                   </Link>
                 ) : null}
               </li>

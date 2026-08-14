@@ -12,6 +12,7 @@ import type {
   AboutViewModel,
   ContactViewModel,
   HomeViewModel,
+  JourneyViewModel,
   ProjectDetailViewModel,
   ProjectIndexViewModel,
   ResumeViewModel,
@@ -143,7 +144,12 @@ export function BrutalistRoute({
       view = <ContactView content={content} contentDebug={contentDebug} />;
       break;
     case "journey":
-      view = <JourneyView content={content} contentDebug={contentDebug} />;
+      view = (
+        <JourneyView
+          content={content as JourneyViewModel}
+          contentDebug={contentDebug}
+        />
+      );
       break;
     case "interview-map":
       view = (
@@ -1331,14 +1337,11 @@ function JourneyView({
   content,
   contentDebug,
 }: {
-  content: PortfolioContent;
+  content: JourneyViewModel;
   contentDebug: boolean;
 }) {
   const copy = content.presentation.pages.journey;
   const narrative = content.journeyNarrative;
-  const projectsById = new Map(
-    content.projects.map((project) => [project.id, project]),
-  );
 
   return (
     <>
@@ -1354,13 +1357,9 @@ function JourneyView({
           number="02"
           title={copy.narrative.title}
         />
-        {narrative.milestones.length > 0 ? (
+        {content.milestones.length > 0 ? (
           <ol className={styles.milestoneList}>
-            {narrative.milestones.map((milestone, index) => {
-            const projects = milestone.anchorProjectIds
-              .map((id) => content.projects.find((project) => project.id === id))
-              .filter((item): item is PortfolioProject => Boolean(item));
-
+            {content.milestones.map((milestone, index) => {
             return (
               <li key={milestone.id}>
                 <header>
@@ -1382,9 +1381,9 @@ function JourneyView({
                     <dd>{milestone.result}</dd>
                   </div>
                 </dl>
-                {projects.length > 0 ? (
+                {milestone.anchorProjects.length > 0 ? (
                   <div className={styles.anchorLinks}>
-                    {projects.map((project) => (
+                    {milestone.anchorProjects.map((project) => (
                       <Link
                         href={brutalistHref(`/projects/${project.id}`, contentDebug)}
                         key={project.id}
@@ -1409,13 +1408,9 @@ function JourneyView({
           number="03"
           title={copy.timeline.title}
         />
-        {content.journey.length > 0 ? (
+        {content.timelineItems.length > 0 ? (
           <ol className={styles.archiveTimeline}>
-            {content.journey.map((item, index) => {
-              const linkedProject = item.projectId
-                ? projectsById.get(item.projectId)
-                : undefined;
-
+            {content.timelineItems.map((item, index) => {
               return (
                 <li key={`${item.date}-${item.title}`}>
                   <span>{String(index + 1).padStart(2, "0")}</span>
@@ -1427,14 +1422,14 @@ function JourneyView({
                     <h3>{item.title}</h3>
                     <p>{item.body}</p>
                   </div>
-                  {linkedProject ? (
+                  {item.project ? (
                     <Link
                       aria-label={renderCopyTemplate(
                         content.presentation.ui.openItemAriaTemplate,
                         { title: item.title },
                       )}
                       href={brutalistHref(
-                        `/projects/${linkedProject.id}`,
+                        `/projects/${item.project.id}`,
                         contentDebug,
                       )}
                     >

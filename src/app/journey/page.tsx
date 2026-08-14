@@ -37,17 +37,17 @@ export default async function JourneyPage({
       currentPath: "/journey",
       searchParams,
     });
+  const viewModel = createJourneyViewModel(content);
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
-      content,
       contentDebug,
       currentPath: "/journey",
       route: "journey",
+      viewModel,
     });
   }
 
-  const viewModel = createJourneyViewModel(content);
   const JourneyRoute = activeTemplate === "design" ? DesignJourneyRoute : ClassicJourneyRoute;
 
   return (

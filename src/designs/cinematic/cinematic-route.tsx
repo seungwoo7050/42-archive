@@ -12,6 +12,7 @@ import type {
   AboutViewModel,
   ContactViewModel,
   HomeViewModel,
+  JourneyViewModel,
   ProjectDetailViewModel,
   ResumeViewModel,
 } from "@/lib/portfolio/view-models";
@@ -646,6 +647,7 @@ function ContactView({ content, contentDebug }: DesignRouteProps) {
 }
 
 function JourneyView({ content, contentDebug }: DesignRouteProps) {
+  const viewModel = content as JourneyViewModel;
   const copy = content.presentation.pages.journey;
   const narrative = content.journeyNarrative;
 
@@ -663,11 +665,7 @@ function JourneyView({ content, contentDebug }: DesignRouteProps) {
           <p>{copy.narrative.body}</p>
         </div>
       <ol className={styles.timeline}>
-        {narrative.milestones.map((milestone, index) => {
-          const projects = milestone.anchorProjectIds
-            .map((projectId) => content.projects.find((project) => project.id === projectId))
-            .filter((project): project is PortfolioProject => Boolean(project));
-
+        {viewModel.milestones.map((milestone, index) => {
           return (
           <li key={milestone.id}>
             <span>{String(index + 1).padStart(2, "0")}</span>
@@ -679,9 +677,9 @@ function JourneyView({ content, contentDebug }: DesignRouteProps) {
                 <div><dt>{copy.narrative.labels.reason}</dt><dd>{milestone.reason}</dd></div>
                 <div><dt>{copy.narrative.labels.result}</dt><dd>{milestone.result}</dd></div>
               </dl>
-              {projects.length > 0 ? (
+              {milestone.anchorProjects.length > 0 ? (
                 <div className={styles.evidenceLinks}>
-                  {projects.map((project) => (
+                  {milestone.anchorProjects.map((project) => (
                     <Link
                       href={routeHref(`/projects/${project.id}`, contentDebug)}
                       key={project.id}
