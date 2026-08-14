@@ -135,11 +135,14 @@ export type JourneyItemViewModel = JourneyItem & {
   project: PortfolioProject | null;
 };
 
-export type JourneyViewModel = RouteViewModelBase & {
-  route: "journey";
-  milestones: JourneyMilestoneViewModel[];
-  timelineItems: JourneyItemViewModel[];
-};
+export type JourneyViewModel = ScopedRouteViewModel<
+  "journey" | "journeyNarrative",
+  {
+    route: "journey";
+    milestones: JourneyMilestoneViewModel[];
+    timelineItems: JourneyItemViewModel[];
+  }
+>;
 
 export type InterviewMapAnswerViewModel = InterviewMapAnswer & {
   project: PortfolioProject | null;
@@ -153,10 +156,13 @@ export type InterviewMapTrackViewModel = Omit<InterviewMapTrack, "items"> & {
   items: InterviewMapItemViewModel[];
 };
 
-export type InterviewMapViewModel = RouteViewModelBase & {
-  route: "interview-map";
-  tracks: InterviewMapTrackViewModel[];
-};
+export type InterviewMapViewModel = ScopedRouteViewModel<
+  "interviewMap",
+  {
+    route: "interview-map";
+    tracks: InterviewMapTrackViewModel[];
+  }
+>;
 
 export type PortfolioRouteViewModel =
   | HomeViewModel
@@ -399,19 +405,20 @@ export function createJourneyViewModel(
 
   return {
     ...createRouteViewModelBase(content),
+    journey: content.journey,
+    journeyNarrative: content.journeyNarrative,
     milestones: content.journeyNarrative.milestones.map((milestone) => ({
       ...milestone,
       anchorProjects: milestone.anchorProjectIds
         .map((projectId) => projectById.get(projectId))
         .filter((project): project is PortfolioProject => Boolean(project)),
     })),
-    projects: [],
     route: "journey",
     timelineItems: content.journey.map((item) => ({
       ...item,
       project: item.projectId ? (projectById.get(item.projectId) ?? null) : null,
     })),
-  };
+  } as JourneyViewModel;
 }
 
 export function createInterviewMapViewModel(
@@ -423,7 +430,7 @@ export function createInterviewMapViewModel(
 
   return {
     ...createRouteViewModelBase(content),
-    projects: [],
+    interviewMap: content.interviewMap,
     route: "interview-map",
     tracks: content.interviewMap.tracks.map((track) => ({
       ...track,
@@ -435,5 +442,5 @@ export function createInterviewMapViewModel(
         })),
       })),
     })),
-  };
+  } as InterviewMapViewModel;
 }
