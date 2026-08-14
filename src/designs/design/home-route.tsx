@@ -13,10 +13,6 @@ import { SelectedStackSection } from "@/components/portfolio/selected-stack-sect
 import { PageShell } from "@/components/portfolio/site-shell";
 import { TechnicalFocusSection } from "@/components/portfolio/technical-focus-section";
 import {
-  getWorkMapStats,
-  WorkMapSection,
-} from "@/components/portfolio/work-map-section";
-import {
   getTemplateHref,
   type HomeTemplateId,
   type PortfolioProject,
@@ -288,5 +284,67 @@ function HeroSection({
         ) : null}
       </div>
     </section>
+  );
+}
+
+function getWorkMapStats(content: HomeViewModel) {
+  return {
+    curriculumCount: content.metricValues.curriculumCount ?? 0,
+    productCount: content.metricValues.productCount ?? 0,
+    reliabilityCount: content.metricValues.reliabilityCount ?? 0,
+  };
+}
+
+function WorkMapSection({
+  content,
+  contentDebug,
+}: {
+  content: HomeViewModel;
+  contentDebug: boolean;
+}) {
+  const stats = getWorkMapStats(content);
+  const copy = content.presentation.home.shared.workMap;
+
+  return (
+    <section className="border-b border-line">
+      <div className="mx-auto grid max-w-6xl gap-8 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+        <SectionHeading
+          body={copy.body}
+          contentDebug={contentDebug}
+          contentHint="src/content/presentation.json > home.shared.workMap"
+          title={copy.title}
+        />
+        <div className="grid gap-4 sm:grid-cols-3">
+          {copy.cards.map((card) => (
+            <ArchiveStat
+              body={card.body}
+              count={stats[card.countKey]}
+              key={card.id}
+              label={card.label}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ArchiveStat({
+  body,
+  count,
+  label,
+}: {
+  body: string;
+  count: number;
+  label: string;
+}) {
+  return (
+    <Reveal>
+      <article className="h-full rounded-lg border border-line bg-surface p-5">
+        <p className="text-sm font-semibold text-muted">{label}</p>
+        <p className="mt-4 text-5xl font-semibold text-foreground">{count}</p>
+        <p className="mt-4 text-sm leading-6 text-muted">{body}</p>
+      </article>
+    </Reveal>
   );
 }
