@@ -2,7 +2,7 @@ import type { Metadata, MetadataRoute } from "next";
 
 import type { PortfolioSource } from "./content-loader";
 import type { PortfolioContentMode } from "./content-readiness";
-import type { PortfolioContent } from "./portfolio";
+import type { PortfolioContent, PortfolioProject } from "./portfolio";
 
 type SiteContent = PortfolioSource["site"];
 
@@ -187,6 +187,31 @@ export function createSiteStructuredData({
         url: absoluteSiteUrl("/", siteUrl),
       },
     ],
+  };
+}
+
+export function createProjectStructuredData({
+  content,
+  project,
+  siteUrl,
+}: {
+  content: PortfolioContent;
+  project: PortfolioProject;
+  siteUrl: URL;
+}): StructuredData {
+  const projectPath = `/projects/${project.id}`;
+
+  return {
+    "@context": "https://schema.org",
+    "@id": `${absoluteSiteUrl(projectPath, siteUrl)}#creative-work`,
+    "@type": "CreativeWork",
+    author: { "@id": absoluteSiteUrl("/#person", siteUrl) },
+    description: project.summary,
+    image: absoluteSiteUrl(project.screenshot.src, siteUrl),
+    inLanguage: content.site.language,
+    keywords: project.tags,
+    name: project.title,
+    url: absoluteSiteUrl(projectPath, siteUrl),
   };
 }
 
