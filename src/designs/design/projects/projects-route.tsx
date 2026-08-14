@@ -1,13 +1,51 @@
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { ProjectCard } from "@/components/portfolio/project-card";
-import type {
-  HomeTemplateId,
-  PortfolioProject,
-  ProjectPageContent,
+import { PageShell } from "@/components/portfolio/site-shell";
+import {
+  type HomeTemplateId,
+  type ProjectPageContent,
+  type PortfolioProject,
 } from "@/lib/portfolio";
-import type { GroupedProjects } from "@/lib/portfolio/project-groups";
+import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
+import { createDesignShellProps } from "@/designs/shell-props";
 
-export function DesignProjectsView({
+export default function ProjectsRoute({
+  content,
+  contentDebug,
+  currentPath,
+}: DesignRouteProps) {
+  if (content.route !== "projects") return null;
+
+  const activeTemplate = "design";
+  const shellProps = createDesignShellProps(
+    content,
+    contentDebug,
+    currentPath,
+    activeTemplate,
+  );
+  const pageCopy = content.presentation.pages.projects;
+  const featuredProjects = content.featuredProjects;
+  const groupedProjects = content.archiveGroupEntries;
+  const sourceOnlyCount = content.metricValues.sourceOnlyCount ?? 0;
+  const curriculumCount = content.metricValues.curriculumCount ?? 0;
+
+  return (
+    <PageShell {...shellProps}>
+      <DesignProjectsView
+        activeTemplate={activeTemplate}
+        contentDebug={contentDebug}
+        curriculumCount={curriculumCount}
+        featuredProjects={featuredProjects}
+        groupedProjects={groupedProjects}
+        pageCopy={pageCopy}
+        projects={content.projects}
+        sourceOnlyCount={sourceOnlyCount}
+      />
+    </PageShell>
+  );
+}
+
+function DesignProjectsView({
   activeTemplate,
   contentDebug,
   curriculumCount,
@@ -21,7 +59,7 @@ export function DesignProjectsView({
   contentDebug: boolean;
   curriculumCount: number;
   featuredProjects: PortfolioProject[];
-  groupedProjects: GroupedProjects;
+  groupedProjects: [string, PortfolioProject[]][];
   pageCopy: ProjectPageContent;
   projects: PortfolioProject[];
   sourceOnlyCount: number;
@@ -38,9 +76,7 @@ export function DesignProjectsView({
             path="src/content/projects.json > projects[]"
           />
           <p className="text-sm font-medium text-muted">
-            {projects.length} {copy.hero.stats.visibleEntries} · {curriculumCount}{" "}
-            {copy.hero.stats.archive} · {sourceOnlyCount}{" "}
-            {copy.hero.stats.sourceFirst}
+            {projects.length} {copy.hero.stats.visibleEntries} · {curriculumCount} {copy.hero.stats.archive} · {sourceOnlyCount} {copy.hero.stats.sourceFirst}
           </p>
           <h1 className="mt-5 max-w-3xl text-5xl font-semibold leading-tight text-foreground md:text-6xl">
             {copy.hero.title}
@@ -83,7 +119,7 @@ export function DesignProjectsView({
         </div>
       </section>
       <div>
-        {groupedProjects.map(([category, groupedItems], groupIndex) => (
+        {groupedProjects.map(([category, projects], groupIndex) => (
           <section
             className={`border-b border-line ${
               groupIndex % 2 === 0 ? "" : "bg-background-soft"
@@ -98,7 +134,7 @@ export function DesignProjectsView({
                     path={`src/content/presentation.json > pages.projects.groups[category=${category}]`}
                   />
                   <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">
-                    {groupedItems.length} {copy.group.countLabel}
+                    {projects.length} {copy.group.countLabel}
                   </p>
                   <h2 className="mt-3 text-3xl font-semibold text-foreground">
                     {category}
@@ -109,7 +145,7 @@ export function DesignProjectsView({
                 </p>
               </div>
               <div className="grid gap-6 lg:grid-cols-2">
-                {groupedItems.map((project) => (
+                {projects.map((project) => (
                   <ProjectCard
                     contentDebug={contentDebug}
                     homeTemplate={activeTemplate}

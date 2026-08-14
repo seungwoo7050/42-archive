@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PageShell } from "@/components/portfolio/site-shell";
 import { notFound } from "next/navigation";
 import { ClassicProjectsView } from "@/designs/classic/projects/projects-route";
-import { DesignProjectsView } from "@/designs/design/projects/projects-route";
+import DesignProjectsRoute from "@/designs/design/projects/projects-route";
 import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import {
   getPortfolioContent,
@@ -72,17 +72,11 @@ export default async function ProjectsPage({
   }
 
   return (
-    <PageShell {...shellProps}>
-      <DesignProjectsView
-        activeTemplate={activeTemplate}
-        contentDebug={contentDebug}
-        curriculumCount={curriculumCount}
-        featuredProjects={featuredProjects}
-        groupedProjects={groupedProjects}
-        pageCopy={pageCopy}
-        projects={viewModel.projects}
-        sourceOnlyCount={sourceOnlyCount}
-      />
-    </PageShell>
+    <DesignProjectsRoute
+      content={viewModel}
+      contentDebug={contentDebug}
+      currentPath="/projects"
+      route="projects"
+    />
   );
 }
