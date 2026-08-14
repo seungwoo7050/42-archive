@@ -11,7 +11,6 @@ import { Reveal } from "@/components/portfolio/reveal";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { SelectedStackSection } from "@/components/portfolio/selected-stack-section";
 import { PageShell } from "@/components/portfolio/site-shell";
-import { TechnicalFocusSection } from "@/components/portfolio/technical-focus-section";
 import {
   getTemplateHref,
   type HomeTemplateId,
@@ -346,5 +345,46 @@ function ArchiveStat({
         <p className="mt-4 text-sm leading-6 text-muted">{body}</p>
       </article>
     </Reveal>
+  );
+}
+
+function TechnicalFocusSection({
+  content,
+  contentDebug,
+}: {
+  content: HomeViewModel;
+  contentDebug: boolean;
+}) {
+  const copy = content.presentation.home.shared.technicalFocus;
+
+  return (
+    <section className="border-b border-line">
+      <div className="mx-auto grid max-w-6xl gap-9 px-5 py-20 sm:px-8">
+        <SectionHeading
+          body={copy.body}
+          contentDebug={contentDebug}
+          contentHint="src/content/presentation.json > home.shared.technicalFocus"
+          title={copy.title}
+        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          {content.skills.focusAreas.map((area, index) => (
+            <Reveal delay={index * 70} key={area.title}>
+              <article
+                className="motion-card h-full rounded-lg border border-line bg-surface p-5 transition duration-300 hover:border-accent/45 hover:bg-surface-hover"
+              >
+                <ContentHint
+                  enabled={contentDebug}
+                  path={`src/content/skills.json > focusAreas[title=${area.title}]`}
+                />
+                <h3 className="text-base font-semibold text-foreground">
+                  {area.title}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-muted">{area.body}</p>
+              </article>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
