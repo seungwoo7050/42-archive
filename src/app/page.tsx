@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ClassicHomeRoute } from "@/designs/classic/home-route";
-import { DesignHomeRoute } from "@/designs/design/home-route";
+import DesignHomeRoute from "@/designs/design/home-route";
 import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import { getPortfolioContent, type RouteSearchParams } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
@@ -43,5 +43,12 @@ export default async function Home({ searchParams }: HomePageProps) {
     return <ClassicHomeRoute content={viewModel} contentDebug={contentDebug} />;
   }
 
-  return <DesignHomeRoute content={viewModel} contentDebug={contentDebug} />;
+  return (
+    <DesignHomeRoute
+      content={viewModel}
+      contentDebug={contentDebug}
+      currentPath="/"
+      route="home"
+    />
+  );
 }

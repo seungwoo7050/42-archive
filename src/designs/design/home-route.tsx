@@ -18,32 +18,48 @@ import {
   type PortfolioProject,
 } from "@/lib/portfolio";
 import type { HomeViewModel } from "@/lib/portfolio/view-models";
+import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
+import { createDesignShellProps } from "@/designs/shell-props";
 
-export function DesignHomeRoute({
+export default function HomeRoute({
   content,
   contentDebug,
+  currentPath,
+}: DesignRouteProps) {
+  if (content.route !== "home") return null;
+
+  const activeTemplate = "design";
+  return (
+    <HomeView
+      activeTemplate={activeTemplate}
+      content={content}
+      contentDebug={contentDebug}
+      shellProps={createDesignShellProps(
+        content,
+        contentDebug,
+        currentPath,
+        activeTemplate,
+      )}
+    />
+  );
+}
+
+function HomeView({
+  activeTemplate,
+  content,
+  contentDebug,
+  shellProps,
 }: {
+  activeTemplate: HomeTemplateId;
   content: HomeViewModel;
   contentDebug: boolean;
+  shellProps: ReturnType<typeof createDesignShellProps>;
 }) {
-  const activeTemplate: HomeTemplateId = "design";
   const featuredProjects = content.featuredProjects;
   const sections = content.presentation.home.design.sections;
 
   return (
-    <PageShell
-      contentDebug={contentDebug}
-      homeTemplate={activeTemplate}
-      profile={content.profile}
-      site={content.site}
-      ui={content.presentation.ui}
-      templateSwitcher={{
-        activeId: activeTemplate,
-        contentDebug,
-        currentPath: "/",
-        templates: content.presentation.templates,
-      }}
-    >
+    <PageShell {...shellProps}>
       <HeroSection
         activeTemplate={activeTemplate}
         content={content}
