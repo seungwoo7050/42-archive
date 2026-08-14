@@ -13,6 +13,7 @@ import { StackList } from "@/components/portfolio/stack-list";
 import { TechMarquee } from "@/components/portfolio/tech-marquee";
 import {
   getTemplateHref,
+  type HomeSectionId,
   type HomeTemplateId,
   type PortfolioProject,
 } from "@/lib/portfolio";
@@ -27,6 +28,7 @@ export function DesignHomeRoute({
 }) {
   const activeTemplate: HomeTemplateId = "design";
   const featuredProjects = content.featuredProjects;
+  const sections = content.presentation.home.design.sections;
 
   return (
     <PageShell
@@ -48,39 +50,77 @@ export function DesignHomeRoute({
         contentDebug={contentDebug}
         projects={featuredProjects}
       />
-      {content.presentation.home.design.sections.includes("featured") ? (
-        <FeaturedProjectsSection
+      {sections.map((sectionId) => (
+        <HomeSection
           activeTemplate={activeTemplate}
           content={content}
           contentDebug={contentDebug}
-          projects={featuredProjects}
+          featuredProjects={featuredProjects}
+          key={sectionId}
+          sectionId={sectionId}
         />
-      ) : null}
-      {content.presentation.home.design.sections.includes("workMap") ? (
-        <WorkMapSection content={content} contentDebug={contentDebug} />
-      ) : null}
-      {content.presentation.home.design.sections.includes("technicalFocus") ? (
-        <TechnicalFocusSection content={content} contentDebug={contentDebug} />
-      ) : null}
-      {content.presentation.home.design.sections.includes("stack") ? (
-        <SelectedStackSection content={content} contentDebug={contentDebug} />
-      ) : null}
-      {content.presentation.home.design.sections.includes("journey") ? (
-        <JourneySection
-          activeTemplate={activeTemplate}
-          content={content}
-          contentDebug={contentDebug}
-        />
-      ) : null}
-      {content.presentation.home.design.sections.includes("contact") ? (
-        <ContactPreview
-          activeTemplate={activeTemplate}
-          content={content}
-          contentDebug={contentDebug}
-        />
-      ) : null}
+      ))}
     </PageShell>
   );
+}
+
+function HomeSection({
+  activeTemplate,
+  content,
+  contentDebug,
+  featuredProjects,
+  sectionId,
+}: {
+  activeTemplate: HomeTemplateId;
+  content: HomeViewModel;
+  contentDebug: boolean;
+  featuredProjects: PortfolioProject[];
+  sectionId: HomeSectionId;
+}) {
+  if (sectionId === "featured") {
+    return (
+      <FeaturedProjectsSection
+        activeTemplate={activeTemplate}
+        content={content}
+        contentDebug={contentDebug}
+        projects={featuredProjects}
+      />
+    );
+  }
+
+  if (sectionId === "workMap") {
+    return <WorkMapSection content={content} contentDebug={contentDebug} />;
+  }
+
+  if (sectionId === "technicalFocus") {
+    return <TechnicalFocusSection content={content} contentDebug={contentDebug} />;
+  }
+
+  if (sectionId === "stack") {
+    return <SelectedStackSection content={content} contentDebug={contentDebug} />;
+  }
+
+  if (sectionId === "journey") {
+    return (
+      <JourneySection
+        activeTemplate={activeTemplate}
+        content={content}
+        contentDebug={contentDebug}
+      />
+    );
+  }
+
+  if (sectionId === "contact") {
+    return (
+      <ContactPreview
+        activeTemplate={activeTemplate}
+        content={content}
+        contentDebug={contentDebug}
+      />
+    );
+  }
+
+  return null;
 }
 
 function FeaturedProjectsSection({
