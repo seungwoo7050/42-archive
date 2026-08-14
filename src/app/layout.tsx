@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Noto_Serif_KR } from "next/font/google";
 import { headers } from "next/headers";
+import {
+  resolvePortfolioContentMode,
+  resolveProductionSiteUrl,
+} from "@/lib/content-readiness";
 import { getPortfolioContent } from "@/lib/portfolio";
+import { createPortfolioMetadata } from "@/lib/site-metadata";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,34 +29,28 @@ const notoSerif = Noto_Serif_KR({
 const { site } = getPortfolioContent();
 
 export async function generateMetadata(): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3100";
-  const protocol =
-    requestHeaders.get("x-forwarded-proto") ??
-    (host.startsWith("localhost") || host.startsWith("127.0.0.1") ? "http" : "https");
-  const metadataBase = new URL(`${protocol}://${host}`);
-  const socialImage = site.socialImage
-    ? new URL(site.socialImage, metadataBase).toString()
-    : undefined;
+  const mode = resolvePortfolioContentMode(
+    process.env.PORTFOLIO_CONTENT_MODE,
+  );
+  let metadataBase: URL;
 
-  return {
-    alternates: { canonical: "./" },
-    description: site.description,
-    metadataBase,
-    openGraph: {
-      description: site.description,
-      images: socialImage ? [{ url: socialImage }] : undefined,
-      title: site.title,
-      type: "website",
-    },
-    title: site.title,
-    twitter: {
-      card: "summary_large_image",
-      description: site.description,
-      images: socialImage ? [socialImage] : undefined,
-      title: site.title,
-    },
-  };
+  if (mode === "production") {
+    metadataBase = resolveProductionSiteUrl(process.env.SITE_URL);
+  } else {
+    const requestHeaders = await headers();
+    const host =
+      requestHeaders.get("x-forwarded-host") ??
+      requestHeaders.get("host") ??
+      "localhost:3100";
+    const protocol =
+      requestHeaders.get("x-forwarded-proto") ??
+      (host.startsWith("localhost") || host.startsWith("127.0.0.1")
+        ? "http"
+        : "https");
+    metadataBase = new URL(`${protocol}://${host}`);
+  }
+
+  return createPortfolioMetadata({ metadataBase, mode, site });
 }
 
 export default function RootLayout({
