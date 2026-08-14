@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, MetadataRoute } from "next";
 
 import type { PortfolioSource } from "./content-loader";
 import type { PortfolioContentMode } from "./content-readiness";
@@ -37,5 +37,26 @@ export function createPortfolioMetadata({
       images: socialImage ? [socialImage] : undefined,
       title: site.title,
     },
+  };
+}
+
+export function createRobots({
+  mode,
+  siteUrl,
+}: {
+  mode: PortfolioContentMode;
+  siteUrl?: URL;
+}): MetadataRoute.Robots {
+  if (mode === "template") {
+    return { rules: { disallow: "/", userAgent: "*" } };
+  }
+
+  if (!siteUrl) {
+    throw new Error("A production site URL is required to create robots.txt.");
+  }
+
+  return {
+    host: siteUrl.origin,
+    rules: { allow: "/", userAgent: "*" },
   };
 }
