@@ -7,11 +7,10 @@ import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry
 import {
   getPortfolioContent,
   isSitePageEnabled,
-  getProjectMetricValue,
   type RouteSearchParams,
 } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
-import { groupProjects } from "@/lib/portfolio/project-groups";
+import { createProjectIndexViewModel } from "@/lib/portfolio/view-models";
 import { createRouteMetadata } from "@/lib/site-metadata";
 
 export function generateMetadata(): Metadata {
@@ -40,6 +39,7 @@ export default async function ProjectsPage({
       currentPath: "/projects",
       searchParams,
     });
+  const viewModel = createProjectIndexViewModel(content);
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
@@ -49,12 +49,11 @@ export default async function ProjectsPage({
       route: "projects",
     });
   }
-  const pageCopy = content.presentation.pages.projects;
-  const featuredProjects = content.projects.filter((project) => project.featured);
-  const trackProjects = content.projects.filter((project) => !project.featured);
-  const groupedProjects = groupProjects(trackProjects, pageCopy.groups);
-  const sourceOnlyCount = getProjectMetricValue("sourceOnlyCount", content);
-  const curriculumCount = getProjectMetricValue("curriculumCount", content);
+  const pageCopy = viewModel.presentation.pages.projects;
+  const featuredProjects = viewModel.featuredProjects;
+  const groupedProjects = viewModel.archiveGroupEntries;
+  const sourceOnlyCount = viewModel.metricValues.sourceOnlyCount ?? 0;
+  const curriculumCount = viewModel.metricValues.curriculumCount ?? 0;
   if (activeTemplate === "classic") {
     return (
       <PageShell {...shellProps}>
@@ -65,7 +64,7 @@ export default async function ProjectsPage({
           featuredProjects={featuredProjects}
           groupedProjects={groupedProjects}
           pageCopy={pageCopy}
-          projects={content.projects}
+          projects={viewModel.projects}
           sourceOnlyCount={sourceOnlyCount}
         />
       </PageShell>
@@ -81,7 +80,7 @@ export default async function ProjectsPage({
         featuredProjects={featuredProjects}
         groupedProjects={groupedProjects}
         pageCopy={pageCopy}
-        projects={content.projects}
+        projects={viewModel.projects}
         sourceOnlyCount={sourceOnlyCount}
       />
     </PageShell>
