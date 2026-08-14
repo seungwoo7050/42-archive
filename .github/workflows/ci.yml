@@ -62,3 +62,6 @@ jobs:
 
       - name: Run production Lighthouse budgets
         run: npm run lighthouse:audit
+
+      - name: Verify container runtime and public assets
+        run: npm run test:container

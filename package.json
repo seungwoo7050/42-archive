@@ -24,6 +24,7 @@
     "content:check": "node --import tsx scripts/validate-content.ts",
     "content:ready": "node --import tsx scripts/validate-content-readiness.ts",
     "test": "vitest run",
+    "test:container": "node scripts/verify-container-runtime.mjs",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ci": "npm run build && playwright test --config=playwright.production.config.ts --grep-invert @visual",
