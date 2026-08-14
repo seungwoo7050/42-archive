@@ -10,8 +10,10 @@ import {
 } from "@/lib/portfolio";
 import type {
   AboutViewModel,
+  ContactViewModel,
   HomeViewModel,
   ProjectDetailViewModel,
+  ResumeViewModel,
 } from "@/lib/portfolio/view-models";
 import type { DesignRouteProps } from "@/designs/types";
 import styles from "./cinematic.module.css";
@@ -569,10 +571,9 @@ function AboutView({ content, contentDebug }: DesignRouteProps) {
 }
 
 function ResumeView({ content, contentDebug }: DesignRouteProps) {
+  const viewModel = content as ResumeViewModel;
   const copy = content.presentation.pages.resume;
-  const selected = content.resume.projectIds
-    .map((id) => content.projects.find((project) => project.id === id))
-    .filter((project): project is PortfolioProject => Boolean(project));
+  const selected = viewModel.resumeProjects;
 
   return (
     <>
@@ -623,13 +624,8 @@ function ResumeView({ content, contentDebug }: DesignRouteProps) {
 }
 
 function ContactView({ content, contentDebug }: DesignRouteProps) {
-  const linksById = new Map(content.links.map((link) => [link.id, link]));
-  const preferred = content.contact.preferred
-    .map((id) => linksById.get(id))
-    .filter((link): link is ContentLink => Boolean(link));
-  const links = preferred.length > 0
-    ? preferred
-    : content.links.filter((link) => link.placements?.includes("contact"));
+  const viewModel = content as ContactViewModel;
+  const links = viewModel.preferredOrContactLinks;
 
   return (
     <section className={styles.contactHero}>

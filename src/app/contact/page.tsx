@@ -8,10 +8,10 @@ import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry
 import {
   getPortfolioContent,
   isSitePageEnabled,
-  getPreferredContactLinks,
   type RouteSearchParams,
 } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
+import { createContactViewModel } from "@/lib/portfolio/view-models";
 import { createRouteMetadata } from "@/lib/site-metadata";
 
 export function generateMetadata(): Metadata {
@@ -31,26 +31,27 @@ export default async function ContactPage({
 }: {
   searchParams?: RouteSearchParams;
 }) {
-  const content = getPortfolioContent();
-  if (!isSitePageEnabled("contact", content)) notFound();
+  const contentSource = getPortfolioContent();
+  if (!isSitePageEnabled("contact", contentSource)) notFound();
   const { activeTemplate, contentDebug, shellProps } =
     await resolvePortfolioPageContext({
-      content,
+      content: contentSource,
       currentPath: "/contact",
       searchParams,
     });
+  const content = createContactViewModel(contentSource);
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
-      content,
       contentDebug,
       currentPath: "/contact",
       route: "contact",
+      viewModel: content,
     });
   }
 
   const pageCopy = content.presentation.pages.contact;
-  const preferredLinks = getPreferredContactLinks(content);
+  const preferredLinks = content.preferredLinks;
 
   return (
     <PageShell {...shellProps}>

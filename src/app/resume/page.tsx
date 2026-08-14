@@ -8,12 +8,12 @@ import { StackList } from "@/components/portfolio/stack-list";
 import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import {
   getPortfolioContent,
-  getResumeProjects,
   getTemplateHref,
   isSitePageEnabled,
   type RouteSearchParams,
 } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
+import { createResumeViewModel } from "@/lib/portfolio/view-models";
 import { createRouteMetadata } from "@/lib/site-metadata";
 
 export function generateMetadata(): Metadata {
@@ -34,26 +34,27 @@ export default async function ResumePage({
 }: {
   searchParams?: RouteSearchParams;
 }) {
-  const content = getPortfolioContent();
-  if (!isSitePageEnabled("resume", content)) notFound();
+  const contentSource = getPortfolioContent();
+  if (!isSitePageEnabled("resume", contentSource)) notFound();
   const { activeTemplate, contentDebug, shellProps } =
     await resolvePortfolioPageContext({
-      content,
+      content: contentSource,
       currentPath: "/resume",
       searchParams,
     });
+  const content = createResumeViewModel(contentSource);
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
-      content,
       contentDebug,
       currentPath: "/resume",
       route: "resume",
+      viewModel: content,
     });
   }
 
   const pageCopy = content.presentation.pages.resume;
-  const resumeProjects = getResumeProjects(content);
+  const resumeProjects = content.resumeProjects;
 
   return (
     <PageShell {...shellProps}>

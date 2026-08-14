@@ -4,8 +4,6 @@ import type { ReactNode } from "react";
 
 import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
-  getPreferredContactLinks,
-  getResumeProjects,
   getTemplateHref,
   isSitePageEnabled,
   type ContentLink,
@@ -15,9 +13,11 @@ import {
 } from "@/lib/portfolio";
 import type {
   AboutViewModel,
+  ContactViewModel,
   HomeViewModel,
   ProjectDetailViewModel,
   ProjectIndexViewModel,
+  ResumeViewModel,
 } from "@/lib/portfolio/view-models";
 
 import styles from "./editorial-route.module.css";
@@ -961,8 +961,9 @@ function AboutRoute({ content, contentDebug }: EditorialRouteProps) {
 }
 
 function ResumeRoute({ content, contentDebug }: EditorialRouteProps) {
+  const viewModel = content as ResumeViewModel;
   const pageCopy = content.presentation.pages.resume;
-  const projects = getResumeProjects(content);
+  const projects = viewModel.resumeProjects;
   const ui = content.presentation.ui;
 
   return (
@@ -1086,7 +1087,8 @@ function ResumeRoute({ content, contentDebug }: EditorialRouteProps) {
 }
 
 function ContactRoute({ content, contentDebug }: EditorialRouteProps) {
-  const preferredLinks = getPreferredContactLinks(content);
+  const viewModel = content as ContactViewModel;
+  const preferredLinks = viewModel.preferredLinks;
   const pageCopy = content.presentation.pages.contact;
   const ui = content.presentation.ui;
 

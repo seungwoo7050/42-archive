@@ -2,8 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
-  getContentLinksByPlacement,
-  getPreferredContactLinks,
   getTemplateHref,
   isSitePageEnabled,
   type ContentLink,
@@ -12,9 +10,11 @@ import {
 } from "@/lib/portfolio";
 import type {
   AboutViewModel,
+  ContactViewModel,
   HomeViewModel,
   ProjectDetailViewModel,
   ProjectIndexViewModel,
+  ResumeViewModel,
 } from "@/lib/portfolio/view-models";
 import type { DesignRouteProps } from "@/designs/types";
 import styles from "./brutalist.module.css";
@@ -1110,10 +1110,9 @@ function ResumeView({
   content: PortfolioContent;
   contentDebug: boolean;
 }) {
+  const viewModel = content as ResumeViewModel;
   const copy = content.presentation.pages.resume;
-  const resumeProjects = content.resume.projectIds
-    .map((projectId) => content.projects.find((project) => project.id === projectId))
-    .filter((item): item is PortfolioProject => Boolean(item));
+  const resumeProjects = viewModel.resumeProjects;
 
   return (
     <>
@@ -1262,12 +1261,9 @@ function ContactView({
   content: PortfolioContent;
   contentDebug: boolean;
 }) {
+  const viewModel = content as ContactViewModel;
   const copy = content.presentation.pages.contact;
-  const preferred = getPreferredContactLinks(content);
-  const visibleLinks =
-    preferred.length > 0
-      ? preferred
-      : getContentLinksByPlacement("contact", content);
+  const visibleLinks = viewModel.preferredOrContactLinks;
 
   return (
     <>

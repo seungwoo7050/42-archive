@@ -30,4 +30,9 @@ type ViewModelDesignRouteRequest = {
 
 export type DesignRouteRequestProps =
   | ViewModelDesignRouteRequest
-  | DesignRouteProps;
+  | {
+      content: PortfolioContent;
+      contentDebug: boolean;
+      currentPath: string;
+      route: "journey" | "interview-map";
+    };
