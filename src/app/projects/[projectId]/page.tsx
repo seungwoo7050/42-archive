@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ProjectDetailView } from "@/components/portfolio/project-detail-view";
+import { ProjectDetailView } from "@/designs/classic/project-detail-route";
 import { PageShell } from "@/components/portfolio/site-shell";
 import { StructuredData } from "@/components/portfolio/structured-data";
 import DesignProjectDetailRoute from "@/designs/design/project-detail-route";
