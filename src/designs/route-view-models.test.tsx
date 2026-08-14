@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import AboutPage from "@/app/about/page";
 import ContactPage from "@/app/contact/page";
 import Home from "@/app/page";
+import InterviewMapPage from "@/app/interview-map/page";
+import JourneyPage from "@/app/journey/page";
 import ProjectDetailPage from "@/app/projects/[projectId]/page";
 import ProjectsPage from "@/app/projects/page";
 import ResumePage from "@/app/resume/page";
@@ -58,6 +60,16 @@ const routes = [
     renderPage: (view: SiteDesignId) =>
       ContactPage({ searchParams: Promise.resolve({ view }) }),
   },
+  {
+    id: "journey",
+    renderPage: (view: SiteDesignId) =>
+      JourneyPage({ searchParams: Promise.resolve({ view }) }),
+  },
+  {
+    id: "interview-map",
+    renderPage: (view: SiteDesignId) =>
+      InterviewMapPage({ searchParams: Promise.resolve({ view }) }),
+  },
 ];
 
 afterEach(() => cleanup());
@@ -72,6 +84,11 @@ describe("route view model rendering", () => {
         expect(
           container.querySelector(`[data-site-design="${designId}"]`),
         ).toBeInTheDocument();
+        if (designId === "design" || designId === "classic") {
+          expect(
+            container.querySelector(`[data-route-renderer="${designId}"]`),
+          ).toBeInTheDocument();
+        }
         expect(container.querySelector("h1")).toHaveTextContent(/\S/);
       },
     );
