@@ -16,6 +16,23 @@
   --signal-strong: #3730a3;
   --signal-soft: rgba(79, 70, 229, 0.12);
   --warm: #f59e0b;
+  --type-display: clamp(3rem, 7vw, 4.5rem);
+  --type-body: 1rem;
+  --space-section: clamp(4rem, 8vw, 5rem);
+  --breakpoint-content: 64rem;
+  --motion-fast: 180ms;
+  --layer-navigation: 50;
+  --content-width: 72rem;
+}
+
+[data-site-design="design"] {
+  --type-display: clamp(3rem, 7vw, 4.5rem);
+  --type-body: 1rem;
+  --space-section: clamp(4rem, 8vw, 5rem);
+  --breakpoint-content: 64rem;
+  --motion-fast: 180ms;
+  --layer-navigation: 50;
+  --content-width: 72rem;
 }
 
 [data-site-design="classic"] {
@@ -34,6 +51,43 @@
   --signal-strong: #9db9ff;
   --signal-soft: rgba(122, 167, 255, 0.16);
   --warm: #f6c76f;
+  --type-display: clamp(3rem, 7vw, 4.5rem);
+  --type-body: 1rem;
+  --space-section: clamp(4rem, 8vw, 5rem);
+  --breakpoint-content: 64rem;
+  --motion-fast: 220ms;
+  --layer-navigation: 50;
+  --content-width: 72rem;
+}
+
+[data-site-design="editorial"] {
+  --type-display: clamp(3.5rem, 8vw, 8rem);
+  --type-body: 1rem;
+  --space-section: clamp(5rem, 9vw, 8rem);
+  --breakpoint-content: 70rem;
+  --motion-fast: 200ms;
+  --layer-navigation: 30;
+  --content-width: 80rem;
+}
+
+[data-site-design="brutalist"] {
+  --type-display: clamp(3.5rem, 8vw, 8rem);
+  --type-body: 1rem;
+  --space-section: clamp(4rem, 7vw, 7rem);
+  --breakpoint-content: 64rem;
+  --motion-fast: 140ms;
+  --layer-navigation: 30;
+  --content-width: 90rem;
+}
+
+[data-site-design="cinematic"] {
+  --type-display: clamp(3.8rem, 9vw, 10rem);
+  --type-body: 1rem;
+  --space-section: clamp(5rem, 10vw, 10rem);
+  --breakpoint-content: 72rem;
+  --motion-fast: 240ms;
+  --layer-navigation: 40;
+  --content-width: 88rem;
 }
 
 @theme inline {
@@ -78,6 +132,10 @@ body {
 
 a {
   text-underline-offset: 3px;
+}
+
+[data-route-renderer] .max-w-6xl {
+  max-width: var(--content-width);
 }
 
 .profile-photo-frame {
