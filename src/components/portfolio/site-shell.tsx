@@ -139,6 +139,7 @@ export function PageShell({
   contentDebug,
   homeTemplate,
   profile,
+  routeRenderer,
   site,
   templateSwitcher,
   ui,
@@ -147,6 +148,7 @@ export function PageShell({
   contentDebug?: boolean;
   homeTemplate?: HomeTemplateId;
   profile: ProfileContent;
+  routeRenderer?: "classic" | "design";
   site: SiteContent;
   templateSwitcher?: TemplateSwitcherProps;
   ui: PresentationContent["ui"];
@@ -154,6 +156,7 @@ export function PageShell({
   return (
     <div
       className="min-h-screen bg-background text-foreground"
+      data-route-renderer={routeRenderer}
       data-site-design={homeTemplate}
     >
       <a
