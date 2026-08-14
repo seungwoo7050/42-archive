@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Noto_Serif_KR } from "next/font/google";
+import localFont from "next/font/local";
 import { headers } from "next/headers";
 import {
   resolvePortfolioContentMode,
@@ -9,21 +9,26 @@ import { getPortfolioContent } from "@/lib/portfolio";
 import { createPortfolioMetadata } from "@/lib/site-metadata";
 import "./globals.css";
 
-const geistSans = Geist({
+const geistSans = localFont({
+  display: "swap",
+  src: "./fonts/Geist-Variable.woff2",
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  weight: "100 900",
 });
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  display: "swap",
+  src: "./fonts/GeistMono-Variable.woff2",
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: "100 900",
 });
 
-const notoSerif = Noto_Serif_KR({
+const koreanSerif = localFont({
   display: "swap",
   preload: false,
+  src: "./fonts/SourceHanSerifKR-Variable.woff2",
   variable: "--font-noto-serif-kr",
-  weight: ["500", "700"],
+  weight: "250 900",
 });
 
 const { site } = getPortfolioContent();
@@ -62,7 +67,7 @@ export default function RootLayout({
     <html
       lang={site.language}
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} ${notoSerif.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${koreanSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
