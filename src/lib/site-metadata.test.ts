@@ -38,6 +38,7 @@ describe("site indexing metadata", () => {
     ).toEqual({
       host: "https://portfolio.example.dev",
       rules: { allow: "/", userAgent: "*" },
+      sitemap: "https://portfolio.example.dev/sitemap.xml",
     });
   });
 });
