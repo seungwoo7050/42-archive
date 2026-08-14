@@ -4,6 +4,7 @@ import { AvailabilityBadge } from "@/components/portfolio/availability-badge";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { ProjectLinks } from "@/components/portfolio/project-links";
 import { ProjectScreenshot } from "@/components/portfolio/project-screenshot";
+import { StackList } from "@/components/portfolio/stack-list";
 import {
   getTemplateHref,
   type HomeTemplateId,
@@ -126,5 +127,96 @@ export function ListSection({
         ))}
       </ul>
     </section>
+  );
+}
+
+export function ProjectBody({
+  contentDebug,
+  pageCopy,
+  project,
+}: {
+  contentDebug: boolean;
+  pageCopy: ProjectDetailPageContent;
+  project: PortfolioProject;
+}) {
+  const { sections } = pageCopy;
+
+  return (
+    <div className="mx-auto grid max-w-6xl gap-14 px-5 py-16 sm:px-8">
+      <ContentHint
+        enabled={contentDebug}
+        path={`src/content/presentation.json > pages.projectDetail.sections + src/content/projects.json > projects[id=${project.id}] detail fields`}
+      />
+      <TwoColumnSection
+        body={project.problem}
+        eyebrow={sections.problem.eyebrow}
+        title={sections.problem.title}
+      />
+      <TwoColumnSection
+        body={project.solution}
+        eyebrow={sections.solution.eyebrow}
+        title={sections.solution.title}
+      />
+      <section className="grid gap-6 lg:grid-cols-[0.42fr_0.58fr]">
+        <SectionTitle
+          eyebrow={sections.architecture.eyebrow}
+          title={sections.architecture.title}
+        />
+        <div className="rounded-lg border border-line bg-surface p-6">
+          <p className="text-base leading-7 text-foreground">
+            {project.architecture.summary}
+          </p>
+          <ul className="mt-6 grid gap-3">
+            {project.architecture.items.map((item) => (
+              <li className="border-l border-line pl-4 text-sm leading-6 text-muted" key={item}>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+      <section className="grid gap-6 lg:grid-cols-[0.42fr_0.58fr]">
+        <SectionTitle
+          eyebrow={sections.screenshots.eyebrow}
+          title={sections.screenshots.title}
+        />
+        <div className="grid gap-4">
+          {project.screenshots.map((image) => (
+            <div className="group" key={image.src}>
+              <ProjectScreenshot image={image} />
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className="grid gap-6 lg:grid-cols-[0.42fr_0.58fr]">
+        <SectionTitle
+          eyebrow={sections.stack.eyebrow}
+          title={sections.stack.title}
+        />
+        <div className="rounded-lg border border-line bg-surface p-6">
+          <StackList items={project.stack} />
+        </div>
+      </section>
+      <ListSection
+        eyebrow={sections.decisions.eyebrow}
+        items={project.decisions}
+        title={sections.decisions.title}
+      />
+      <ListSection
+        eyebrow={sections.highlights.eyebrow}
+        items={project.highlights}
+        title={sections.highlights.title}
+      />
+      <ListSection
+        eyebrow={sections.tradeoffs.eyebrow}
+        items={project.tradeoffs}
+        title={sections.tradeoffs.title}
+      />
+      <ListSection
+        eyebrow={sections.result.eyebrow}
+        items={project.results}
+        title={sections.result.title}
+      />
+    </div>
   );
 }
