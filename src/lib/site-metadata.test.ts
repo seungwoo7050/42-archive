@@ -4,9 +4,12 @@ import { describe, expect, it } from "vitest";
 import { getPortfolioContent } from "./portfolio";
 import {
   createPortfolioMetadata,
+  createProjectStructuredData,
   createRobots,
   createRouteMetadata,
+  createSiteStructuredData,
   createSitemap,
+  serializeStructuredData,
 } from "./site-metadata";
 
 describe("site indexing metadata", () => {
@@ -111,5 +114,60 @@ describe("sitemap", () => {
       "https://portfolio.example.dev/contact",
       "https://portfolio.example.dev/journey",
     ]);
+  });
+});
+
+describe("structured data", () => {
+  it("builds Person and WebSite records only from validated content", () => {
+    const content = getPortfolioContent();
+    const structuredData = createSiteStructuredData({
+      content,
+      siteUrl: new URL("https://portfolio.example.dev"),
+    });
+
+    expect(structuredData["@graph"]).toEqual([
+      expect.objectContaining({
+        "@id": "https://portfolio.example.dev/#person",
+        "@type": "Person",
+        description: content.profile.summary,
+        name: content.profile.name,
+      }),
+      expect.objectContaining({
+        "@id": "https://portfolio.example.dev/#website",
+        "@type": "WebSite",
+        description: content.site.description,
+        name: content.site.brand,
+      }),
+    ]);
+  });
+
+  it("builds a project CreativeWork record without adding unsupported claims", () => {
+    const content = getPortfolioContent();
+    const project = content.projects[0];
+    if (!project) throw new Error("Structured data test requires a project.");
+
+    const structuredData = createProjectStructuredData({
+      content,
+      project,
+      siteUrl: new URL("https://portfolio.example.dev"),
+    });
+
+    expect(structuredData).toEqual(
+      expect.objectContaining({
+        "@id": `https://portfolio.example.dev/projects/${project.id}#creative-work`,
+        "@type": "CreativeWork",
+        description: project.summary,
+        name: project.title,
+        url: `https://portfolio.example.dev/projects/${project.id}`,
+      }),
+    );
+    expect(structuredData).not.toHaveProperty("award");
+    expect(structuredData).not.toHaveProperty("aggregateRating");
+  });
+
+  it("escapes markup-significant characters before embedding JSON-LD", () => {
+    expect(serializeStructuredData({ value: "</script>" })).toContain(
+      "\\u003c/script\\u003e",
+    );
   });
 });
