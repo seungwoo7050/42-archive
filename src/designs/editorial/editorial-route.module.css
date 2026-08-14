@@ -3,8 +3,9 @@
   --paper-deep: #e6ddcc;
   --ink: #171614;
   --ink-soft: #5f5a52;
-  --vermilion: #d64b32;
+  --vermilion: #c7432e;
   --vermilion-text: #a93222;
+  --vermilion-on-dark: #e15b43;
   --hairline: rgb(23 22 20 / 24%);
   min-height: 100vh;
   overflow: clip;
@@ -1059,7 +1060,7 @@
 }
 
 .darkSectionTitle > span {
-  color: var(--vermilion-text);
+  color: var(--vermilion-on-dark);
 }
 
 .darkSectionTitle h2 {
@@ -1082,7 +1083,7 @@
 
 .architectureSpread aside > p {
   margin-bottom: 20px;
-  color: var(--vermilion-text);
+  color: var(--vermilion-on-dark);
   font-size: 0.64rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -1120,6 +1121,10 @@
 
 .architectureSpread .evidenceList li {
   border-color: rgb(242 235 221 / 22%);
+}
+
+.architectureSpread .evidenceList span {
+  color: var(--vermilion-on-dark);
 }
 
 .evidenceList span {
@@ -1625,6 +1630,10 @@
 
 .nextReview .curationPanelHeader {
   border-top-color: rgb(242 235 221 / 46%);
+}
+
+.nextReview .curationPanelHeader > span {
+  color: var(--vermilion-on-dark);
 }
 
 .nextReview .curationPanelHeader p,
@@ -2353,7 +2362,7 @@
 }
 
 .gapsSpread > div > span {
-  color: var(--vermilion-text);
+  color: var(--vermilion-on-dark);
   font-family: var(--font-noto-serif-kr), Georgia, serif;
   font-size: 0.8rem;
   font-style: italic;
@@ -2373,6 +2382,10 @@
   color: rgb(242 235 221 / 70%);
   font-size: 0.8rem;
   line-height: 1.75;
+}
+
+.gapsSpread .evidenceList span {
+  color: var(--vermilion-on-dark);
 }
 
 @media (max-width: 1180px) {

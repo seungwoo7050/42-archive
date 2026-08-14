@@ -9,7 +9,7 @@
   --surface: #ffffff;
   --surface-soft: #f2f7f6;
   --surface-hover: #f8fbfb;
-  --accent: #008c89;
+  --accent: #007b78;
   --accent-strong: #006b69;
   --accent-soft: rgba(0, 140, 137, 0.12);
   --signal: #4f46e5;
@@ -332,7 +332,7 @@ a {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
-  color: var(--foreground);
+  color: #f2efe7;
   display: inline-flex;
   flex: 0 0 auto;
   font-size: 0.78rem;
