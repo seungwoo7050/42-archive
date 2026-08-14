@@ -3,7 +3,7 @@ import { ArrowRightIcon } from "@/components/icons";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { ContentLinkView } from "@/components/portfolio/content-link";
 import { HomeContactPreview } from "@/components/portfolio/home-contact-preview";
-import { HomeJourneySection } from "@/components/portfolio/home-journey-section";
+import { JourneyList } from "@/components/portfolio/journey-list";
 import { ProfilePhoto } from "@/components/portfolio/profile-photo";
 import { ProjectCard } from "@/components/portfolio/project-card";
 import { ProjectScreenshot } from "@/components/portfolio/project-screenshot";
@@ -67,7 +67,7 @@ export function DesignHomeRoute({
         <SelectedStackSection content={content} contentDebug={contentDebug} />
       ) : null}
       {content.presentation.home.design.sections.includes("journey") ? (
-        <HomeJourneySection
+        <JourneySection
           activeTemplate={activeTemplate}
           content={content}
           contentDebug={contentDebug}
@@ -436,6 +436,39 @@ function SelectedStackSection({
             </div>
           </div>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function JourneySection({
+  activeTemplate,
+  content,
+  contentDebug,
+}: {
+  activeTemplate: HomeTemplateId;
+  content: HomeViewModel;
+  contentDebug: boolean;
+}) {
+  const copy = content.presentation.home.shared.journey;
+
+  return (
+    <section className="border-b border-line">
+      <div className="mx-auto grid max-w-6xl gap-9 px-5 py-20 sm:px-8">
+        <SectionHeading
+          body={copy.body}
+          contentDebug={contentDebug}
+          contentHint="src/content/presentation.json > home.shared.journey"
+          title={copy.title}
+        />
+        <JourneyList
+          animated
+          caseStudyLabel={content.presentation.ui.journeyCaseStudyLabel}
+          contentDebug={contentDebug}
+          homeTemplate={activeTemplate}
+          items={content.journey}
+          variant="paired-centerline"
+        />
       </div>
     </section>
   );
