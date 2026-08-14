@@ -50,3 +50,6 @@ jobs:
 
       - name: Build and run production E2E tests
         run: npm run test:e2e:production
+
+      - name: Verify standalone output
+        run: npm run build:verify
