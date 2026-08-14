@@ -57,7 +57,9 @@ export function getTemplateHref(
   );
 }
 
-export function resolveTechStackItem(id: string): TechStackItem {
+export function resolveTechStackItem(
+  id: string,
+): TechStackItem {
   return (
     portfolioTechStackById.get(id) ?? {
       id,
