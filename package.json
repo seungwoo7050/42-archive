@@ -24,7 +24,7 @@
     "test:e2e:production": "npm run build && playwright test --config=playwright.production.config.ts"
   },
   "dependencies": {
-    "next": "16.2.4",
+    "next": "16.2.11",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "simple-icons": "^16.18.1",
@@ -40,7 +40,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.4",
+    "eslint-config-next": "16.2.11",
     "jsdom": "^27.0.1",
     "tailwindcss": "^4",
     "tsx": "^4.23.0",
