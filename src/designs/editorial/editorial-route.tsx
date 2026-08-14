@@ -207,6 +207,7 @@ function EditorialShell({
               activeId={DESIGN_ID}
               contentDebug={contentDebug}
               currentPath={currentPath}
+              defaultId={content.presentation.defaultHomeTemplate}
               templates={content.presentation.templates}
               ui={ui}
             />

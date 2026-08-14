@@ -131,6 +131,7 @@ function Frame({
             activeId="cinematic"
             contentDebug={contentDebug}
             currentPath={currentPath}
+            defaultId={content.presentation.defaultHomeTemplate}
             templates={content.presentation.templates}
             ui={ui}
           />

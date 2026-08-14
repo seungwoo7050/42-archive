@@ -45,6 +45,7 @@ export async function resolvePortfolioPageContext({
         activeId: activeTemplate,
         contentDebug,
         currentPath,
+        defaultId: content.presentation.defaultHomeTemplate,
         templates: content.presentation.templates,
       },
     },

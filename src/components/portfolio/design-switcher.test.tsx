@@ -33,6 +33,7 @@ describe("DesignSwitcher", () => {
         activeId="editorial"
         contentDebug
         currentPath="/projects"
+        defaultId={content.presentation.defaultHomeTemplate}
         templates={content.presentation.templates}
         ui={content.presentation.ui}
       />
@@ -87,6 +88,7 @@ describe("DesignSwitcher", () => {
         activeId="editorial"
         contentDebug
         currentPath="/projects"
+        defaultId={content.presentation.defaultHomeTemplate}
         templates={content.presentation.templates}
         ui={ui}
       />,

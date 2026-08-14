@@ -14,6 +14,7 @@ type TemplateSwitcherProps = {
   activeId: HomeTemplateId;
   contentDebug?: boolean;
   currentPath: string;
+  defaultId: HomeTemplateId;
   templates: PresentationTemplate[];
 };
 
@@ -100,6 +101,7 @@ export function SiteHeader({
             activeId={templateSwitcher.activeId}
             contentDebug={templateSwitcher.contentDebug}
             currentPath={templateSwitcher.currentPath}
+            defaultId={templateSwitcher.defaultId}
             templates={templateSwitcher.templates}
             ui={ui}
           />

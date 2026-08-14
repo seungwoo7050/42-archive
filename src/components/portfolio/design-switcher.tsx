@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { SITE_DESIGNS } from "@/designs/config";
-import { getTemplateHref } from "@/lib/portfolio";
+import { createTemplateHref } from "@/lib/portfolio/template-href";
 import type {
   PresentationContent,
   PresentationTemplate,
@@ -13,12 +13,14 @@ export function DesignSwitcher({
   activeId,
   contentDebug,
   currentPath,
+  defaultId,
   templates,
   ui,
 }: {
   activeId: SiteDesignId;
   contentDebug?: boolean;
   currentPath: string;
+  defaultId: SiteDesignId;
   templates: PresentationTemplate[];
   ui: PresentationContent["ui"];
 }) {
@@ -59,9 +61,12 @@ export function DesignSwitcher({
                 <Link
                   aria-current={isActive ? "page" : undefined}
                   className={`${styles.link} ${isActive ? styles.active : ""}`}
-                  href={getTemplateHref(currentPath, design.id, {
-                    contentDebug,
-                  })}
+                  href={createTemplateHref(
+                    currentPath,
+                    design.id,
+                    defaultId,
+                    { contentDebug },
+                  )}
                 >
                   <span aria-hidden="true" className={styles.swatch}>
                     {design.swatch.map((color) => (

@@ -17,6 +17,7 @@ export function createDesignShellProps(
       activeId: designId,
       contentDebug,
       currentPath,
+      defaultId: content.presentation.defaultHomeTemplate,
       templates: content.presentation.templates,
     },
     ui: content.presentation.ui,
