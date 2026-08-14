@@ -74,25 +74,31 @@ export type HomeViewModel = ScopedRouteViewModel<
   }
 >;
 
-export type ProjectIndexViewModel = RouteViewModelBase & {
-  route: "projects";
-  archiveGroupEntries: [string, PortfolioProject[]][];
-  archiveGroups: ProjectGroupViewModel[];
-  archiveProjects: PortfolioProject[];
-  featuredProjects: PortfolioProject[];
-  groupEntries: [string, PortfolioProject[]][];
-  groups: ProjectGroupViewModel[];
-  metricValues: Record<string, number>;
-  metrics: ProjectMetricViewModel[];
-};
+export type ProjectIndexViewModel = ScopedRouteViewModel<
+  "contact" | "projects",
+  {
+    route: "projects";
+    archiveGroupEntries: [string, PortfolioProject[]][];
+    archiveGroups: ProjectGroupViewModel[];
+    archiveProjects: PortfolioProject[];
+    featuredProjects: PortfolioProject[];
+    groupEntries: [string, PortfolioProject[]][];
+    groups: ProjectGroupViewModel[];
+    metricValues: Record<string, number>;
+    metrics: ProjectMetricViewModel[];
+  }
+>;
 
-export type ProjectDetailViewModel = RouteViewModelBase & {
-  route: "project-detail";
-  detailLinks: ContentLink[];
-  project: PortfolioProject;
-  stackItems: TechStackItem[];
-  supportingImages: ProjectImage[];
-};
+export type ProjectDetailViewModel = ScopedRouteViewModel<
+  never,
+  {
+    route: "project-detail";
+    detailLinks: ContentLink[];
+    project: PortfolioProject;
+    stackItems: TechStackItem[];
+    supportingImages: ProjectImage[];
+  }
+>;
 
 export type AboutViewModel = RouteViewModelBase & {
   route: "about";
@@ -267,6 +273,7 @@ export function createProjectIndexViewModel(
     ]),
     archiveGroups,
     archiveProjects,
+    contact: content.contact,
     featuredProjects,
     groupEntries: groups.map((group) => [group.label, group.projects]),
     groups,
@@ -274,8 +281,9 @@ export function createProjectIndexViewModel(
       metrics.map((metric) => [metric.id, metric.value]),
     ),
     metrics,
+    projects: content.projects,
     route: "projects",
-  };
+  } as ProjectIndexViewModel;
 }
 
 export function createProjectDetailViewModel(
@@ -296,7 +304,6 @@ export function createProjectDetailViewModel(
     ...createRouteViewModelBase(content),
     detailLinks: getProjectDetailLinks(project),
     project,
-    projects: [],
     route: "project-detail",
     stackItems: project.stack.map(
       (id) =>
@@ -310,7 +317,7 @@ export function createProjectDetailViewModel(
     supportingImages: project.screenshots.filter(
       (image) => image.src !== project.screenshot.src,
     ),
-  };
+  } as ProjectDetailViewModel;
 }
 
 export function createAboutViewModel(
