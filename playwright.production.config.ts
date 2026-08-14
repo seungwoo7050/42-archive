@@ -8,6 +8,8 @@ export default defineConfig({
   },
   reporter: [["list"]],
   outputDir: "test-results",
+  snapshotPathTemplate:
+    "{testDir}/{testFilePath}-snapshots/{arg}-{projectName}{ext}",
   workers: 1,
   use: {
     baseURL: "http://localhost:3200",

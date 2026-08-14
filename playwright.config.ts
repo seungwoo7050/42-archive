@@ -8,6 +8,8 @@ export default defineConfig({
   },
   reporter: [["list"]],
   outputDir: "test-results",
+  snapshotPathTemplate:
+    "{testDir}/{testFilePath}-snapshots/{arg}-{projectName}{ext}",
   // Next's development compiler can invalidate an in-flight navigation when
   // both device projects request a cold route at the same time.
   workers: 1,
