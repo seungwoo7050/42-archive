@@ -12,6 +12,8 @@
     "prebuild": "npm run content:check && npm run content:ready",
     "build": "next build --webpack",
     "build:verify": "node scripts/verify-build-output.mjs",
+    "bundle:baseline": "node scripts/route-budgets.mjs --write-baseline",
+    "bundle:check": "node scripts/route-budgets.mjs",
     "start": "next start -p 3100",
     "start:e2e": "next start -p 3200",
     "lint": "eslint .",

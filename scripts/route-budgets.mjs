@@ -1,9 +1,12 @@
-import { readFile, stat } from "node:fs/promises";
+import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import process from "node:process";
+import { fileURLToPath } from "node:url";
 
 export const BUDGET_GROWTH_FACTOR = 1.05;
 
 const DEFAULT_BUILD_DIRECTORY = ".next";
+const DEFAULT_BASELINE_PATH = "performance/route-budgets.json";
 
 function routeFromManifestKey(key) {
   if (key === "/page") {
@@ -131,4 +134,62 @@ export function evaluateRouteBudgets(measurements, baseline) {
   }
 
   return violations;
+}
+
+function printMeasurements(measurements) {
+  for (const [route, sizes] of Object.entries(measurements)) {
+    console.log(
+      `${route}: js=${sizes.jsBytes} bytes, css=${sizes.cssBytes} bytes`,
+    );
+  }
+}
+
+async function main() {
+  const writeBaseline = process.argv.includes("--write-baseline");
+  const measurements = await collectRouteBundleMeasurements();
+
+  printMeasurements(measurements);
+
+  if (writeBaseline) {
+    const baseline = {
+      schemaVersion: 1,
+      growthLimitPercent: 5,
+      source: "Next.js production client assets (uncompressed bytes)",
+      routes: measurements,
+    };
+    await mkdir(path.dirname(DEFAULT_BASELINE_PATH), { recursive: true });
+    await writeFile(
+      DEFAULT_BASELINE_PATH,
+      `${JSON.stringify(baseline, null, 2)}\n`,
+      "utf8",
+    );
+    console.log(`Wrote ${DEFAULT_BASELINE_PATH}`);
+    return;
+  }
+
+  const baseline = JSON.parse(
+    await readFile(DEFAULT_BASELINE_PATH, "utf8"),
+  );
+  if (baseline.growthLimitPercent !== 5) {
+    throw new Error("The committed route budget must use a five percent limit.");
+  }
+
+  const violations = evaluateRouteBudgets(measurements, baseline);
+  if (violations.length > 0) {
+    for (const violation of violations) {
+      console.error(violation.message);
+    }
+    process.exitCode = 1;
+    return;
+  }
+
+  console.log("All route JS/CSS bundles are within the five percent budget.");
+}
+
+const isMain = process.argv[1]
+  ? path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+  : false;
+
+if (isMain) {
+  await main();
 }
