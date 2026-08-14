@@ -214,3 +214,33 @@ export function resolveProductionSiteUrl(value: string | undefined) {
 
   return siteUrl;
 }
+
+export function isUsablePublicUrl(href: string) {
+  if (findPlaceholderMarker(href)) {
+    return false;
+  }
+
+  try {
+    const url = new URL(href);
+    const hostname = url.hostname.toLowerCase();
+
+    return (
+      (url.protocol === "http:" || url.protocol === "https:") &&
+      !isReservedHostname(hostname)
+    );
+  } catch {
+    return false;
+  }
+}
+
+export function isUsableContactHref(href: string) {
+  if (findPlaceholderMarker(href)) {
+    return false;
+  }
+
+  return (
+    href.startsWith("mailto:") ||
+    href.startsWith("tel:") ||
+    isUsablePublicUrl(href)
+  );
+}
