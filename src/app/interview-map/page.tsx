@@ -5,6 +5,7 @@ import { ArrowRightIcon } from "@/components/icons";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
+import DesignInterviewMapRoute from "@/designs/design/interview-map-route";
 import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import {
   getPortfolioContent,
@@ -16,6 +17,7 @@ import {
   type RouteSearchParams,
 } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
+import { createInterviewMapViewModel } from "@/lib/portfolio/view-models";
 import { createRouteMetadata } from "@/lib/site-metadata";
 
 export function generateMetadata(): Metadata {
@@ -51,6 +53,17 @@ export default async function InterviewMapPage({
       currentPath: "/interview-map",
       route: "interview-map",
     });
+  }
+
+  if (activeTemplate === "design") {
+    return (
+      <DesignInterviewMapRoute
+        content={createInterviewMapViewModel(content)}
+        contentDebug={contentDebug}
+        currentPath="/interview-map"
+        route="interview-map"
+      />
+    );
   }
 
   const pageCopy = content.presentation.pages.interviewMap;

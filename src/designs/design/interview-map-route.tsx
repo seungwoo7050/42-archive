@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { ArrowRightIcon } from "@/components/icons";
 import { ContentHint } from "@/components/portfolio/content-hint";
+import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
 import {
   getTemplateHref,
   type HomeTemplateId,
 } from "@/lib/portfolio";
-import type {
-  InterviewMapTrackViewModel,
-  InterviewMapViewModel,
+import {
+  type InterviewMapTrackViewModel,
+  type InterviewMapViewModel,
 } from "@/lib/portfolio/view-models";
 import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
 import { createDesignShellProps } from "@/designs/shell-props";
@@ -90,11 +91,31 @@ export default function InterviewMapRoute({
           />
         ))}
       </div>
+      <section aria-label={pageCopy.gaps.ariaLabel}>
+        <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+          <SectionHeading
+            body={data.gaps.body}
+            contentDebug={contentDebug}
+            contentHint="src/content/interview-map.json > gaps"
+            title={data.gaps.title}
+          />
+          <ul className="grid gap-3">
+            {data.gaps.items.map((item) => (
+              <li
+                className="rounded-lg border border-line bg-surface p-4 text-sm leading-6 text-muted"
+                key={item}
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
     </PageShell>
   );
 }
 
-export function TrackSection({
+function TrackSection({
   contentDebug,
   homeTemplate,
   index,
