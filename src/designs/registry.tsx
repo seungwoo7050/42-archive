@@ -1,6 +1,6 @@
 import type { ComponentType, ReactElement } from "react";
 import type { SiteDesignId } from "@/lib/portfolio";
-import type { DesignRouteProps } from "./types";
+import type { DesignRouteProps, DesignRouteRequestProps } from "./types";
 
 type DesignModule = {
   default: ComponentType<DesignRouteProps>;
@@ -20,12 +20,26 @@ export function hasDedicatedRouteRenderer(
 
 export async function renderDesignRoute(
   designId: SiteDesignId,
-  props: DesignRouteProps,
+  props: DesignRouteRequestProps,
 ): Promise<ReactElement | null> {
   const loader = routeLoaders[designId];
 
   if (!loader) return null;
 
   const { default: Renderer } = await loader();
-  return <Renderer {...props} />;
+  const rendererProps: DesignRouteProps =
+    "viewModel" in props
+      ? {
+          content: props.viewModel,
+          contentDebug: props.contentDebug,
+          currentPath: props.currentPath,
+          project:
+            props.viewModel.route === "project-detail"
+              ? props.viewModel.project
+              : undefined,
+          route: props.route,
+        }
+      : props;
+
+  return <Renderer {...rendererProps} />;
 }
