@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRightIcon } from "@/components/icons";
@@ -15,6 +16,19 @@ import {
   type RouteSearchParams,
 } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
+import { createRouteMetadata } from "@/lib/site-metadata";
+
+export function generateMetadata(): Metadata {
+  const content = getPortfolioContent();
+  if (!isSitePageEnabled("interviewMap", content)) notFound();
+
+  return createRouteMetadata({
+    description: content.interviewMap.intro,
+    path: "/interview-map",
+    site: content.site,
+    title: content.presentation.pages.interviewMap.hero.title,
+  });
+}
 
 export default async function InterviewMapPage({
   searchParams,

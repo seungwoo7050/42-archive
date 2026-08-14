@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRightIcon } from "@/components/icons";
@@ -17,6 +18,19 @@ import {
   type RouteSearchParams,
 } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
+import { createRouteMetadata } from "@/lib/site-metadata";
+
+export function generateMetadata(): Metadata {
+  const content = getPortfolioContent();
+  if (!isSitePageEnabled("journey", content)) notFound();
+
+  return createRouteMetadata({
+    description: content.journeyNarrative.intro,
+    path: "/journey",
+    site: content.site,
+    title: content.presentation.pages.journey.hero.title,
+  });
+}
 
 export default async function JourneyPage({
   searchParams,
