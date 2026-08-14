@@ -1,6 +1,8 @@
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
+export const BUDGET_GROWTH_FACTOR = 1.05;
+
 const DEFAULT_BUILD_DIRECTORY = ".next";
 
 function routeFromManifestKey(key) {
@@ -82,4 +84,51 @@ export async function collectRouteBundleMeasurements(
   }
 
   return measurements;
+}
+
+export function evaluateRouteBudgets(measurements, baseline) {
+  const violations = [];
+  const baselineRoutes = baseline.routes ?? {};
+
+  for (const [route, expected] of Object.entries(baselineRoutes)) {
+    const actual = measurements[route];
+
+    if (!actual) {
+      violations.push({
+        asset: "route",
+        message: `${route}: route output is missing`,
+        route,
+      });
+      continue;
+    }
+
+    for (const [property, asset] of [
+      ["cssBytes", "css"],
+      ["jsBytes", "js"],
+    ]) {
+      const allowedBytes = Math.floor(expected[property] * BUDGET_GROWTH_FACTOR);
+      if (actual[property] > allowedBytes) {
+        violations.push({
+          actualBytes: actual[property],
+          allowedBytes,
+          asset,
+          baselineBytes: expected[property],
+          message: `${route}: ${asset} is ${actual[property]} bytes (limit ${allowedBytes})`,
+          route,
+        });
+      }
+    }
+  }
+
+  for (const route of Object.keys(measurements)) {
+    if (!baselineRoutes[route]) {
+      violations.push({
+        asset: "baseline",
+        message: `${route}: route does not have a committed baseline`,
+        route,
+      });
+    }
+  }
+
+  return violations;
 }
