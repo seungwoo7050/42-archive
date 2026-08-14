@@ -24,6 +24,27 @@ type RouteViewModelBase = PortfolioContent & {
   footerLinks: ContentLink[];
 };
 
+type ScopedRouteViewModelBase = {
+  footerLinks: ContentLink[];
+  presentation: PortfolioContent["presentation"];
+  profile: PortfolioContent["profile"];
+  site: PortfolioContent["site"];
+};
+
+type ScopedSharedContentKey = "presentation" | "profile" | "site";
+
+type ScopedRouteViewModel<
+  VisibleContentKey extends keyof PortfolioContent,
+  RouteFields extends object,
+> = ScopedRouteViewModelBase &
+  Pick<PortfolioContent, VisibleContentKey> &
+  RouteFields & {
+    readonly [Key in Exclude<
+      keyof PortfolioContent,
+      ScopedSharedContentKey | VisibleContentKey
+    >]: never;
+  };
+
 export type ProjectGroupViewModel = ProjectGroup & {
   projects: PortfolioProject[];
 };
@@ -36,19 +57,22 @@ export type CurationCategoryViewModel = CurationCategory & {
   projects: PortfolioProject[];
 };
 
-export type HomeViewModel = RouteViewModelBase & {
-  route: "home";
-  currentYear: number;
-  featuredProjects: PortfolioProject[];
-  featuredOrAllProjects: PortfolioProject[];
-  heroLinks: ContentLink[];
-  leadProject: PortfolioProject | null;
-  metricValues: Record<string, number>;
-  metrics: ProjectMetricViewModel[];
-  preferredContactLinks: ContentLink[];
-  projectCount: number;
-  recentJourney: PortfolioContent["journey"];
-};
+export type HomeViewModel = ScopedRouteViewModel<
+  "contact" | "journey" | "journeyNarrative" | "skills" | "techStack",
+  {
+    route: "home";
+    currentYear: number;
+    featuredProjects: PortfolioProject[];
+    featuredOrAllProjects: PortfolioProject[];
+    heroLinks: ContentLink[];
+    leadProject: PortfolioProject | null;
+    metricValues: Record<string, number>;
+    metrics: ProjectMetricViewModel[];
+    preferredContactLinks: ContentLink[];
+    projectCount: number;
+    recentJourney: PortfolioContent["journey"];
+  }
+>;
 
 export type ProjectIndexViewModel = RouteViewModelBase & {
   route: "projects";
@@ -199,6 +223,7 @@ export function createHomeViewModel(
 
   return {
     ...createRouteViewModelBase(content),
+    contact: content.contact,
     currentYear: now.getFullYear(),
     featuredOrAllProjects,
     featuredProjects,
@@ -208,10 +233,13 @@ export function createHomeViewModel(
     metrics,
     preferredContactLinks: getPreferredContactLinks(content),
     projectCount: content.projects.length,
-    projects: [],
+    journey: content.journey,
+    journeyNarrative: content.journeyNarrative,
     recentJourney: content.journey.slice(-4).reverse(),
     route: "home",
-  };
+    skills: content.skills,
+    techStack: content.techStack,
+  } as HomeViewModel;
 }
 
 export function createProjectIndexViewModel(
