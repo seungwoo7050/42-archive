@@ -1,0 +1,91 @@
+import { ArrowRightIcon } from "@/components/icons";
+import { ContentHint } from "@/components/portfolio/content-hint";
+import { PageShell } from "@/components/portfolio/site-shell";
+import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
+import { createDesignShellProps } from "@/designs/shell-props";
+
+export default function ResumeRoute({
+  content,
+  contentDebug,
+  currentPath,
+}: DesignRouteProps) {
+  if (content.route !== "resume") return null;
+
+  const activeTemplate = "design";
+  const shellProps = createDesignShellProps(
+    content,
+    contentDebug,
+    currentPath,
+    activeTemplate,
+  );
+  const pageCopy = content.presentation.pages.resume;
+
+  return (
+    <PageShell {...shellProps}>
+      <section className="border-b border-line">
+        <div className="mx-auto grid max-w-6xl gap-8 px-5 py-20 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <ContentHint
+              enabled={contentDebug}
+              path="src/content/presentation.json > pages.resume.hero + src/content/profile.json + src/content/resume.json > downloadUrl"
+            />
+            <p className="text-sm font-medium text-muted">
+              {content.profile.koreanName} · {content.profile.handle}
+            </p>
+            <h1 className="mt-5 text-5xl font-semibold leading-tight text-foreground md:text-6xl">
+              {pageCopy.hero.title}
+            </h1>
+            <p className="mt-6 max-w-2xl text-base leading-7 text-muted">
+              {pageCopy.hero.body}
+            </p>
+            <dl className="mt-8 grid max-w-2xl gap-4 sm:grid-cols-2">
+              <div className="rounded-lg border border-line bg-surface p-4">
+                <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">
+                  {pageCopy.identity.locationLabel}
+                </dt>
+                <dd className="mt-2 text-sm text-foreground">
+                  {content.profile.location}
+                </dd>
+              </div>
+              <div className="rounded-lg border border-line bg-surface p-4">
+                <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">
+                  {pageCopy.identity.availabilityLabel}
+                </dt>
+                <dd className="mt-2 text-sm leading-6 text-foreground">
+                  {content.profile.availability}
+                </dd>
+              </div>
+            </dl>
+          </div>
+          {content.resume.downloadUrl ? (
+            <a
+              className="inline-flex h-10 items-center gap-2 rounded-md border border-accent bg-accent px-4 text-sm font-semibold text-background"
+              href={content.resume.downloadUrl}
+            >
+              {pageCopy.hero.downloadLabel}
+              <ArrowRightIcon className="-rotate-45" />
+            </a>
+          ) : null}
+        </div>
+      </section>
+      <section className="border-b border-line">
+        <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+          <h2 className="text-3xl font-semibold text-foreground">
+            {pageCopy.summary.title}
+          </h2>
+          <div className="grid gap-4">
+            {content.resume.summary.map((item) => (
+              <p className="text-base leading-7 text-muted" key={item}>
+                <ContentHint
+                  enabled={contentDebug}
+                  path="src/content/resume.json > summary[]"
+                />
+                {item}
+              </p>
+            ))}
+          </div>
+        </div>
+      </section>
+    </PageShell>
+  );
+}
