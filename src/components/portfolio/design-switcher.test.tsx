@@ -58,7 +58,7 @@ describe("DesignSwitcher", () => {
     }
   });
 
-  it("renders selector copy from content and clears native open state", () => {
+  it("renders selector copy and restores focus when explicitly closed", () => {
     const content = getPortfolioContent();
     const ui = {
       ...content.presentation.ui,
@@ -95,17 +95,13 @@ describe("DesignSwitcher", () => {
     });
 
     expect(details).not.toBeNull();
+    expect(classicLink).toHaveAttribute(
+      "href",
+      "/projects?view=classic&debug=content",
+    );
     details?.setAttribute("open", "");
     fireEvent.click(closeButton);
     expect(details).not.toHaveAttribute("open");
     expect(summary).toHaveFocus();
-
-    details?.setAttribute("open", "");
-    document.addEventListener("click", (event) => event.preventDefault(), {
-      capture: true,
-      once: true,
-    });
-    fireEvent.click(classicLink);
-    expect(details).not.toHaveAttribute("open");
   });
 });

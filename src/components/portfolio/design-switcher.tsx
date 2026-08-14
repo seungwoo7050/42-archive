@@ -1,14 +1,12 @@
-"use client";
-
 import Link from "next/link";
-import { useRef } from "react";
 import { SITE_DESIGNS } from "@/designs/config";
-import {
-  getTemplateHref,
-  type PresentationContent,
-  type PresentationTemplate,
-  type SiteDesignId,
-} from "@/lib/portfolio";
+import { getTemplateHref } from "@/lib/portfolio";
+import type {
+  PresentationContent,
+  PresentationTemplate,
+  SiteDesignId,
+} from "@/lib/portfolio/types";
+import { DesignSwitcherClose } from "./design-switcher-close";
 import styles from "./design-switcher.module.css";
 
 export function DesignSwitcher({
@@ -24,8 +22,6 @@ export function DesignSwitcher({
   templates: PresentationTemplate[];
   ui: PresentationContent["ui"];
 }) {
-  const detailsRef = useRef<HTMLDetailsElement>(null);
-  const summaryRef = useRef<HTMLElement>(null);
   const templateCopy = new Map(
     templates.map((template) => [template.id, template]),
   );
@@ -38,13 +34,12 @@ export function DesignSwitcher({
     .replace("{total}", String(SITE_DESIGNS.length).padStart(2, "0"));
 
   return (
-    <details className={styles.root} ref={detailsRef} suppressHydrationWarning>
+    <details className={styles.root} suppressHydrationWarning>
       <summary
         aria-label={ui.designSwitcherAriaTemplate.replace(
           "{label}",
           activeLabel,
         )}
-        ref={summaryRef}
       >
         <span className={styles.count}>{countLabel}</span>
         <span className={styles.label}>{activeLabel}</span>
@@ -52,16 +47,7 @@ export function DesignSwitcher({
       <nav aria-label={ui.designNavigationAriaLabel} className={styles.panel}>
         <div className={styles.sheetHeader}>
           <strong>{ui.designNavigationAriaLabel}</strong>
-          <button
-            aria-label={ui.designSwitcherCloseLabel}
-            onClick={() => {
-              detailsRef.current?.removeAttribute("open");
-              summaryRef.current?.focus();
-            }}
-            type="button"
-          >
-            <span aria-hidden="true">×</span>
-          </button>
+          <DesignSwitcherClose label={ui.designSwitcherCloseLabel} />
         </div>
         <ul className={styles.list}>
           {SITE_DESIGNS.map((design, index) => {
@@ -76,7 +62,6 @@ export function DesignSwitcher({
                   href={getTemplateHref(currentPath, design.id, {
                     contentDebug,
                   })}
-                  onClick={() => detailsRef.current?.removeAttribute("open")}
                 >
                   <span aria-hidden="true" className={styles.swatch}>
                     {design.swatch.map((color) => (
