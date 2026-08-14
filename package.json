@@ -11,6 +11,7 @@
     "dev": "next dev --webpack -p 3100",
     "prebuild": "npm run content:check && npm run content:ready",
     "build": "next build --webpack",
+    "build:verify": "node scripts/verify-build-output.mjs",
     "start": "next start -p 3100",
     "start:e2e": "next start -p 3200",
     "lint": "eslint .",
