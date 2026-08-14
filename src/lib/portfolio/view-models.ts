@@ -1,6 +1,7 @@
 import {
   getContentLinksByPlacement,
   getPreferredContactLinks,
+  getProjectDetailLinks,
   getProjectMetricValue,
 } from "./selectors";
 import type {
@@ -9,7 +10,9 @@ import type {
   PortfolioContent,
   PortfolioProject,
   ProjectGroup,
+  ProjectImage,
   ProjectMetric,
+  TechStackItem,
 } from "./types";
 
 type RouteViewModelBase = PortfolioContent & {
@@ -52,6 +55,19 @@ export type ProjectIndexViewModel = RouteViewModelBase & {
   groups: ProjectGroupViewModel[];
   metricValues: Record<string, number>;
   metrics: ProjectMetricViewModel[];
+};
+
+export type ProjectDetailViewModel = RouteViewModelBase & {
+  route: "project-detail";
+  detailLinks: ContentLink[];
+  project: PortfolioProject;
+  stackItems: TechStackItem[];
+  supportingImages: ProjectImage[];
+};
+
+export type AboutViewModel = RouteViewModelBase & {
+  route: "about";
+  curationCategories: CurationCategoryViewModel[];
 };
 
 function createRouteViewModelBase(
@@ -172,5 +188,60 @@ export function createProjectIndexViewModel(
     ),
     metrics,
     route: "projects",
+  };
+}
+
+export function createProjectDetailViewModel(
+  content: PortfolioContent,
+  projectId: string,
+): ProjectDetailViewModel | null {
+  const project = content.projects.find((item) => item.id === projectId);
+
+  if (!project) {
+    return null;
+  }
+
+  const stackById = new Map(
+    content.techStack.map((item) => [item.id, item]),
+  );
+
+  return {
+    ...createRouteViewModelBase(content),
+    detailLinks: getProjectDetailLinks(project),
+    project,
+    projects: [],
+    route: "project-detail",
+    stackItems: project.stack.map(
+      (id) =>
+        stackById.get(id) ?? {
+          color: "#9cc8b1",
+          icon: "tool",
+          id,
+          label: id,
+        },
+    ),
+    supportingImages: project.screenshots.filter(
+      (image) => image.src !== project.screenshot.src,
+    ),
+  };
+}
+
+export function createAboutViewModel(
+  content: PortfolioContent,
+): AboutViewModel {
+  const projectById = new Map(
+    content.projects.map((project) => [project.id, project]),
+  );
+
+  return {
+    ...createRouteViewModelBase(content),
+    curationCategories: content.curation.categories.map((category) => ({
+      ...category,
+      projects: category.projectIds
+        .map((projectId) => projectById.get(projectId))
+        .filter((project): project is PortfolioProject => Boolean(project)),
+    })),
+    projects: [],
+    route: "about",
   };
 }
