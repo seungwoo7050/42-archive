@@ -6,6 +6,7 @@ import { ContentHint } from "@/components/portfolio/content-hint";
 import { JourneyList } from "@/components/portfolio/journey-list";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
+import DesignJourneyRoute from "@/designs/design/journey-route";
 import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import {
   getPortfolioContent,
@@ -18,6 +19,7 @@ import {
   type RouteSearchParams,
 } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
+import { createJourneyViewModel } from "@/lib/portfolio/view-models";
 import { createRouteMetadata } from "@/lib/site-metadata";
 
 export function generateMetadata(): Metadata {
@@ -53,6 +55,17 @@ export default async function JourneyPage({
       currentPath: "/journey",
       route: "journey",
     });
+  }
+
+  if (activeTemplate === "design") {
+    return (
+      <DesignJourneyRoute
+        content={createJourneyViewModel(content)}
+        contentDebug={contentDebug}
+        currentPath="/journey"
+        route="journey"
+      />
+    );
   }
 
   const pageCopy = content.presentation.pages.journey;

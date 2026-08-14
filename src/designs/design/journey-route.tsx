@@ -1,16 +1,19 @@
 import Link from "next/link";
 import { ArrowRightIcon } from "@/components/icons";
 import { ContentHint } from "@/components/portfolio/content-hint";
+import { JourneyList } from "@/components/portfolio/journey-list";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { PageShell } from "@/components/portfolio/site-shell";
-import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
-import { createDesignShellProps } from "@/designs/shell-props";
 import {
   getTemplateHref,
   type HomeTemplateId,
   type PresentationContent,
 } from "@/lib/portfolio";
-import type { JourneyMilestoneViewModel } from "@/lib/portfolio/view-models";
+import {
+  type JourneyMilestoneViewModel,
+} from "@/lib/portfolio/view-models";
+import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
+import { createDesignShellProps } from "@/designs/shell-props";
 
 export default function JourneyRoute({
   content,
@@ -68,11 +71,45 @@ export default function JourneyRoute({
           </ol>
         </div>
       </section>
+      <section className="border-b border-line">
+        <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+          <SectionHeading
+            body={pageCopy.timeline.body}
+            contentDebug={contentDebug}
+            contentHint="src/content/journey.json > journey[]"
+            title={pageCopy.timeline.title}
+          />
+          <JourneyList
+            caseStudyLabel={content.presentation.ui.journeyCaseStudyLabel}
+            contentDebug={contentDebug}
+            homeTemplate={activeTemplate}
+            items={content.journey}
+            variant="paired-centerline"
+          />
+        </div>
+      </section>
+      <section>
+        <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+          <SectionHeading
+            contentDebug={contentDebug}
+            contentHint="src/content/journey-narrative.json > currentPosition"
+            title={pageCopy.now.title}
+          />
+          <div className="rounded-lg border border-line bg-surface p-6">
+            <h3 className="text-base font-semibold text-foreground">
+              {narrative.currentPosition.title}
+            </h3>
+            <p className="mt-4 text-sm leading-6 text-muted md:text-base md:leading-7">
+              {narrative.currentPosition.body}
+            </p>
+          </div>
+        </div>
+      </section>
     </PageShell>
   );
 }
 
-export function MilestoneCard({
+function MilestoneCard({
   contentDebug,
   homeTemplate,
   index,
