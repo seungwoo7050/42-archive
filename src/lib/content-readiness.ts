@@ -17,6 +17,11 @@ export type PortfolioReadinessResult =
   | { mode: "template"; siteUrl: undefined }
   | { mode: "production"; siteUrl: URL };
 
+type ProductionReadinessResult = Extract<
+  PortfolioReadinessResult,
+  { mode: "production" }
+>;
+
 export const contentFiles = [
   ["site", "src/content/site.json"],
   ["profile", "src/content/profile.json"],
@@ -243,4 +248,22 @@ export function isUsableContactHref(href: string) {
     href.startsWith("tel:") ||
     isUsablePublicUrl(href)
   );
+}
+
+export function validateProductionReadiness(
+  content: PortfolioSource,
+  environment: Pick<PortfolioReadinessEnvironment, "SITE_URL">,
+): ProductionReadinessResult {
+  const issues: PortfolioReadinessIssue[] = [];
+  const siteUrl = parsePublicSiteUrl(environment.SITE_URL, issues);
+
+  for (const [key, file] of contentFiles) {
+    collectPlaceholderIssues(content[key], file, "$", issues);
+  }
+
+  if (!siteUrl || issues.length > 0) {
+    throw new PortfolioReadinessError(issues);
+  }
+
+  return { mode: "production", siteUrl };
 }
