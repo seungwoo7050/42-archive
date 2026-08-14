@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProjectDetailView } from "@/components/portfolio/project-detail-view";
 import { PageShell } from "@/components/portfolio/site-shell";
@@ -9,6 +10,12 @@ import {
   type RouteSearchParams,
 } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
+import { createRouteMetadata } from "@/lib/site-metadata";
+
+type ProjectDetailPageProps = {
+  params: Promise<{ projectId: string }>;
+  searchParams?: RouteSearchParams;
+};
 
 export function generateStaticParams() {
   return getPortfolioContent().projects.map((project) => ({
@@ -16,13 +23,30 @@ export function generateStaticParams() {
   }));
 }
 
+export async function generateMetadata({
+  params,
+}: Pick<ProjectDetailPageProps, "params">): Promise<Metadata> {
+  const content = getPortfolioContent();
+  const { projectId } = await params;
+  const project = getProjectById(projectId, content);
+
+  if (!isSitePageEnabled("projects", content) || !project) {
+    notFound();
+  }
+
+  return createRouteMetadata({
+    description: project.summary,
+    path: `/projects/${project.id}`,
+    site: content.site,
+    title: project.title,
+    type: "article",
+  });
+}
+
 export default async function ProjectDetailPage({
   params,
   searchParams,
-}: {
-  params: Promise<{ projectId: string }>;
-  searchParams?: RouteSearchParams;
-}) {
+}: ProjectDetailPageProps) {
   const content = getPortfolioContent();
   if (!isSitePageEnabled("projects", content)) notFound();
   const { projectId } = await params;

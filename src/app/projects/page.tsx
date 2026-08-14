@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { PageShell } from "@/components/portfolio/site-shell";
 import { notFound } from "next/navigation";
 import { ClassicProjectsView } from "@/designs/classic/projects/projects-route";
@@ -11,6 +12,20 @@ import {
 } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
 import { groupProjects } from "@/lib/portfolio/project-groups";
+import { createRouteMetadata } from "@/lib/site-metadata";
+
+export function generateMetadata(): Metadata {
+  const content = getPortfolioContent();
+  if (!isSitePageEnabled("projects", content)) notFound();
+  const hero = content.presentation.pages.projects.design.hero;
+
+  return createRouteMetadata({
+    description: hero.body,
+    path: "/projects",
+    site: content.site,
+    title: hero.title,
+  });
+}
 
 export default async function ProjectsPage({
   searchParams,
