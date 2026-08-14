@@ -15,6 +15,7 @@ import {
   type RouteSearchParams,
 } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
+import { createProjectDetailViewModel } from "@/lib/portfolio/view-models";
 import {
   createProjectStructuredData,
   createRouteMetadata,
@@ -64,11 +65,12 @@ export default async function ProjectDetailPage({
       currentPath: `/projects/${projectId}`,
       searchParams,
     });
-  const project = getProjectById(projectId, content);
+  const viewModel = createProjectDetailViewModel(content, projectId);
 
-  if (!project) {
+  if (!viewModel) {
     notFound();
   }
+  const project = viewModel.project;
 
   const mode = resolvePortfolioContentMode(
     process.env.PORTFOLIO_CONTENT_MODE,
@@ -104,7 +106,7 @@ export default async function ProjectDetailPage({
         <ProjectDetailView
           contentDebug={contentDebug}
           homeTemplate={activeTemplate}
-          pageCopy={content.presentation.pages.projectDetail}
+          pageCopy={viewModel.presentation.pages.projectDetail}
           project={project}
         />
       </PageShell>
