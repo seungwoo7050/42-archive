@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ArrowRightIcon } from "@/components/icons";
 import { notFound } from "next/navigation";
 import { ContentHint } from "@/components/portfolio/content-hint";
@@ -11,6 +12,19 @@ import {
   type RouteSearchParams,
 } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
+import { createRouteMetadata } from "@/lib/site-metadata";
+
+export function generateMetadata(): Metadata {
+  const content = getPortfolioContent();
+  if (!isSitePageEnabled("contact", content)) notFound();
+
+  return createRouteMetadata({
+    description: content.contact.intro,
+    path: "/contact",
+    site: content.site,
+    title: content.contact.title,
+  });
+}
 
 export default async function ContactPage({
   searchParams,

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRightIcon } from "@/components/icons";
@@ -18,6 +19,19 @@ import {
   type RouteSearchParams,
 } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
+import { createRouteMetadata } from "@/lib/site-metadata";
+
+export function generateMetadata(): Metadata {
+  const content = getPortfolioContent();
+  if (!isSitePageEnabled("about", content)) notFound();
+
+  return createRouteMetadata({
+    description: content.profile.summary,
+    path: "/about",
+    site: content.site,
+    title: content.presentation.pages.about.hero.title,
+  });
+}
 
 export default async function AboutPage({
   searchParams,

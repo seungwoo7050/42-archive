@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRightIcon } from "@/components/icons";
@@ -13,6 +14,20 @@ import {
   type RouteSearchParams,
 } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
+import { createRouteMetadata } from "@/lib/site-metadata";
+
+export function generateMetadata(): Metadata {
+  const content = getPortfolioContent();
+  if (!isSitePageEnabled("resume", content)) notFound();
+  const hero = content.presentation.pages.resume.hero;
+
+  return createRouteMetadata({
+    description: hero.body,
+    path: "/resume",
+    site: content.site,
+    title: hero.title,
+  });
+}
 
 export default async function ResumePage({
   searchParams,
