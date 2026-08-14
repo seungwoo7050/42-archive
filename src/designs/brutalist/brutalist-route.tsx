@@ -11,6 +11,7 @@ import {
   type PortfolioProject,
 } from "@/lib/portfolio";
 import type {
+  AboutViewModel,
   HomeViewModel,
   ProjectDetailViewModel,
   ProjectIndexViewModel,
@@ -924,6 +925,7 @@ function AboutView({
   content: PortfolioContent;
   contentDebug: boolean;
 }) {
+  const viewModel = content as AboutViewModel;
   const pageCopy = content.presentation.pages.about;
   const brutalistCopy = pageCopy.brutalist;
   const curation = content.curation;
@@ -1043,13 +1045,8 @@ function AboutView({
 
           <CurationHeading title={pageCopy.curation.categoriesTitle} />
           <div className={styles.curationCategories}>
-            {curation.categories.map((category) => {
-              const projects = category.projectIds
-                .map((id) =>
-                  content.projects.find((project) => project.id === id),
-                )
-                .filter((item): item is PortfolioProject => Boolean(item));
-
+            {viewModel.curationCategories.map((category) => {
+              const projects = category.projects;
               return (
                 <article key={category.id}>
                   <h3>{category.label}</h3>

@@ -14,6 +14,7 @@ import {
   type ProjectImage,
 } from "@/lib/portfolio";
 import type {
+  AboutViewModel,
   HomeViewModel,
   ProjectDetailViewModel,
   ProjectIndexViewModel,
@@ -762,6 +763,7 @@ function ProjectDetailRoute({ content, contentDebug, project }: EditorialRoutePr
 }
 
 function AboutRoute({ content, contentDebug }: EditorialRouteProps) {
+  const viewModel = content as AboutViewModel;
   const pageCopy = content.presentation.pages.about;
   const ui = content.presentation.ui;
 
@@ -894,13 +896,8 @@ function AboutRoute({ content, contentDebug }: EditorialRouteProps) {
                 <h3>{pageCopy.curation.categoriesTitle}</h3>
               </header>
               <div className={styles.curationCategories}>
-                {content.curation.categories.map((category) => {
-                  const projects = category.projectIds
-                    .map((projectId) =>
-                      content.projects.find((project) => project.id === projectId),
-                    )
-                    .filter((item): item is PortfolioProject => Boolean(item));
-
+                {viewModel.curationCategories.map((category) => {
+                  const projects = category.projects;
                   return (
                     <article key={category.id}>
                       <h4>{category.label}</h4>

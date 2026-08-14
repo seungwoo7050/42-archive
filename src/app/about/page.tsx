@@ -13,12 +13,15 @@ import {
   getPortfolioContent,
   getTemplateHref,
   isSitePageEnabled,
-  type CurationCategory,
   type HomeTemplateId,
-  type PortfolioContent,
   type RouteSearchParams,
 } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
+import {
+  createAboutViewModel,
+  type AboutViewModel,
+  type CurationCategoryViewModel,
+} from "@/lib/portfolio/view-models";
 import { createRouteMetadata } from "@/lib/site-metadata";
 
 export function generateMetadata(): Metadata {
@@ -38,21 +41,22 @@ export default async function AboutPage({
 }: {
   searchParams?: RouteSearchParams;
 }) {
-  const content = getPortfolioContent();
-  if (!isSitePageEnabled("about", content)) notFound();
+  const contentSource = getPortfolioContent();
+  if (!isSitePageEnabled("about", contentSource)) notFound();
   const { activeTemplate, contentDebug, shellProps } =
     await resolvePortfolioPageContext({
-      content,
+      content: contentSource,
       currentPath: "/about",
       searchParams,
     });
+  const content = createAboutViewModel(contentSource);
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
-      content,
       contentDebug,
       currentPath: "/about",
       route: "about",
+      viewModel: content,
     });
   }
 
@@ -210,7 +214,7 @@ function CurationSection({
   contentDebug,
   homeTemplate,
 }: {
-  content: PortfolioContent;
+  content: AboutViewModel;
   contentDebug: boolean;
   homeTemplate: HomeTemplateId;
 }) {
@@ -256,10 +260,9 @@ function CurationSection({
             {pageCopy.categoriesTitle}
           </h3>
           <ul className="grid gap-4">
-            {data.categories.map((category) => (
+            {content.curationCategories.map((category) => (
               <CurationCategoryCard
                 category={category}
-                content={content}
                 contentDebug={contentDebug}
                 homeTemplate={homeTemplate}
                 key={category.id}
@@ -306,18 +309,14 @@ function CurationSection({
 
 function CurationCategoryCard({
   category,
-  content,
   contentDebug,
   homeTemplate,
 }: {
-  category: CurationCategory;
-  content: PortfolioContent;
+  category: CurationCategoryViewModel;
   contentDebug: boolean;
   homeTemplate: HomeTemplateId;
 }) {
-  const projects = category.projectIds
-    .map((projectId) => content.projects.find((project) => project.id === projectId))
-    .filter((project): project is NonNullable<typeof project> => Boolean(project));
+  const projects = category.projects;
 
   return (
     <li className="rounded-lg border border-line bg-surface p-5">

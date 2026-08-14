@@ -9,6 +9,7 @@ import {
   type PortfolioProject,
 } from "@/lib/portfolio";
 import type {
+  AboutViewModel,
   HomeViewModel,
   ProjectDetailViewModel,
 } from "@/lib/portfolio/view-models";
@@ -440,6 +441,7 @@ function ProjectDetailView({ content, contentDebug, project }: DesignRouteProps)
 }
 
 function AboutView({ content, contentDebug }: DesignRouteProps) {
+  const viewModel = content as AboutViewModel;
   const copy = content.presentation.pages.about;
   const curation = content.curation;
 
@@ -522,11 +524,8 @@ function AboutView({ content, contentDebug }: DesignRouteProps) {
             </section>
             <section>
               <h3>{copy.curation.categoriesTitle}</h3>
-              {curation.categories.map((category) => {
-                const projects = category.projectIds
-                  .map((projectId) => content.projects.find((project) => project.id === projectId))
-                  .filter((project): project is PortfolioProject => Boolean(project));
-
+              {viewModel.curationCategories.map((category) => {
+                const projects = category.projects;
                 return (
                   <article key={category.id}>
                     <h4>{category.label}</h4>
