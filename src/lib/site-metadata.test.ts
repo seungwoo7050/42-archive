@@ -26,7 +26,7 @@ describe("site indexing metadata", () => {
     });
 
     expect(metadata.metadataBase).toEqual(metadataBase);
-    expect(metadata.alternates).toEqual({ canonical: "./" });
+    expect(metadata.alternates).toEqual({ canonical: "/" });
     expect(metadata.robots).toEqual({ follow: true, index: true });
     expect(metadata.openGraph).toEqual(
       expect.objectContaining({

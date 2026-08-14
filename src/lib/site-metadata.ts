@@ -5,6 +5,18 @@ import type { PortfolioContentMode } from "./content-readiness";
 
 type SiteContent = PortfolioSource["site"];
 
+type RouteMetadataInput = {
+  description: string;
+  path: `/${string}` | "/";
+  site: SiteContent;
+  title: string;
+  type?: "article" | "website";
+};
+
+function routeTitle(path: string, title: string, site: SiteContent) {
+  return path === "/" ? site.title : `${title} | ${site.brand}`;
+}
+
 export function createPortfolioMetadata({
   metadataBase,
   mode,
@@ -20,7 +32,7 @@ export function createPortfolioMetadata({
   const shouldIndex = mode === "production";
 
   return {
-    alternates: { canonical: "./" },
+    alternates: { canonical: "/" },
     description: site.description,
     metadataBase,
     openGraph: {
@@ -28,6 +40,7 @@ export function createPortfolioMetadata({
       images: socialImage ? [{ url: socialImage }] : undefined,
       title: site.title,
       type: "website",
+      url: "/",
     },
     robots: { follow: shouldIndex, index: shouldIndex },
     title: site.title,
@@ -36,6 +49,38 @@ export function createPortfolioMetadata({
       description: site.description,
       images: socialImage ? [socialImage] : undefined,
       title: site.title,
+    },
+  };
+}
+
+export function createRouteMetadata({
+  description,
+  path,
+  site,
+  title,
+  type = "website",
+}: RouteMetadataInput): Metadata {
+  const resolvedTitle = routeTitle(path, title, site);
+  const images = site.socialImage
+    ? [{ alt: site.title, url: site.socialImage }]
+    : undefined;
+
+  return {
+    alternates: { canonical: path },
+    description,
+    openGraph: {
+      description,
+      images,
+      title: resolvedTitle,
+      type,
+      url: path,
+    },
+    title: resolvedTitle,
+    twitter: {
+      card: "summary_large_image",
+      description,
+      images: site.socialImage ? [site.socialImage] : undefined,
+      title: resolvedTitle,
     },
   };
 }
