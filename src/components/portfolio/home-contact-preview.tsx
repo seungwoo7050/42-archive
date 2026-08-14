@@ -1,9 +1,8 @@
 import { ArrowRightIcon } from "@/components/icons";
 import {
-  getPreferredContactLinks,
   type HomeTemplateId,
-  type PortfolioContent,
 } from "@/lib/portfolio";
+import type { HomeViewModel } from "@/lib/portfolio/view-models";
 import { ContentHint } from "./content-hint";
 import { ContentLinkView } from "./content-link";
 
@@ -13,10 +12,10 @@ export function HomeContactPreview({
   contentDebug,
 }: {
   activeTemplate: HomeTemplateId;
-  content: PortfolioContent;
+  content: HomeViewModel;
   contentDebug: boolean;
 }) {
-  const preferredLinks = getPreferredContactLinks(content);
+  const preferredLinks = content.preferredContactLinks;
   const copy = content.presentation.home.shared.contact;
 
   return (

@@ -1,12 +1,12 @@
-import { getProjectMetricValue, type PortfolioContent } from "@/lib/portfolio";
+import type { HomeViewModel } from "@/lib/portfolio/view-models";
 import { Reveal } from "./reveal";
 import { SectionHeading } from "./section-heading";
 
-export function getWorkMapStats(content: PortfolioContent) {
+export function getWorkMapStats(content: HomeViewModel) {
   return {
-    curriculumCount: getProjectMetricValue("curriculumCount", content),
-    productCount: getProjectMetricValue("productCount", content),
-    reliabilityCount: getProjectMetricValue("reliabilityCount", content),
+    curriculumCount: content.metricValues.curriculumCount ?? 0,
+    productCount: content.metricValues.productCount ?? 0,
+    reliabilityCount: content.metricValues.reliabilityCount ?? 0,
   };
 }
 
@@ -14,7 +14,7 @@ export function WorkMapSection({
   content,
   contentDebug,
 }: {
-  content: PortfolioContent;
+  content: HomeViewModel;
   contentDebug: boolean;
 }) {
   const stats = getWorkMapStats(content);

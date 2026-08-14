@@ -17,21 +17,21 @@ import {
   WorkMapSection,
 } from "@/components/portfolio/work-map-section";
 import {
-  getFeaturedProjects,
   getTemplateHref,
   type HomeTemplateId,
-  type PortfolioContent,
+  type PortfolioProject,
 } from "@/lib/portfolio";
+import type { HomeViewModel } from "@/lib/portfolio/view-models";
 
 export function DesignHomeRoute({
   content,
   contentDebug,
 }: {
-  content: PortfolioContent;
+  content: HomeViewModel;
   contentDebug: boolean;
 }) {
   const activeTemplate: HomeTemplateId = "design";
-  const featuredProjects = getFeaturedProjects(content);
+  const featuredProjects = content.featuredProjects;
 
   return (
     <PageShell
@@ -95,9 +95,9 @@ function FeaturedProjectsSection({
   projects,
 }: {
   activeTemplate: HomeTemplateId;
-  content: PortfolioContent;
+  content: HomeViewModel;
   contentDebug: boolean;
-  projects: ReturnType<typeof getFeaturedProjects>;
+  projects: PortfolioProject[];
 }) {
   const copy = content.presentation.home.design.featured;
 
@@ -149,16 +149,14 @@ function HeroSection({
   projects,
 }: {
   activeTemplate: HomeTemplateId;
-  content: PortfolioContent;
+  content: HomeViewModel;
   contentDebug: boolean;
-  projects: ReturnType<typeof getFeaturedProjects>;
+  projects: PortfolioProject[];
 }) {
   const { profile } = content;
   const stats = getWorkMapStats(content);
   const copy = content.presentation.home.design.hero;
-  const links = content.links.filter((link) =>
-    link.placements?.includes("hero"),
-  );
+  const links = content.heroLinks;
   const leadProject = projects[0];
   const supportingProjects = projects.slice(1, 3);
 

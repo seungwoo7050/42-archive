@@ -13,20 +13,20 @@ import { PageShell } from "@/components/portfolio/site-shell";
 import { TechnicalFocusSection } from "@/components/portfolio/technical-focus-section";
 import { WorkMapSection } from "@/components/portfolio/work-map-section";
 import {
-  getFeaturedProjects,
   type HomeTemplateId,
-  type PortfolioContent,
+  type PortfolioProject,
 } from "@/lib/portfolio";
+import type { HomeViewModel } from "@/lib/portfolio/view-models";
 
 export function ClassicHomeRoute({
   content,
   contentDebug,
 }: {
-  content: PortfolioContent;
+  content: HomeViewModel;
   contentDebug: boolean;
 }) {
   const activeTemplate: HomeTemplateId = "classic";
-  const featuredProjects = getFeaturedProjects(content);
+  const featuredProjects = content.featuredProjects;
 
   return (
     <PageShell
@@ -89,9 +89,9 @@ function ClassicFeaturedProjectsSection({
   projects,
 }: {
   activeTemplate: HomeTemplateId;
-  content: PortfolioContent;
+  content: HomeViewModel;
   contentDebug: boolean;
-  projects: ReturnType<typeof getFeaturedProjects>;
+  projects: PortfolioProject[];
 }) {
   const copy = content.presentation.home.classic.featured;
 
@@ -130,13 +130,11 @@ function ClassicHeroSection({
   contentDebug,
 }: {
   activeTemplate: HomeTemplateId;
-  content: PortfolioContent;
+  content: HomeViewModel;
   contentDebug: boolean;
 }) {
   const { profile } = content;
-  const links = content.links.filter((link) =>
-    link.placements?.includes("hero"),
-  );
+  const links = content.heroLinks;
 
   return (
     <section className="hero-section border-b border-line">
@@ -184,7 +182,7 @@ function ClassicHeroSection({
           <AnimatedTerminal
             ariaLabel={content.presentation.ui.animatedTerminalAriaLabel}
             profile={profile}
-            projectCount={content.projects.length}
+            projectCount={content.projectCount}
             stackCount={content.techStack.length}
             terminal={content.presentation.home.classic.terminal}
           />

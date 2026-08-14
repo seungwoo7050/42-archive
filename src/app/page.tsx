@@ -4,6 +4,7 @@ import { DesignHomeRoute } from "@/designs/design/home-route";
 import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import { getPortfolioContent, type RouteSearchParams } from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
+import { createHomeViewModel } from "@/lib/portfolio/view-models";
 import { createRouteMetadata } from "@/lib/site-metadata";
 
 type HomePageProps = {
@@ -27,6 +28,7 @@ export default async function Home({ searchParams }: HomePageProps) {
       currentPath: "/",
       searchParams,
     });
+  const viewModel = createHomeViewModel(content);
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
@@ -38,8 +40,8 @@ export default async function Home({ searchParams }: HomePageProps) {
   }
 
   if (activeTemplate === "classic") {
-    return <ClassicHomeRoute content={content} contentDebug={contentDebug} />;
+    return <ClassicHomeRoute content={viewModel} contentDebug={contentDebug} />;
   }
 
-  return <DesignHomeRoute content={content} contentDebug={contentDebug} />;
+  return <DesignHomeRoute content={viewModel} contentDebug={contentDebug} />;
 }
