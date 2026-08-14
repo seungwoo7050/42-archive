@@ -15,6 +15,7 @@
     "bundle:baseline": "node scripts/route-budgets.mjs --write-baseline",
     "bundle:check": "node scripts/route-budgets.mjs",
     "lighthouse:audit": "lhci autorun",
+    "lighthouse:summarize": "node scripts/summarize-lighthouse.mjs",
     "start": "next start -p 3100",
     "start:e2e": "next start -p 3200",
     "start:performance": "next start -p 3300",
