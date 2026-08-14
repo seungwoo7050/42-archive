@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "growthLimitPercent": 5,
+  "source": "Next.js production client assets (uncompressed bytes)",
+  "routes": {
+    "/about": {
+      "cssBytes": 169861,
+      "jsBytes": 425976
+    },
+    "/contact": {
+      "cssBytes": 169861,
+      "jsBytes": 425976
+    },
+    "/interview-map": {
+      "cssBytes": 169861,
+      "jsBytes": 425976
+    },
+    "/journey": {
+      "cssBytes": 169861,
+      "jsBytes": 425976
+    },
+    "/": {
+      "cssBytes": 169861,
+      "jsBytes": 425976
+    },
+    "/projects/[projectId]": {
+      "cssBytes": 169861,
+      "jsBytes": 425976
+    },
+    "/projects": {
+      "cssBytes": 169861,
+      "jsBytes": 425976
+    },
+    "/resume": {
+      "cssBytes": 169861,
+      "jsBytes": 425976
+    }
+  }
+}
