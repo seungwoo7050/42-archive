@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ContentHint } from "@/components/portfolio/content-hint";
 import { ContentLinkView } from "@/components/portfolio/content-link";
 import { PageShell } from "@/components/portfolio/site-shell";
+import DesignContactRoute from "@/designs/design/contact-route";
 import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
 import {
   getPortfolioContent,
@@ -48,6 +49,17 @@ export default async function ContactPage({
       route: "contact",
       viewModel: content,
     });
+  }
+
+  if (activeTemplate === "design") {
+    return (
+      <DesignContactRoute
+        content={content}
+        contentDebug={contentDebug}
+        currentPath="/contact"
+        route="contact"
+      />
+    );
   }
 
   const pageCopy = content.presentation.pages.contact;
