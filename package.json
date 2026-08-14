@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "next dev --webpack -p 3100",
     "prebuild": "npm run content:check && npm run content:ready",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start -p 3100",
     "start:e2e": "next start -p 3200",
     "lint": "eslint .",
