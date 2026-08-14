@@ -5,25 +5,20 @@ import {
   getContentLinksByPlacement,
   getPreferredContactLinks,
   getProjectDetailLinks,
-  getProjectMetricValue,
   getTemplateHref,
   isSitePageEnabled,
   type ContentLink,
   type PortfolioContent,
   type PortfolioProject,
 } from "@/lib/portfolio";
-import type { HomeViewModel } from "@/lib/portfolio/view-models";
+import type {
+  HomeViewModel,
+  ProjectIndexViewModel,
+} from "@/lib/portfolio/view-models";
 import type { DesignRouteProps } from "@/designs/types";
 import styles from "./brutalist.module.css";
 
 const DESIGN_ID = "brutalist" as const;
-
-type GroupedProjects = {
-  description: string;
-  id: string;
-  label: string;
-  projects: PortfolioProject[];
-};
 
 type CopyTemplateToken =
   | "count"
@@ -54,27 +49,6 @@ function getProjectTags(project: PortfolioProject, limit = 4) {
   const source = tags && tags.length > 0 ? tags : project.stack;
 
   return source.filter(Boolean).slice(0, limit);
-}
-
-function groupProjects(content: PortfolioContent): GroupedProjects[] {
-  return content.projectGroups
-    .map((group) => {
-      const projects = content.projects.filter((project) => {
-        return project.groupId === group.id;
-      });
-
-      return { ...group, projects };
-    })
-    .filter((group) => group.projects.length > 0);
-}
-
-function getHomeMetrics(content: PortfolioContent) {
-  return content.projectMetrics.slice(0, 4).map((metric) => ({
-    description: metric.description,
-    id: metric.id,
-    label: metric.label,
-    value: getProjectMetricValue(metric.id, content),
-  }));
 }
 
 function isCurrentNavigation(href: string, currentPath: string) {
@@ -572,10 +546,11 @@ function ProjectsView({
   content: PortfolioContent;
   contentDebug: boolean;
 }) {
-  const groups = groupProjects(content);
+  const viewModel = content as ProjectIndexViewModel;
+  const groups = viewModel.groups;
   const pageCopy = content.presentation.pages.projects;
   const brutalistCopy = pageCopy.brutalist;
-  const metrics = getHomeMetrics(content);
+  const metrics = viewModel.metrics.slice(0, 4);
 
   return (
     <>

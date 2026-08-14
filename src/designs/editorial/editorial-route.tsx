@@ -6,7 +6,6 @@ import { DesignSwitcher } from "@/components/portfolio/design-switcher";
 import {
   getPreferredContactLinks,
   getProjectDetailLinks,
-  getProjectMetricValue,
   getResumeProjects,
   getTemplateHref,
   isSitePageEnabled,
@@ -15,7 +14,10 @@ import {
   type PortfolioProject,
   type ProjectImage,
 } from "@/lib/portfolio";
-import type { HomeViewModel } from "@/lib/portfolio/view-models";
+import type {
+  HomeViewModel,
+  ProjectIndexViewModel,
+} from "@/lib/portfolio/view-models";
 
 import styles from "./editorial-route.module.css";
 
@@ -491,13 +493,11 @@ function HomeRoute({ content, contentDebug }: EditorialRouteProps) {
 }
 
 function ProjectsRoute({ content, contentDebug }: EditorialRouteProps) {
-  const projects = content.projects;
-  const grouped = content.projectGroups
-    .map((group) => ({
-      group,
-      items: projects.filter((project) => project.groupId === group.id),
-    }))
-    .filter(({ items }) => items.length > 0);
+  const viewModel = content as ProjectIndexViewModel;
+  const grouped = viewModel.groups.map((group) => ({
+    group,
+    items: group.projects,
+  }));
   const copy = content.presentation.pages.projects.editorial;
   const ui = content.presentation.ui;
 
@@ -515,9 +515,9 @@ function ProjectsRoute({ content, contentDebug }: EditorialRouteProps) {
       </section>
 
       <section className={styles.archiveOverview} aria-label={copy.archiveAriaLabel}>
-        {content.projectMetrics.map((metric) => (
+        {viewModel.metrics.map((metric) => (
           <div key={metric.id}>
-            <strong>{getProjectMetricValue(metric.id, content)}</strong>
+            <strong>{metric.value}</strong>
             <span>{metric.label}</span>
           </div>
         ))}

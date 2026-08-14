@@ -43,10 +43,10 @@ export default async function ProjectsPage({
 
   if (hasDedicatedRouteRenderer(activeTemplate)) {
     return renderDesignRoute(activeTemplate, {
-      content,
       contentDebug,
       currentPath: "/projects",
       route: "projects",
+      viewModel,
     });
   }
   const pageCopy = viewModel.presentation.pages.projects;
