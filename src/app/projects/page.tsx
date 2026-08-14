@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import ClassicProjectsRoute from "@/designs/classic/projects-route";
-import DesignProjectsRoute from "@/designs/design/projects-route";
-import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
+import { renderDesignRoute } from "@/designs/registry";
+import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
+import { createProjectIndexViewModel } from "@/lib/portfolio/view-models";
 import {
   getPortfolioContent,
   isSitePageEnabled,
   type RouteSearchParams,
 } from "@/lib/portfolio";
-import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
-import { createProjectIndexViewModel } from "@/lib/portfolio/view-models";
 import { createRouteMetadata } from "@/lib/site-metadata";
 
 export function generateMetadata(): Metadata {
@@ -32,40 +30,18 @@ export default async function ProjectsPage({
 }) {
   const content = getPortfolioContent();
   if (!isSitePageEnabled("projects", content)) notFound();
+
   const { activeTemplate, contentDebug } =
     await resolvePortfolioPageContext({
       content,
       currentPath: "/projects",
       searchParams,
     });
-  const viewModel = createProjectIndexViewModel(content);
 
-  if (hasDedicatedRouteRenderer(activeTemplate)) {
-    return renderDesignRoute(activeTemplate, {
-      contentDebug,
-      currentPath: "/projects",
-      route: "projects",
-      viewModel,
-    });
-  }
-
-  if (activeTemplate === "classic") {
-    return (
-      <ClassicProjectsRoute
-        content={viewModel}
-        contentDebug={contentDebug}
-        currentPath="/projects"
-        route="projects"
-      />
-    );
-  }
-
-  return (
-    <DesignProjectsRoute
-      content={viewModel}
-      contentDebug={contentDebug}
-      currentPath="/projects"
-      route="projects"
-    />
-  );
+  return renderDesignRoute(activeTemplate, {
+    contentDebug,
+    currentPath: "/projects",
+    route: "projects",
+    viewModel: createProjectIndexViewModel(content),
+  });
 }

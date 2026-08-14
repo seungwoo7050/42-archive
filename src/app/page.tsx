@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import ClassicHomeRoute from "@/designs/classic/home-route";
-import DesignHomeRoute from "@/designs/design/home-route";
-import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
-import { getPortfolioContent, type RouteSearchParams } from "@/lib/portfolio";
+import { renderDesignRoute } from "@/designs/registry";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
 import { createHomeViewModel } from "@/lib/portfolio/view-models";
+import {
+  getPortfolioContent,
+  type RouteSearchParams,
+} from "@/lib/portfolio";
 import { createRouteMetadata } from "@/lib/site-metadata";
 
 type HomePageProps = {
@@ -28,34 +29,11 @@ export default async function Home({ searchParams }: HomePageProps) {
       currentPath: "/",
       searchParams,
     });
-  const viewModel = createHomeViewModel(content);
 
-  if (hasDedicatedRouteRenderer(activeTemplate)) {
-    return renderDesignRoute(activeTemplate, {
-      contentDebug,
-      currentPath: "/",
-      route: "home",
-      viewModel,
-    });
-  }
-
-  if (activeTemplate === "classic") {
-    return (
-      <ClassicHomeRoute
-        content={viewModel}
-        contentDebug={contentDebug}
-        currentPath="/"
-        route="home"
-      />
-    );
-  }
-
-  return (
-    <DesignHomeRoute
-      content={viewModel}
-      contentDebug={contentDebug}
-      currentPath="/"
-      route="home"
-    />
-  );
+  return renderDesignRoute(activeTemplate, {
+    contentDebug,
+    currentPath: "/",
+    route: "home",
+    viewModel: createHomeViewModel(content),
+  });
 }

@@ -1,21 +1,19 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { StructuredData } from "@/components/portfolio/structured-data";
-import ClassicProjectDetailRoute from "@/designs/classic/project-detail-route";
-import DesignProjectDetailRoute from "@/designs/design/project-detail-route";
-import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
+import { renderDesignRoute } from "@/designs/registry";
 import {
   resolvePortfolioContentMode,
   resolveProductionSiteUrl,
 } from "@/lib/content-readiness";
-import {
-  getPortfolioContent,
-  isSitePageEnabled,
-  getProjectById,
-  type RouteSearchParams,
-} from "@/lib/portfolio";
 import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
 import { createProjectDetailViewModel } from "@/lib/portfolio/view-models";
+import {
+  getPortfolioContent,
+  getProjectById,
+  isSitePageEnabled,
+  type RouteSearchParams,
+} from "@/lib/portfolio";
 import {
   createProjectStructuredData,
   createRouteMetadata,
@@ -58,19 +56,17 @@ export default async function ProjectDetailPage({
 }: ProjectDetailPageProps) {
   const content = getPortfolioContent();
   if (!isSitePageEnabled("projects", content)) notFound();
+
   const { projectId } = await params;
+  const viewModel = createProjectDetailViewModel(content, projectId);
+  if (!viewModel) notFound();
+
   const { activeTemplate, contentDebug } =
     await resolvePortfolioPageContext({
       content,
       currentPath: `/projects/${projectId}`,
       searchParams,
     });
-  const viewModel = createProjectDetailViewModel(content, projectId);
-
-  if (!viewModel) {
-    notFound();
-  }
-  const project = viewModel.project;
 
   const mode = resolvePortfolioContentMode(
     process.env.PORTFOLIO_CONTENT_MODE,
@@ -79,50 +75,22 @@ export default async function ProjectDetailPage({
     mode === "production"
       ? createProjectStructuredData({
           content,
-          project,
+          project: viewModel.project,
           siteUrl: resolveProductionSiteUrl(process.env.SITE_URL),
         })
       : undefined;
 
-  if (hasDedicatedRouteRenderer(activeTemplate)) {
-    const designRoute = await renderDesignRoute(activeTemplate, {
-      contentDebug,
-      currentPath: `/projects/${project.id}`,
-      route: "project-detail",
-      viewModel,
-    });
-
-    return (
-      <>
-        {structuredData ? <StructuredData data={structuredData} /> : null}
-        {designRoute}
-      </>
-    );
-  }
-
-  if (activeTemplate === "design") {
-    return (
-      <>
-        {structuredData ? <StructuredData data={structuredData} /> : null}
-        <DesignProjectDetailRoute
-          content={viewModel}
-          contentDebug={contentDebug}
-          currentPath={`/projects/${project.id}`}
-          route="project-detail"
-        />
-      </>
-    );
-  }
+  const designRoute = await renderDesignRoute(activeTemplate, {
+    contentDebug,
+    currentPath: `/projects/${viewModel.project.id}`,
+    route: "project-detail",
+    viewModel,
+  });
 
   return (
     <>
       {structuredData ? <StructuredData data={structuredData} /> : null}
-      <ClassicProjectDetailRoute
-        content={viewModel}
-        contentDebug={contentDebug}
-        currentPath={`/projects/${project.id}`}
-        route="project-detail"
-      />
+      {designRoute}
     </>
   );
 }

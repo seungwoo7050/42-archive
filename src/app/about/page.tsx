@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import ClassicAboutRoute from "@/designs/classic/about-route";
-import DesignAboutRoute from "@/designs/design/about-route";
-import { hasDedicatedRouteRenderer, renderDesignRoute } from "@/designs/registry";
+import { renderDesignRoute } from "@/designs/registry";
+import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
+import { createAboutViewModel } from "@/lib/portfolio/view-models";
 import {
   getPortfolioContent,
   isSitePageEnabled,
   type RouteSearchParams,
 } from "@/lib/portfolio";
-import { resolvePortfolioPageContext } from "@/lib/portfolio/page-context";
-import { createAboutViewModel } from "@/lib/portfolio/view-models";
 import { createRouteMetadata } from "@/lib/site-metadata";
 
 export function generateMetadata(): Metadata {
@@ -29,33 +27,20 @@ export default async function AboutPage({
 }: {
   searchParams?: RouteSearchParams;
 }) {
-  const contentSource = getPortfolioContent();
-  if (!isSitePageEnabled("about", contentSource)) notFound();
+  const content = getPortfolioContent();
+  if (!isSitePageEnabled("about", content)) notFound();
+
   const { activeTemplate, contentDebug } =
     await resolvePortfolioPageContext({
-      content: contentSource,
+      content,
       currentPath: "/about",
       searchParams,
     });
-  const content = createAboutViewModel(contentSource);
 
-  if (hasDedicatedRouteRenderer(activeTemplate)) {
-    return renderDesignRoute(activeTemplate, {
-      contentDebug,
-      currentPath: "/about",
-      route: "about",
-      viewModel: content,
-    });
-  }
-
-  const AboutRoute = activeTemplate === "design" ? DesignAboutRoute : ClassicAboutRoute;
-
-  return (
-    <AboutRoute
-      content={content}
-      contentDebug={contentDebug}
-      currentPath="/about"
-      route="about"
-    />
-  );
+  return renderDesignRoute(activeTemplate, {
+    contentDebug,
+    currentPath: "/about",
+    route: "about",
+    viewModel: createAboutViewModel(content),
+  });
 }
