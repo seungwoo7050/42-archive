@@ -1,12 +1,76 @@
 import Link from "next/link";
 import { ArrowRightIcon } from "@/components/icons";
 import { ContentHint } from "@/components/portfolio/content-hint";
+import { SectionHeading } from "@/components/portfolio/section-heading";
+import { PageShell } from "@/components/portfolio/site-shell";
+import type { PreparedDesignRouteProps as DesignRouteProps } from "@/designs/shell-props";
+import { createDesignShellProps } from "@/designs/shell-props";
 import {
   getTemplateHref,
   type HomeTemplateId,
   type PresentationContent,
 } from "@/lib/portfolio";
 import type { JourneyMilestoneViewModel } from "@/lib/portfolio/view-models";
+
+export default function JourneyRoute({
+  content,
+  contentDebug,
+  currentPath,
+}: DesignRouteProps) {
+  if (content.route !== "journey") return null;
+
+  const activeTemplate = "design";
+  const shellProps = createDesignShellProps(
+    content,
+    contentDebug,
+    currentPath,
+    activeTemplate,
+  );
+  const pageCopy = content.presentation.pages.journey;
+  const narrative = content.journeyNarrative;
+
+  return (
+    <PageShell {...shellProps}>
+      <section className="border-b border-line">
+        <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+          <ContentHint
+            enabled={contentDebug}
+            path="src/content/presentation.json > pages.journey.hero + src/content/journey-narrative.json > intro"
+          />
+          <p className="text-sm font-medium text-muted">{pageCopy.hero.eyebrow}</p>
+          <h1 className="mt-5 max-w-3xl text-5xl font-semibold leading-tight text-foreground md:text-6xl">
+            {pageCopy.hero.title}
+          </h1>
+          <p className="mt-6 max-w-2xl text-base leading-7 text-muted">
+            {narrative.intro}
+          </p>
+        </div>
+      </section>
+      <section className="border-b border-line bg-background-soft">
+        <div className="mx-auto grid max-w-6xl gap-9 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+          <SectionHeading
+            body={pageCopy.narrative.body}
+            contentDebug={contentDebug}
+            contentHint="src/content/journey-narrative.json > milestones[]"
+            title={pageCopy.narrative.title}
+          />
+          <ol className="grid gap-5">
+            {content.milestones.map((milestone, index) => (
+              <MilestoneCard
+                contentDebug={contentDebug}
+                homeTemplate={activeTemplate}
+                index={index}
+                key={milestone.id}
+                labels={pageCopy.narrative.labels}
+                milestone={milestone}
+              />
+            ))}
+          </ol>
+        </div>
+      </section>
+    </PageShell>
+  );
+}
 
 export function MilestoneCard({
   contentDebug,
