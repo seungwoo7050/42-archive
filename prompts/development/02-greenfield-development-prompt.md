@@ -68,6 +68,8 @@ For low-impact implementation details such as internal function names, choose a 
 ## 3. Development Plan
 
 Plan commit units according to actual dependency relationships.
+A feature or milestone name is not, by itself, a commit unit.
+Before implementing each milestone, decompose it into commit atoms using the definitions and calibration rules in `01-development-rules.md`.
 
 Default flow:
 
@@ -86,15 +88,21 @@ This sequence may repeat for each feature or milestone.
 During planning, define the following for each change whenever practical.
 
 ```text
+Milestone:
+Commit atom:
 Purpose:
+Primary review question:
 Dependencies:
 Expected files:
 Validation:
 Estimated meaningful churn:
+Rollback boundary:
+Size exception, if any:
 ```
 
 Use 100 lines only as a soft review gate.
 Do not artificially combine independent responsibilities into one commit at the planning stage.
+If an intended atom crosses a review gate, refine the plan before implementation unless separating it would break correctness, safety, or atomicity.
 
 ---
 
@@ -147,6 +155,7 @@ Use the following according to the nature of the feature.
 
 A feature and the minimal contract test for that feature may be included in the same commit.
 Separate independent test infrastructure into its own commit.
+When implementation and focused validation are independently complete, place the passing validation commit immediately after the implementation instead of deferring tests to the end of the milestone.
 
 By default, do not preserve intentionally failing test-only commits in history.
 
@@ -230,6 +239,8 @@ Final branch / SHA:
 Implemented requirements:
 Not implemented / excluded requirements:
 Commit summary:
+Commit-size and file-count distribution:
+Retained size exceptions:
 Tests added:
 Build/test commands executed:
 Release gates:
@@ -243,3 +254,5 @@ Also verify the following.
 - Are there no unexplained failing tests?
 - Are there no secrets or local artifacts?
 - Were commit boundaries determined by meaning and validation rather than by numeric targets?
+- Were milestone labels decomposed into commit atoms before their implementation?
+- Were all retained size exceptions justified and validated?
