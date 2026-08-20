@@ -18,6 +18,8 @@ When rules conflict, apply them in the following order.
 
 Do not compromise correctness, safety, or atomicity merely to satisfy the 100-line budget or a commit-format convention.
 
+When a task explicitly makes commit-history quality a primary deliverable, optimize the development plan for small responsibility boundaries after satisfying priorities 1 through 3 above. Correctness and safety remain non-negotiable constraints, but they do not justify combining otherwise independent work.
+
 ---
 
 ## 1. Starting Rules
@@ -66,6 +68,17 @@ Conversely, even if only one file is changed, split the work if that file contai
 
 Whenever practical, separate independent `feat`, `fix`, `refactor`, `perf`, `format/style`, `dependency`, `build`, `CI`, and bulk asset changes.
 
+### Milestones and Commit Atoms
+
+A milestone is a product or subsystem outcome such as "implement authentication," "add a settlement saga," or "prepare production deployment."
+A **commit atom** is the smallest complete, independently explainable, verifiable, and revertible responsibility used to build that milestone.
+
+- Do not use a broad milestone label as a commit plan.
+- Before implementing a milestone, decompose it according to the real dependency chain.
+- Common seams include contract, schema/migration, pure domain policy, repository/port, application service, adapter/API, recovery/operations, and targeted validation.
+- If one planned unit contains multiple primary verbs or review questions, split it again even when it changes only one file.
+- Treat the planned atom as the commit boundary; treat the milestone only as an ordering and integration boundary.
+
 ---
 
 ## 4. Commit Completeness
@@ -91,7 +104,10 @@ Otherwise, failing tests may be used locally, but the committed state should pas
 
 ### 5.1 Default Rules
 
+- When no better project-specific calibration exists, use roughly 20–80 lines of hand-authored meaningful churn and one or two primary production files as a planning target, not as a pass/fail limit.
 - When hand-authored meaningful change exceeds roughly 100 lines, always reconsider whether it can be split into natural, independent responsibilities.
+- Changing more than three primary files is also a responsibility-review signal, even when the line count is low.
+- A hand-authored change above roughly 200 lines or five primary files should be exceptional and must record why a smaller safe atom is not possible.
 - Do not split residual lines merely to hit the number, such as `101 → 100 + 1` or `102 → 100 + 2`.
 - Regardless of how far the change exceeds 100 lines, split only when each resulting commit is independently explainable, reviewable, verifiable, and revertible.
 - Even below 100 lines, split the commit if it mixes independent responsibilities.
@@ -364,8 +380,10 @@ The quality criteria are **meaningful responsibility boundaries, verifiability, 
 
 - [ ] Are the requirements and public contracts reflected in the implementation?
 - [ ] Can the purpose of each commit be expressed as one review question?
+- [ ] Were broad milestones decomposed into commit atoms before implementation?
 - [ ] Is there no artificial splitting or combining merely to hit a target commit count or 100-line number?
 - [ ] For changes exceeding 100 lines, was the possibility of a meaningful split actually reconsidered?
+- [ ] For exceptional changes above 200 lines or five primary files, is the cohesion and validation rationale recorded?
 - [ ] Is each commit buildable/validatable at the level of responsibility it introduces?
 - [ ] Are unrelated refactor/format/build/CI changes kept out of feature commits?
 - [ ] Do fixes have reproduction or regression evidence?

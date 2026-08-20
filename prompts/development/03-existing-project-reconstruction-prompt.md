@@ -123,11 +123,21 @@ Identify:
 - misleading large churn caused by generated files, lockfiles, or binaries
 - P0/P1 candidates already present in the original implementation
 
+Treat broad outcomes such as "implement the placement saga," "add auditing," or "prepare deployment" as milestones rather than commits.
+Before reconstructing each milestone, decompose it into commit atoms using the definitions and calibration rules in `01-development-rules.md`.
+Do not reuse an oversized source commit as an atom merely because it already exists in the original history.
+
+If the user provides a comparable reference history, use its metadata, meaningful-churn distribution, and a small sample of representative dependency chains to calibrate the plan.
+Do not copy its commit count or consume its entire patch history when a bounded sample answers the planning question.
+
 Plan each intended commit, whenever practical, using the following format.
 
 ```text
+Milestone:
+Commit atom:
 Type / Scope:
 Purpose:
+Primary review question:
 Dependencies:
 Expected files:
 Production meaningful churn:
@@ -136,6 +146,8 @@ Other meaningful churn:
 Raw churn:
 Validation:
 100-line review result:
+Rollback boundary:
+Size exception, if any:
 ```
 
 The plan is not a tool for maximizing commit count.
@@ -356,7 +368,10 @@ Documentation may change in order to describe:
 
 Apply the 100-line meaningful-churn rule from `01-development-rules.md`.
 
+- use the common 20–80 meaningful-line and one-to-two-primary-file values as planning targets when no better project-specific calibration exists
 - over 100 lines → mandatory reconsideration of further responsibility-based splitting
+- over three primary files → mandatory reconsideration even when the line count is low
+- over 200 hand-authored lines or five primary files → exceptional; record why a smaller safe atom is impossible
 - do not split 101 lines into 100 + 1 merely to satisfy the threshold
 - even below 100 lines, split independent responsibilities
 - do not mechanically separate an atomic implementation + regression test merely because of the number
@@ -509,6 +524,8 @@ Root-to-tip replay: PASS / FAIL
 Release gates: PASS / FAIL
 
 Commits created:
+Commit-size and file-count distribution:
+Retained size exceptions:
 Tests added:
 Test infrastructure added:
 
@@ -533,3 +550,5 @@ Completion requires all four of the following to PASS.
 2. Root-to-tip validation
 3. Allowed-delta audit
 4. Final release regression
+
+History quality requires evidence that milestones were decomposed into commit atoms and that every retained size exception has an explicit cohesion and validation rationale.
