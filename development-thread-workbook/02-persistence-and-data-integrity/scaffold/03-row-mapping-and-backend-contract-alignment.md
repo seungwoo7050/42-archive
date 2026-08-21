@@ -1,501 +1,504 @@
-# Row mapping과 backend contract 정렬
+# Development Thread 03 — Row mapping과 backend contract 정렬
 
-- 카테고리: `02-persistence-and-data-integrity` — 영속성·데이터 무결성
-- Repository: `https://github.com/seungwoo7050/42-archive`
-- Branch: `web/ft_transcendence`
+## 1. 학습 목표
 
-## 1. Thread 목표
+- 행 타입·memory stored record·mapper input/output의 중복 표현을 canonical schema로 모으는 refactor sequence를 재구성합니다.
+- behavior-preserving refactor라는 주장을 각 exact diff의 변경 범위와 non-guarantee로 제한합니다.
+- PostgreSQL relation assembly와 memory aggregate lookup에서 ownership이 어떻게 명시적으로 드러나는지 설명합니다.
+- pure mapper regression test가 무엇을 고정하고 live query·transaction은 왜 증명하지 못하는지 구분합니다.
 
-PostgreSQL row·join projection과 memory record가 같은 canonical type 및 relation assembly 경계로 정렬되는 구조 개선과 회귀 검증을 복원합니다.
+## 2. 범위와 경계
 
-이 문서는 완성된 해설이 아니라 exact SHA를 순서대로 확인해 구현 발전을 복원하기 위한 scaffold입니다.
+- 포함: user projection, memory match record, canonical row aliases, record view, explicit query shapes, tournament/admin relation helpers, memory aggregate lookup, mapper unit test.
+- 제외: C-level formatting-only commits는 state·ownership·behavior 변화가 없어 추가하지 않았습니다.
+- 제외: match finalization atomicity, admin audit transaction, tournament admission lock은 별도의 데이터 무결성 Thread에서 다룹니다.
+- 이 Thread의 refactor는 runtime validation을 새로 제공하지 않습니다. TypeScript contract와 code reviewability가 중심입니다.
 
-### 직접 연결되는 불변식
+## 3. 핵심 질문
 
-- 관계형 row, relation assembly, public domain projection은 명시적인 단계로 분리됩니다.
-- memory backend는 별도 alias가 아니라 canonical repository contract와 domain behavior를 따릅니다.
-- mapper는 누락·nullable·enum 불일치를 application 경계 밖으로 유출하지 않습니다.
-
-## 2. 핵심 질문
-
-- canonical row type과 public domain type을 별도로 유지해야 하는 이유는 무엇입니까?
-- nullable relation을 assembler가 먼저 resolve한 뒤 mapper에 전달하는 구조가 어떤 invalid state를 줄입니까?
-- memory 구현이 SQL row 구조를 흉내 내는 것과 domain behavior parity를 보존하는 것은 어떻게 다릅니까?
-- refactor 중 observable response/order/error semantics가 유지됐는지 어떤 테스트로 확인합니까?
-
-## 3. 완료 기준
-
-- Commit map의 모든 SHA를 지정 브랜치 ancestry에서 확인합니다.
-- 각 SHA의 parent 또는 직전 관련 SHA와 비교해 변경 전후 상태를 구분합니다.
-- 파일, symbol, caller/callee, 상태 mutation, failure branch, cleanup을 실제 코드로 기록합니다.
-- Fix는 이전 가정과 root cause를, test는 production path와 증명/비증명 범위를 연결합니다.
-- 마지막 SHA까지만 사용해 Thread 최종 owner, invariant, execution flow를 작성합니다.
+- write command와 stored record가 같은 타입을 공유하면 어떤 lifetime·확장 문제가 생깁니까?
+- canonical row type은 실제 SQL constraint나 runtime validation과 어떻게 다릅니까?
+- row mapper가 relation을 직접 조회하지 않고 caller가 related-data object를 조립하는 이유는 무엇입니까?
+- memory child lookup이 aggregate와 child를 함께 반환하면 어떤 잘못된 mutation target을 줄입니까?
+- pure mapper test로 behavior preservation을 어디까지 주장할 수 있습니까?
 
 ## 4. Commit map
 
-| 순서 | SHA | Subject | Importance | Tags | Thread 역할 |
-| ---: | --- | --- | :---: | --- | --- |
-| 1 | `73b8ce0f0c26` | `refactor(db): repository user projection 타입 정렬` | B | AUTH, PERSISTENCE | memory user storage를 canonical `UserProjectionRow`로 정렬합니다. |
-| 2 | `3d0ae79affd5` | `refactor(db): memory match record 계약 정렬` | B | PERSISTENCE | memory match record를 write command 상속 대신 explicit stored shape로 만듭니다. |
-| 3 | `3e3f21129369` | `refactor(db): canonical row schema 타입 정렬` | B | PERSISTENCE, TOURNAMENT | DB enum과 row projection TypeScript representation을 중앙화합니다. |
-| 4 | `212650b2863d` | `refactor(db): row mapper record 타입 정렬` | B | PERSISTENCE, TOURNAMENT | tournament match view type을 canonical row enum에서 파생합니다. |
-| 5 | `45144a3719bc` | `refactor(db): dashboard와 friendship 조회 경계 정렬` | B | PERSISTENCE | optional SQL fragment 대신 participant/global 두 query shape를 명시합니다. |
-| 6 | `ce41a880d6c6` | `refactor(db): PostgreSQL tournament helper와 admin 경계 정렬` | B | PERSISTENCE, TOURNAMENT | tournament relation을 조립하는 PostgreSQL helper를 추출합니다. |
-| 7 | `5c8659ea233b` | `refactor(db): tournament relation mapper 계약 정렬` | B | PERSISTENCE, TOURNAMENT | row와 entries/matches/winner related data를 분리해 mapper에 전달합니다. |
-| 8 | `f77e317de4c1` | `refactor(db): memory match completion과 admin 경계 정렬` | B | REALTIME, PERSISTENCE, TOURNAMENT | memory repository가 tournament와 match를 함께 resolve하는 helper를 사용합니다. |
-| 9 | `9d64ea406b03` | `refactor(db): memory tournament 확정 경계 정렬` | B | PERSISTENCE, TOURNAMENT | tournament aggregate+match lookup result 중심으로 finalization을 통합합니다. |
-| 10 | `b34fdaa1e9c2` | `refactor(db): memory chat과 tournament 진입 경계 정렬` | B | PERSISTENCE, TOURNAMENT | memory method를 DB implementation과 동일한 typed domain boundary로 맞춥니다. |
-| 11 | `dc0e60e6aa35` | `test(db): database row mapping contract 검증` | B | PERSISTENCE, TOURNAMENT, TEST | relational row에서 shared API domain shape로의 변환을 고정합니다. |
+| 순서 | Commit | Subject | Importance | Tags |
+| ---: | --- | --- | :---: | --- |
+| 1 | `73b8ce0f0c26` | `refactor(db): repository user projection 타입 정렬` | B | AUTH, PERSISTENCE |
+| 2 | `3d0ae79affd5` | `refactor(db): memory match record 계약 정렬` | B | PERSISTENCE |
+| 3 | `3e3f21129369` | `refactor(db): canonical row schema 타입 정렬` | B | PERSISTENCE, TOURNAMENT |
+| 4 | `212650b2863d` | `refactor(db): row mapper record 타입 정렬` | B | PERSISTENCE, TOURNAMENT |
+| 5 | `45144a3719bc` | `refactor(db): dashboard와 friendship 조회 경계 정렬` | B | PERSISTENCE |
+| 6 | `ce41a880d6c6` | `refactor(db): PostgreSQL tournament helper와 admin 경계 정렬` | B | PERSISTENCE, TOURNAMENT |
+| 7 | `5c8659ea233b` | `refactor(db): tournament relation mapper 계약 정렬` | B | PERSISTENCE, TOURNAMENT |
+| 8 | `f77e317de4c1` | `refactor(db): memory match completion과 admin 경계 정렬` | B | REALTIME, PERSISTENCE, TOURNAMENT |
+| 9 | `9d64ea406b03` | `refactor(db): memory tournament 확정 경계 정렬` | B | PERSISTENCE, TOURNAMENT |
+| 10 | `b34fdaa1e9c2` | `refactor(db): memory chat과 tournament 진입 경계 정렬` | B | PERSISTENCE, TOURNAMENT |
+| 11 | `dc0e60e6aa35` | `test(db): database row mapping contract 검증` | B | PERSISTENCE, TOURNAMENT, TEST |
 
-## 5. Commit별 학습 기록
+## 5. Commit별 조사
 
-### 5.1. `refactor(db): repository user projection 타입 정렬`
+### 5.1. `73b8ce0f0c26` — refactor(db): repository user projection 타입 정렬
 
-| 항목 | 값 |
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `73b8ce0f0c26` |
 | Importance | B |
 | Tags | AUTH, PERSISTENCE |
-| Source에서 확정된 역할 | memory user storage를 canonical `UserProjectionRow`로 정렬합니다. |
+| Source role | memory-only user alias를 제거하고 canonical `UserProjectionRow`를 repository 저장 표현으로 사용합니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- credential, identity, role 또는 capability가 어느 경계에서 생성·검증·폐기되는지 확인합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
-- 기존 경로와 새 경로가 공존하는 migration 구간 및 최종 duplicate implementation 제거 여부를 확인합니다.
+- `packages/db/src/index.ts`의 memory `users` Map type이 이전 `MemoryUserRow`에서 무엇으로 바뀌는지 확인합니다.
+- `packages/db/src/schema.ts`의 canonical `UserProjectionRow` field set과 memory object construction을 대조합니다.
+- email·created_at·banned_at처럼 projection에 포함/제외된 field를 확인합니다.
+- runtime mutation이나 query 결과가 바뀌지 않고 type ownership만 정렬되는지 parent diff로 확인합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:73b8ce0f0c26:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:73b8ce0f0c26:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:73b8ce0f0c26:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:73b8ce0f0c26:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:73b8ce0f0c26:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:73b8ce0f0c26:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:73b8ce0f0c26:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:73b8ce0f0c26:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:73b8ce0f0c26:later --> _(학습자 작성)_ |
 
-비교 기준:
-- 이 commit의 parent와 비교합니다.
-- 다음 관련 SHA: `3d0ae79affd5` — `refactor(db): memory match record 계약 정렬`
+#### 비교 기준
 
-### 5.2. `refactor(db): memory match record 계약 정렬`
+- parent 상태와 `73b8ce0f0c26`의 diff를 먼저 비교합니다.
+- 후속 관련 SHA `3d0ae79affd5`가 이 결정의 부족한 점을 보완하거나 검증하는지 확인합니다.
 
-| 항목 | 값 |
+### 5.2. `3d0ae79affd5` — refactor(db): memory match record 계약 정렬
+
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `3d0ae79affd5` |
 | Importance | B |
 | Tags | PERSISTENCE |
-| Source에서 확정된 역할 | memory match record를 write command 상속 대신 explicit stored shape로 만듭니다. |
+| Source role | write command를 상속하던 memory match record를 명시적 stored shape로 바꿉니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
-- 기존 경로와 새 경로가 공존하는 migration 구간 및 최종 duplicate implementation 제거 여부를 확인합니다.
+- `packages/db/src/index.ts`의 이전 `MemoryMatchRecord`가 write input을 intersection/상속하던 부분과 새 explicit field를 비교합니다.
+- `createMatch` 또는 finalization path가 command에서 어떤 field만 복사해 저장하는지 확인합니다.
+- `memoryMatchSummary`가 새 `endedAt`·participant ID field를 읽는 경로를 확인합니다.
+- tournament command metadata나 일시적 입력이 stored record에 우발적으로 남지 않는지 확인합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:3d0ae79affd5:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:3d0ae79affd5:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:3d0ae79affd5:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:3d0ae79affd5:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:3d0ae79affd5:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:3d0ae79affd5:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:3d0ae79affd5:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:3d0ae79affd5:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:3d0ae79affd5:later --> _(학습자 작성)_ |
 
-비교 기준:
-- 직전 관련 SHA: `73b8ce0f0c26` — `refactor(db): repository user projection 타입 정렬`
-- 다음 관련 SHA: `3e3f21129369` — `refactor(db): canonical row schema 타입 정렬`
+#### 비교 기준
 
-### 5.3. `refactor(db): canonical row schema 타입 정렬`
+- parent 상태와 `3d0ae79affd5`의 diff를 먼저 비교합니다.
+- 이 Thread의 직전 관련 SHA `73b8ce0f0c26`와 책임·상태·보장 범위가 어떻게 달라졌는지 비교합니다.
+- 후속 관련 SHA `3e3f21129369`가 이 결정의 부족한 점을 보완하거나 검증하는지 확인합니다.
 
-| 항목 | 값 |
+### 5.3. `3e3f21129369` — refactor(db): canonical row schema 타입 정렬
+
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `3e3f21129369` |
 | Importance | B |
 | Tags | PERSISTENCE, TOURNAMENT |
-| Source에서 확정된 역할 | DB enum과 row projection TypeScript representation을 중앙화합니다. |
+| Source role | database enum·row projection vocabulary를 `schema.ts`의 canonical type으로 통합합니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
-- entry, bracket, room, winner, status가 어떤 조건과 순서로 전이되며 중복 진행을 어떻게 막는지 확인합니다.
-- 기존 경로와 새 경로가 공존하는 migration 구간 및 최종 duplicate implementation 제거 여부를 확인합니다.
+- `packages/db/src/schema.ts`의 `TournamentRound`, `TournamentMatchStatus`, `ChatScope`, `AdminAction` alias를 shared contract와 대조합니다.
+- `Database` table map과 각 `Selectable` row export의 재배치를 확인합니다.
+- `UserProjectionRow`가 broad alias 대신 explicit `Pick`으로 어떤 column을 고정하는지 확인합니다.
+- joined row interface가 canonical aliases를 참조하도록 바뀌고 중복 string union이 제거되는지 확인합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:3e3f21129369:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:3e3f21129369:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:3e3f21129369:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:3e3f21129369:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:3e3f21129369:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:3e3f21129369:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:3e3f21129369:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:3e3f21129369:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:3e3f21129369:later --> _(학습자 작성)_ |
 
-비교 기준:
-- 직전 관련 SHA: `3d0ae79affd5` — `refactor(db): memory match record 계약 정렬`
-- 다음 관련 SHA: `212650b2863d` — `refactor(db): row mapper record 타입 정렬`
+#### 비교 기준
 
-### 5.4. `refactor(db): row mapper record 타입 정렬`
+- parent 상태와 `3e3f21129369`의 diff를 먼저 비교합니다.
+- 이 Thread의 직전 관련 SHA `3d0ae79affd5`와 책임·상태·보장 범위가 어떻게 달라졌는지 비교합니다.
+- 후속 관련 SHA `212650b2863d`가 이 결정의 부족한 점을 보완하거나 검증하는지 확인합니다.
 
-| 항목 | 값 |
+### 5.4. `212650b2863d` — refactor(db): row mapper record 타입 정렬
+
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `212650b2863d` |
 | Importance | B |
 | Tags | PERSISTENCE, TOURNAMENT |
-| Source에서 확정된 역할 | tournament match view type을 canonical row enum에서 파생합니다. |
+| Source role | `toTournamentMatchRecord`의 반환값을 canonical row type에서 파생한 explicit view로 고정합니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
-- entry, bracket, room, winner, status가 어떤 조건과 순서로 전이되며 중복 진행을 어떻게 막는지 확인합니다.
-- 기존 경로와 새 경로가 공존하는 migration 구간 및 최종 duplicate implementation 제거 여부를 확인합니다.
+- `packages/db/src/rowMappers.ts`의 `TournamentMatchRecordView`와 `toTournamentMatchRecord` return annotation을 확인합니다.
+- round/status type이 hard-coded union이 아니라 `TournamentMatchRow` field에서 파생되는지 확인합니다.
+- nullable score·ID field에서 `Number`/null 변환이 유지되는지 parent와 비교합니다.
+- public summary mapper와 internal record mapper의 field 차이를 구분합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:212650b2863d:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:212650b2863d:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:212650b2863d:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:212650b2863d:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:212650b2863d:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:212650b2863d:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:212650b2863d:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:212650b2863d:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:212650b2863d:later --> _(학습자 작성)_ |
 
-비교 기준:
-- 직전 관련 SHA: `3e3f21129369` — `refactor(db): canonical row schema 타입 정렬`
-- 다음 관련 SHA: `45144a3719bc` — `refactor(db): dashboard와 friendship 조회 경계 정렬`
+#### 비교 기준
 
-### 5.5. `refactor(db): dashboard와 friendship 조회 경계 정렬`
+- parent 상태와 `212650b2863d`의 diff를 먼저 비교합니다.
+- 이 Thread의 직전 관련 SHA `3e3f21129369`와 책임·상태·보장 범위가 어떻게 달라졌는지 비교합니다.
+- 후속 관련 SHA `45144a3719bc`가 이 결정의 부족한 점을 보완하거나 검증하는지 확인합니다.
 
-| 항목 | 값 |
+### 5.5. `45144a3719bc` — refactor(db): dashboard와 friendship 조회 경계 정렬
+
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `45144a3719bc` |
 | Importance | B |
 | Tags | PERSISTENCE |
-| Source에서 확정된 역할 | optional SQL fragment 대신 participant/global 두 query shape를 명시합니다. |
+| Source role | optional SQL fragment를 제거하고 scoped/unscoped recent-match query를 두 개의 명시적 shape로 분리합니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
-- 기존 경로와 새 경로가 공존하는 migration 구간 및 최종 duplicate implementation 제거 여부를 확인합니다.
+- `PostgresRepository.listRecentMatches` parent에서 conditional `sql` fragment가 사용되던 부분과 두 explicit query branch를 비교합니다.
+- 두 query의 select column, joins, order, limit가 동일하고 where만 다른지 확인합니다.
+- `listFriends` SQL formatting과 dashboard object construction이 behavior를 바꾸는지 확인합니다.
+- 분기 duplication이 늘어나는 대신 query shape reviewability가 좋아지는 trade-off를 기록합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:45144a3719bc:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:45144a3719bc:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:45144a3719bc:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:45144a3719bc:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:45144a3719bc:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:45144a3719bc:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:45144a3719bc:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:45144a3719bc:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:45144a3719bc:later --> _(학습자 작성)_ |
 
-비교 기준:
-- 직전 관련 SHA: `212650b2863d` — `refactor(db): row mapper record 타입 정렬`
-- 다음 관련 SHA: `ce41a880d6c6` — `refactor(db): PostgreSQL tournament helper와 admin 경계 정렬`
+#### 비교 기준
 
-### 5.6. `refactor(db): PostgreSQL tournament helper와 admin 경계 정렬`
+- parent 상태와 `45144a3719bc`의 diff를 먼저 비교합니다.
+- 이 Thread의 직전 관련 SHA `212650b2863d`와 책임·상태·보장 범위가 어떻게 달라졌는지 비교합니다.
+- 후속 관련 SHA `ce41a880d6c6`가 이 결정의 부족한 점을 보완하거나 검증하는지 확인합니다.
 
-| 항목 | 값 |
+### 5.6. `ce41a880d6c6` — refactor(db): PostgreSQL tournament helper와 admin 경계 정렬
+
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `ce41a880d6c6` |
 | Importance | B |
 | Tags | PERSISTENCE, TOURNAMENT |
-| Source에서 확정된 역할 | tournament relation을 조립하는 PostgreSQL helper를 추출합니다. |
+| Source role | tournament match relation 조립과 admin query를 명시적 helper/statement로 정리합니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
-- entry, bracket, room, winner, status가 어떤 조건과 순서로 전이되며 중복 진행을 어떻게 막는지 확인합니다.
-- 기존 경로와 새 경로가 공존하는 migration 구간 및 최종 duplicate implementation 제거 여부를 확인합니다.
+- `packages/db/src/index.ts`의 `tournamentMatchFromRow`가 left/right/winner ID를 `getUserById`로 해석하는 순서를 확인합니다.
+- `ensureFinalMatch` 또는 tournament helper가 어떤 executor/row를 받는지 확인합니다.
+- `listAdminUsers`, `listAdminActions`, `setUserBan`의 query와 mapper 호출을 parent와 비교합니다.
+- 이 refactor가 admin status update와 audit insert를 하나의 transaction으로 만들지는 않는다는 점을 명시합니다.
+- relation user가 삭제·누락된 경우 null 처리와 thrown failure를 구분합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:ce41a880d6c6:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:ce41a880d6c6:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:ce41a880d6c6:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:ce41a880d6c6:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:ce41a880d6c6:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:ce41a880d6c6:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:ce41a880d6c6:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:ce41a880d6c6:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:ce41a880d6c6:later --> _(학습자 작성)_ |
 
-비교 기준:
-- 직전 관련 SHA: `45144a3719bc` — `refactor(db): dashboard와 friendship 조회 경계 정렬`
-- 다음 관련 SHA: `5c8659ea233b` — `refactor(db): tournament relation mapper 계약 정렬`
+#### 비교 기준
 
-### 5.7. `refactor(db): tournament relation mapper 계약 정렬`
+- parent 상태와 `ce41a880d6c6`의 diff를 먼저 비교합니다.
+- 이 Thread의 직전 관련 SHA `45144a3719bc`와 책임·상태·보장 범위가 어떻게 달라졌는지 비교합니다.
+- 후속 관련 SHA `5c8659ea233b`가 이 결정의 부족한 점을 보완하거나 검증하는지 확인합니다.
 
-| 항목 | 값 |
+### 5.7. `5c8659ea233b` — refactor(db): tournament relation mapper 계약 정렬
+
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `5c8659ea233b` |
 | Importance | B |
 | Tags | PERSISTENCE, TOURNAMENT |
-| Source에서 확정된 역할 | row와 entries/matches/winner related data를 분리해 mapper에 전달합니다. |
+| Source role | tournament mapper가 row spread와 사후 mutation 대신 explicit related-data object를 받도록 바꿉니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
-- entry, bracket, room, winner, status가 어떤 조건과 순서로 전이되며 중복 진행을 어떻게 막는지 확인합니다.
-- 기존 경로와 새 경로가 공존하는 migration 구간 및 최종 duplicate implementation 제거 여부를 확인합니다.
+- `packages/db/src/rowMappers.ts`의 이전 `toTournamentSummary(row, entries, matches)`와 새 `{ entries, matches, winner }` 인수를 비교합니다.
+- creator projection이 `{...row, id: creator_id, status: user_status}` spread에서 explicit field object로 바뀌는지 확인합니다.
+- `PostgresRepository.tournamentFromRow`가 entries query, matches helper, winner lookup을 모두 끝낸 뒤 mapper를 호출하는지 추적합니다.
+- `ensureTournamentBracket` executor type이 `Kysely | Transaction`으로 명시되는지 확인합니다.
+- mapper가 더 이상 반환 후 `summary.winner = ...` mutation을 요구하지 않는지 확인합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:5c8659ea233b:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:5c8659ea233b:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:5c8659ea233b:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:5c8659ea233b:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:5c8659ea233b:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:5c8659ea233b:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:5c8659ea233b:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:5c8659ea233b:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:5c8659ea233b:later --> _(학습자 작성)_ |
 
-비교 기준:
-- 직전 관련 SHA: `ce41a880d6c6` — `refactor(db): PostgreSQL tournament helper와 admin 경계 정렬`
-- 다음 관련 SHA: `f77e317de4c1` — `refactor(db): memory match completion과 admin 경계 정렬`
+#### 최소 코드 근거
 
-### 5.8. `refactor(db): memory match completion과 admin 경계 정렬`
+<!-- LEARNER:5c8659ea233b:evidence --> _(학습자 작성)_
 
-| 항목 | 값 |
+#### 비교 기준
+
+- parent 상태와 `5c8659ea233b`의 diff를 먼저 비교합니다.
+- 이 Thread의 직전 관련 SHA `ce41a880d6c6`와 책임·상태·보장 범위가 어떻게 달라졌는지 비교합니다.
+- 후속 관련 SHA `f77e317de4c1`가 이 결정의 부족한 점을 보완하거나 검증하는지 확인합니다.
+
+### 5.8. `f77e317de4c1` — refactor(db): memory match completion과 admin 경계 정렬
+
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `f77e317de4c1` |
 | Importance | B |
 | Tags | REALTIME, PERSISTENCE, TOURNAMENT |
-| Source에서 확정된 역할 | memory repository가 tournament와 match를 함께 resolve하는 helper를 사용합니다. |
+| Source role | memory tournament match lookup을 aggregate와 child를 함께 반환하는 helper로 통합합니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
-- socket, room, timer, queue 또는 connection state의 owner와 disconnect/replace/cleanup path를 추적합니다.
-- entry, bracket, room, winner, status가 어떤 조건과 순서로 전이되며 중복 진행을 어떻게 막는지 확인합니다.
-- 기존 경로와 새 경로가 공존하는 migration 구간 및 최종 duplicate implementation 제거 여부를 확인합니다.
+- `packages/db/src/index.ts`의 `findTournamentMatch(matchId)` 반환 `{ tournament, match } | null`을 확인합니다.
+- `completeTournamentMatch`가 helper 결과와 winner lookup을 재사용해 어느 객체를 mutation하는지 추적합니다.
+- `listAdminUsers`, `listAdminActions`, `setUserBan`이 explicit object construction으로 바뀐 부분을 확인합니다.
+- memory mutation이 transaction/rollback 없이 process-local object를 직접 바꾼다는 점을 기록합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:f77e317de4c1:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:f77e317de4c1:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:f77e317de4c1:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:f77e317de4c1:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:f77e317de4c1:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:f77e317de4c1:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:f77e317de4c1:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:f77e317de4c1:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:f77e317de4c1:later --> _(학습자 작성)_ |
 
-비교 기준:
-- 직전 관련 SHA: `5c8659ea233b` — `refactor(db): tournament relation mapper 계약 정렬`
-- 다음 관련 SHA: `9d64ea406b03` — `refactor(db): memory tournament 확정 경계 정렬`
+#### 비교 기준
 
-### 5.9. `refactor(db): memory tournament 확정 경계 정렬`
+- parent 상태와 `f77e317de4c1`의 diff를 먼저 비교합니다.
+- 이 Thread의 직전 관련 SHA `5c8659ea233b`와 책임·상태·보장 범위가 어떻게 달라졌는지 비교합니다.
+- 후속 관련 SHA `9d64ea406b03`가 이 결정의 부족한 점을 보완하거나 검증하는지 확인합니다.
 
-| 항목 | 값 |
+### 5.9. `9d64ea406b03` — refactor(db): memory tournament 확정 경계 정렬
+
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `9d64ea406b03` |
 | Importance | B |
 | Tags | PERSISTENCE, TOURNAMENT |
-| Source에서 확정된 역할 | tournament aggregate+match lookup result 중심으로 finalization을 통합합니다. |
+| Source role | memory `finalizeMatch`의 tournament participant 검증과 aggregate mutation을 하나의 lookup result에 정렬합니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
-- entry, bracket, room, winner, status가 어떤 조건과 순서로 전이되며 중복 진행을 어떻게 막는지 확인합니다.
-- 기존 경로와 새 경로가 공존하는 migration 구간 및 최종 duplicate implementation 제거 여부를 확인합니다.
+- `finalizeMatch`의 이전 `tournamentLink` map/find 표현과 `findTournamentMatch` 사용을 비교합니다.
+- already-finalized `matchId` 검사와 winner/loser가 해당 tournament match participant인지 검증하는 순서를 확인합니다.
+- 일반 match record/stat update 뒤 tournament match/aggregate를 mutation하는 경로를 추적합니다.
+- memory operation이 한 call stack에 있지만 예외 시 deep rollback이 없다는 점을 확인합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:9d64ea406b03:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:9d64ea406b03:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:9d64ea406b03:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:9d64ea406b03:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:9d64ea406b03:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:9d64ea406b03:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:9d64ea406b03:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:9d64ea406b03:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:9d64ea406b03:later --> _(학습자 작성)_ |
 
-비교 기준:
-- 직전 관련 SHA: `f77e317de4c1` — `refactor(db): memory match completion과 admin 경계 정렬`
-- 다음 관련 SHA: `b34fdaa1e9c2` — `refactor(db): memory chat과 tournament 진입 경계 정렬`
+#### 비교 기준
 
-### 5.10. `refactor(db): memory chat과 tournament 진입 경계 정렬`
+- parent 상태와 `9d64ea406b03`의 diff를 먼저 비교합니다.
+- 이 Thread의 직전 관련 SHA `f77e317de4c1`와 책임·상태·보장 범위가 어떻게 달라졌는지 비교합니다.
+- 후속 관련 SHA `b34fdaa1e9c2`가 이 결정의 부족한 점을 보완하거나 검증하는지 확인합니다.
 
-| 항목 | 값 |
+### 5.10. `b34fdaa1e9c2` — refactor(db): memory chat과 tournament 진입 경계 정렬
+
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `b34fdaa1e9c2` |
 | Importance | B |
 | Tags | PERSISTENCE, TOURNAMENT |
-| Source에서 확정된 역할 | memory method를 DB implementation과 동일한 typed domain boundary로 맞춥니다. |
+| Source role | memory chat/tournament object construction과 lookup을 explicit shared-domain shape에 맞춥니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
-- entry, bracket, room, winner, status가 어떤 조건과 순서로 전이되며 중복 진행을 어떻게 막는지 확인합니다.
-- 기존 경로와 새 경로가 공존하는 migration 구간 및 최종 duplicate implementation 제거 여부를 확인합니다.
+- `createChatMessage`의 `ChatMessage` type annotation과 field별 object construction을 확인합니다.
+- `createTournament`가 `TournamentSummary`를 명시하고 entries/matches 초기값을 모두 제공하는지 확인합니다.
+- `joinTournament`의 `alreadyJoined`, capacity check, append, playerCount/status 전이를 추적합니다.
+- `getTournamentMatch`, `startTournamentMatch`가 `findTournamentMatch`를 재사용하는지 확인합니다.
+- 반복 join의 idempotence와 full tournament에서 기존 참가자의 재join 허용을 구분합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:b34fdaa1e9c2:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:b34fdaa1e9c2:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:b34fdaa1e9c2:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:b34fdaa1e9c2:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:b34fdaa1e9c2:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:b34fdaa1e9c2:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:b34fdaa1e9c2:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:b34fdaa1e9c2:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:b34fdaa1e9c2:later --> _(학습자 작성)_ |
 
-비교 기준:
-- 직전 관련 SHA: `9d64ea406b03` — `refactor(db): memory tournament 확정 경계 정렬`
-- 다음 관련 SHA: `dc0e60e6aa35` — `test(db): database row mapping contract 검증`
+#### 비교 기준
 
-### 5.11. `test(db): database row mapping contract 검증`
+- parent 상태와 `b34fdaa1e9c2`의 diff를 먼저 비교합니다.
+- 이 Thread의 직전 관련 SHA `9d64ea406b03`와 책임·상태·보장 범위가 어떻게 달라졌는지 비교합니다.
+- 후속 관련 SHA `dc0e60e6aa35`가 이 결정의 부족한 점을 보완하거나 검증하는지 확인합니다.
 
-| 항목 | 값 |
+### 5.11. `dc0e60e6aa35` — test(db): database row mapping contract 검증
+
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `dc0e60e6aa35` |
 | Importance | B |
 | Tags | PERSISTENCE, TOURNAMENT, TEST |
-| Source에서 확정된 역할 | relational row에서 shared API domain shape로의 변환을 고정합니다. |
+| Source role | pure row fixture에서 user·match·friendship·chat·tournament·admin mapper 출력을 고정합니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
-- entry, bracket, room, winner, status가 어떤 조건과 순서로 전이되며 중복 진행을 어떻게 막는지 확인합니다.
-- 테스트가 주입하는 입력·시간·동시성·오류와 실제 production path를 구분해 기록합니다.
-- 테스트가 증명하는 범위와 실제 process/network/database까지는 증명하지 않는 범위를 함께 기록합니다.
+- `packages/db/src/rowMappers.test.ts`의 canonical `UserRow` fixture와 고정 UUID/Date를 확인합니다.
+- `toPublicUser`가 snake_case를 노출하지 않고 online/role/rating을 변환하는 assertion을 확인합니다.
+- joined match/friendship/chat row에서 viewer-relative result, opponent, sender, ISO timestamp를 확인합니다.
+- tournament record/summary의 entries·matches·winner와 admin actor/target relation assertion을 확인합니다.
+- live query나 PostgreSQL을 사용하지 않는 pure mapper unit test라는 범위를 명시합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:dc0e60e6aa35:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:dc0e60e6aa35:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:dc0e60e6aa35:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:dc0e60e6aa35:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:dc0e60e6aa35:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:dc0e60e6aa35:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:dc0e60e6aa35:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:dc0e60e6aa35:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:dc0e60e6aa35:later --> _(학습자 작성)_ |
 
 #### Test commit 학습 기록
 
-| 구분 | 기록 |
+| 항목 | 기록 |
 | --- | --- |
-| 대상 production invariant | [작성] |
-| 재현하는 failure/boundary | [작성] |
-| test technique | [unit/integration/concurrency/failure injection/process/browser/load 중 구분] |
-| 통과하는 production path | [caller 순서 작성] |
-| 증명하는 것 | [작성] |
-| 증명하지 않는 것 | [작성] |
-| 후속 회귀 방지 | [작성] |
+| 검증 대상 불변식 | <!-- LEARNER:dc0e60e6aa35:test:invariant --> _(학습자 작성)_ |
+| 재현한 실패·경계 | <!-- LEARNER:dc0e60e6aa35:test:boundary --> _(학습자 작성)_ |
+| 시험 기법 | <!-- LEARNER:dc0e60e6aa35:test:technique --> _(학습자 작성)_ |
+| 통과하는 실제 코드 경로 | <!-- LEARNER:dc0e60e6aa35:test:path --> _(학습자 작성)_ |
+| 시험이 증명하는 것 | <!-- LEARNER:dc0e60e6aa35:test:proves --> _(학습자 작성)_ |
+| 시험이 증명하지 않는 것 | <!-- LEARNER:dc0e60e6aa35:test:not_proves --> _(학습자 작성)_ |
+| 막으려는 회귀 | <!-- LEARNER:dc0e60e6aa35:test:regression --> _(학습자 작성)_ |
 
-비교 기준:
-- 직전 관련 SHA: `b34fdaa1e9c2` — `refactor(db): memory chat과 tournament 진입 경계 정렬`
-- 이 Thread의 최종 상태와 비교합니다.
+#### 비교 기준
 
-## 6. Invariant ledger
+- parent 상태와 `dc0e60e6aa35`의 diff를 먼저 비교합니다.
+- 이 Thread의 직전 관련 SHA `b34fdaa1e9c2`와 책임·상태·보장 범위가 어떻게 달라졌는지 비교합니다.
 
-| Invariant | 도입 SHA | 강화 SHA | 부족함이 드러난 SHA | 복구 fix | 고정 test | 코드 근거 |
-| --- | --- | --- | --- | --- | --- | --- |
-| 관계형 row, relation assembly, public domain projection은 명시적인 단계로 분리됩니다. | [작성] | [작성] | [작성] | [작성] | [작성] | [파일·심볼] |
-| memory backend는 별도 alias가 아니라 canonical repository contract와 domain behavior를 따릅니다. | [작성] | [작성] | [작성] | [작성] | [작성] | [파일·심볼] |
-| mapper는 누락·nullable·enum 불일치를 application 경계 밖으로 유출하지 않습니다. | [작성] | [작성] | [작성] | [작성] | [작성] | [파일·심볼] |
+## 6. 불변식 변화
 
-## 7. Failure → Fix → Test 연결
-
-| 기존 상태/가정 | Fix 또는 강화 과정 | Test/evidence | 최종 보장 |
+| 단계 | 관련 SHA | 조사 초점 | 학습자 기록 |
 | --- | --- | --- | --- |
-| [작성] | [SHA 순서 작성] | [test/failure injection 작성] | [작성] |
+| Canonical storage vocabulary | `73b8ce0f0c26` → `3e3f21129369` | 중복 alias·command inheritance가 제거되는 범위를 확인합니다. | <!-- LEARNER:thread-03:invariant:1 --> _(학습자 작성)_ |
+| Explicit mapper view | `212650b2863d` | internal record와 public summary의 차이를 기록합니다. | <!-- LEARNER:thread-03:invariant:2 --> _(학습자 작성)_ |
+| Explicit query·relation assembly | `45144a3719bc` → `5c8659ea233b` | query shape와 related-data provenance를 추적합니다. | <!-- LEARNER:thread-03:invariant:3 --> _(학습자 작성)_ |
+| Memory aggregate lookup | `f77e317de4c1` → `b34fdaa1e9c2` | child와 owner aggregate의 alias·mutation 범위를 확인합니다. | <!-- LEARNER:thread-03:invariant:4 --> _(학습자 작성)_ |
+| Mapper regression evidence | `dc0e60e6aa35` | 정적 type refactor 뒤 runtime object shape를 확인합니다. | <!-- LEARNER:thread-03:invariant:5 --> _(학습자 작성)_ |
 
-## 8. Ownership / state / responsibility 변화
+## 7. Failure → Fix → Test 관계
 
-| 축 | 초기 owner/state | 중간 전환 | 최종 owner/state | cleanup 책임 | 근거 |
-| --- | --- | --- | --- | --- | --- |
-| canonical row types | [작성] | [작성] | [작성] | [작성] | [SHA·파일·심볼] |
-| relation assembler | [작성] | [작성] | [작성] | [작성] | [SHA·파일·심볼] |
-| public mapper | [작성] | [작성] | [작성] | [작성] | [SHA·파일·심볼] |
-| memory stored records | [작성] | [작성] | [작성] | [작성] | [SHA·파일·심볼] |
-| backend parity tests | [작성] | [작성] | [작성] | [작성] | [SHA·파일·심볼] |
+| 관계 | Failure / 이전 가정 | Fix / 결정 | Test / 근거 | 학습자 기록 |
+| --- | --- | --- | --- | --- |
+| 1 | memory-only alias와 write-command inheritance가 stored shape를 암시적으로 확장했습니다. | `73b8ce0f0c26`, `3d0ae79affd5`, `3e3f21129369`가 canonical projection과 explicit record를 도입했습니다. | `dc0e60e6aa35`가 downstream mapper output shape를 고정합니다. | <!-- LEARNER:thread-03:relation:1 --> _(학습자 작성)_ |
+| 2 | tournament mapper가 row spread와 반환 후 winner mutation으로 relation provenance를 숨겼습니다. | `ce41a880d6c6`, `5c8659ea233b`가 helper와 `{ entries, matches, winner }` 계약을 추가했습니다. | `dc0e60e6aa35`의 tournament/admin fixture assertion입니다. | <!-- LEARNER:thread-03:relation:2 --> _(학습자 작성)_ |
+| 3 | memory completion이 tournament와 child를 반복 lookup하고 optional chain/non-null assertion에 의존했습니다. | `f77e317de4c1` → `9d64ea406b03` → `b34fdaa1e9c2`가 aggregate+child helper를 공통 사용합니다. | 후속 memory repository·concurrency tests가 public behavior를 간접 보호합니다. | <!-- LEARNER:thread-03:relation:3 --> _(학습자 작성)_ |
+
+## 8. Ownership·상태·책임 변화
+
+| 구간 | 이전 소유자/표현 | 이후 소유자/표현 | 관련 SHA | 학습자 기록 |
+| --- | --- | --- | --- | --- |
+| User/match stored type | memory-only alias와 write command가 shape를 간접 소유했습니다. | `schema.ts` projection과 explicit `MemoryMatchRecord`가 stored field를 소유합니다. | `73b8ce0f0c26`, `3d0ae79affd5` | <!-- LEARNER:thread-03:ownership:1 --> _(학습자 작성)_ |
+| DB type vocabulary | round/status/scope/action union이 여러 파일에 중복됐습니다. | canonical aliases와 row exports를 `schema.ts`가 소유합니다. | `3e3f21129369`, `212650b2863d` | <!-- LEARNER:thread-03:ownership:2 --> _(학습자 작성)_ |
+| Relation assembly | mapper 입력 masquerading과 사후 mutation에 분산됐습니다. | repository helper가 relation fetch, mapper가 완성 DTO construction을 소유합니다. | `ce41a880d6c6`, `5c8659ea233b` | <!-- LEARNER:thread-03:ownership:3 --> _(학습자 작성)_ |
+| Memory aggregate mutation | child와 owner를 별도 탐색했습니다. | helper가 `{tournament, match}` 원본 alias pair를 반환합니다. | `f77e317de4c1` → `b34fdaa1e9c2` | <!-- LEARNER:thread-03:ownership:4 --> _(학습자 작성)_ |
+| Regression owner | typecheck만 behavior-preserving 근거였습니다. | pure mapper test가 public/internal output shape를 소유합니다. | `dc0e60e6aa35` | <!-- LEARNER:thread-03:ownership:5 --> _(학습자 작성)_ |
 
 ## 9. Thread 최종 상태
 
-- 최종 authoritative owner: [작성]
-- 최종 상태/invariant: [작성]
-- 남아 있는 의도적 제한 또는 비보장: [작성]
-- 다른 Thread가 의존하는 contract: [작성]
-- 대표 코드 근거: [SHA·파일·심볼 작성]
+<!-- LEARNER:thread-03:final-state --> _(학습자 작성)_
 
-## 10. 최종 execution flow
+## 10. 최종 실행 흐름
 
-```text
-[입력/이벤트]
-    ↓
-[검증·권한·소유권 경계]
-    ↓
-[상태 전이·DB 작업·브라우저 반영]
-    ↓
-[출력·관측·rollback·cleanup]
-```
+<!-- LEARNER:thread-03:flow --> _(학습자 작성)_
 
-## 11. 학습 완료 자가 점검
+## 11. 학습 완료 확인
 
-- [ ] 모든 SHA를 지정 브랜치에서 확인했습니다.
-- [ ] commit subject, importance, tags를 변경하지 않았습니다.
-- [ ] final HEAD 코드를 과거 SHA에 소급하지 않았습니다.
-- [ ] S/A/B/C에 맞게 조사 깊이를 구분했습니다.
-- [ ] fix와 test를 실제 production path에 연결했습니다.
-- [ ] 실행하지 않은 명령의 결과를 작성하지 않았습니다.
-- [ ] Thread 최종 owner와 execution flow를 실제 근거로 설명할 수 있습니다.
+- [ ] command type과 stored record type의 lifetime 차이를 설명할 수 있습니다.
+- [ ] canonical TypeScript row type이 DB CHECK나 runtime parser를 대신하지 않는다고 설명할 수 있습니다.
+- [ ] relation fetch와 mapper construction의 책임 분리를 실제 helper·function 이름으로 설명할 수 있습니다.
+- [ ] memory aggregate+child lookup의 장점과 rollback non-guarantee를 함께 말할 수 있습니다.
+- [ ] C-level formatting commit을 제외한 이유를 독립적인 state·ownership 변화 부재로 설명할 수 있습니다.
+- [ ] mapper unit test의 증거 범위를 live PostgreSQL query로 과장하지 않습니다.
+
+## 12. 실행 및 증거 기록
+
+<!-- LEARNER:thread-03:execution --> _(학습자 작성)_

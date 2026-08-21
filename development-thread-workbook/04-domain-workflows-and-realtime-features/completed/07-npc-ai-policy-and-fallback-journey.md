@@ -85,7 +85,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:72d23baefc3c -->
-- [작성 필요]
+- **직전 상태:** AI 상대는 room 안의 특수 문자열/flag로 표현돼 사용자·chat·tournament projection과 같은 identity contract를 갖지 못했습니다.
+- **구현 결정:** users row에 `is_npc`를 추가하고 shared `PublicUser.isNpc`로 mapping하며 chat sender와 tournament creator/participant query도 해당 column을 선택합니다. memory dev user는 false입니다.
+- **상태/소유권 변화:** NPC 여부가 room 임시 label이 아니라 durable user identity 속성이 됩니다.
+- **실패/edge:** marker만 추가했으므로 실제 NPC row와 선택 정책은 아직 없습니다. 기존 row는 default false입니다.
+- **보장/비보장:** user가 전달되는 contract 전반에서 NPC 여부를 보존하지만 NPC가 online인지, 어떤 rating인지, 누구와 match할지는 정하지 않습니다.
+- **다음 연결:** `b3239bae51e5`가 rating band별 NPC row를 seed하고 별도 조회를 구현합니다.
 <!-- LEARNER-ANSWER END commit:72d23baefc3c -->
 
 비교 기준:
@@ -117,7 +122,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:b3239bae51e5 -->
-- [작성 필요]
+- **직전 상태:** `isNpc` 필드는 있었지만 사용할 NPC row가 없고 repository에서 NPC 후보를 가져올 API가 없었습니다.
+- **구현 결정:** 네 고정 handle/display/avatar/rating seed를 active `is_npc=true`, email null로 upsert하고 rating 오름차순 `listNpcOpponents`를 추가합니다. projection은 online false입니다. 같은 handle로 dev login하면 `is_npc=false`로 되돌립니다.
+- **상태/소유권 변화:** NPC identity/rating band는 repository seed가 소유하며 realtime presence와 분리됩니다.
+- **실패/edge:** 고정 seed 정책은 운영 콘텐츠 변경 시 migration/seed update가 필요하고, 단순 rating distance 외 gameplay skill calibration은 아직 없습니다.
+- **보장/비보장:** 양 backend에서 같은 후보 집합과 human/NPC marker 복구를 제공하지만 match selection은 다음 commit입니다.
+- **다음 연결:** `dec431822873`이 seed ratings/marker/offline projection을 고정합니다.
 <!-- LEARNER-ANSWER END commit:b3239bae51e5 -->
 
 비교 기준:
@@ -149,7 +159,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:dec431822873 -->
-- [작성 필요]
+- **직전 상태:** seed/list 구현은 있었지만 order, marker, presence projection이 바뀌어도 감지할 regression이 없었습니다.
+- **기법:** memory repository를 seed한 뒤 NPC 목록 rating 배열과 모든 `isNpc`, 모든 offline 값을 직접 검사합니다.
+- **생산 경로:** 실제 memory seed와 public projection/list sorting을 통과합니다.
+- **증명/비증명:** 후보 집합과 identity/presence 분리를 검증하도록 작성됐지만 PostgreSQL seed, leaderboard 표시, match 결과 저장은 포함하지 않습니다.
+- **보장:** 개발/test backend에서 stable rating bands를 제공합니다.
+- **다음 연결:** `87b38e2f23c8`이 후보를 실제 room과 result persistence에 연결합니다.
 <!-- LEARNER-ANSWER END commit:dec431822873 -->
 
 비교 기준:
@@ -181,7 +196,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:87b38e2f23c8 -->
-- [작성 필요]
+- **직전 상태:** AI room의 오른쪽 참가자는 `ai-opponent`/`ai`/`연습 AI` 같은 익명 fallback이라 generic match가 실제 상대 user를 참조하지 못했습니다.
+- **구현 결정:** repository NPC 목록에서 `abs(npc.rating - player.rating)`이 가장 작은 후보를 선택하고 room snapshot의 오른쪽 participant와 opponent label에 사용합니다. 종료 시 room이 보관한 NPC user ID를 winner/loser로 넘깁니다.
+- **상태/소유권 변화:** room은 선택된 persisted NPC identity를 lifetime 동안 보존하고 result persistence도 같은 ID를 사용합니다.
+- **실패/edge:** 후보가 없으면 기존 anonymous fallback이 남을 수 있고 동률은 먼저 나온 rating-order 후보가 선택됩니다. 일반 human queue의 지연 fallback은 아직 없습니다.
+- **보장/비보장:** 직접 AI room의 identity attribution은 제공하지만 queue timeout ownership은 다음 commit입니다.
+- **다음 연결:** `1122e6a4b901`이 human 상대가 없을 때 같은 NPC를 6초 fallback으로 배정합니다.
 <!-- LEARNER-ANSWER END commit:87b38e2f23c8 -->
 
 비교 기준:
@@ -214,7 +234,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:1122e6a4b901 -->
-- [작성 필요]
+- **직전 상태:** 일반 queue에 human이 없으면 무기한 기다렸고 NPC는 명시적 AI mode에서만 즉시 배정됐습니다.
+- **구현 결정:** unmatched queue entry마다 6초 timer를 만들고 callback에서 entry가 아직 queue에 있는지, socket이 OPEN인지, 이미 room이 없는지 재확인한 뒤 closest NPC로 room을 만듭니다. human pair, leave, closed-socket prune는 timer를 clear/null합니다.
+- **상태/소유권 변화:** fallback timer는 queue entry의 자원이며 queue membership이 lifetime을 결정합니다. room은 선택된 `npcUser`를 별도로 보관합니다.
+- **실패/edge:** callback의 NPC lookup은 async이므로 timer 발화 뒤 상태가 바뀔 수 있어 재검사가 필수입니다. 정리를 빠뜨리면 human room 뒤 두 번째 NPC room이 생길 수 있습니다.
+- **보장/비보장:** 단일 GameHub process에서 queue entry당 한 fallback path를 목표로 하지만 multi-process reservation은 later Matchmaker(category 05)가 담당합니다.
+- **다음 연결:** `b159bcda3b83`이 NPC rating을 실제 AI 행동 profile로 사용합니다.
 <!-- LEARNER-ANSWER END commit:1122e6a4b901 -->
 
 비교 기준:
@@ -246,7 +271,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:b159bcda3b83 -->
-- [작성 필요]
+- **직전 상태:** AI는 매 tick 현재 ball Y를 단순 추적해 persisted rating이 gameplay에 영향을 주지 않았습니다.
+- **구현 결정:** 1400/1300/1200/lower band에 reaction ticks, prediction noise, mistake chance, paddle speed multiplier, dead zone을 지정합니다. 공이 AI 쪽으로 갈 때 벽 반사를 포함한 도착 Y를 예측하고 room ID·tick·salt 기반 deterministic noise/mistake를 적용합니다. 공이 반대 방향이면 중앙을 목표로 합니다.
+- **상태/소유권 변화:** room이 `aiTargetY`를 유지하고 rating이 simulation policy를 선택합니다. ambient `Math.random` 대신 재현 가능한 pseudo-random 값을 사용합니다.
+- **실패/edge:** policy 값은 경험적 설정이며 난이도·공정성 통계가 없습니다. `predictedBallY`는 현재 단순 직선/벽 반사 모델을 전제로 합니다.
+- **보장/비보장:** 동일 room/tick/state에서 같은 intent를 계산하고 rating band별 차이를 만들지만 인간 수준 성능은 보장하지 않습니다.
+- **다음 연결:** `afd0a97c5c1c`이 queue/NPC identity를 UI에 명시합니다.
 <!-- LEARNER-ANSWER END commit:b159bcda3b83 -->
 
 비교 기준:
@@ -278,7 +308,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:afd0a97c5c1c -->
-- [작성 필요]
+- **직전 상태:** server가 NPC를 배정해도 home/play/profile/leaderboard는 human과 구분되지 않거나 queue route가 자동 참가하지 않았습니다.
+- **구현 결정:** queue CTA가 queue mode query로 play를 열어 자동 join하고 human이 없으면 AI 배정됨을 설명합니다. snapshot `player.ai`로 상대 문구를 바꾸고 `isNpc` badge를 profile/leaderboard에 표시하며 NPC 친구 추가를 비활성화합니다.
+- **상태/소유권 변화:** web은 server-provided `isNpc`/`ai`를 표시할 뿐 NPC를 추정하지 않습니다.
+- **실패/edge:** UI disable은 보안 경계가 아니므로 friend API가 NPC 관계를 허용하지 않는 invariant는 server가 별도로 책임져야 합니다. 당시 profile의 handle-length 선수 번호 같은 unrelated placeholder는 남을 수 있습니다.
+- **보장/비보장:** 사용자 journey의 명시성은 높이지만 fallback 성공 자체는 server/smoke가 검증합니다.
+- **다음 연결:** `cfb15fc84dee`가 solo queue에서 AI-labelled match와 persisted NPC handle snapshot을 기다립니다.
 <!-- LEARNER-ANSWER END commit:afd0a97c5c1c -->
 
 비교 기준:
@@ -312,7 +347,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:cfb15fc84dee -->
-- [작성 필요]
+- **직전 상태:** seed/unit 검사와 GameHub 구현은 있었지만 실제 login→WebSocket→queue timer→room snapshot의 서비스 경로를 연결한 smoke 근거가 없었습니다.
+- **기법:** 별도 solo 사용자를 로그인/연결하고 일반 queue에 참가시킵니다. 6초 fallback을 고려해 8초 timeout으로 AI opponent match를 기다린 뒤 ready를 보내고 AI participant handle이 `npc-`로 시작하는 snapshot을 기다립니다.
+- **생산 경로:** HTTP login, WebSocket auth/parse, queue timer, repository NPC lookup, room creation, snapshot encoding을 통과하도록 작성됐습니다.
+- **증명/비증명:** end-to-end fallback과 persisted NPC identity 노출을 검증하지만 AI paddle policy 품질, match completion/result row, 동시 queue race를 검증하지 않습니다.
+- **cleanup:** `finally`에서 solo socket을 닫고 기존 PvP socket cleanup도 유지합니다.
+- **Thread 종료:** 저장 identity, delayed matching, simulation policy, UI disclosure, service smoke가 하나의 journey로 연결됩니다.
 <!-- LEARNER-ANSWER END commit:cfb15fc84dee -->
 
 비교 기준:
@@ -324,11 +364,21 @@
 다음 항목을 commit 순서에서 재구성합니다: invariant evolution, Failure → Fix → Test 관계, ownership/state 변화, 최종 실행 흐름, 비보장, 실제 실행 증거.
 
 <!-- LEARNER-ANSWER START thread:07-npc-ai-policy-and-fallback-journey.md:synthesis -->
-- [작성 필요]
+- **불변식 진화:** `72d23baefc3c`은 user contract/schema에 `isNpc`를 추가했고 `b3239bae51e5`는 1100/1200/1300/1400 rating NPC를 PostgreSQL/memory에 seed하며 별도 조회를 제공했습니다. `87b38e2f23c8`은 closest NPC를 room participant·result identity로 연결했습니다. `1122e6a4b901`은 human queue에서 6초 뒤 fallback하되 queue/socket/room을 재검사하고 모든 terminal path에서 timer를 정리합니다. `b159bcda3b83`은 rating을 simulation policy로 바꿉니다.
+- **소유권:** repository는 NPC identity와 rating band를, queue entry는 fallback timer를, GameHub room은 선택된 `npcUser`와 result attribution을, simulation은 `aiTargetY`와 profile 기반 intent를, web은 AI 표시와 action 제한을 소유합니다.
+- **Failure → Fix → Test:** 익명 `ai-opponent` 결과 attribution → persisted NPC user. 대기 timer 미정리/async stale callback 위험 → entry-owned timer와 membership/socket/room 재검사. NPC seed가 human identity를 오염할 위험 → dev login upsert가 `is_npc=false`. memory seed/rating/offline test와 실제 WebSocket solo fallback smoke가 경계를 검증합니다.
+- **최종 흐름:** seed 시 NPC users 저장 → queue/AI 요청 시 현재 user rating과 가장 가까운 NPC 조회 → 직접 AI는 즉시, 일반 queue는 human이 없으면 6초 후 재검사해 room 생성 → snapshot participant에 NPC identity/`ai` 표시 → deterministic policy가 paddle intent 계산 → 종료 결과는 NPC user ID로 저장 → web은 badge와 AI 상대 설명을 표시합니다.
+- **비보장:** rating policy가 공정하거나 인간과 동일한 난이도를 제공한다는 통계적 증거는 없습니다. multi-instance queue timer coordination과 later Matchmaker reservation ownership은 category 05가 주 소유자입니다.
+- **실행 증거:** seed/unit/smoke test 구현을 검사했지만 실제 repository seed나 8초 WebSocket smoke를 실행하지 않았습니다.
 <!-- LEARNER-ANSWER END thread:07-npc-ai-policy-and-fallback-journey.md:synthesis -->
 
 ## 7. 학습 완료 확인
 
 <!-- LEARNER-ANSWER START thread:07-npc-ai-policy-and-fallback-journey.md:checklist -->
-- [작성 필요]
+- [x] 모든 SHA를 지정 브랜치의 exact commit으로 검사했습니다.
+- [x] fixed commit map과 source classification을 보존했습니다.
+- [x] earlier commit을 later HEAD 코드로 설명하지 않았습니다.
+- [x] fix와 test를 원래 failure/production path에 연결했습니다.
+- [x] 실제 실행하지 않은 test를 통과했다고 기록하지 않았습니다.
+- [x] Thread 최종 owner, invariant, flow, non-guarantee를 작성했습니다.
 <!-- LEARNER-ANSWER END thread:07-npc-ai-policy-and-fallback-journey.md:checklist -->

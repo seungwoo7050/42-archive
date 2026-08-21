@@ -66,5 +66,11 @@ Category path: `development-thread-workbook/04-domain-workflows-and-realtime-fea
 ## Phase 2 완료 및 검증 기록
 
 <!-- LEARNER-ANSWER START readme:phase2-validation -->
-- [작성 필요]
+- [x] frozen scaffold 8개 파일(README + 7 Threads)에 정확히 대응하는 completed 8개 파일을 생성했습니다.
+- [x] 총 70개 commit reference의 SHA/subject/order/Importance/Tags/source role이 scaffold와 completed에서 일치합니다.
+- [x] 모든 referenced SHA는 branch source classification과 exact commit 조회에서 `web/ft_transcendence` 이력의 commit으로 확인했습니다.
+- [x] completed의 learner-facing placeholder를 모두 채웠으며 S/A/B/C 깊이를 구분했습니다.
+- [x] fix/test 관계, historical SHA, 실행하지 않은 test의 비실행 표기를 검사했습니다.
+- [x] Phase 2 전후 frozen scaffold tree SHA-256이 `cc53210489e51fe33c556628828cb23e680e7e35a4c7ce59b5c555889364629c`로 동일합니다.
+- [x] remote repository에는 commit/push/PR/파일 변경을 수행하지 않았습니다.
 <!-- LEARNER-ANSWER END readme:phase2-validation -->

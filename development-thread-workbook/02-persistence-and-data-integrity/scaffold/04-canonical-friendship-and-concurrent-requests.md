@@ -1,278 +1,294 @@
-# Canonical friendship과 동시 요청
+# Development Thread 04 — Canonical friendship과 동시 요청
 
-- 카테고리: `02-persistence-and-data-integrity` — 영속성·데이터 무결성
-- Repository: `https://github.com/seungwoo7050/42-archive`
-- Branch: `web/ft_transcendence`
+## 1. 학습 목표
 
-## 1. Thread 목표
+- 초기 directional friendship row와 memory summary가 왜 하나의 관계 identity를 표현하지 못하는지 설명합니다.
+- legacy data normalization, self-check, canonical expression unique index의 적용 순서를 재구성합니다.
+- PostgreSQL single-statement upsert가 repeat/reverse request를 어떤 state transition으로 원자화하는지 추적합니다.
+- memory parity와 regression test의 실제 concurrency 증거 범위를 과장하지 않고 구분합니다.
 
-방향성 있는 friendship row에서 unordered canonical pair와 atomic upsert로 이동해 반복·역방향·동시 요청을 하나의 관계로 수렴시키는 과정을 복원합니다.
+## 2. 범위와 경계
 
-이 문서는 완성된 해설이 아니라 exact SHA를 순서대로 확인해 구현 발전을 복원하기 위한 scaffold입니다.
+- 포함: friendship repository operation, canonical-pair migration, PostgreSQL atomic request, memory relationship record, cross-backend regression.
+- `cdaca35ccf7f`에서는 friendship assertion만 이 Thread의 핵심 근거로 사용합니다. 같은 commit의 tournament test는 Thread 5에서 다룹니다.
+- 제외: profile/friend HTTP authorization, guest capability, browser cache invalidation은 auth/web category 책임입니다.
+- 제외: friendship 삭제·차단·notification policy는 이 history에 구현되지 않았으므로 일반론으로 채우지 않습니다.
 
-### 직접 연결되는 불변식
+## 3. 핵심 질문
 
-- 두 사용자 사이 friendship은 방향과 호출 순서에 무관한 하나의 canonical identity를 갖습니다.
-- 반복·역방향·동시 요청은 duplicate relationship을 만들지 않습니다.
-- memory와 PostgreSQL은 같은 상태 전이 결과를 제공합니다.
-
-## 2. 핵심 질문
-
-- 두 user ID를 canonical order로 정렬하는 시점과 database constraint는 무엇입니까?
-- A→B와 B→A 동시 request가 duplicate row 또는 contradictory status를 만들지 않는 근거는 무엇입니까?
-- request/accept 상태 전이가 upsert clause에서 어떻게 표현됩니까?
-- memory implementation의 key와 PostgreSQL unique key가 같은 relation identity를 나타냅니까?
-
-## 3. 완료 기준
-
-- Commit map의 모든 SHA를 지정 브랜치 ancestry에서 확인합니다.
-- 각 SHA의 parent 또는 직전 관련 SHA와 비교해 변경 전후 상태를 구분합니다.
-- 파일, symbol, caller/callee, 상태 mutation, failure branch, cleanup을 실제 코드로 기록합니다.
-- Fix는 이전 가정과 root cause를, test는 production path와 증명/비증명 범위를 연결합니다.
-- 마지막 SHA까지만 사용해 Thread 최종 owner, invariant, execution flow를 작성합니다.
+- 왜 `(requester_id, addressee_id)` unique만으로 A↔B 관계 하나를 보장할 수 없습니까?
+- 기존 duplicate를 정리하지 않고 canonical unique index를 추가하면 어떤 migration failure가 생깁니까?
+- same-direction repeat와 reverse pending request는 각각 어떤 상태를 반환해야 합니까?
+- PostgreSQL upsert에서 existing row와 `excluded` row의 방향 비교는 무엇을 결정합니까?
+- memory parity test와 실제 concurrent database request 증거는 어떻게 다릅니까?
 
 ## 4. Commit map
 
-| 순서 | SHA | Subject | Importance | Tags | Thread 역할 |
-| ---: | --- | --- | :---: | --- | --- |
-| 1 | `645e5a3c8e96` | `feat(db): 친구 관계 저장 구현` | B | PERSISTENCE | friend list, request, accept operation의 초기 저장 모델을 추가합니다. |
-| 2 | `ffb0a8275a4f` | `feat(db): friendship canonical pair 제약 추가` | A | PERSISTENCE, RISK | unordered user pair당 하나의 canonical relationship이 되도록 migration/constraint를 추가합니다. |
-| 3 | `77c555aba9a0` | `feat(db): PostgreSQL friendship 요청을 원자화` | A | PERSISTENCE, RISK | canonical pair 하나에 대한 upsert로 request transition을 원자화합니다. |
-| 4 | `34db79005f30` | `feat(db): memory friendship invariant 적용` | B | PERSISTENCE | memory에서도 caller-specific summary가 아니라 user pair 관계를 저장합니다. |
-| 5 | `cdaca35ccf7f` | `test(db): friendship와 tournament 경쟁 상태 검증` | A | PERSISTENCE, TOURNAMENT, RISK | repeated/reversed/concurrent friendship request가 하나의 identity로 수렴하는지 두 backend에서 검증합니다. |
+| 순서 | Commit | Subject | Importance | Tags |
+| ---: | --- | --- | :---: | --- |
+| 1 | `645e5a3c8e96` | `feat(db): 친구 관계 저장 구현` | B | PERSISTENCE |
+| 2 | `ffb0a8275a4f` | `feat(db): friendship canonical pair 제약 추가` | A | PERSISTENCE, RISK |
+| 3 | `77c555aba9a0` | `feat(db): PostgreSQL friendship 요청을 원자화` | A | PERSISTENCE, RISK |
+| 4 | `34db79005f30` | `feat(db): memory friendship invariant 적용` | B | PERSISTENCE |
+| 5 | `cdaca35ccf7f` | `test(db): friendship와 tournament 경쟁 상태 검증` | A | PERSISTENCE, TOURNAMENT, RISK |
 
-## 5. Commit별 학습 기록
+## 5. Commit별 조사
 
-### 5.1. `feat(db): 친구 관계 저장 구현`
+### 5.1. `645e5a3c8e96` — feat(db): 친구 관계 저장 구현
 
-| 항목 | 값 |
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `645e5a3c8e96` |
 | Importance | B |
 | Tags | PERSISTENCE |
-| Source에서 확정된 역할 | friend list, request, accept operation의 초기 저장 모델을 추가합니다. |
+| Source role | friendship list/request/accept를 처음 repository contract에 올리지만 관계 identity가 요청 방향과 backend 표현에 묶여 있습니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
+- `AppRepository`의 `listFriends`, `requestFriend`, `acceptFriend` signature를 확인합니다.
+- PostgreSQL `listFriends`의 `case when requester_id = userId then addressee_id else requester_id end` join을 추적합니다.
+- `requestFriend`의 초기 `on conflict (requester_id, addressee_id)`가 같은 방향만 충돌로 보는지 확인합니다.
+- `acceptFriend`의 `where id = friendshipId and addressee_id = userId` authorization 조건을 확인합니다.
+- memory 구현이 `FriendSummary[]`만 저장하고 requester/addressee identity를 보존하지 않는 차이를 기록합니다.
+- 자기 자신 요청과 reverse duplicate를 DB 제약/코드가 아직 막지 않는다는 점을 확인합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:645e5a3c8e96:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:645e5a3c8e96:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:645e5a3c8e96:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:645e5a3c8e96:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:645e5a3c8e96:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:645e5a3c8e96:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:645e5a3c8e96:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:645e5a3c8e96:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:645e5a3c8e96:later --> _(학습자 작성)_ |
 
-비교 기준:
-- 이 commit의 parent와 비교합니다.
-- 다음 관련 SHA: `ffb0a8275a4f` — `feat(db): friendship canonical pair 제약 추가`
+#### 비교 기준
 
-### 5.2. `feat(db): friendship canonical pair 제약 추가`
+- parent 상태와 `645e5a3c8e96`의 diff를 먼저 비교합니다.
+- 후속 관련 SHA `ffb0a8275a4f`가 이 결정의 부족한 점을 보완하거나 검증하는지 확인합니다.
 
-| 항목 | 값 |
+### 5.2. `ffb0a8275a4f` — feat(db): friendship canonical pair 제약 추가
+
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `ffb0a8275a4f` |
 | Importance | A |
 | Tags | PERSISTENCE, RISK |
-| Source에서 확정된 역할 | unordered user pair당 하나의 canonical relationship이 되도록 migration/constraint를 추가합니다. |
+| Source role | 기존 directional friendship 데이터를 정리한 뒤 unordered user pair당 하나의 row만 허용하는 migration을 추가합니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
+- `packages/db/migrations/004_friendship_tournament_invariants.sql`에서 self row 삭제가 가장 먼저 수행되는지 확인합니다.
+- reverse pair가 있고 한쪽이 pending일 때 accepted로 승격하고 `greatest(updated_at)`를 사용하는 update를 추적합니다.
+- `row_number() over (partition by least(...), greatest(...))`의 survivor 우선순위 accepted → created_at → id를 확인합니다.
+- 기존 directional unique constraint drop과 `friendships_distinct_users_check` 추가를 확인합니다.
+- `friendships_canonical_pair_unique` expression index가 requester/addressee 순서를 무시하는지 확인합니다.
+- 데이터 정규화와 constraint 설치가 한 migration apply 안에서 수행되는 이유를 설명합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:ffb0a8275a4f:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:ffb0a8275a4f:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:ffb0a8275a4f:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:ffb0a8275a4f:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:ffb0a8275a4f:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:ffb0a8275a4f:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:ffb0a8275a4f:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:ffb0a8275a4f:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:ffb0a8275a4f:later --> _(학습자 작성)_ |
 
-비교 기준:
-- 직전 관련 SHA: `645e5a3c8e96` — `feat(db): 친구 관계 저장 구현`
-- 다음 관련 SHA: `77c555aba9a0` — `feat(db): PostgreSQL friendship 요청을 원자화`
+#### 최소 코드 근거
 
-### 5.3. `feat(db): PostgreSQL friendship 요청을 원자화`
+<!-- LEARNER:ffb0a8275a4f:evidence --> _(학습자 작성)_
 
-| 항목 | 값 |
+#### 비교 기준
+
+- parent 상태와 `ffb0a8275a4f`의 diff를 먼저 비교합니다.
+- 이 Thread의 직전 관련 SHA `645e5a3c8e96`와 책임·상태·보장 범위가 어떻게 달라졌는지 비교합니다.
+- 후속 관련 SHA `77c555aba9a0`가 이 결정의 부족한 점을 보완하거나 검증하는지 확인합니다.
+
+### 5.3. `77c555aba9a0` — feat(db): PostgreSQL friendship 요청을 원자화
+
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `77c555aba9a0` |
 | Importance | A |
 | Tags | PERSISTENCE, RISK |
-| Source에서 확정된 역할 | canonical pair 하나에 대한 upsert로 request transition을 원자화합니다. |
+| Source role | canonical expression index를 conflict target으로 사용해 repeat/reverse friendship request를 한 SQL statement에서 처리합니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
+- `PostgresRepository.requestFriend`의 self-check와 상대 user lookup 순서를 확인합니다.
+- `insert ... on conflict ((least(...)), (greatest(...))) do update` 전체 SQL을 추적합니다.
+- 기존 pending row의 방향이 `excluded`와 반대일 때만 status를 accepted로 바꾸는 `case`를 확인합니다.
+- 동일 방향 재요청에서는 status와 `updated_at`을 유지해 idempotent readback이 되는지 확인합니다.
+- `returning id, status`가 conflict insert/update 모두에서 같은 relationship identity를 반환하는지 확인합니다.
+- `acceptFriend`가 authorized update 뒤 `returning requester_id`로 상대를 조회하며 0-row update가 `firstRow` failure가 되는지 확인합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:77c555aba9a0:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:77c555aba9a0:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:77c555aba9a0:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:77c555aba9a0:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:77c555aba9a0:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:77c555aba9a0:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:77c555aba9a0:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:77c555aba9a0:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:77c555aba9a0:later --> _(학습자 작성)_ |
 
-비교 기준:
-- 직전 관련 SHA: `ffb0a8275a4f` — `feat(db): friendship canonical pair 제약 추가`
-- 다음 관련 SHA: `34db79005f30` — `feat(db): memory friendship invariant 적용`
+#### 최소 코드 근거
 
-### 5.4. `feat(db): memory friendship invariant 적용`
+<!-- LEARNER:77c555aba9a0:evidence --> _(학습자 작성)_
 
-| 항목 | 값 |
+#### 비교 기준
+
+- parent 상태와 `77c555aba9a0`의 diff를 먼저 비교합니다.
+- 이 Thread의 직전 관련 SHA `ffb0a8275a4f`와 책임·상태·보장 범위가 어떻게 달라졌는지 비교합니다.
+- 후속 관련 SHA `34db79005f30`가 이 결정의 부족한 점을 보완하거나 검증하는지 확인합니다.
+
+### 5.4. `34db79005f30` — feat(db): memory friendship invariant 적용
+
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `34db79005f30` |
 | Importance | B |
 | Tags | PERSISTENCE |
-| Source에서 확정된 역할 | memory에서도 caller-specific summary가 아니라 user pair 관계를 저장합니다. |
+| Source role | memory 저장 표현을 caller-specific summary에서 requester/addressee ID를 보존하는 canonical relationship record로 바꿉니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
+- `MemoryFriendship { id, requesterId, addresseeId, status }`와 기존 `FriendSummary[]`를 비교합니다.
+- `listFriends(userId)`가 actor와 관련된 row만 filter하고 other user ID를 계산하는지 확인합니다.
+- `requestFriend`의 self-check, unordered existing lookup, reverse pending→accepted, same-direction repeat 반환을 추적합니다.
+- `acceptFriend`가 `friend.addresseeId === userId`를 요구하는지 확인합니다.
+- memory user 원본 lookup 실패와 public projection 생성 경로를 확인합니다.
+- 동시 Promise가 실제 thread lock이 아니라 JS call-stack 수준의 순차 mutation이라는 한계를 기록합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:34db79005f30:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:34db79005f30:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:34db79005f30:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:34db79005f30:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:34db79005f30:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:34db79005f30:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:34db79005f30:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:34db79005f30:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:34db79005f30:later --> _(학습자 작성)_ |
 
-비교 기준:
-- 직전 관련 SHA: `77c555aba9a0` — `feat(db): PostgreSQL friendship 요청을 원자화`
-- 다음 관련 SHA: `cdaca35ccf7f` — `test(db): friendship와 tournament 경쟁 상태 검증`
+#### 비교 기준
 
-### 5.5. `test(db): friendship와 tournament 경쟁 상태 검증`
+- parent 상태와 `34db79005f30`의 diff를 먼저 비교합니다.
+- 이 Thread의 직전 관련 SHA `77c555aba9a0`와 책임·상태·보장 범위가 어떻게 달라졌는지 비교합니다.
+- 후속 관련 SHA `cdaca35ccf7f`가 이 결정의 부족한 점을 보완하거나 검증하는지 확인합니다.
 
-| 항목 | 값 |
+### 5.5. `cdaca35ccf7f` — test(db): friendship와 tournament 경쟁 상태 검증
+
+| 항목 | 고정 정보 |
 | --- | --- |
 | SHA | `cdaca35ccf7f` |
 | Importance | A |
 | Tags | PERSISTENCE, TOURNAMENT, RISK |
-| Source에서 확정된 역할 | repeated/reversed/concurrent friendship request가 하나의 identity로 수렴하는지 두 backend에서 검증합니다. |
+| Source role | 같은 test commit의 friendship 부분에서 self/repeat/reverse 요청과 canonical DB row를 memory·PostgreSQL 양쪽에 검증합니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 소유자, 변경된 파일, 핵심 symbol을 기록합니다.
-- 새 caller와 callee를 따라 입력 검증, 상태 변경, 반환 또는 side effect의 실제 순서를 기록합니다.
-- transaction, lock, unique/check constraint, row mapping, rollback 범위를 실제 SQL과 repository method로 확인합니다.
-- entry, bracket, room, winner, status가 어떤 조건과 순서로 전이되며 중복 진행을 어떻게 막는지 확인합니다.
-- 테스트가 주입하는 입력·시간·동시성·오류와 실제 production path를 구분해 기록합니다.
-- 테스트가 증명하는 범위와 실제 process/network/database까지는 증명하지 않는 범위를 함께 기록합니다.
+- `packages/db/src/index.test.ts`의 `keeps one friendship for both request directions`를 확인합니다.
+- self request rejection, same-direction repeat equality, reverse request의 same ID/accepted 상태를 순서대로 추적합니다.
+- 양쪽 `listFriends`가 동일 relationship ID와 상대 user를 반환하는 assertion을 확인합니다.
+- `packages/db/src/postgres.integration.test.ts`의 PostgreSQL 동일 scenario와 direct `select requester_id, addressee_id, status from friendships`를 확인합니다.
+- self row direct insert가 `friendships_distinct_users_check` constraint로 거부되는 assertion을 확인합니다.
+- tournament final-slot test는 Thread 5에서 별도 해석하고 이 Thread에서는 friendship evidence만 사용합니다.
 
 #### 학습자 기록
 
-| 기록 항목 | 해당 SHA의 근거 |
+| 항목 | 기록 |
 | --- | --- |
-| 직전 관련 상태 | [파일·심볼·조건·관찰 결과 작성] |
-| 해결하려던 문제 | [기존 동작과 부족함 작성] |
-| 핵심 결정 | [변경된 책임·조건·자료구조 작성] |
-| 입력 → 상태 전이 → 출력 | [caller/callee 순서 작성] |
-| ownership/lifetime/cleanup | [획득·이전·해제 주체 작성] |
-| failure/rollback/retry | [실패 분기와 복구 작성] |
-| 보장하는 것 | [실제 코드로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
+| 직전 관련 상태 | <!-- LEARNER:cdaca35ccf7f:previous --> _(학습자 작성)_ |
+| 해결하려던 문제 | <!-- LEARNER:cdaca35ccf7f:problem --> _(학습자 작성)_ |
+| 핵심 결정 | <!-- LEARNER:cdaca35ccf7f:decision --> _(학습자 작성)_ |
+| 입력 → 상태 전이 → 출력 | <!-- LEARNER:cdaca35ccf7f:flow --> _(학습자 작성)_ |
+| ownership / lifetime / cleanup | <!-- LEARNER:cdaca35ccf7f:ownership --> _(학습자 작성)_ |
+| failure / rollback / retry | <!-- LEARNER:cdaca35ccf7f:failure --> _(학습자 작성)_ |
+| 보장하는 것 | <!-- LEARNER:cdaca35ccf7f:guarantees --> _(학습자 작성)_ |
+| 보장하지 않는 것 | <!-- LEARNER:cdaca35ccf7f:nonguarantees --> _(학습자 작성)_ |
+| 후속 연결 | <!-- LEARNER:cdaca35ccf7f:later --> _(학습자 작성)_ |
+
+#### 최소 코드 근거
+
+<!-- LEARNER:cdaca35ccf7f:evidence --> _(학습자 작성)_
 
 #### Test commit 학습 기록
 
-| 구분 | 기록 |
+| 항목 | 기록 |
 | --- | --- |
-| 대상 production invariant | [작성] |
-| 재현하는 failure/boundary | [작성] |
-| test technique | [unit/integration/concurrency/failure injection/process/browser/load 중 구분] |
-| 통과하는 production path | [caller 순서 작성] |
-| 증명하는 것 | [작성] |
-| 증명하지 않는 것 | [작성] |
-| 후속 회귀 방지 | [작성] |
+| 검증 대상 불변식 | <!-- LEARNER:cdaca35ccf7f:test:invariant --> _(학습자 작성)_ |
+| 재현한 실패·경계 | <!-- LEARNER:cdaca35ccf7f:test:boundary --> _(학습자 작성)_ |
+| 시험 기법 | <!-- LEARNER:cdaca35ccf7f:test:technique --> _(학습자 작성)_ |
+| 통과하는 실제 코드 경로 | <!-- LEARNER:cdaca35ccf7f:test:path --> _(학습자 작성)_ |
+| 시험이 증명하는 것 | <!-- LEARNER:cdaca35ccf7f:test:proves --> _(학습자 작성)_ |
+| 시험이 증명하지 않는 것 | <!-- LEARNER:cdaca35ccf7f:test:not_proves --> _(학습자 작성)_ |
+| 막으려는 회귀 | <!-- LEARNER:cdaca35ccf7f:test:regression --> _(학습자 작성)_ |
 
-비교 기준:
-- 직전 관련 SHA: `34db79005f30` — `feat(db): memory friendship invariant 적용`
-- 이 Thread의 최종 상태와 비교합니다.
+#### 비교 기준
 
-## 6. Invariant ledger
+- parent 상태와 `cdaca35ccf7f`의 diff를 먼저 비교합니다.
+- 이 Thread의 직전 관련 SHA `34db79005f30`와 책임·상태·보장 범위가 어떻게 달라졌는지 비교합니다.
 
-| Invariant | 도입 SHA | 강화 SHA | 부족함이 드러난 SHA | 복구 fix | 고정 test | 코드 근거 |
-| --- | --- | --- | --- | --- | --- | --- |
-| 두 사용자 사이 friendship은 방향과 호출 순서에 무관한 하나의 canonical identity를 갖습니다. | [작성] | [작성] | [작성] | [작성] | [작성] | [파일·심볼] |
-| 반복·역방향·동시 요청은 duplicate relationship을 만들지 않습니다. | [작성] | [작성] | [작성] | [작성] | [작성] | [파일·심볼] |
-| memory와 PostgreSQL은 같은 상태 전이 결과를 제공합니다. | [작성] | [작성] | [작성] | [작성] | [작성] | [파일·심볼] |
+## 6. 불변식 변화
 
-## 7. Failure → Fix → Test 연결
-
-| 기존 상태/가정 | Fix 또는 강화 과정 | Test/evidence | 최종 보장 |
+| 단계 | 관련 SHA | 조사 초점 | 학습자 기록 |
 | --- | --- | --- | --- |
-| [작성] | [SHA 순서 작성] | [test/failure injection 작성] | [작성] |
+| Directional initial model | `645e5a3c8e96` | 초기 DB·memory 관계 identity와 authorization 차이를 기록합니다. | <!-- LEARNER:thread-04:invariant:1 --> _(학습자 작성)_ |
+| Canonical DB identity | `ffb0a8275a4f` | legacy cleanup과 새 constraint 설치 순서를 설명합니다. | <!-- LEARNER:thread-04:invariant:2 --> _(학습자 작성)_ |
+| Atomic PostgreSQL transition | `77c555aba9a0` | insert/repeat/reverse 상태 전이를 한 statement에서 추적합니다. | <!-- LEARNER:thread-04:invariant:3 --> _(학습자 작성)_ |
+| Memory semantic parity | `34db79005f30` | 관계 원본과 caller projection을 분리합니다. | <!-- LEARNER:thread-04:invariant:4 --> _(학습자 작성)_ |
+| Regression evidence | `cdaca35ccf7f` | public result와 raw row constraint를 연결합니다. | <!-- LEARNER:thread-04:invariant:5 --> _(학습자 작성)_ |
 
-## 8. Ownership / state / responsibility 변화
+## 7. Failure → Fix → Test 관계
 
-| 축 | 초기 owner/state | 중간 전환 | 최종 owner/state | cleanup 책임 | 근거 |
-| --- | --- | --- | --- | --- | --- |
-| canonical user pair | [작성] | [작성] | [작성] | [작성] | [SHA·파일·심볼] |
-| friendship row/status | [작성] | [작성] | [작성] | [작성] | [SHA·파일·심볼] |
-| atomic upsert | [작성] | [작성] | [작성] | [작성] | [SHA·파일·심볼] |
-| memory relationship key | [작성] | [작성] | [작성] | [작성] | [SHA·파일·심볼] |
-| concurrency regression | [작성] | [작성] | [작성] | [작성] | [SHA·파일·심볼] |
+| 관계 | Failure / 이전 가정 | Fix / 결정 | Test / 근거 | 학습자 기록 |
+| --- | --- | --- | --- | --- |
+| 1 | A→B와 B→A가 별도 row가 되고 self row도 허용될 수 있었습니다. | `ffb0a8275a4f`가 legacy data를 정리하고 canonical unique/CHECK를 설치했습니다. | `cdaca35ccf7f`가 raw table one-row와 self constraint rejection을 확인합니다. | <!-- LEARNER:thread-04:relation:1 --> _(학습자 작성)_ |
+| 2 | 초기 request code는 directional conflict만 처리하고 reverse pending의 의미를 여러 operation에 남겼습니다. | `77c555aba9a0`이 canonical conflict target과 conditional update로 한 statement에 넣었습니다. | `cdaca35ccf7f`가 same ID, pending→accepted, 양쪽 projection을 확인합니다. | <!-- LEARNER:thread-04:relation:2 --> _(학습자 작성)_ |
+| 3 | memory `FriendSummary[]`는 requester/addressee를 잃어 PostgreSQL 의미를 재현하지 못했습니다. | `34db79005f30`이 `MemoryFriendship`을 도입했습니다. | `cdaca35ccf7f`의 memory scenario입니다. | <!-- LEARNER:thread-04:relation:3 --> _(학습자 작성)_ |
+
+## 8. Ownership·상태·책임 변화
+
+| 구간 | 이전 소유자/표현 | 이후 소유자/표현 | 관련 SHA | 학습자 기록 |
+| --- | --- | --- | --- | --- |
+| 관계 identity | 요청 방향 또는 caller-facing summary가 identity를 사실상 정의했습니다. | DB canonical expression과 memory unordered lookup이 pair identity를 정의합니다. | `ffb0a8275a4f`, `34db79005f30` | <!-- LEARNER:thread-04:ownership:1 --> _(학습자 작성)_ |
+| 상태 전이 | insert·accept·list 조합에 분산됐습니다. | PostgreSQL request upsert가 reverse pending transition을 원자적으로 소유합니다. | `77c555aba9a0` | <!-- LEARNER:thread-04:ownership:2 --> _(학습자 작성)_ |
+| Authorization | memory accept가 actor identity를 보존하지 못했습니다. | 두 backend가 addressee ID를 확인합니다. | `645e5a3c8e96`, `34db79005f30` | <!-- LEARNER:thread-04:ownership:3 --> _(학습자 작성)_ |
+| Legacy data | reverse/self rows가 이미 존재할 수 있었습니다. | migration이 cleanup·survivor selection·constraint install을 소유합니다. | `ffb0a8275a4f` | <!-- LEARNER:thread-04:ownership:4 --> _(학습자 작성)_ |
 
 ## 9. Thread 최종 상태
 
-- 최종 authoritative owner: [작성]
-- 최종 상태/invariant: [작성]
-- 남아 있는 의도적 제한 또는 비보장: [작성]
-- 다른 Thread가 의존하는 contract: [작성]
-- 대표 코드 근거: [SHA·파일·심볼 작성]
+<!-- LEARNER:thread-04:final-state --> _(학습자 작성)_
 
-## 10. 최종 execution flow
+## 10. 최종 실행 흐름
 
-```text
-[입력/이벤트]
-    ↓
-[검증·권한·소유권 경계]
-    ↓
-[상태 전이·DB 작업·브라우저 반영]
-    ↓
-[출력·관측·rollback·cleanup]
-```
+<!-- LEARNER:thread-04:flow --> _(학습자 작성)_
 
-## 11. 학습 완료 자가 점검
+## 11. 학습 완료 확인
 
-- [ ] 모든 SHA를 지정 브랜치에서 확인했습니다.
-- [ ] commit subject, importance, tags를 변경하지 않았습니다.
-- [ ] final HEAD 코드를 과거 SHA에 소급하지 않았습니다.
-- [ ] S/A/B/C에 맞게 조사 깊이를 구분했습니다.
-- [ ] fix와 test를 실제 production path에 연결했습니다.
-- [ ] 실행하지 않은 명령의 결과를 작성하지 않았습니다.
-- [ ] Thread 최종 owner와 execution flow를 실제 근거로 설명할 수 있습니다.
+- [ ] directional unique와 canonical unordered unique의 차이를 SQL expression으로 설명할 수 있습니다.
+- [ ] migration의 self 삭제·상태 reconciliation·survivor rank·constraint 설치 순서를 설명할 수 있습니다.
+- [ ] same-direction repeat와 reverse pending upsert의 `CASE` 조건을 설명할 수 있습니다.
+- [ ] memory relationship 원본과 caller-specific projection을 구분할 수 있습니다.
+- [ ] `cdaca35ccf7f`가 friendship에 대해 실제 simultaneous race를 증명하지 않는다는 점을 명시할 수 있습니다.
+
+## 12. 실행 및 증거 기록
+
+<!-- LEARNER:thread-04:execution --> _(학습자 작성)_

@@ -87,7 +87,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:a6fa5a187eec -->
-- [작성 필요]
+- **직전 상태:** chat은 realtime 화면/event 개념만 있고 sender와 scope를 가진 durable history가 없었습니다.
+- **구현 결정:** lobby/match scope, optional room, sender ID, body, timestamp를 repository에 저장하고 lobby read는 최신 20개를 고른 뒤 오래된 것부터 보이도록 reverse합니다.
+- **상태/소유권 변화:** chat identity/body/history는 repository가 소유하고 realtime hub는 전달자가 됩니다.
+- **실패/edge:** 이 시점에는 scope와 room 조합을 강제하지 않아 lobby row에 room이 있거나 match row에 room이 없는 입력을 막지 못합니다.
+- **보장/비보장:** sender projection과 bounded lobby history는 제공하지만 authorization과 DB invariant는 Thread 05 전까지 없습니다.
+- **다음 연결:** `dabd8d5c2a49`가 WebSocket `chat.send`를 이 저장 경계에 연결합니다.
 <!-- LEARNER-ANSWER END commit:a6fa5a187eec -->
 
 비교 기준:
@@ -118,7 +123,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:dabd8d5c2a49 -->
-- [작성 필요]
+- **직전 상태:** repository chat API는 있었지만 WebSocket client event가 이를 호출하지 않았습니다.
+- **구현 결정:** `chat.send`를 받으면 인증된 client user ID로 먼저 message를 저장하고, match면 room, lobby면 모든 연결에 persisted message를 broadcast합니다.
+- **상태/소유권 변화:** message ID/timestamp/sender는 repository 결과가 authority이고 hub는 그 결과를 전달합니다.
+- **실패/edge:** match branch는 event가 말한 room을 그대로 사용해 current seat/room authorization이 없고 scope-room 조합도 느슨합니다.
+- **보장/비보장:** 저장 후 broadcast 순서는 갖지만 cross-room injection 방지는 Thread 05에서 추가됩니다.
+- **다음 연결:** `1d9aa3902614`가 같은 GameHub의 live lobby stats를 노출합니다.
 <!-- LEARNER-ANSWER END commit:dabd8d5c2a49 -->
 
 비교 기준:
@@ -149,7 +159,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:1d9aa3902614 -->
-- [작성 필요]
+- **직전 상태:** lobby는 저장 데이터 중심이라 현재 process의 queue와 room 상태를 수치로 제공하지 못했습니다.
+- **구현 결정:** queue entry timestamp를 기록하고 match 시 wait sample을 남겨 connected clients, playing participants, queued clients, active rooms, 평균 대기 시간을 계산합니다.
+- **상태/소유권 변화:** 실시간 지표 authority는 database가 아니라 GameHub in-memory maps/queue/wait samples입니다.
+- **실패/edge:** sample이 없으면 average wait는 null이며 process restart 시 history는 사라집니다. 장기 통계가 아닙니다.
+- **보장/비보장:** 현재 process snapshot과 bounded recent wait 평균만 보장합니다.
+- **다음 연결:** `de9a173e6eb1`이 로비 채팅의 HTTP 쓰기 경로를 추가합니다.
 <!-- LEARNER-ANSWER END commit:1d9aa3902614 -->
 
 비교 기준:
@@ -180,7 +195,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:de9a173e6eb1 -->
-- [작성 필요]
+- **직전 상태:** lobby chat write는 WebSocket 경로에만 있고 socket이 없는 client의 HTTP fallback이 없었습니다.
+- **구현 결정:** 인증 사용자의 body를 trim하고 empty 또는 240자 초과를 400으로 거부한 뒤 room 없는 lobby message를 저장해 반환합니다.
+- **상태/소유권 변화:** HTTP와 WS가 같은 repository message record를 만들 수 있게 됩니다.
+- **실패/edge:** `request.body` 자체가 undefined이면 `body.message` 접근 전에 TypeError가 나 intended 400이 아니라 내부 오류가 될 수 있습니다.
+- **보장/비보장:** body가 객체인 정상 입력의 validation은 제공하지만 missing-body normalization은 `8ce1199ffd12`에서 수정됩니다.
+- **다음 연결:** `e0ef3fec89a6`이 web form과 HTTP fallback을 연결합니다.
 <!-- LEARNER-ANSWER END commit:de9a173e6eb1 -->
 
 비교 기준:
@@ -211,7 +231,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:e0ef3fec89a6 -->
-- [작성 필요]
+- **직전 상태:** lobby는 chat history를 표시만 하고 사용자가 입력할 form이 없었습니다.
+- **구현 결정:** controlled input을 trim해 empty submit을 무시하고 HTTP API 반환 message를 history 뒤에 붙인 뒤 20개로 제한합니다.
+- **상태/소유권 변화:** UI는 pending input과 local render list를 소유하지만 message 사실은 server response에서 옵니다.
+- **실패/edge:** 당시 initial players/chat는 sample이며 load failure에도 sample 표시 메시지를 사용했습니다.
+- **보장/비보장:** HTTP chat journey는 연결하지만 실시간 broadcast와 honest failure state는 후속 commit이 담당합니다.
+- **다음 연결:** `4f9b3b312d0e`이 server stats를 화면에 반영하고 `cd3787eefd6a`가 WebSocket을 연결합니다.
 <!-- LEARNER-ANSWER END commit:e0ef3fec89a6 -->
 
 비교 기준:
@@ -243,7 +268,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:4f9b3b312d0e -->
-- [작성 필요]
+- **직전 상태:** lobby는 server stats가 있어도 일부 고정 수치·“30초 미만” 같은 근거 없는 문구를 표시했습니다.
+- **구현 결정:** API가 준 connected/playing/queued/room/average wait를 직접 표시하고 값이 없으면 측정 전 상태를 보여 줍니다.
+- **상태/소유권 변화:** live metric 값은 GameHub가, 화면은 format만 소유합니다.
+- **실패/edge:** 이 시점에도 sample initial state가 남아 request failure truthfulness는 완전하지 않습니다.
+- **보장/비보장:** 성공 응답 시 고정 통계 fabrication을 제거합니다.
+- **다음 연결:** `8ce1199ffd12`가 HTTP missing-body bug를 고치고 `8078ac6f92ba`가 지표/채팅 저장을 테스트합니다.
 <!-- LEARNER-ANSWER END commit:4f9b3b312d0e -->
 
 비교 기준:
@@ -274,7 +304,11 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:8ce1199ffd12 -->
-- [작성 필요]
+- **직전 가정:** JSON request에는 항상 object body가 있다고 봤습니다.
+- **실제 실패:** body가 없으면 validation 전에 property access TypeError가 나 400 계약을 우회했습니다.
+- **교정:** nullish body를 빈 객체로 정규화해 `message`가 undefined가 되고 기존 trim/empty 검사로 400을 반환하게 합니다.
+- **보장/비보장:** missing body가 의도한 client error로 수렴하지만 content-type parser 전체 동작을 바꾸지는 않습니다.
+- **다음 연결:** `8078ac6f92ba`의 application tests가 chat write/read와 lobby contract를 함께 검증합니다.
 <!-- LEARNER-ANSWER END commit:8ce1199ffd12 -->
 
 비교 기준:
@@ -306,7 +340,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:8078ac6f92ba -->
-- [작성 필요]
+- **직전 상태:** stats/chat 기능은 여러 layer에 걸쳤지만 초기 contract와 저장 결과를 연결한 regression coverage가 부족했습니다.
+- **기법:** 초기 hub의 zero/empty stats를 확인하고 dev login 후 HTTP lobby chat을 쓰고 다시 읽습니다. memory repository에서는 lobby/match message의 sender·room attribution과 recent-match ordering을 검사합니다.
+- **생산 경로:** API routing/auth/repository와 memory domain projection을 통과합니다.
+- **증명/비증명:** 기능 조합을 검증하도록 작성됐지만 WebSocket presence의 eventual visibility와 cross-room auth는 별도 tests가 담당합니다.
+- **보장:** 로비 read/write contract와 ordering regression을 넓게 감지합니다.
+- **다음 연결:** `cd3787eefd6a`가 browser lobby를 WebSocket event에 연결합니다.
 <!-- LEARNER-ANSWER END commit:8078ac6f92ba -->
 
 비교 기준:
@@ -338,7 +377,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:cd3787eefd6a -->
-- [작성 필요]
+- **직전 상태:** lobby는 HTTP load/write만 사용해 다른 사용자의 chat과 presence 변화를 새로고침 없이 보지 못했습니다.
+- **구현 결정:** 현재 user와 token이 준비되면 socket을 열고 chat event는 ID 중복을 제거해 병합하며 presence event는 authoritative HTTP lobby를 다시 읽습니다. socket이 열리지 않으면 chat submit은 HTTP로 fallback합니다.
+- **상태/소유권 변화:** socket lifecycle은 page effect가, durable message는 repository가, presence snapshot은 GameHub/API가 소유합니다.
+- **실패/edge:** 당시 token query 연결 방식 자체의 보안 개선은 다른 category에 속합니다. reconnect/backoff도 이 commit의 핵심은 아닙니다.
+- **보장/비보장:** 단일 page lifetime의 실시간 반영과 cleanup은 제공하지만 presence source는 아직 repository 기반일 수 있습니다.
+- **다음 연결:** `8debb1ea3ad3`이 `/lobby.onlinePlayers`를 hub-connected clients로 바꿉니다.
 <!-- LEARNER-ANSWER END commit:cd3787eefd6a -->
 
 비교 기준:
@@ -369,7 +413,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:8debb1ea3ad3 -->
-- [작성 필요]
+- **직전 상태:** `/lobby`는 repository의 active user 목록을 online처럼 반환해 실제 socket 연결이 없는 저장 계정도 접속자로 보였습니다.
+- **구현 결정:** GameHub client map에서 user ID를 dedupe하고 online true projection을 만든 뒤 rating/name으로 정렬해 route가 사용합니다.
+- **상태/소유권 변화:** account 활성 상태는 DB가, 현재 접속 presence는 GameHub가 소유하도록 분리됩니다.
+- **실패/edge:** 한 process의 client map만 보므로 다중 instance 전체 presence aggregation은 보장하지 않습니다.
+- **보장/비보장:** 현재 hub에 연결된 사용자만 반환합니다.
+- **다음 연결:** `c3ff9ed2402f`가 socket이 없을 때 empty list를 요구합니다.
 <!-- LEARNER-ANSWER END commit:8debb1ea3ad3 -->
 
 비교 기준:
@@ -400,7 +449,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:c3ff9ed2402f -->
-- [작성 필요]
+- **직전 상태:** authority 전환은 구현됐지만 seed/active users가 다시 online list에 섞이는 regression을 막을 test가 없었습니다.
+- **기법:** repository seed는 존재하되 WebSocket client를 연결하지 않은 app에서 `/lobby`를 조회해 empty online list를 요구합니다.
+- **생산 경로:** route가 repository가 아니라 hub projection을 호출하는지를 간접 검증합니다.
+- **증명/비증명:** no-connection case를 고정하지만 connect/disconnect propagation timing은 smoke test가 담당합니다.
+- **보장:** 저장 계정 존재만으로 online이 되는 regression을 감지합니다.
+- **다음 연결:** `23a978879b81`이 실제 socket open 후 presence가 eventual하게 반영되는 시간을 기다립니다.
 <!-- LEARNER-ANSWER END commit:c3ff9ed2402f -->
 
 비교 기준:
@@ -432,7 +486,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:23a978879b81 -->
-- [작성 필요]
+- **직전 가정:** WebSocket `open` promise가 resolve되면 HTTP `/lobby`도 같은 순간 두 사용자를 반드시 포함한다고 봤습니다.
+- **실제 실패:** socket open event와 server-side connect/presence publication, 별도 HTTP read 사이에는 scheduling delay가 있어 정상 시스템도 flaky할 수 있습니다.
+- **교정/기법:** async predicate를 최대 10초 동안 50ms 간격으로 호출하고 두 handle이 모두 보일 때만 다음 smoke 단계로 진행합니다. timeout이면 명시적으로 실패합니다.
+- **생산 경로:** 실제 WebSocket 연결과 HTTP lobby read를 함께 사용하도록 작성됐습니다.
+- **증명/비증명:** bounded eventual visibility를 검증하지만 즉시 consistency나 10초 이내라는 제품 SLA를 공식 보장하지는 않습니다.
+- **Thread 종료:** durable chat와 live presence의 서로 다른 authority 및 asynchronous observation 모델이 테스트에도 반영됩니다.
 <!-- LEARNER-ANSWER END commit:23a978879b81 -->
 
 비교 기준:
@@ -444,11 +503,21 @@
 다음 항목을 commit 순서에서 재구성합니다: invariant evolution, Failure → Fix → Test 관계, ownership/state 변화, 최종 실행 흐름, 비보장, 실제 실행 증거.
 
 <!-- LEARNER-ANSWER START thread:04-lobby-presence-chat-and-live-statistics.md:synthesis -->
-- [작성 필요]
+- **불변식 진화:** `a6fa5a187eec`은 채팅을 repository에 저장했고 `dabd8d5c2a49`는 WebSocket send를 저장 후 broadcast했습니다. `1d9aa3902614`는 connected/playing/queued/room/wait를 GameHub에서 계산했습니다. 초기 UI는 sample 상태와 repository online projection을 섞었지만 `be31566ac0fd`의 sample 제거, `8debb1ea3ad3`의 GameHub presence authority 전환, `c3ff9ed2402f`의 empty presence test로 정리됐습니다.
+- **소유권:** repository는 chat rows와 sender projection을 소유합니다. GameHub는 live client/queue/room/wait samples를 소유합니다. API `/lobby`는 두 source를 조합하고 web은 HTTP snapshot에 WebSocket event를 병합합니다.
+- **Failure → Fix → Test:** missing body에서 property access 예외 → `(request.body ?? {})` → intended 400 경로. 저장 사용자 목록을 online으로 표시 → `hub.onlinePlayers()` → no-socket empty test. WebSocket open 직후 presence 즉시 조회 → 최대 10초/50ms async polling smoke test.
+- **최종 흐름:** HTTP `/lobby`가 최근 chat와 hub stats/presence를 반환 → 로그인 사용자는 ticket/token 기반 WebSocket 연결 → lobby chat은 socket이 열리면 WS, 아니면 HTTP write → repository가 message를 만들고 hub가 broadcast → `presence.changed`는 HTTP lobby refresh를 유도 → message ID로 중복을 제거합니다.
+- **비보장:** 이 Thread는 match chat의 scope/room 조합과 cross-room authorization을 완성하지 않습니다. 그 보안 invariant는 Thread 05가 소유합니다. Presence는 process-local이며 WebSocket open 순간과 HTTP read 순간 사이에 eventual delay가 있을 수 있습니다.
+- **실행 증거:** repository/API/web/smoke test 구현은 검사했지만 서비스를 실행하지 않았습니다.
 <!-- LEARNER-ANSWER END thread:04-lobby-presence-chat-and-live-statistics.md:synthesis -->
 
 ## 7. 학습 완료 확인
 
 <!-- LEARNER-ANSWER START thread:04-lobby-presence-chat-and-live-statistics.md:checklist -->
-- [작성 필요]
+- [x] 모든 SHA를 지정 브랜치의 exact commit으로 검사했습니다.
+- [x] fixed commit map과 source classification을 보존했습니다.
+- [x] earlier commit을 later HEAD 코드로 설명하지 않았습니다.
+- [x] fix와 test를 원래 failure/production path에 연결했습니다.
+- [x] 실제 실행하지 않은 test를 통과했다고 기록하지 않았습니다.
+- [x] Thread 최종 owner, invariant, flow, non-guarantee를 작성했습니다.
 <!-- LEARNER-ANSWER END thread:04-lobby-presence-chat-and-live-statistics.md:checklist -->

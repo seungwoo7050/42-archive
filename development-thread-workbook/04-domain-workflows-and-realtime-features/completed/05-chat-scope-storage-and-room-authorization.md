@@ -85,7 +85,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:00d0d7941382 -->
-- [작성 필요]
+- **직전 상태:** 하나의 chat event가 `scope`와 optional `roomId`를 독립 필드로 가져 lobby+room, match+missing room 같은 조합이 타입/parse를 통과할 수 있었습니다.
+- **구현 결정:** `scope: "lobby"` variant는 room 필드를 갖지 않는 strict object로, `scope: "match"` variant는 UUID room을 필수로 하는 discriminated union으로 분리합니다. body는 trim 후 1–240자입니다.
+- **상태/소유권 변화:** wire contract가 허용 상태 공간을 줄이고 caller는 lobby에 room을 보내지 않으며 GameHub는 저장 시 null로 정규화합니다.
+- **실패/edge:** UUID 형식은 room 존재나 sender membership을 증명하지 않습니다. 저장 layer를 직접 호출하는 코드도 protocol parser를 거치지 않을 수 있습니다.
+- **보장/비보장:** parse된 payload의 scope-room 형태는 보장하지만 storage/auth는 후속 commits가 담당합니다.
+- **다음 연결:** `5a3819aec8d0`이 모든 invalid 조합을 table-driven test로 고정합니다.
 <!-- LEARNER-ANSWER END commit:00d0d7941382 -->
 
 비교 기준:
@@ -117,7 +122,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:5a3819aec8d0 -->
-- [작성 필요]
+- **직전 상태:** schema는 분리됐지만 optional/unknown-key behavior가 바뀌어 invalid 조합이 다시 허용돼도 감지할 test가 없었습니다.
+- **기법:** lobby에 null room, lobby에 UUID room, match에 room 없음/null/non-UUID를 각각 serialize해 parser가 throw하는지 확인합니다.
+- **생산 경로:** 실제 client-event parser와 Zod schema를 사용합니다.
+- **증명/비증명:** wire rejection을 검증하지만 repository direct call, DB row, current room membership은 검증하지 않습니다.
+- **보장:** protocol layer의 허용 상태 공간을 고정합니다.
+- **다음 연결:** `2ff750fa4ff8`이 같은 invariant를 저장 경계와 기존 데이터에 적용합니다.
 <!-- LEARNER-ANSWER END commit:5a3819aec8d0 -->
 
 비교 기준:
@@ -151,7 +161,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:2ff750fa4ff8 -->
-- [작성 필요]
+- **직전 가정:** 모든 chat write가 protocol parser를 통과하므로 DB에는 올바른 조합만 들어간다고 봤습니다.
+- **실제 위험:** HTTP/내부 repository caller나 기존 데이터는 lobby+room, match+null/non-UUID, unknown scope를 저장할 수 있었습니다.
+- **교정:** migration은 lobby row의 room을 null로 정규화하고 unknown scope 및 invalid match rows를 삭제한 뒤 `(lobby and room is null) or (match and UUID room)` CHECK를 설치합니다. 양 repository는 SQL 전 `assertChatRoom`을 호출합니다.
+- **상태/소유권 변화:** application과 DB가 같은 invariant를 독립적으로 강제합니다. migration은 constraint 설치가 실패하지 않도록 기존 데이터의 운명도 명시합니다.
+- **보장/비보장:** 공식 repository와 direct SQL 모두 invalid row를 거부하지만 sender가 그 room에 속하는지는 저장 형태와 별도 authorization 문제입니다.
+- **다음 연결:** `1cead7cc9f35`가 memory rejection, legacy cleanup, migration idempotency, DB CHECK를 실제 test로 묶습니다.
 <!-- LEARNER-ANSWER END commit:2ff750fa4ff8 -->
 
 비교 기준:
@@ -183,7 +198,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:1cead7cc9f35 -->
-- [작성 필요]
+- **직전 상태:** 저장 invariant는 구현됐지만 legacy row 정리와 CHECK가 실제 PostgreSQL에서 의도대로 함께 작동한다는 근거가 없었습니다.
+- **기법:** memory repository에 세 invalid 조합을 직접 전달해 reject를 확인합니다. PostgreSQL은 migration 005 상태에 good/bad rows를 넣고 006을 두 번 실행한 뒤 정규화된 lobby 2개와 valid match 1개만 남는지 확인합니다. 이후 invalid direct INSERT가 `23514`인지, migration record가 한 번인지 검사합니다.
+- **생산 경로:** repository validation과 실제 migration/constraint를 모두 통과합니다.
+- **증명/비증명:** stored-row invariant와 migration 재실행 안전성을 검증하지만 room membership authorization은 검증하지 않습니다.
+- **보장:** protocol을 우회한 write와 legacy 오염에 대한 방어를 회귀로 고정합니다.
+- **다음 연결:** `7759eef59b67`이 유효한 UUID room을 악용한 cross-room sender를 차단합니다.
 <!-- LEARNER-ANSWER END commit:1cead7cc9f35 -->
 
 비교 기준:
@@ -217,7 +237,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:7759eef59b67 -->
-- [작성 필요]
+- **직전 가정:** parser가 UUID를 요구하고 repository가 valid row를 저장하면 match chat은 안전하다고 봤습니다.
+- **실제 공격/오류:** 다른 active room의 UUID를 아는 사용자가 자신의 room이 아닌 곳에 message를 저장·broadcast할 수 있었습니다.
+- **교정:** event room을 조회하고 room 존재, `client.roomId === room.id`, `sideFor(room, client)`를 모두 만족할 때만 `createChatMessage`를 호출합니다. 실패는 `forbidden`을 sender에게 보내고 return합니다.
+- **상태/소유권 변화:** current seat membership은 GameHub의 room/client state가 authority이며 repository는 형태만 검증합니다. match audience는 `broadcastRoom`, lobby audience는 `broadcastAll`입니다.
+- **보장/비보장:** cross-room write와 delivery를 server에서 막지만 browser가 stale room event를 local state에 넣는 문제는 별도입니다.
+- **다음 연결:** `4a98bd1e4f22`가 rejection-before-persistence와 audience 범위를 두 room으로 검증합니다.
 <!-- LEARNER-ANSWER END commit:7759eef59b67 -->
 
 비교 기준:
@@ -250,7 +275,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:4a98bd1e4f22 -->
-- [작성 필요]
+- **직전 상태:** authorization fix는 있었지만 저장 전 차단인지, 정상 room audience가 다른 room과 분리되는지, lobby가 여전히 global인지 함께 증명한 test가 없었습니다.
+- **실패 주입:** room B 좌석의 client가 room A UUID로 match message를 보냅니다.
+- **관찰:** room IDs가 다름, repository spy 미호출, sender의 forbidden, 전체 socket의 chat event 0을 확인합니다. 정상 room A message는 A의 두 socket만 받고 B는 0, lobby message는 null room으로 저장되고 모든 socket이 받습니다.
+- **생산 경로:** 실제 GameHub queue pairing, room creation, event parser/handler/broadcast를 fake WebSocket으로 실행합니다.
+- **증명/비증명:** server authorization/audience를 결정적으로 검증하지만 browser reducer filtering은 포함하지 않습니다.
+- **다음 연결:** `85edd6d1e26a`가 client active-room filter를 추가합니다.
 <!-- LEARNER-ANSWER END commit:4a98bd1e4f22 -->
 
 비교 기준:
@@ -282,7 +312,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:85edd6d1e26a -->
-- [작성 필요]
+- **직전 상태:** server가 room broadcast를 지켜도 reconnect/race/misrouted event가 들어오면 hook이 모든 `chat.message`를 현재 panel에 넣었습니다.
+- **구현 결정:** active room이 non-null이고 message scope가 match이며 `message.roomId === activeRoomId`일 때만 reducer dispatch를 허용하는 pure function을 추가했습니다.
+- **상태/소유권 변화:** browser connection state가 현재 화면 audience의 마지막 수용 기준이 됩니다.
+- **실패/edge:** client filter는 보안 경계가 아니며 악성 sender의 저장을 막지 못합니다. lobby message도 game panel에서는 의도적으로 버립니다.
+- **보장/비보장:** 현재 room panel의 local contamination을 막지만 server auth를 대체하지 않습니다.
+- **다음 연결:** `02775797ab63`이 current/other/lobby/no-active 네 조합을 고정합니다.
 <!-- LEARNER-ANSWER END commit:85edd6d1e26a -->
 
 비교 기준:
@@ -314,7 +349,12 @@
 #### 학습자 기록
 
 <!-- LEARNER-ANSWER START commit:02775797ab63 -->
-- [작성 필요]
+- **직전 상태:** pure filter는 있었지만 조건 하나가 느슨해지는 regression을 막을 test가 없었습니다.
+- **기법:** 고정 UUID 두 개와 helper로 만든 `ChatMessage`를 사용해 현재 match만 true이고 다른 room/lobby/active null은 false인지 검사합니다.
+- **생산 경로:** network 없이 production pure predicate를 직접 실행합니다.
+- **증명/비증명:** browser 수용 규칙을 정확히 검증하지만 server broadcast/authorization과 storage는 별도 tests가 담당합니다.
+- **보장:** scope·room·active state 세 조건을 모두 요구합니다.
+- **Thread 종료:** wire, storage, authorization, audience, browser state가 같은 room semantics를 각 책임 범위에서 강제합니다.
 <!-- LEARNER-ANSWER END commit:02775797ab63 -->
 
 비교 기준:
@@ -326,11 +366,21 @@
 다음 항목을 commit 순서에서 재구성합니다: invariant evolution, Failure → Fix → Test 관계, ownership/state 변화, 최종 실행 흐름, 비보장, 실제 실행 증거.
 
 <!-- LEARNER-ANSWER START thread:05-chat-scope-storage-and-room-authorization.md:synthesis -->
-- [작성 필요]
+- **불변식 진화:** 초기 chat contract는 `scope`와 optional room의 잘못된 조합을 표현할 수 있었습니다. `00d0d7941382`가 wire union을 lobby/no-room과 match/UUID-room으로 분리하고 `5a3819aec8d0`이 반례를 고정했습니다. `2ff750fa4ff8`은 같은 규칙을 repository와 DB CHECK로 내리고 legacy rows를 정리했으며 `1cead7cc9f35`가 memory/실제 migration을 검증했습니다. `7759eef59b67`은 syntactically valid room ID만으로 부족하므로 실제 seat membership을 저장 전에 확인합니다. web은 `85edd6d1e26a`에서 active room filter를 추가합니다.
+- **소유권:** shared protocol은 wire shape, repository/DB는 stored row validity, GameHub는 current room membership과 broadcast audience, browser connection state는 현재 화면에 수용할 room을 소유합니다. 어느 한 layer도 다른 layer의 책임을 대신하지 않습니다.
+- **Failure → Fix → Test:** invalid scope-room payload → discriminated schema → table-driven negative test. legacy/우회 저장 → migration + `assertChatRoom` + CHECK → cleanup/idempotent migration/SQLSTATE 23514 test. cross-room sender → seat check before persistence → two-room fake-socket test. stale/misrouted client event → pure room filter → four-case unit test.
+- **최종 흐름:** parser가 payload 조합을 검증 → GameHub가 current room/seat를 authorization → repository가 동일 invariant를 다시 검사 → DB CHECK가 direct/legacy invalid row를 거부 → 성공 record만 해당 room audience에 broadcast → browser가 active room 일치 여부를 확인 후 reducer에 넣습니다. lobby는 room null로 저장하고 global audience에 전달됩니다.
+- **비보장:** 이 Thread는 message content moderation, rate limiting, end-to-end encryption, multi-process room routing을 제공하지 않습니다.
+- **실행 증거:** exact test/migration code를 검사했지만 Vitest/PostgreSQL integration을 실행하지 않았습니다.
 <!-- LEARNER-ANSWER END thread:05-chat-scope-storage-and-room-authorization.md:synthesis -->
 
 ## 7. 학습 완료 확인
 
 <!-- LEARNER-ANSWER START thread:05-chat-scope-storage-and-room-authorization.md:checklist -->
-- [작성 필요]
+- [x] 모든 SHA를 지정 브랜치의 exact commit으로 검사했습니다.
+- [x] fixed commit map과 source classification을 보존했습니다.
+- [x] earlier commit을 later HEAD 코드로 설명하지 않았습니다.
+- [x] fix와 test를 원래 failure/production path에 연결했습니다.
+- [x] 실제 실행하지 않은 test를 통과했다고 기록하지 않았습니다.
+- [x] Thread 최종 owner, invariant, flow, non-guarantee를 작성했습니다.
 <!-- LEARNER-ANSWER END thread:05-chat-scope-storage-and-room-authorization.md:checklist -->

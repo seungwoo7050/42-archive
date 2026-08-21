@@ -37,8 +37,8 @@
 
 | 검증 항목 | 결과 |
 | --- | --- |
-| Exact SHA inspection | [Phase 2에서 작성] |
-| Branch ancestry | [Phase 2에서 작성] |
-| Runtime commands | [실행한 command와 결과 또는 미실행 이유 작성] |
-| Evidence discipline | [Phase 2에서 작성] |
-| Structure | [Phase 2에서 작성] |
+| Exact SHA inspection | 20개 frozen commit을 각 exact SHA의 GitHub commit diff로 확인했습니다. |
+| Branch ancestry | source classification이 `72ac4c1870f`→`71c5c13480f0`의 complete linear branch history임을 확인했고, `71c5c13480f0`이 현재 `web/ft_transcendence` head의 ancestor임을 compare로 확인했습니다. |
+| Runtime commands | 실행하지 않았습니다. sandbox의 GitHub DNS/network 제한으로 checkout과 dependency installation이 불가능했습니다. |
+| Evidence discipline | runtime 성공을 주장하지 않고 code inspection과 repository test implementation만 기록했습니다. |
+| Structure | frozen scaffold 4개 파일과 completed 4개 파일이 같은 상대 경로·Commit map을 가집니다. |
