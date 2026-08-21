@@ -1,352 +1,298 @@
-# Thread: Journey narrative, milestones, and timeline
+# Development Thread: Journey narrative, milestones, and timeline
 
-> Project: 42 Archive Portfolio (`web/portfolio`)
->
-> 이 문서는 원본 7개 Development Thread를 변경하지 않고, 같은 branch history를 웹 개발 학습 영역별로 추가 분류한 확장 scaffold입니다.
+> **Repository:** `https://github.com/seungwoo7050/42-archive`  
+> **Branch:** `web/portfolio`  
+> **Category:** `04-route-features-and-evidence-experiences`  
+> **Workbook state:** Phase 1 frozen scaffold  
+> **Historical scope:** commits reachable from `web/portfolio` only
 
-## 0. 분류 출처와 변경 가능 범위
+## 0. Phase 1 audit result and category boundary
 
-- Commit SHA, subject, importance, tags는 `commit/commit-importance.md`의 분류를 사용합니다.
-- 이 문서의 category, thread grouping, thread goal과 commit별 역할은 확장 계획에서 새로 정의했습니다.
-- 실제 code evidence, failure 재현, command 결과와 최종 설명은 학습자가 해당 SHA를 직접 확인해 채웁니다.
-- 다른 branch의 구현이나 final HEAD를 과거 SHA 설명에 소급하지 않습니다.
+- 포함: `/journey` page enablement, narrative intro, milestone decision record, anchor-project resolution, 전체 `journey` timeline, current-position summary.
+- 제외: `JourneyList`의 paired/compact responsive primitive는 category 03, page lifecycle/query state는 category 02, route projection과 resolved-reference ownership은 category 09가 담당합니다.
+- 이 Thread는 milestone reference의 소비자-side drop 정책을 다루며 schema ingestion의 fail-closed 보장은 category 01/09에 남깁니다.
 
-## 1. Thread 목표
+- **Audit decision:** 이 Thread는 독립적인 route feature/evidence story로 유지합니다.
+- **Frozen commit count:** 6
+- **Importance profile:** branch-local source classification상 이 Thread의 commit은 모두 B입니다. 다른 category의 S/A-level cross-cutting architecture를 중복 편입하지 않았습니다.
 
-Journey route가 optional page에서 state–reason–result milestone, project anchors, full timeline과 current direction을 제공하는 증거 서사로 발전하는 과정을 복원합니다.
+## 1. Thread goal
 
-### 계획된 핵심 invariant
+Journey route가 feature-flagged 소개에서 결정 milestone, state/reason/result 근거, anchor projects, 전체 chronology, 현재 방향으로 확장되는 과정을 복원하고, narrative와 timeline이 서로 다른 원본과 책임을 갖는 이유를 확인합니다.
 
-- `Journey narrative, milestones, and timeline`의 주요 결정은 route/design/component마다 중복 해석되지 않고 명시된 owner에 위치합니다.
-- Optional, disabled, unknown, empty 또는 unsupported state는 암묵적 성공으로 처리하지 않습니다.
-- 마지막 consumer와 regression evidence는 같은 production decision path를 기준으로 확인합니다.
+### Fixed invariants
 
-## 2. 이 Thread를 이해하기 위한 핵심 질문
+- `isSitePageEnabled("journey", content)`가 거짓이면 route는 partial page를 보여 주지 않고 `notFound()`로 종료합니다.
+- `journeyNarrative.milestones`는 결정의 상태·이유·결과와 anchor project를 설명하고, `journey`는 더 넓은 전체 시간축을 설명합니다.
+- milestone의 `anchorProjectIds`는 선언 순서대로 해석하며 찾지 못한 project는 링크로 만들지 않습니다.
+- anchor project가 하나도 없어도 milestone의 date/title/state/reason/result는 유지됩니다.
+- current-position summary는 과거 chronology와 구분된 현재 방향이며 timeline item으로 임의 삽입되지 않습니다.
 
-- 첫 commit 직전에는 이 관심사가 어느 파일과 consumer에 분산돼 있었는가?
-- Commit sequence를 따라가며 데이터, 상태, 렌더링 또는 routing의 실제 owner가 어떻게 이동하는가?
-- Optional, disabled, unknown, empty, unsupported state는 각 시점에 어떻게 처리되는가?
-- 마지막 commit이 보장하는 것과 여전히 다른 thread가 책임지는 범위는 무엇인가?
+## 2. Core engineering questions
 
-## 3. 완료 기준
+1. Journey page flag가 꺼져 있을 때 route는 어떤 control flow로 종료되는가?
+2. 초기 milestone은 어떤 최소 필드를 갖고 `e292...`에서 state/reason/result가 어떻게 추가되는가?
+3. anchor project 참조를 해석할 수 없을 때 milestone card 자체가 사라지는가, links만 사라지는가?
+4. `journeyNarrative.milestones`와 `content.journey`는 왜 하나의 배열로 합쳐지지 않는가?
+5. 현재 방향 summary가 chronology와 어떤 별도 presentation copy/data를 소비하는가?
 
-- 각 SHA의 parent diff와 resulting tree에서 실제 변경 파일과 symbol을 확인했습니다.
-- 중앙화된 결정과 renderer/component에 남은 표현 책임을 구분했습니다.
-- Failure, absence, fallback, cleanup 또는 progressive-enhancement branch를 기록했습니다.
-- 관련 test가 있으면 production path, technique, proves/does-not-prove를 구분했습니다.
-- 최종 실행 흐름을 코드 없이 설명할 수 있습니다.
+## 3. Completion criteria
 
-## 4. Commit map
+- [ ] 모든 commit을 부모 상태와 exact SHA에서 비교하고 final HEAD를 과거에 투영하지 않았습니다.
+- [ ] 각 commit의 concrete file/function/component/data field와 caller→callee 또는 data flow를 기록했습니다.
+- [ ] optional data, missing reference, empty array, disabled page 등 실제 failure/absence branch를 설명했습니다.
+- [ ] 소유권·표시 책임·상태 전환과 적용되지 않는 resource cleanup을 구분했습니다.
+- [ ] 보장과 비보장을 분리하고 후속 commit/category와의 관계를 연결했습니다.
+- [ ] 실행하지 않은 build/test/runtime 결과를 통과했다고 표시하지 않았습니다.
 
-| 순서 | Commit | Subject | Importance | Tags | 확장 thread에서 확인할 역할 |
-| ---: | --- | --- | :---: | --- | --- |
-| 1 | `0facaf123f29` | feat(journey): 여정 route 소개 추가 | B | ROUTING, RENDERER | 초기 상태와 vocabulary를 고정합니다. |
-| 2 | `fa94b86ac46e` | feat(journey): 결정 milestone 목록 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 3 | `e292451824ba` | feat(journey): milestone 결정 근거 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 4 | `ba8130c82d16` | feat(journey): milestone 프로젝트 근거 연결 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 5 | `a1136f34f998` | feat(journey): 전체 여정 타임라인 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 6 | `694cf57b0162` | feat(journey): 현재 방향 요약 추가 | B | RENDERER | Thread의 통합·검증 상태를 확인합니다. |
+## 4. Frozen commit map
 
-## 5. Commit별 학습 기록
+| Order | SHA | Subject | Importance | Tags | Source-defined role |
+|---:|---|---|:---:|---|---|
+| 1 | `0facaf123f29` | feat(journey): 여정 route 소개 추가 | B | ROUTING, RENDERER | feature-flagged Journey route와 narrative hero를 최초 구성합니다. |
+| 2 | `fa94b86ac46e` | feat(journey): 결정 milestone 목록 추가 | B | RENDERER | journey narrative의 milestone 순서를 numbered decision list로 추가합니다. |
+| 3 | `e292451824ba` | feat(journey): milestone 결정 근거 추가 | B | RENDERER | 각 milestone에 state, reason, result를 추가해 단순 chronology를 decision narrative로 확장합니다. |
+| 4 | `ba8130c82d16` | feat(journey): milestone 프로젝트 근거 연결 | B | RENDERER | milestone anchor project IDs를 해석해 template-preserving case-study links를 추가합니다. |
+| 5 | `a1136f34f998` | feat(journey): 전체 여정 타임라인 추가 | B | RENDERER | 결정 milestones 아래에 전체 `journey` chronology를 별도 timeline으로 추가합니다. |
+| 6 | `694cf57b0162` | feat(journey): 현재 방향 요약 추가 | B | RENDERER | journey narrative의 current-position 정보를 별도 closing section으로 추가합니다. |
 
-각 section은 반드시 해당 SHA의 tree와 parent diff를 기준으로 작성합니다. 같은 commit이 다른 확장 thread에 다시 등장해도 이 thread의 관점에서 별도로 확인합니다.
+## 5. Commit-by-commit historical investigation
 
-### 1. `0facaf123f29` — feat(journey): 여정 route 소개 추가
+### 5.1. `0facaf123f29` — feat(journey): 여정 route 소개 추가
 
 - **Importance:** B
 - **Tags:** ROUTING, RENDERER
-- **확장 thread에서의 역할:** 초기 상태/기반
+- **Source-defined role:** feature-flagged Journey route와 narrative hero를 최초 구성합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `0facaf123f29^`와 `0facaf123f29`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/journey/page.tsx` — `JourneyPage`
+- `isSitePageEnabled("journey", content)`와 `notFound()`
+- `content.journeyNarrative.intro`
+- `presentation.pages.journey.hero`
+- `PageShell` current path `/journey`
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `0facaf123f29^`와 `0facaf123f29`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. content load 직후 `isSitePageEnabled("journey", content)`와 `notFound()`의 실행 순서를 확인합니다.
+2. enabled branch의 hero가 presentation copy와 `journeyNarrative.intro`를 어떻게 결합하는지 추적합니다.
+3. disabled 상태에서 shell/partial content가 생성되지 않는지 control flow로 기록합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-### 2. `fa94b86ac46e` — feat(journey): 결정 milestone 목록 추가
+### 5.2. `fa94b86ac46e` — feat(journey): 결정 milestone 목록 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Source-defined role:** journey narrative의 milestone 순서를 numbered decision list로 추가합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `fa94b86ac46e^`와 `fa94b86ac46e`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/journey/page.tsx` — milestone section과 `MilestoneCard` 초기 형태
+- `content.journeyNarrative.milestones`
+- milestone `date`, `title` 및 초기 summary fields
+- `presentation.pages.journey.narrative` heading/labels
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `fa94b86ac46e^`와 `fa94b86ac46e`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. milestones의 content order, numbering, date/title fields를 `MilestoneCard` 초기 형태에서 확인합니다.
+2. state/reason/result와 project links가 아직 없는지 exact file로 확인합니다.
+3. 빈 milestones에서 section heading/list의 실제 DOM 상태를 기록합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-### 3. `e292451824ba` — feat(journey): milestone 결정 근거 추가
+### 5.3. `e292451824ba` — feat(journey): milestone 결정 근거 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Source-defined role:** 각 milestone에 state, reason, result를 추가해 단순 chronology를 decision narrative로 확장합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `e292451824ba^`와 `e292451824ba`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/journey/page.tsx` — `MilestoneCard` description list
+- `JourneyMilestone`의 `state`, `reason`, `result`
+- `presentation.pages.journey.narrative.labels`
+- `<dl>`, `<dt>`, `<dd>` semantic structure
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `e292451824ba^`와 `e292451824ba`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. milestone의 state/reason/result가 `<dl>/<dt>/<dd>`에 어떤 labels로 대응되는지 표로 작성합니다.
+2. 세 fields의 순서와 content source를 확인합니다.
+3. 빈 값에 대해 renderer가 자동 문구를 생성하는지 확인합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-### 4. `ba8130c82d16` — feat(journey): milestone 프로젝트 근거 연결
+### 5.4. `ba8130c82d16` — feat(journey): milestone 프로젝트 근거 연결
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Source-defined role:** milestone anchor project IDs를 해석해 template-preserving case-study links를 추가합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `ba8130c82d16^`와 `ba8130c82d16`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/journey/page.tsx` — `MilestoneCard`
+- `milestone.anchorProjectIds.map(...find...).filter(Boolean)`
+- `getTemplateHref(`/projects/${project.id}`, homeTemplate, { contentDebug })`
+- `PortfolioContent.projects`와 `JourneyMilestone`
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `ba8130c82d16^`와 `ba8130c82d16`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. `anchorProjectIds.map(find).filter(Boolean)` lookup과 link list guard를 추적합니다.
+2. 모든 anchors가 누락돼도 milestone state/reason/result가 남는지 확인합니다.
+3. `getTemplateHref`가 current template/debug state를 project links에 보존하는지 기록합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-### 5. `a1136f34f998` — feat(journey): 전체 여정 타임라인 추가
+### 5.5. `a1136f34f998` — feat(journey): 전체 여정 타임라인 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Source-defined role:** 결정 milestones 아래에 전체 `journey` chronology를 별도 timeline으로 추가합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `a1136f34f998^`와 `a1136f34f998`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/journey/page.tsx` — timeline section
+- `JourneyList` 호출
+- `content.journey`
+- `presentation.pages.journey.timeline`
+- case-study label과 template/debug props 전달
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `a1136f34f998^`와 `a1136f34f998`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. 새 timeline이 `journeyNarrative.milestones`가 아니라 `content.journey`를 `JourneyList`에 전달하는지 확인합니다.
+2. milestone section과 full timeline의 heading/source/order를 비교합니다.
+3. 두 arrays를 자동 병합·중복 제거하지 않는지 code path를 기록합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-### 6. `694cf57b0162` — feat(journey): 현재 방향 요약 추가
+### 5.6. `694cf57b0162` — feat(journey): 현재 방향 요약 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 통합·검증
+- **Source-defined role:** journey narrative의 current-position 정보를 별도 closing section으로 추가합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `694cf57b0162^`와 `694cf57b0162`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/journey/page.tsx` — current-position/current-direction section
+- `content.journeyNarrative.currentPosition` 또는 해당 current state field
+- `presentation.pages.journey`의 closing labels/copy
+- timeline 뒤의 section ordering
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `694cf57b0162^`와 `694cf57b0162`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. current-position/current-direction data와 presentation labels가 어느 closing section에 연결되는지 확인합니다.
+2. timeline item으로 삽입되지 않고 별도 summary로 남는지 기록합니다.
+3. 빈 current state에서 임의 future goal을 생성하는 branch가 없는지 확인합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-## 6. Invariant ledger
+## 6. Invariant evolution
 
-| Invariant | 도입·강화 commit | 실제 code/test evidence | 부족함이 드러난 시점 | 최종 보장 범위 |
-| --- | --- | --- | --- | --- |
-| `Journey narrative, milestones, and timeline`의 핵심 결정은 한 owner가 수행합니다. |  |  |  |  |
-| Optional/disabled/unknown state는 explicit policy로 처리됩니다. |  |  |  |  |
-| Consumer와 regression evidence는 동일 production path를 사용합니다. |  |  |  |  |
+<!-- learner: invariant가 도입·확장·불충분 판정·교정·검증된 순서를 commit SHA와 함께 복원하십시오. -->
 
-## 7. Failure → Fix → Test 연결
+## 7. Failure → Fix → Test and later relationships
 
-| 기존 가정 또는 위험 | 대응 commit | 실제 수정/강화 code에서 확인할 것 | Test 또는 실행 증거 |
-| --- | --- | --- | --- |
-| Caller/renderer마다 같은 결정을 다시 수행함 |  | 중앙화된 owner와 제거된 local logic |  |
-| Empty/unknown/disabled state가 정상 값처럼 흘러감 |  | explicit branch, fallback, omission 또는 error |  |
-| 구현은 존재하지만 regression evidence가 없음 |  | production path를 직접 통과하는 test/command |  |
+<!-- learner: Failure → Fix → Test 또는 구현 → integration → regression 관계를 기록하십시오. 해당 commit이 없으면 왜 없는지 설명하십시오. -->
 
-## 8. Ownership / state / responsibility 변화
+## 8. Ownership, state, and responsibility changes
 
-| Concern | Thread 초기 owner/state | Thread 최종 owner/state | 실제 symbol과 호출 경로 |
-| --- | --- | --- | --- |
-| 입력 또는 source state |  |  |  |
-| 파생·선택·정렬·fallback |  |  |  |
-| Route/component/rendering |  |  |  |
-| Failure/absence 처리 |  |  |  |
-| Regression evidence |  |  |  |
+<!-- learner: content, selector, route, shared component, later view model 사이의 소유권·책임 이동을 기록하십시오. -->
 
-## 9. Thread 최종 상태
+## 9. Final thread state
 
-### 확장 계획에서 정의한 최종 상태
+<!-- learner: frozen commit map 마지막 상태에서 이 Thread가 보장하는 기능과 보장하지 않는 범위를 요약하십시오. -->
 
-Journey route가 optional page에서 state–reason–result milestone, project anchors, full timeline과 current direction을 제공하는 증거 서사로 발전하는 과정을 복원합니다.
+## 10. Final architecture and execution flow
 
-### 학습자가 완성할 최종 설명
+<!-- learner: source data에서 route/component/link/failure branch까지 최종 실행·표현 흐름을 순서대로 설명하십시오. -->
 
-- Thread 시작 시점의 설계와 위험:
-- 핵심 decision과 responsibility 이동 순서:
-- 실제 failure, absence 또는 performance/accessibility risk:
-- Fix/refactor가 바꾼 invariant:
-- Test/browser evidence가 보장한 범위:
-- Thread 종료 시점에도 보장하지 않는 범위:
+## 11. Minimal historical code evidence
 
-## 10. 최종 architecture 또는 execution flow 정리
+<!-- learner: 설계·상태 전환·참조 해석·failure branch를 가장 잘 보여 주는 exact-SHA 최소 code excerpt를 하나 선택하고 SHA/path/symbol을 명시하십시오. -->
 
-1. 초기 source/state를 읽거나 구성합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-2. 공용 boundary가 validation, selection, normalization 또는 state resolution을 수행합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-3. Route/component/view model이 필요한 형태로 데이터를 준비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-4. Renderer 또는 browser interaction이 결과를 소비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-5. Test 또는 실행 command가 production invariant를 검증합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
+## 12. Learning-completion checks
 
-### 코드 없이 설명하기
-
-> 이 Thread의 최종 흐름을 설계 → 구현 → failure/risk → 수정/강화 → 검증 순서로 작성합니다.
-
-## 11. 학습 완료 자가 점검
-
-- [ ] Commit map의 모든 SHA가 `web/portfolio` ancestry에 속하는지 확인했습니다.
-- [ ] 각 commit의 parent diff와 resulting tree를 확인했습니다.
-- [ ] Importance에 따라 S/A/B/C 학습 깊이를 구분했습니다.
-- [ ] Fix를 기존 가정 → failure → root cause → corrected invariant로 설명했습니다.
-- [ ] Test의 technique, production path, proves/does-not-prove를 구분했습니다.
-- [ ] Final HEAD를 과거 commit에 소급하지 않았습니다.
-- [ ] Thread 최종 흐름을 코드 없이 설명할 수 있습니다.
+- [ ] Frozen commit map 6개를 모두 completion record와 연결했습니다.
+- [ ] SHA, subject, importance, tags, source-defined role의 고정 정보를 scaffold와 동일하게 유지했습니다.
+- [ ] 각 historical claim을 해당 SHA diff에 한정하고 later implementation을 소급하지 않았습니다.
+- [ ] fix/test가 없거나 다른 category 소유인 경우 그 사실을 명시했습니다.
+- [ ] runtime execution status를 명시했으며 실행하지 않은 command를 성공으로 기록하지 않았습니다.
+- [ ] learner placeholder를 남기지 않았습니다.

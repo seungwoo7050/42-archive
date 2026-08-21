@@ -1,390 +1,321 @@
-# Thread: Project detail case-study composition
+# Development Thread: Project detail case-study composition
 
-> Project: 42 Archive Portfolio (`web/portfolio`)
->
-> 이 문서는 원본 7개 Development Thread를 변경하지 않고, 같은 branch history를 웹 개발 학습 영역별로 추가 분류한 확장 scaffold입니다.
+> **Repository:** `https://github.com/seungwoo7050/42-archive`  
+> **Branch:** `web/portfolio`  
+> **Category:** `04-route-features-and-evidence-experiences`  
+> **Workbook state:** Phase 1 frozen scaffold  
+> **Historical scope:** commits reachable from `web/portfolio` only
 
-## 0. 분류 출처와 변경 가능 범위
+## 0. Phase 1 audit result and category boundary
 
-- Commit SHA, subject, importance, tags는 `commit/commit-importance.md`의 분류를 사용합니다.
-- 이 문서의 category, thread grouping, thread goal과 commit별 역할은 확장 계획에서 새로 정의했습니다.
-- 실제 code evidence, failure 재현, command 결과와 최종 설명은 학습자가 해당 SHA를 직접 확인해 채웁니다.
-- 다른 branch의 구현이나 final HEAD를 과거 SHA 설명에 소급하지 않습니다.
+- 포함: 상세 case-study 정보 계층, gallery/stack/decision evidence, dynamic route, missing ID, highlights.
+- 제외: project link placement selector는 category 01/03, multi-renderer projection은 category 09, metadata/SEO는 category 06이 담당합니다.
 
-## 1. Thread 목표
+- **Audit decision:** 이 Thread는 독립적인 route feature/evidence story로 유지합니다.
+- **Frozen commit count:** 7
+- **Importance profile:** branch-local source classification상 이 Thread의 commit은 모두 B입니다. 다른 category의 S/A-level cross-cutting architecture를 중복 편입하지 않았습니다.
 
-Dynamic detail route가 problem, solution, architecture, media evidence, stack, decisions, trade-offs와 results를 하나의 case-study로 구성하는 과정을 복원합니다.
+## 1. Thread goal
 
-### 계획된 핵심 invariant
+프로젝트 상세 화면이 공용 section primitives에서 출발해 문제·해결·구조·증거·의사결정·결과를 조립하고, dynamic route의 missing-project 처리와 highlights까지 완성되는 과정을 복원합니다.
 
-- `Project detail case-study composition`의 주요 결정은 route/design/component마다 중복 해석되지 않고 명시된 owner에 위치합니다.
-- Optional, disabled, unknown, empty 또는 unsupported state는 암묵적 성공으로 처리하지 않습니다.
-- 마지막 consumer와 regression evidence는 같은 production decision path를 기준으로 확인합니다.
+### Fixed invariants
 
-## 2. 이 Thread를 이해하기 위한 핵심 질문
+- 상세 route는 path ID를 canonical project로 해석하지 못하면 `notFound()`로 종료합니다.
+- case-study section copy는 presentation content가, 실제 body/list/media는 project content가 제공합니다.
+- 대표 screenshot과 gallery, stack, decisions, highlights, tradeoffs, results는 서로 다른 evidence role을 유지합니다.
+- 각 historical SHA는 그 시점에 존재한 section만 설명하며 후대 view-model을 소급하지 않습니다.
 
-- 첫 commit 직전에는 이 관심사가 어느 파일과 consumer에 분산돼 있었는가?
-- Commit sequence를 따라가며 데이터, 상태, 렌더링 또는 routing의 실제 owner가 어떻게 이동하는가?
-- Optional, disabled, unknown, empty, unsupported state는 각 시점에 어떻게 처리되는가?
-- 마지막 commit이 보장하는 것과 여전히 다른 thread가 책임지는 범위는 무엇인가?
+## 2. Core engineering questions
 
-## 3. 완료 기준
+1. 공용 section primitive가 어떤 반복 구조를 추상화하고 어떤 semantics는 호출자에게 남기는가?
+2. intro에서 results까지 section이 추가될 때 project schema의 어느 필드를 소비하는가?
+3. `generateStaticParams`, `getProjectById`, `notFound()`의 관계는 무엇인가?
+4. `383...`은 상세 highlights 추가와 metric 계산 중앙화를 왜 같은 integration point에서 수행하는가?
 
-- 각 SHA의 parent diff와 resulting tree에서 실제 변경 파일과 symbol을 확인했습니다.
-- 중앙화된 결정과 renderer/component에 남은 표현 책임을 구분했습니다.
-- Failure, absence, fallback, cleanup 또는 progressive-enhancement branch를 기록했습니다.
-- 관련 test가 있으면 production path, technique, proves/does-not-prove를 구분했습니다.
-- 최종 실행 흐름을 코드 없이 설명할 수 있습니다.
+## 3. Completion criteria
 
-## 4. Commit map
+- [ ] 모든 commit을 부모 상태와 exact SHA에서 비교하고 final HEAD를 과거에 투영하지 않았습니다.
+- [ ] 각 commit의 concrete file/function/component/data field와 caller→callee 또는 data flow를 기록했습니다.
+- [ ] optional data, missing reference, empty array, disabled page 등 실제 failure/absence branch를 설명했습니다.
+- [ ] 소유권·표시 책임·상태 전환과 적용되지 않는 resource cleanup을 구분했습니다.
+- [ ] 보장과 비보장을 분리하고 후속 commit/category와의 관계를 연결했습니다.
+- [ ] 실행하지 않은 build/test/runtime 결과를 통과했다고 표시하지 않았습니다.
 
-| 순서 | Commit | Subject | Importance | Tags | 확장 thread에서 확인할 역할 |
-| ---: | --- | --- | :---: | --- | --- |
-| 1 | `e5b26b762c50` | feat(project): 상세 화면 섹션 프리미티브 추가 | B | RENDERER | 초기 상태와 vocabulary를 고정합니다. |
-| 2 | `06fff9a6e93b` | feat(project): 프로젝트 상세 소개 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 3 | `9c0c37fa5c3c` | feat(project): 프로젝트 문제와 해결 설명 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 4 | `cabf3a0e378f` | feat(project): 프로젝트 구조와 증거 갤러리 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 5 | `1eac524fc8ff` | feat(project): 프로젝트 기술과 의사결정 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 6 | `d4c7f742fb4d` | feat(project): 프로젝트 상세 route 연결 | B | ROUTING, RENDERER | 기능·책임 경계를 확장합니다. |
-| 7 | `383a3b86e119` | feat(content): 프로젝트 지표를 화면에 적용 | B | CONTENT | Thread의 통합·검증 상태를 확인합니다. |
+## 4. Frozen commit map
 
-## 5. Commit별 학습 기록
+| Order | SHA | Subject | Importance | Tags | Source-defined role |
+|---:|---|---|:---:|---|---|
+| 1 | `e5b26b762c50` | feat(project): 상세 화면 섹션 프리미티브 추가 | B | RENDERER | case-study 본문을 조립할 제목·2열 본문·목록 primitive를 추가합니다. |
+| 2 | `06fff9a6e93b` | feat(project): 프로젝트 상세 소개 추가 | B | RENDERER | 상세 hero, 뒤로가기, 상태·링크·대표 screenshot을 조립합니다. |
+| 3 | `9c0c37fa5c3c` | feat(project): 프로젝트 문제와 해결 설명 추가 | B | RENDERER | case study의 problem과 solution을 명시적 두 section으로 추가합니다. |
+| 4 | `cabf3a0e378f` | feat(project): 프로젝트 구조와 증거 갤러리 추가 | B | RENDERER | architecture 설명과 screenshot gallery를 상세 본문에 추가합니다. |
+| 5 | `1eac524fc8ff` | feat(project): 프로젝트 기술과 의사결정 추가 | B | RENDERER | stack, decisions, tradeoffs, results를 case-study 후반에 추가합니다. |
+| 6 | `d4c7f742fb4d` | feat(project): 프로젝트 상세 route 연결 | B | ROUTING, RENDERER | dynamic route, static params, missing-project 404와 shell을 연결합니다. |
+| 7 | `383a3b86e119` | feat(content): 프로젝트 지표를 화면에 적용 | B | CONTENT | 상세에 highlights를 노출하고 project metrics의 소비를 공용 selector로 전환합니다. |
 
-각 section은 반드시 해당 SHA의 tree와 parent diff를 기준으로 작성합니다. 같은 commit이 다른 확장 thread에 다시 등장해도 이 thread의 관점에서 별도로 확인합니다.
+## 5. Commit-by-commit historical investigation
 
-### 1. `e5b26b762c50` — feat(project): 상세 화면 섹션 프리미티브 추가
-
-- **Importance:** B
-- **Tags:** RENDERER
-- **확장 thread에서의 역할:** 초기 상태/기반
-
-#### 해당 SHA에서 확인할 실제 코드
-
-- `e5b26b762c50^`와 `e5b26b762c50`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
-
-확인 원칙:
-
-- 먼저 `e5b26b762c50^`와 `e5b26b762c50`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
-
-#### 학습자가 남길 증거
-
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
-
-#### 코드 발췌 기록
-
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
-
-### 2. `06fff9a6e93b` — feat(project): 프로젝트 상세 소개 추가
+### 5.1. `e5b26b762c50` — feat(project): 상세 화면 섹션 프리미티브 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Source-defined role:** case-study 본문을 조립할 제목·2열 본문·목록 primitive를 추가합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `06fff9a6e93b^`와 `06fff9a6e93b`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/components/portfolio/project-detail-sections.tsx` — `SectionTitle`, `TwoColumnSection`, `ListSection`
+- list key가 item text인 점
+- eyebrow/title/body/items prop 경계
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `06fff9a6e93b^`와 `06fff9a6e93b`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. `SectionTitle`, `TwoColumnSection`, `ListSection`의 prop 계약과 semantic elements를 비교합니다.
+2. 각 primitive가 layout만 소유하고 project content lookup은 수행하지 않는지 확인합니다.
+3. 빈 `items`를 전달했을 때 `ListSection`의 heading/empty `<ul>` 상태를 기록합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-### 3. `9c0c37fa5c3c` — feat(project): 프로젝트 문제와 해결 설명 추가
+### 5.2. `06fff9a6e93b` — feat(project): 프로젝트 상세 소개 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Source-defined role:** 상세 hero, 뒤로가기, 상태·링크·대표 screenshot을 조립합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `9c0c37fa5c3c^`와 `9c0c37fa5c3c`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/components/portfolio/project-detail-view.tsx` — `ProjectDetailView`
+- `ProjectLinks`, deployment badge/status, `ProjectScreenshot priority`
+- `pageCopy`, `project`, `homeTemplate`, `contentDebug` props
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `9c0c37fa5c3c^`와 `9c0c37fa5c3c`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. `ProjectDetailView` 초기 hero가 project category/title/summary/status/links/screenshot 중 무엇을 소비하는지 추적합니다.
+2. link renderer와 screenshot component로 전달되는 project data와 template/debug props를 확인합니다.
+3. 후속 problem/solution/architecture sections가 아직 없는지 exact file에서 확인합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-### 4. `cabf3a0e378f` — feat(project): 프로젝트 구조와 증거 갤러리 추가
+### 5.3. `9c0c37fa5c3c` — feat(project): 프로젝트 문제와 해결 설명 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Source-defined role:** case study의 problem과 solution을 명시적 두 section으로 추가합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `cabf3a0e378f^`와 `cabf3a0e378f`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/components/portfolio/project-detail-view.tsx` — `TwoColumnSection` 호출
+- `project.problem`, `project.solution`
+- `presentation.pages.projectDetail.sections`의 label/title
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `cabf3a0e378f^`와 `cabf3a0e378f`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. problem과 solution fields가 `TwoColumnSection`에 어떤 presentation labels와 함께 연결되는지 확인합니다.
+2. 두 서술이 project object에서 직접 읽히는지 별도 derived model이 있는지 판별합니다.
+3. 빈 문자열/필드 부재에 대한 condition이 있는지 exact JSX를 기록합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-### 5. `1eac524fc8ff` — feat(project): 프로젝트 기술과 의사결정 추가
+### 5.4. `cabf3a0e378f` — feat(project): 프로젝트 구조와 증거 갤러리 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Source-defined role:** architecture 설명과 screenshot gallery를 상세 본문에 추가합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `1eac524fc8ff^`와 `1eac524fc8ff`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/components/portfolio/project-detail-view.tsx` — architecture section, screenshot gallery
+- `project.architecture`, `project.screenshots` 또는 gallery source
+- 대표 image와 보조 image의 역할 구분
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `1eac524fc8ff^`와 `1eac524fc8ff`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. architecture body와 gallery images가 각각 어떤 component/section에 추가되는지 추적합니다.
+2. 대표 screenshot과 gallery의 중복 제거가 이 SHA에 존재하는지 확인합니다.
+3. gallery가 빈 경우 wrapper/heading을 생략하는 조건이 있는지 기록합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-### 6. `d4c7f742fb4d` — feat(project): 프로젝트 상세 route 연결
+### 5.5. `1eac524fc8ff` — feat(project): 프로젝트 기술과 의사결정 추가
+
+- **Importance:** B
+- **Tags:** RENDERER
+- **Source-defined role:** stack, decisions, tradeoffs, results를 case-study 후반에 추가합니다.
+
+#### Exact inspection targets
+
+- `src/components/portfolio/project-detail-view.tsx` — `StackList`, 여러 `ListSection`
+- `project.stack`, `decisions`, `tradeoffs`, `results`
+- section order와 empty-array behavior
+
+#### Commit-specific investigation tasks
+
+1. stack, decisions, tradeoffs, results가 어떤 section primitive와 presentation labels에 대응하는지 표로 작성합니다.
+2. stack IDs의 canonical metadata 해석 책임이 어디에 있는지 확인합니다.
+3. 각 list가 비었을 때 route가 section을 가드하는지 `ListSection`에 빈 배열을 넘기는지 기록합니다.
+
+#### Learner evidence record
+
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
+
+#### Execution evidence
+
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
+
+### 5.6. `d4c7f742fb4d` — feat(project): 프로젝트 상세 route 연결
 
 - **Importance:** B
 - **Tags:** ROUTING, RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Source-defined role:** dynamic route, static params, missing-project 404와 shell을 연결합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `d4c7f742fb4d^`와 `d4c7f742fb4d`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/projects/[projectId]/page.tsx` — `generateStaticParams`, `ProjectDetailPage`
+- `getProjectById(projectId, content)`, `notFound()`
+- `PageShell`, template switcher currentPath, `ProjectDetailView` call
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `d4c7f742fb4d^`와 `d4c7f742fb4d`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. `generateStaticParams`가 project IDs를 어떻게 생성하고 `ProjectDetailPage`가 async params를 어떻게 해석하는지 추적합니다.
+2. `getProjectById` 실패가 `notFound()`로 전환되는 위치와 그 이후 code reachability를 확인합니다.
+3. shell/template switcher currentPath와 `ProjectDetailView` prop 전달을 기록합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-### 7. `383a3b86e119` — feat(content): 프로젝트 지표를 화면에 적용
+### 5.7. `383a3b86e119` — feat(content): 프로젝트 지표를 화면에 적용
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 통합·검증
+- **Source-defined role:** 상세에 highlights를 노출하고 project metrics의 소비를 공용 selector로 전환합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `383a3b86e119^`와 `383a3b86e119`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/components/portfolio/project-detail-view.tsx` — highlights `ListSection`
+- `src/app/projects/page.tsx`, `src/components/portfolio/work-map-section.tsx` — `getProjectMetricValue`
+- `project.highlights`와 presentation highlights copy
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `383a3b86e119^`와 `383a3b86e119`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. 한 커밋에서 `ProjectDetailView` highlights 추가와 project metric selector 적용을 파일별로 분리해 기록합니다.
+2. highlights가 decisions와 tradeoffs 사이 어느 위치에 들어가며 어떤 labels를 쓰는지 확인합니다.
+3. projects page/work-map의 inline 산식이 `getProjectMetricValue`로 대체되는 전후를 비교합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-## 6. Invariant ledger
+## 6. Invariant evolution
 
-| Invariant | 도입·강화 commit | 실제 code/test evidence | 부족함이 드러난 시점 | 최종 보장 범위 |
-| --- | --- | --- | --- | --- |
-| `Project detail case-study composition`의 핵심 결정은 한 owner가 수행합니다. |  |  |  |  |
-| Optional/disabled/unknown state는 explicit policy로 처리됩니다. |  |  |  |  |
-| Consumer와 regression evidence는 동일 production path를 사용합니다. |  |  |  |  |
+<!-- learner: invariant가 도입·확장·불충분 판정·교정·검증된 순서를 commit SHA와 함께 복원하십시오. -->
 
-## 7. Failure → Fix → Test 연결
+## 7. Failure → Fix → Test and later relationships
 
-| 기존 가정 또는 위험 | 대응 commit | 실제 수정/강화 code에서 확인할 것 | Test 또는 실행 증거 |
-| --- | --- | --- | --- |
-| Caller/renderer마다 같은 결정을 다시 수행함 |  | 중앙화된 owner와 제거된 local logic |  |
-| Empty/unknown/disabled state가 정상 값처럼 흘러감 |  | explicit branch, fallback, omission 또는 error |  |
-| 구현은 존재하지만 regression evidence가 없음 |  | production path를 직접 통과하는 test/command |  |
+<!-- learner: Failure → Fix → Test 또는 구현 → integration → regression 관계를 기록하십시오. 해당 commit이 없으면 왜 없는지 설명하십시오. -->
 
-## 8. Ownership / state / responsibility 변화
+## 8. Ownership, state, and responsibility changes
 
-| Concern | Thread 초기 owner/state | Thread 최종 owner/state | 실제 symbol과 호출 경로 |
-| --- | --- | --- | --- |
-| 입력 또는 source state |  |  |  |
-| 파생·선택·정렬·fallback |  |  |  |
-| Route/component/rendering |  |  |  |
-| Failure/absence 처리 |  |  |  |
-| Regression evidence |  |  |  |
+<!-- learner: content, selector, route, shared component, later view model 사이의 소유권·책임 이동을 기록하십시오. -->
 
-## 9. Thread 최종 상태
+## 9. Final thread state
 
-### 확장 계획에서 정의한 최종 상태
+<!-- learner: frozen commit map 마지막 상태에서 이 Thread가 보장하는 기능과 보장하지 않는 범위를 요약하십시오. -->
 
-Dynamic detail route가 problem, solution, architecture, media evidence, stack, decisions, trade-offs와 results를 하나의 case-study로 구성하는 과정을 복원합니다.
+## 10. Final architecture and execution flow
 
-### 학습자가 완성할 최종 설명
+<!-- learner: source data에서 route/component/link/failure branch까지 최종 실행·표현 흐름을 순서대로 설명하십시오. -->
 
-- Thread 시작 시점의 설계와 위험:
-- 핵심 decision과 responsibility 이동 순서:
-- 실제 failure, absence 또는 performance/accessibility risk:
-- Fix/refactor가 바꾼 invariant:
-- Test/browser evidence가 보장한 범위:
-- Thread 종료 시점에도 보장하지 않는 범위:
+## 11. Minimal historical code evidence
 
-## 10. 최종 architecture 또는 execution flow 정리
+<!-- learner: 설계·상태 전환·참조 해석·failure branch를 가장 잘 보여 주는 exact-SHA 최소 code excerpt를 하나 선택하고 SHA/path/symbol을 명시하십시오. -->
 
-1. 초기 source/state를 읽거나 구성합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-2. 공용 boundary가 validation, selection, normalization 또는 state resolution을 수행합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-3. Route/component/view model이 필요한 형태로 데이터를 준비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-4. Renderer 또는 browser interaction이 결과를 소비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-5. Test 또는 실행 command가 production invariant를 검증합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
+## 12. Learning-completion checks
 
-### 코드 없이 설명하기
-
-> 이 Thread의 최종 흐름을 설계 → 구현 → failure/risk → 수정/강화 → 검증 순서로 작성합니다.
-
-## 11. 학습 완료 자가 점검
-
-- [ ] Commit map의 모든 SHA가 `web/portfolio` ancestry에 속하는지 확인했습니다.
-- [ ] 각 commit의 parent diff와 resulting tree를 확인했습니다.
-- [ ] Importance에 따라 S/A/B/C 학습 깊이를 구분했습니다.
-- [ ] Fix를 기존 가정 → failure → root cause → corrected invariant로 설명했습니다.
-- [ ] Test의 technique, production path, proves/does-not-prove를 구분했습니다.
-- [ ] Final HEAD를 과거 commit에 소급하지 않았습니다.
-- [ ] Thread 최종 흐름을 코드 없이 설명할 수 있습니다.
+- [ ] Frozen commit map 7개를 모두 completion record와 연결했습니다.
+- [ ] SHA, subject, importance, tags, source-defined role의 고정 정보를 scaffold와 동일하게 유지했습니다.
+- [ ] 각 historical claim을 해당 SHA diff에 한정하고 later implementation을 소급하지 않았습니다.
+- [ ] fix/test가 없거나 다른 category 소유인 경우 그 사실을 명시했습니다.
+- [ ] runtime execution status를 명시했으며 실행하지 않은 command를 성공으로 기록하지 않았습니다.
+- [ ] learner placeholder를 남기지 않았습니다.

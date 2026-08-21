@@ -1,276 +1,227 @@
 # Thread: Runnable Next application boundary
 
-> Project: 42 Archive Portfolio (`web/portfolio`)
->
-> 이 문서는 원본 7개 Development Thread를 변경하지 않고, 같은 branch history를 웹 개발 학습 영역별로 추가 분류한 확장 scaffold입니다.
+> Repository: `https://github.com/seungwoo7050/42-archive`  
+> Branch: `web/portfolio`  
+> Category: `01-application-foundation-and-content-systems`
 
 ## 0. 분류 출처와 변경 가능 범위
 
-- Commit SHA, subject, importance, tags는 `commit/commit-importance.md`의 분류를 사용합니다.
-- 이 문서의 category, thread grouping, thread goal과 commit별 역할은 확장 계획에서 새로 정의했습니다.
-- 실제 code evidence, failure 재현, command 결과와 최종 설명은 학습자가 해당 SHA를 직접 확인해 채웁니다.
-- 다른 branch의 구현이나 final HEAD를 과거 SHA 설명에 소급하지 않습니다.
+- Commit SHA, subject, importance, tags는 target branch의 `commit/commit-importance.md` 분류와 exact commit metadata를 사용합니다.
+- 이 문서의 Thread grouping, 목표, 역할, 조사 지점은 Phase 1 category audit에서 repository evidence를 기준으로 확정했습니다.
+- Phase 2에서는 이 fixed information을 바꾸지 않고 learner-facing 기록만 채웠습니다.
+- 다른 branch나 final HEAD 구현을 과거 SHA 설명에 소급하지 않습니다.
 
 ## 1. Thread 목표
 
-문서 중심 저장소가 strict TypeScript, App Router, styling pipeline과 실행 script를 갖춘 실제 애플리케이션으로 전환되는 시작점을 복원합니다.
+문서뿐인 저장소가 고정된 Next.js 애플리케이션, 전역 스타일 입력점, content aggregate를 소비하는 첫 route까지 갖추는 경계를 복원합니다.
 
 ### 계획된 핵심 invariant
 
-- `Runnable Next application boundary`의 주요 결정은 route/design/component마다 중복 해석되지 않고 명시된 owner에 위치합니다.
-- Optional, disabled, unknown, empty 또는 unsupported state는 암묵적 성공으로 처리하지 않습니다.
-- 마지막 consumer와 regression evidence는 같은 production decision path를 기준으로 확인합니다.
+- 실행 경계는 package script, TypeScript/Next/PostCSS 설정, App Router root로 명시됩니다.
+- 전역 스타일은 하나의 `globals.css`와 root layout import를 통해 적용됩니다.
+- 첫 route는 JSON을 직접 조립하지 않고 portfolio aggregate를 호출합니다.
 
 ## 2. 이 Thread를 이해하기 위한 핵심 질문
 
-- 첫 commit 직전에는 이 관심사가 어느 파일과 consumer에 분산돼 있었는가?
-- Commit sequence를 따라가며 데이터, 상태, 렌더링 또는 routing의 실제 owner가 어떻게 이동하는가?
-- Optional, disabled, unknown, empty, unsupported state는 각 시점에 어떻게 처리되는가?
-- 마지막 commit이 보장하는 것과 여전히 다른 thread가 책임지는 범위는 무엇인가?
+- 문서용 저장소와 실행 가능한 애플리케이션의 경계는 어느 commit에서 생기는가?
+- `globals.css`가 추가된 시점과 실제 import된 시점을 구분하면 무엇이 보이는가?
+- 초기 route가 content와 renderer 사이에서 맡은 책임과 아직 맡지 않은 책임은 무엇인가?
 
 ## 3. 완료 기준
 
-- 각 SHA의 parent diff와 resulting tree에서 실제 변경 파일과 symbol을 확인했습니다.
-- 중앙화된 결정과 renderer/component에 남은 표현 책임을 구분했습니다.
-- Failure, absence, fallback, cleanup 또는 progressive-enhancement branch를 기록했습니다.
-- 관련 test가 있으면 production path, technique, proves/does-not-prove를 구분했습니다.
-- 최종 실행 흐름을 코드 없이 설명할 수 있습니다.
+- 각 SHA의 parent diff와 resulting tree에서 실제 file/symbol을 확인합니다.
+- 이전 상태, implementation decision, owner/lifetime, absence/failure/fallback, guarantee/non-guarantee를 분리합니다.
+- Fix·refactor·integration은 바로 앞의 assumption이나 duplicated responsibility와 연결합니다.
+- 테스트나 command는 실제 실행 여부를 정적 검토와 명확히 구분합니다.
+- Thread 종료 시 invariant evolution과 최종 flow를 코드 없이 설명합니다.
 
 ## 4. Commit map
 
-| 순서 | Commit | Subject | Importance | Tags | 확장 thread에서 확인할 역할 |
+| 순서 | Commit | Subject | Importance | Tags | 이 Thread에서의 역할 |
 | ---: | --- | --- | :---: | --- | --- |
-| 1 | `cce7dd020563` | docs(portfolio): 프로젝트 목적과 초기 규약 정의 | C | CONTENT | 초기 상태와 vocabulary를 고정합니다. |
-| 2 | `448bc2510f34` | build(next): 실행 가능한 애플리케이션 골격 구성 | A | DEPLOY | 기능·책임 경계를 확장합니다. |
-| 3 | `03c4e1f7b439` | feat(app): 콘텐츠 기반 디자인 홈 연결 | B | CONTENT | 기능·책임 경계를 확장합니다. |
-| 4 | `f66b880a8f97` | chore(runtime): 지원 Node.js와 npm 버전 고정 | B | DEPLOY | Thread의 통합·검증 상태를 확인합니다. |
+| 1 | `cce7dd020563` | docs(portfolio): 프로젝트 목적과 초기 규약 정의 | C | CONTENT | 문서 기반 초기 상태 |
+| 2 | `448bc2510f34` | build(next): 실행 가능한 애플리케이션 골격 구성 | A | DEPLOY | 실행 가능한 애플리케이션 기반 |
+| 3 | `0a28cb050bc8` | style(theme): 포트폴리오 기본 디자인 토큰 추가 | B | RENDERER | 전역 스타일 vocabulary 도입 |
+| 4 | `03c4e1f7b439` | feat(app): 콘텐츠 기반 디자인 홈 연결 | B | CONTENT | 첫 content-to-renderer 통합 |
 
 ## 5. Commit별 학습 기록
-
-각 section은 반드시 해당 SHA의 tree와 parent diff를 기준으로 작성합니다. 같은 commit이 다른 확장 thread에 다시 등장해도 이 thread의 관점에서 별도로 확인합니다.
 
 ### 1. `cce7dd020563` — docs(portfolio): 프로젝트 목적과 초기 규약 정의
 
 - **Importance:** C
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 초기 상태/기반
+- **Thread 역할:** 문서 기반 초기 상태
+- **조사 깊이:** Thread의 출발점을 이해하는 데 필요한 context와 후속 제약만 기록합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `cce7dd020563^`와 `cce7dd020563`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `README.md`의 목적, 콘텐츠 편집 위치, 코드/콘텐츠 분리 규칙을 확인합니다.
+- 이 tree에 `package.json`, `src/app`, 실행 script가 없는지 확인합니다.
 
 확인 원칙:
 
-- 먼저 `cce7dd020563^`와 `cce7dd020563`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `cce7dd020563^`와 `cce7dd020563`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:01-runnable-next-application-boundary.md:c1.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:01-runnable-next-application-boundary.md:c1.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:01-runnable-next-application-boundary.md:c1.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:01-runnable-next-application-boundary.md:c1.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:01-runnable-next-application-boundary.md:c1.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:01-runnable-next-application-boundary.md:c1.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:01-runnable-next-application-boundary.md:c1.evidence -->
 
 ### 2. `448bc2510f34` — build(next): 실행 가능한 애플리케이션 골격 구성
 
 - **Importance:** A
 - **Tags:** DEPLOY
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** 실행 가능한 애플리케이션 기반
+- **조사 깊이:** 주요 subsystem의 결정 경로, owner, failure/non-guarantee와 integration evidence를 구체적으로 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `448bc2510f34^`와 `448bc2510f34`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `package.json`의 `dev`, `build`, `start`, `lint`, `typecheck` script와 Next/React version을 확인합니다.
+- `tsconfig.json`, `next.config.ts`, `postcss.config.mjs`, `eslint.config.mjs`의 compiler/build 경계를 확인합니다.
+- `src/app/layout.tsx`와 `src/app/page.tsx`가 제공하는 최소 App Router tree를 확인합니다.
 
 확인 원칙:
 
-- 먼저 `448bc2510f34^`와 `448bc2510f34`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `448bc2510f34^`와 `448bc2510f34`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:01-runnable-next-application-boundary.md:c2.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:01-runnable-next-application-boundary.md:c2.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:01-runnable-next-application-boundary.md:c2.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:01-runnable-next-application-boundary.md:c2.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:01-runnable-next-application-boundary.md:c2.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:01-runnable-next-application-boundary.md:c2.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:01-runnable-next-application-boundary.md:c2.evidence -->
 
-### 3. `03c4e1f7b439` — feat(app): 콘텐츠 기반 디자인 홈 연결
+### 3. `0a28cb050bc8` — style(theme): 포트폴리오 기본 디자인 토큰 추가
+
+- **Importance:** B
+- **Tags:** RENDERER
+- **Thread 역할:** 전역 스타일 vocabulary 도입
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
+
+#### 해당 SHA에서 확인할 실제 코드
+
+- `src/app/globals.css`의 Tailwind import, `:root` token, `@theme inline`, body/anchor/selection 규칙을 확인합니다.
+- 이 SHA에서 root layout이 파일을 import하는지와 아직 미연결인지 구분합니다.
+
+확인 원칙:
+
+- 먼저 `0a28cb050bc8^`와 `0a28cb050bc8`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:01-runnable-next-application-boundary.md:c3.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:01-runnable-next-application-boundary.md:c3.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:01-runnable-next-application-boundary.md:c3.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:01-runnable-next-application-boundary.md:c3.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:01-runnable-next-application-boundary.md:c3.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:01-runnable-next-application-boundary.md:c3.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:01-runnable-next-application-boundary.md:c3.evidence -->
+
+### 4. `03c4e1f7b439` — feat(app): 콘텐츠 기반 디자인 홈 연결
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** 첫 content-to-renderer 통합
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `03c4e1f7b439^`와 `03c4e1f7b439`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/layout.tsx`의 Geist font, `site.json`, `globals.css` import와 metadata/lang 설정을 확인합니다.
+- `src/app/page.tsx`의 `getPortfolioContent()` → `DesignHomeRoute` 호출과 전달 props를 확인합니다.
+- `contentDebug={false}`와 단일 Design renderer라는 초기 제한을 기록합니다.
 
 확인 원칙:
 
-- 먼저 `03c4e1f7b439^`와 `03c4e1f7b439`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `03c4e1f7b439^`와 `03c4e1f7b439`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:01-runnable-next-application-boundary.md:c4.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:01-runnable-next-application-boundary.md:c4.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:01-runnable-next-application-boundary.md:c4.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:01-runnable-next-application-boundary.md:c4.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:01-runnable-next-application-boundary.md:c4.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:01-runnable-next-application-boundary.md:c4.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:01-runnable-next-application-boundary.md:c4.evidence -->
 
-### 4. `f66b880a8f97` — chore(runtime): 지원 Node.js와 npm 버전 고정
+## 6. Invariant evolution ledger
 
-- **Importance:** B
-- **Tags:** DEPLOY
-- **확장 thread에서의 역할:** 통합·검증
-
-#### 해당 SHA에서 확인할 실제 코드
-
-- `f66b880a8f97^`와 `f66b880a8f97`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
-
-확인 원칙:
-
-- 먼저 `f66b880a8f97^`와 `f66b880a8f97`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
-
-#### 학습자가 남길 증거
-
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
-
-#### 코드 발췌 기록
-
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
-
-## 6. Invariant ledger
-
-| Invariant | 도입·강화 commit | 실제 code/test evidence | 부족함이 드러난 시점 | 최종 보장 범위 |
-| --- | --- | --- | --- | --- |
-| `Runnable Next application boundary`의 핵심 결정은 한 owner가 수행합니다. |  |  |  |  |
-| Optional/disabled/unknown state는 explicit policy로 처리됩니다. |  |  |  |  |
-| Consumer와 regression evidence는 동일 production path를 사용합니다. |  |  |  |  |
-
-## 7. Failure → Fix → Test 연결
-
-| 기존 가정 또는 위험 | 대응 commit | 실제 수정/강화 code에서 확인할 것 | Test 또는 실행 증거 |
+| 추적할 invariant | 도입·변화 SHA | 실제 owner/evidence | 제한·후속 보호 |
 | --- | --- | --- | --- |
-| Caller/renderer마다 같은 결정을 다시 수행함 |  | 중앙화된 owner와 제거된 local logic |  |
-| Empty/unknown/disabled state가 정상 값처럼 흘러감 |  | explicit branch, fallback, omission 또는 error |  |
-| 구현은 존재하지만 regression evidence가 없음 |  | production path를 직접 통과하는 test/command |  |
+| 실행 command와 App Router root가 존재한다. | <!-- learner:01-runnable-next-application-boundary.md:ledger1.sha --> | <!-- learner:01-runnable-next-application-boundary.md:ledger1.evidence --> | <!-- learner:01-runnable-next-application-boundary.md:ledger1.limitation --> |
+| 전역 token은 root stylesheet에서 정의되고 layout이 import한다. | <!-- learner:01-runnable-next-application-boundary.md:ledger2.sha --> | <!-- learner:01-runnable-next-application-boundary.md:ledger2.evidence --> | <!-- learner:01-runnable-next-application-boundary.md:ledger2.limitation --> |
+| 첫 route는 portfolio aggregate를 renderer에 전달한다. | <!-- learner:01-runnable-next-application-boundary.md:ledger3.sha --> | <!-- learner:01-runnable-next-application-boundary.md:ledger3.evidence --> | <!-- learner:01-runnable-next-application-boundary.md:ledger3.limitation --> |
 
-## 8. Ownership / state / responsibility 변화
+## 7. Failure → Fix → Test 관계
 
-| Concern | Thread 초기 owner/state | Thread 최종 owner/state | 실제 symbol과 호출 경로 |
+| Failure 또는 risk | Fix/전환 SHA | 교정된 결정 | Regression·검증 관계 |
 | --- | --- | --- | --- |
-| 입력 또는 source state |  |  |  |
-| 파생·선택·정렬·fallback |  |  |  |
-| Route/component/rendering |  |  |  |
-| Failure/absence 처리 |  |  |  |
-| Regression evidence |  |  |  |
+| 문서만 있고 실행 경계가 없음 | <!-- learner:01-runnable-next-application-boundary.md:failure1.sha --> | <!-- learner:01-runnable-next-application-boundary.md:failure1.correction --> | <!-- learner:01-runnable-next-application-boundary.md:failure1.test --> |
+| stylesheet가 존재하지만 소비되지 않을 수 있음 | <!-- learner:01-runnable-next-application-boundary.md:failure2.sha --> | <!-- learner:01-runnable-next-application-boundary.md:failure2.correction --> | <!-- learner:01-runnable-next-application-boundary.md:failure2.test --> |
+| route가 source를 직접 조립할 위험 | <!-- learner:01-runnable-next-application-boundary.md:failure3.sha --> | <!-- learner:01-runnable-next-application-boundary.md:failure3.correction --> | <!-- learner:01-runnable-next-application-boundary.md:failure3.test --> |
+
+## 8. Ownership·state·responsibility 변화
+
+| 대상 | 이전 owner/state | 최종 owner/state | 근거 |
+| --- | --- | --- | --- |
+| 실행 lifecycle | <!-- learner:01-runnable-next-application-boundary.md:owner1.before --> | <!-- learner:01-runnable-next-application-boundary.md:owner1.after --> | <!-- learner:01-runnable-next-application-boundary.md:owner1.evidence --> |
+| document shell | <!-- learner:01-runnable-next-application-boundary.md:owner2.before --> | <!-- learner:01-runnable-next-application-boundary.md:owner2.after --> | <!-- learner:01-runnable-next-application-boundary.md:owner2.evidence --> |
+| content 조립 | <!-- learner:01-runnable-next-application-boundary.md:owner3.before --> | <!-- learner:01-runnable-next-application-boundary.md:owner3.after --> | <!-- learner:01-runnable-next-application-boundary.md:owner3.evidence --> |
+| home 표현 | <!-- learner:01-runnable-next-application-boundary.md:owner4.before --> | <!-- learner:01-runnable-next-application-boundary.md:owner4.after --> | <!-- learner:01-runnable-next-application-boundary.md:owner4.evidence --> |
 
 ## 9. Thread 최종 상태
 
-### 확장 계획에서 정의한 최종 상태
+<!-- learner:01-runnable-next-application-boundary.md:final.state -->
 
-문서 중심 저장소가 strict TypeScript, App Router, styling pipeline과 실행 script를 갖춘 실제 애플리케이션으로 전환되는 시작점을 복원합니다.
+### 최종 설명
 
-### 학습자가 완성할 최종 설명
+<!-- learner:01-runnable-next-application-boundary.md:final.explanation -->
 
-- Thread 시작 시점의 설계와 위험:
-- 핵심 decision과 responsibility 이동 순서:
-- 실제 failure, absence 또는 performance/accessibility risk:
-- Fix/refactor가 바꾼 invariant:
-- Test/browser evidence가 보장한 범위:
-- Thread 종료 시점에도 보장하지 않는 범위:
+## 10. 최종 실행·데이터 흐름
 
-## 10. 최종 architecture 또는 execution flow 정리
+| 단계 | Owner/call path | 입력·출력 | Failure/non-guarantee |
+| --- | --- | --- | --- |
+| 애플리케이션 lifecycle을 선택합니다. | <!-- learner:01-runnable-next-application-boundary.md:flow1.owner --> | <!-- learner:01-runnable-next-application-boundary.md:flow1.io --> | <!-- learner:01-runnable-next-application-boundary.md:flow1.failure --> |
+| root document를 구성합니다. | <!-- learner:01-runnable-next-application-boundary.md:flow2.owner --> | <!-- learner:01-runnable-next-application-boundary.md:flow2.io --> | <!-- learner:01-runnable-next-application-boundary.md:flow2.failure --> |
+| portfolio aggregate를 요청합니다. | <!-- learner:01-runnable-next-application-boundary.md:flow3.owner --> | <!-- learner:01-runnable-next-application-boundary.md:flow3.io --> | <!-- learner:01-runnable-next-application-boundary.md:flow3.failure --> |
+| Design home을 렌더링합니다. | <!-- learner:01-runnable-next-application-boundary.md:flow4.owner --> | <!-- learner:01-runnable-next-application-boundary.md:flow4.io --> | <!-- learner:01-runnable-next-application-boundary.md:flow4.failure --> |
 
-1. 초기 source/state를 읽거나 구성합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-2. 공용 boundary가 validation, selection, normalization 또는 state resolution을 수행합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-3. Route/component/view model이 필요한 형태로 데이터를 준비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-4. Renderer 또는 browser interaction이 결과를 소비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-5. Test 또는 실행 command가 production invariant를 검증합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
+## 11. 학습 완료 확인
 
-### 코드 없이 설명하기
-
-> 이 Thread의 최종 흐름을 설계 → 구현 → failure/risk → 수정/강화 → 검증 순서로 작성합니다.
-
-## 11. 학습 완료 자가 점검
-
-- [ ] Commit map의 모든 SHA가 `web/portfolio` ancestry에 속하는지 확인했습니다.
-- [ ] 각 commit의 parent diff와 resulting tree를 확인했습니다.
-- [ ] Importance에 따라 S/A/B/C 학습 깊이를 구분했습니다.
-- [ ] Fix를 기존 가정 → failure → root cause → corrected invariant로 설명했습니다.
-- [ ] Test의 technique, production path, proves/does-not-prove를 구분했습니다.
-- [ ] Final HEAD를 과거 commit에 소급하지 않았습니다.
-- [ ] Thread 최종 흐름을 코드 없이 설명할 수 있습니다.
+<!-- learner:01-runnable-next-application-boundary.md:completion.check -->

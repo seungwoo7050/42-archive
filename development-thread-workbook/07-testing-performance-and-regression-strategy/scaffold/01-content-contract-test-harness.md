@@ -2,275 +2,322 @@
 
 > Project: 42 Archive Portfolio (`web/portfolio`)
 >
-> 이 문서는 원본 7개 Development Thread를 변경하지 않고, 같은 branch history를 웹 개발 학습 영역별로 추가 분류한 확장 scaffold입니다.
+> Category: `07-testing-performance-and-regression-strategy`
+>
+> Phase 1에서 감사·수정한 뒤 동결한 scaffold를 기준으로 합니다.
 
 ## 0. 분류 출처와 변경 가능 범위
 
-- Commit SHA, subject, importance, tags는 `commit/commit-importance.md`의 분류를 사용합니다.
-- 이 문서의 category, thread grouping, thread goal과 commit별 역할은 확장 계획에서 새로 정의했습니다.
-- 실제 code evidence, failure 재현, command 결과와 최종 설명은 학습자가 해당 SHA를 직접 확인해 채웁니다.
-- 다른 branch의 구현이나 final HEAD를 과거 SHA 설명에 소급하지 않습니다.
+- Commit SHA, subject, importance와 tags는 branch-local `commit/commit-importance.md` 분류와 exact commit metadata를 기준으로 고정했습니다.
+- 이 문서의 Thread goal, commit grouping과 source-defined 역할은 Phase 1 category audit 결과입니다.
+- Phase 2에서는 SHA, 순서, subject, importance, tags, 역할, 질문과 문서 구조를 바꾸지 않습니다.
+- 다른 branch 또는 final HEAD의 구현을 earlier SHA 설명에 소급하지 않습니다.
+- Runtime evidence는 실제로 실행한 command만 기록하며, 미실행 상태를 통과로 해석하지 않습니다.
 
 ## 1. Thread 목표
 
-Vitest/jsdom/Testing Library 기반 test boundary를 만들고 public portfolio selectors와 route projection rules를 executable contract로 고정하는 과정을 복원합니다.
+Vitest/jsdom/Testing Library 실행 경계를 만들고 content ingestion, public selector surface, clone ownership, route projection rules를 단계적으로 executable contract로 고정하는 과정을 복원합니다.
 
-### 계획된 핵심 invariant
+### 동결된 핵심 invariant
 
-- `Content contract test harness`의 주요 결정은 route/design/component마다 중복 해석되지 않고 명시된 owner에 위치합니다.
-- Optional, disabled, unknown, empty 또는 unsupported state는 암묵적 성공으로 처리하지 않습니다.
-- 마지막 consumer와 regression evidence는 같은 production decision path를 기준으로 확인합니다.
+- Test는 production loader·validator·selector·view-model path를 직접 호출하며 별도 모형 구현을 진실의 source로 만들지 않습니다.
+- `getPortfolioContent()`가 반환하는 mutable aggregate는 호출 간 격리되고, 의도적으로 immutable한 root metadata만 reference를 공유합니다.
+- Route view model은 shared shell fields와 route-specific fields만 노출하며 full `PortfolioContent` spread를 허용하지 않습니다.
+- Unknown reference의 null/omission/fallback policy는 route factory에서 명시되고 renderer가 다시 검색하지 않습니다.
 
 ## 2. 이 Thread를 이해하기 위한 핵심 질문
 
-- 첫 commit 직전에는 이 관심사가 어느 파일과 consumer에 분산돼 있었는가?
-- Commit sequence를 따라가며 데이터, 상태, 렌더링 또는 routing의 실제 owner가 어떻게 이동하는가?
-- Optional, disabled, unknown, empty, unsupported state는 각 시점에 어떻게 처리되는가?
-- 마지막 commit이 보장하는 것과 여전히 다른 thread가 책임지는 범위는 무엇인가?
+- 최초 harness는 어떤 config·setup·production path를 연결했고 malformed fixture를 어디서 주입했는가?
+- Public facade 목록과 clone/reference boundary는 왜 같은 contract에서 검사되는가?
+- Home, index, detail, about, resume, contact의 selection/order/fallback은 renderer 이전 어디서 결정되는가?
+- Journey와 interview map의 unresolved reference는 각각 어떤 형태로 남거나 제거되는가?
 
 ## 3. 완료 기준
 
-- 각 SHA의 parent diff와 resulting tree에서 실제 변경 파일과 symbol을 확인했습니다.
-- 중앙화된 결정과 renderer/component에 남은 표현 책임을 구분했습니다.
-- Failure, absence, fallback, cleanup 또는 progressive-enhancement branch를 기록했습니다.
-- 관련 test가 있으면 production path, technique, proves/does-not-prove를 구분했습니다.
-- 최종 실행 흐름을 코드 없이 설명할 수 있습니다.
+- 각 referenced SHA의 exact parent diff와 resulting changed files를 확인합니다.
+- Commit별 previous state, implementation decision, ownership/lifetime, failure path와 non-guarantee를 구분합니다.
+- Fix는 earlier assumption과 root cause에 연결하고, test는 production path·technique·proves/does-not-prove를 구분합니다.
+- A-level은 subsystem·failure·verification 관계까지, B-level은 local role과 후속 연결까지만 설명합니다.
+- Thread-level invariant evolution, Failure → Fix → Test, ownership transfer와 final flow를 코드 없이 설명합니다.
 
 ## 4. Commit map
 
-| 순서 | Commit | Subject | Importance | Tags | 확장 thread에서 확인할 역할 |
+| 순서 | Commit | Subject | Importance | Tags | 이 Thread에서 확인할 역할 |
 | ---: | --- | --- | :---: | --- | --- |
-| 1 | `3353032ba23b` | test(content): Vitest 기반 콘텐츠 계약 검증 추가 | A | CONTENT, VALIDATION, TEST | 초기 상태와 vocabulary를 고정합니다. |
-| 2 | `dc07871c4d24` | test(portfolio): selector와 presentation 회귀 계약 보강 | A | CONTENT, TEST | 기능·책임 경계를 확장합니다. |
-| 3 | `b77b386b344e` | test(content): route view model 파생 규칙 검증 | A | ARCH, CONTENT, VALIDATION | 기능·책임 경계를 확장합니다. |
-| 4 | `527b9f872333` | test(content): scoped view model과 연락처 회귀 검증 | A | CONTENT, VALIDATION, TEST | Thread의 통합·검증 상태를 확인합니다. |
+| 1 | `3353032ba23b` | test(content): Vitest 기반 콘텐츠 계약 검증 추가 | A | CONTENT, VALIDATION, TEST | test runner·jsdom setup과 production content contract의 최초 실행 경계 |
+| 2 | `dc07871c4d24` | test(portfolio): selector와 presentation 회귀 계약 보강 | A | CONTENT, TEST | public module surface와 mutable/immutable copy ownership 회귀 계약 |
+| 3 | `b77b386b344e` | test(content): route view model 파생 규칙 검증 | A | ARCH, CONTENT, VALIDATION | 여섯 route view-model factory의 selection·ordering·fallback contract |
+| 4 | `527b9f872333` | test(content): scoped view model과 연락처 회귀 검증 | A | CONTENT, VALIDATION, TEST | 여덟 route의 scoped field whitelist와 unresolved-reference hardening |
 
 ## 5. Commit별 학습 기록
 
-각 section은 반드시 해당 SHA의 tree와 parent diff를 기준으로 작성합니다. 같은 commit이 다른 확장 thread에 다시 등장해도 이 thread의 관점에서 별도로 확인합니다.
+각 section은 해당 SHA의 tree와 parent diff만 기준으로 작성합니다. 같은 SHA가 다른 category Thread에 등장하더라도 여기서는 위 역할과 파일 범위만 설명합니다.
 
 ### 1. `3353032ba23b` — test(content): Vitest 기반 콘텐츠 계약 검증 추가
 
+- **Full SHA:** `3353032ba23bf0890b3ac0410e3b55638bc70df6`
 - **Importance:** A
 - **Tags:** CONTENT, VALIDATION, TEST
-- **확장 thread에서의 역할:** 초기 상태/기반
+- **이 Thread에서의 역할:** test runner·jsdom setup과 production content contract의 최초 실행 경계
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `3353032ba23b^`와 `3353032ba23b`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- 대상 production invariant, fixture/failure injection, test technique와 실제 production path를 구분합니다.
-- Test가 증명하는 것과 증명하지 않는 것을 명시합니다.
+- `package.json`의 `test`·`test:watch` script와 Vitest/jsdom/Testing Library devDependencies
+- `vitest.config.ts`의 jsdom environment, test include pattern, `src/test/setup.ts` 연결
+- `src/test/setup.ts`의 jest-dom matcher 등록
+- `src/lib/portfolio.test.ts`가 `loadPortfolioSource`, `validatePortfolioAssets`, selectors와 `PortfolioContentError`를 실제로 호출하는 방식
+- 정상 source와 의도적으로 변형한 fixture가 ID, cross-reference, asset, route, metric, selector failure를 어떻게 관찰하는지
 
-확인 원칙:
+#### Commit-specific investigation
 
-- 먼저 `3353032ba23b^`와 `3353032ba23b`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- `3353032ba23b^`와 `3353032ba23b`의 diff에서 위 파일·symbol이 실제로 추가·변경·제거된 범위를 구분합니다.
+- 직전 state에서 `test runner·jsdom setup과 production content contract의 최초 실행 경계`가 필요해진 구체적 부족함 또는 잘못된 가정을 찾습니다.
+- Production path와 test path를 분리하고, state/data/resource owner와 lifetime·cleanup을 실제 symbol 기준으로 추적합니다.
+- Failure/absence/fallback branch와 test technique을 구분하고, 이 SHA가 보장하지 않는 범위를 명시합니다.
+- 다음 후속 관계를 대조하되 later code를 이 SHA의 구현으로 설명하지 않습니다: `dc07871c4d24`가 같은 suite에 public facade surface와 copy/reference ownership을 추가하고, 이후 `b77b...`·`527b...`가 route view-model projection contract를 별도 test file로 확장합니다.
 
-#### 학습자가 남길 증거
+#### 학습자 증거
 
-| 확인·기록 항목 | 학습자 기록 |
+| 확인·기록 항목 | 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
+| 직전 state와 부족함 |  |
 | 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| Data/state/DOM/resource owner와 lifetime |  |
+| Failure·absence·fallback·cleanup |  |
+| Test technique와 실행 증거 |  |
+| 보장하는 것 |  |
+| 보장하지 않는 것 |  |
+| 다음 commit/관련 test 연결 |  |
 
-#### 코드 발췌 기록
+#### 최소 code evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+- **Commit:**
+- **Path / function / test:**
+- **왜 이 excerpt가 필요한가:**
+
+```text
+[학습자가 exact SHA에서 필요한 최소 excerpt만 기록]
+```
+
+#### 실행 증거
+
+| 항목 | 기록 |
+| --- | --- |
+| 해당 SHA에서 실행한 command |  |
+| 실제 결과 또는 실행 불가 사유 |  |
+| 정적 검토와 실행 결과의 구분 |  |
 
 ### 2. `dc07871c4d24` — test(portfolio): selector와 presentation 회귀 계약 보강
 
+- **Full SHA:** `dc07871c4d24ddcd85aa15d41ab7fb334ed784a6`
 - **Importance:** A
 - **Tags:** CONTENT, TEST
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **이 Thread에서의 역할:** public module surface와 mutable/immutable copy ownership 회귀 계약
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `dc07871c4d24^`와 `dc07871c4d24`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- 대상 production invariant, fixture/failure injection, test technique와 실제 production path를 구분합니다.
-- Test가 증명하는 것과 증명하지 않는 것을 명시합니다.
+- `src/lib/portfolio.test.ts`의 `import * as portfolio`와 정확한 export-name 목록
+- `getPortfolioContent()` 두 호출 사이의 root, `projects`, project item, nested `links`, top-level `links` identity 비교
+- `site`, `profile`, `presentation`, `journey`가 같은 reference로 유지되는 assertion
+- 이 copy policy가 production `src/lib/portfolio.ts`의 facade 구현과 일치하는지
 
-확인 원칙:
+#### Commit-specific investigation
 
-- 먼저 `dc07871c4d24^`와 `dc07871c4d24`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- `dc07871c4d24^`와 `dc07871c4d24`의 diff에서 위 파일·symbol이 실제로 추가·변경·제거된 범위를 구분합니다.
+- 직전 state에서 `public module surface와 mutable/immutable copy ownership 회귀 계약`가 필요해진 구체적 부족함 또는 잘못된 가정을 찾습니다.
+- Production path와 test path를 분리하고, state/data/resource owner와 lifetime·cleanup을 실제 symbol 기준으로 추적합니다.
+- Failure/absence/fallback branch와 test technique을 구분하고, 이 SHA가 보장하지 않는 범위를 명시합니다.
+- 다음 후속 관계를 대조하되 later code를 이 SHA의 구현으로 설명하지 않습니다: `b77b386b344e`는 aggregate를 renderer에 직접 넘기는 대신 route factory가 파생 결과를 준비한다는 다음 ownership boundary를 테스트합니다.
 
-#### 학습자가 남길 증거
+#### 학습자 증거
 
-| 확인·기록 항목 | 학습자 기록 |
+| 확인·기록 항목 | 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
+| 직전 state와 부족함 |  |
 | 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| Data/state/DOM/resource owner와 lifetime |  |
+| Failure·absence·fallback·cleanup |  |
+| Test technique와 실행 증거 |  |
+| 보장하는 것 |  |
+| 보장하지 않는 것 |  |
+| 다음 commit/관련 test 연결 |  |
 
-#### 코드 발췌 기록
+#### 최소 code evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+- **Commit:**
+- **Path / function / test:**
+- **왜 이 excerpt가 필요한가:**
+
+```text
+[학습자가 exact SHA에서 필요한 최소 excerpt만 기록]
+```
+
+#### 실행 증거
+
+| 항목 | 기록 |
+| --- | --- |
+| 해당 SHA에서 실행한 command |  |
+| 실제 결과 또는 실행 불가 사유 |  |
+| 정적 검토와 실행 결과의 구분 |  |
 
 ### 3. `b77b386b344e` — test(content): route view model 파생 규칙 검증
 
+- **Full SHA:** `b77b386b344e60e1aa2ed3eafd76ab5dafb32342`
 - **Importance:** A
 - **Tags:** ARCH, CONTENT, VALIDATION
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **이 Thread에서의 역할:** 여섯 route view-model factory의 selection·ordering·fallback contract
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `b77b386b344e^`와 `b77b386b344e`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- 대상 production invariant, fixture/failure injection, test technique와 실제 production path를 구분합니다.
-- Test가 증명하는 것과 증명하지 않는 것을 명시합니다.
+- `src/lib/portfolio/view-models.test.ts`의 `createHomeViewModel`, `createProjectIndexViewModel`, `createProjectDetailViewModel`
+- `createAboutViewModel`, `createResumeViewModel`, `createContactViewModel`
+- Home의 fixed date, featured/lead fallback, hero/footer placement, metric derivation
+- Project group order·중복 방지, detail unknown-ID `null`, stack/image/link preparation
+- About/resume/contact의 source-order 유지, unknown reference omission, cinematic contact fallback
 
-확인 원칙:
+#### Commit-specific investigation
 
-- 먼저 `b77b386b344e^`와 `b77b386b344e`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- `b77b386b344e^`와 `b77b386b344e`의 diff에서 위 파일·symbol이 실제로 추가·변경·제거된 범위를 구분합니다.
+- 직전 state에서 `여섯 route view-model factory의 selection·ordering·fallback contract`가 필요해진 구체적 부족함 또는 잘못된 가정을 찾습니다.
+- Production path와 test path를 분리하고, state/data/resource owner와 lifetime·cleanup을 실제 symbol 기준으로 추적합니다.
+- Failure/absence/fallback branch와 test technique을 구분하고, 이 SHA가 보장하지 않는 범위를 명시합니다.
+- 다음 후속 관계를 대조하되 later code를 이 SHA의 구현으로 설명하지 않습니다: `527b9f872333`가 journey/interview를 추가하고, route별 허용 source field와 full-content spread 금지를 structural regression으로 강화합니다.
 
-#### 학습자가 남길 증거
+#### 학습자 증거
 
-| 확인·기록 항목 | 학습자 기록 |
+| 확인·기록 항목 | 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
+| 직전 state와 부족함 |  |
 | 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| Data/state/DOM/resource owner와 lifetime |  |
+| Failure·absence·fallback·cleanup |  |
+| Test technique와 실행 증거 |  |
+| 보장하는 것 |  |
+| 보장하지 않는 것 |  |
+| 다음 commit/관련 test 연결 |  |
 
-#### 코드 발췌 기록
+#### 최소 code evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+- **Commit:**
+- **Path / function / test:**
+- **왜 이 excerpt가 필요한가:**
+
+```text
+[학습자가 exact SHA에서 필요한 최소 excerpt만 기록]
+```
+
+#### 실행 증거
+
+| 항목 | 기록 |
+| --- | --- |
+| 해당 SHA에서 실행한 command |  |
+| 실제 결과 또는 실행 불가 사유 |  |
+| 정적 검토와 실행 결과의 구분 |  |
 
 ### 4. `527b9f872333` — test(content): scoped view model과 연락처 회귀 검증
 
+- **Full SHA:** `527b9f872333cbd45f6ab436a7d0e6178ccba6d3`
 - **Importance:** A
 - **Tags:** CONTENT, VALIDATION, TEST
-- **확장 thread에서의 역할:** 통합·검증
+- **이 Thread에서의 역할:** 여덟 route의 scoped field whitelist와 unresolved-reference hardening
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `527b9f872333^`와 `527b9f872333`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- 대상 production invariant, fixture/failure injection, test technique와 실제 production path를 구분합니다.
-- Test가 증명하는 것과 증명하지 않는 것을 명시합니다.
+- `src/lib/portfolio/view-models.test.ts`의 route별 `sourceFields` whitelist
+- 공통 `site`, `profile`, `presentation`, `footerLinks`와 route-specific field 비교
+- `readFileSync`로 `src/lib/portfolio/view-models.ts`를 읽어 `PortfolioContent &` 및 `...content`를 거부하는 structural assertion
+- projects/about model의 `contact` 전달
+- Journey milestone의 missing anchor omission과 interview answer의 `{ projectId, project: null }` 유지
 
-확인 원칙:
+#### Commit-specific investigation
 
-- 먼저 `527b9f872333^`와 `527b9f872333`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- `527b9f872333^`와 `527b9f872333`의 diff에서 위 파일·symbol이 실제로 추가·변경·제거된 범위를 구분합니다.
+- 직전 state에서 `여덟 route의 scoped field whitelist와 unresolved-reference hardening`가 필요해진 구체적 부족함 또는 잘못된 가정을 찾습니다.
+- Production path와 test path를 분리하고, state/data/resource owner와 lifetime·cleanup을 실제 symbol 기준으로 추적합니다.
+- Failure/absence/fallback branch와 test technique을 구분하고, 이 SHA가 보장하지 않는 범위를 명시합니다.
+- 다음 후속 관계를 대조하되 later code를 이 SHA의 구현으로 설명하지 않습니다: 이 commit으로 content contract Thread가 route projection ownership까지 닫히며, `1598a...`·`055b...`의 renderer matrix가 같은 production factories의 최종 consumer를 검증합니다.
 
-#### 학습자가 남길 증거
+#### 학습자 증거
 
-| 확인·기록 항목 | 학습자 기록 |
+| 확인·기록 항목 | 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
+| 직전 state와 부족함 |  |
 | 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| Data/state/DOM/resource owner와 lifetime |  |
+| Failure·absence·fallback·cleanup |  |
+| Test technique와 실행 증거 |  |
+| 보장하는 것 |  |
+| 보장하지 않는 것 |  |
+| 다음 commit/관련 test 연결 |  |
 
-#### 코드 발췌 기록
+#### 최소 code evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+- **Commit:**
+- **Path / function / test:**
+- **왜 이 excerpt가 필요한가:**
 
-## 6. Invariant ledger
+```text
+[학습자가 exact SHA에서 필요한 최소 excerpt만 기록]
+```
 
-| Invariant | 도입·강화 commit | 실제 code/test evidence | 부족함이 드러난 시점 | 최종 보장 범위 |
-| --- | --- | --- | --- | --- |
-| `Content contract test harness`의 핵심 결정은 한 owner가 수행합니다. |  |  |  |  |
-| Optional/disabled/unknown state는 explicit policy로 처리됩니다. |  |  |  |  |
-| Consumer와 regression evidence는 동일 production path를 사용합니다. |  |  |  |  |
+#### 실행 증거
 
-## 7. Failure → Fix → Test 연결
+| 항목 | 기록 |
+| --- | --- |
+| 해당 SHA에서 실행한 command |  |
+| 실제 결과 또는 실행 불가 사유 |  |
+| 정적 검토와 실행 결과의 구분 |  |
 
-| 기존 가정 또는 위험 | 대응 commit | 실제 수정/강화 code에서 확인할 것 | Test 또는 실행 증거 |
+## 6. Invariant evolution ledger
+
+| Invariant | 도입/변경 SHA | Historical evidence | 상태 |
 | --- | --- | --- | --- |
-| Caller/renderer마다 같은 결정을 다시 수행함 |  | 중앙화된 owner와 제거된 local logic |  |
-| Empty/unknown/disabled state가 정상 값처럼 흘러감 |  | explicit branch, fallback, omission 또는 error |  |
-| 구현은 존재하지만 regression evidence가 없음 |  | production path를 직접 통과하는 test/command |  |
+| Production content path가 executable contract의 source다. |  |  |  |
+| Mutable aggregate는 호출 간 격리된다. |  |  |  |
+| Renderer는 full content가 아니라 route projection을 받는다. |  |  |  |
+| Unknown references는 route별 explicit absence로 처리된다. |  |  |  |
 
-## 8. Ownership / state / responsibility 변화
+## 7. Failure → Fix → Test
 
-| Concern | Thread 초기 owner/state | Thread 최종 owner/state | 실제 symbol과 호출 경로 |
+| Earlier failure/risk | Fix SHA | Corrected decision | Regression evidence |
 | --- | --- | --- | --- |
-| 입력 또는 source state |  |  |  |
-| 파생·선택·정렬·fallback |  |  |  |
-| Route/component/rendering |  |  |  |
-| Failure/absence 처리 |  |  |  |
+| Malformed ID/cross-reference/asset가 정상 content처럼 통과할 위험 |  |  |  |
+| 호출자가 returned project/link를 mutation해 다음 요청을 오염할 위험 |  |  |  |
+| Renderer가 full aggregate를 받아 local search/spread를 반복할 위험 |  |  |  |
+| Unknown project reference가 crash 또는 stale object로 흘러갈 위험 |  |  |  |
+
+## 8. Ownership/state/responsibility 변화
+
+| 대상 | 초기 owner/state | 최종 owner/state | Evidence |
+| --- | --- | --- | --- |
+| Raw JSON/source |  |  |  |
+| Validation/derived aggregate |  |  |  |
+| Mutable returned data |  |  |  |
+| Route-specific projection |  |  |  |
 | Regression evidence |  |  |  |
 
-## 9. Thread 최종 상태
+## 9. 최종 Thread state
 
-### 확장 계획에서 정의한 최종 상태
+다음 내용을 코드 없이 설명합니다: 최종 owner, input→decision→output, failure/absence policy, regression evidence와 명시적 non-guarantee.
 
-Vitest/jsdom/Testing Library 기반 test boundary를 만들고 public portfolio selectors와 route projection rules를 executable contract로 고정하는 과정을 복원합니다.
+> 학습자 기록:
 
-### 학습자가 완성할 최종 설명
+## 10. 최종 실행 흐름
 
-- Thread 시작 시점의 설계와 위험:
-- 핵심 decision과 responsibility 이동 순서:
-- 실제 failure, absence 또는 performance/accessibility risk:
-- Fix/refactor가 바꾼 invariant:
-- Test/browser evidence가 보장한 범위:
-- Thread 종료 시점에도 보장하지 않는 범위:
+| 단계 | Owner / mechanism | Input | Output/state | Failure/non-guarantee |
+| ---: | --- | --- | --- | --- |
+| 1. Source load |  |  |  |  |
+| 2. Validation/aggregate |  |  |  |  |
+| 3. Public selection |  |  |  |  |
+| 4. Route projection |  |  |  |  |
+| 5. Regression evidence |  |  |  |  |
 
-## 10. 최종 architecture 또는 execution flow 정리
+## 11. 학습 완료 확인
 
-1. 초기 source/state를 읽거나 구성합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-2. 공용 boundary가 validation, selection, normalization 또는 state resolution을 수행합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-3. Route/component/view model이 필요한 형태로 데이터를 준비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-4. Renderer 또는 browser interaction이 결과를 소비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-5. Test 또는 실행 command가 production invariant를 검증합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-
-### 코드 없이 설명하기
-
-> 이 Thread의 최종 흐름을 설계 → 구현 → failure/risk → 수정/강화 → 검증 순서로 작성합니다.
-
-## 11. 학습 완료 자가 점검
-
-- [ ] Commit map의 모든 SHA가 `web/portfolio` ancestry에 속하는지 확인했습니다.
-- [ ] 각 commit의 parent diff와 resulting tree를 확인했습니다.
-- [ ] Importance에 따라 S/A/B/C 학습 깊이를 구분했습니다.
-- [ ] Fix를 기존 가정 → failure → root cause → corrected invariant로 설명했습니다.
-- [ ] Test의 technique, production path, proves/does-not-prove를 구분했습니다.
-- [ ] Final HEAD를 과거 commit에 소급하지 않았습니다.
-- [ ] Thread 최종 흐름을 코드 없이 설명할 수 있습니다.
+- [ ] 모든 referenced SHA를 exact historical diff 기준으로 설명했습니다.
+- [ ] Commit map의 SHA·순서·subject·importance·tags를 변경하지 않았습니다.
+- [ ] Fix를 earlier failure/assumption에 연결했습니다.
+- [ ] Test가 실행하는 production path와 증명하지 않는 범위를 구분했습니다.
+- [ ] 정적 inspection과 실제 command execution을 구분했습니다.
+- [ ] Thread-level invariant, ownership과 final flow를 완성했습니다.
+- [ ] 실행하지 못한 command가 있으면 환경 사유와 정적 검토 범위를 기록했습니다.

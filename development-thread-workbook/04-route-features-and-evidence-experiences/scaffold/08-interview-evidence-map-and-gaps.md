@@ -1,352 +1,299 @@
-# Thread: Interview evidence map and gaps
+# Development Thread: Interview evidence map and gaps
 
-> Project: 42 Archive Portfolio (`web/portfolio`)
->
-> 이 문서는 원본 7개 Development Thread를 변경하지 않고, 같은 branch history를 웹 개발 학습 영역별로 추가 분류한 확장 scaffold입니다.
+> **Repository:** `https://github.com/seungwoo7050/42-archive`  
+> **Branch:** `web/portfolio`  
+> **Category:** `04-route-features-and-evidence-experiences`  
+> **Workbook state:** Phase 1 frozen scaffold  
+> **Historical scope:** commits reachable from `web/portfolio` only
 
-## 0. 분류 출처와 변경 가능 범위
+## 0. Phase 1 audit result and category boundary
 
-- Commit SHA, subject, importance, tags는 `commit/commit-importance.md`의 분류를 사용합니다.
-- 이 문서의 category, thread grouping, thread goal과 commit별 역할은 확장 계획에서 새로 정의했습니다.
-- 실제 code evidence, failure 재현, command 결과와 최종 설명은 학습자가 해당 SHA를 직접 확인해 채웁니다.
-- 다른 branch의 구현이나 final HEAD를 과거 SHA 설명에 소급하지 않습니다.
+- 포함: `/interview-map` page enablement, reference repository, topic anchors, evidence gaps, track summaries, external references/questions, project answer/depth mapping.
+- 제외: 외부 링크 security transport는 category 03/06, route lifecycle/query mechanics는 category 02, 후대 Interview view-model과 renderer data ownership은 category 09가 담당합니다.
+- 이 Thread에서 `gaps`는 오류나 placeholder가 아니라 의도적으로 공개하는 evidence limitation입니다.
 
-## 1. Thread 목표
+- **Audit decision:** 이 Thread는 독립적인 route feature/evidence story로 유지합니다.
+- **Frozen commit count:** 6
+- **Importance profile:** branch-local source classification상 이 Thread의 commit은 모두 B입니다. 다른 category의 S/A-level cross-cutting architecture를 중복 편입하지 않았습니다.
 
-Interview Map이 track index, external references, question table, project-backed answers와 explicit evidence gaps를 갖춘 검증 가능한 근거 지도으로 발전하는 과정을 복원합니다.
+## 1. Thread goal
 
-### 계획된 핵심 invariant
+Interview Map route가 feature-flagged 소개에서 topic index, 공개 gaps, track별 외부 참조와 질문, project-backed answers로 확장되는 과정을 복원하고, 근거 부족과 누락 project reference를 숨기지 않는 표현 정책을 확인합니다.
 
-- `Interview evidence map and gaps`의 주요 결정은 route/design/component마다 중복 해석되지 않고 명시된 owner에 위치합니다.
-- Optional, disabled, unknown, empty 또는 unsupported state는 암묵적 성공으로 처리하지 않습니다.
-- 마지막 consumer와 regression evidence는 같은 production decision path를 기준으로 확인합니다.
+### Fixed invariants
 
-## 2. 이 Thread를 이해하기 위한 핵심 질문
+- `isSitePageEnabled("interviewMap", content)`가 거짓이면 partial evidence page를 공개하지 않고 `notFound()`로 종료합니다.
+- topic index는 track IDs/labels에 대한 page-local navigation이며 source data의 순서를 따릅니다.
+- `gaps`는 숨기거나 자동으로 보충하지 않고 별도 목록으로 공개합니다.
+- track의 external reference/question과 project answer/depth는 다른 evidence 열로 유지됩니다.
+- answer의 project ID를 찾지 못하면 행을 제거하지 않고 raw ID를 표시해 참조 공백을 드러냅니다.
 
-- 첫 commit 직전에는 이 관심사가 어느 파일과 consumer에 분산돼 있었는가?
-- Commit sequence를 따라가며 데이터, 상태, 렌더링 또는 routing의 실제 owner가 어떻게 이동하는가?
-- Optional, disabled, unknown, empty, unsupported state는 각 시점에 어떻게 처리되는가?
-- 마지막 commit이 보장하는 것과 여전히 다른 thread가 책임지는 범위는 무엇인가?
+## 2. Core engineering questions
 
-## 3. 완료 기준
+1. Interview Map page flag가 꺼졌을 때 route는 어디에서 종료되는가?
+2. reference repository, topic index, gaps는 각각 어떤 목적을 가지며 동일한 evidence가 아닌 이유는 무엇인가?
+3. track section은 item count, intro, external reference, question을 어떤 계층으로 표현하는가?
+4. answer project ID lookup을 위해 어떤 map을 만들고, lookup failure를 왜 drop하지 않고 raw ID로 보여 주는가?
+5. answer label/title과 depth explanation은 table에서 어떤 별도 열로 유지되는가?
 
-- 각 SHA의 parent diff와 resulting tree에서 실제 변경 파일과 symbol을 확인했습니다.
-- 중앙화된 결정과 renderer/component에 남은 표현 책임을 구분했습니다.
-- Failure, absence, fallback, cleanup 또는 progressive-enhancement branch를 기록했습니다.
-- 관련 test가 있으면 production path, technique, proves/does-not-prove를 구분했습니다.
-- 최종 실행 흐름을 코드 없이 설명할 수 있습니다.
+## 3. Completion criteria
 
-## 4. Commit map
+- [ ] 모든 commit을 부모 상태와 exact SHA에서 비교하고 final HEAD를 과거에 투영하지 않았습니다.
+- [ ] 각 commit의 concrete file/function/component/data field와 caller→callee 또는 data flow를 기록했습니다.
+- [ ] optional data, missing reference, empty array, disabled page 등 실제 failure/absence branch를 설명했습니다.
+- [ ] 소유권·표시 책임·상태 전환과 적용되지 않는 resource cleanup을 구분했습니다.
+- [ ] 보장과 비보장을 분리하고 후속 commit/category와의 관계를 연결했습니다.
+- [ ] 실행하지 않은 build/test/runtime 결과를 통과했다고 표시하지 않았습니다.
 
-| 순서 | Commit | Subject | Importance | Tags | 확장 thread에서 확인할 역할 |
-| ---: | --- | --- | :---: | --- | --- |
-| 1 | `ddba753f7f51` | feat(interview-map): 근거 route 소개 추가 | B | ROUTING, RENDERER | 초기 상태와 vocabulary를 고정합니다. |
-| 2 | `cb161d118ddd` | feat(interview-map): 인터뷰 주제 인덱스 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 3 | `9704aa5f7b59` | feat(interview-map): 근거 공백 목록 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 4 | `a3fb132d33f7` | feat(interview-map): 주제 track 소개 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 5 | `cdcbbc937490` | feat(interview-map): 주제와 외부 참조 표 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 6 | `1cd28c140350` | feat(interview-map): 프로젝트 답변 근거 연결 | B | RENDERER | Thread의 통합·검증 상태를 확인합니다. |
+## 4. Frozen commit map
 
-## 5. Commit별 학습 기록
+| Order | SHA | Subject | Importance | Tags | Source-defined role |
+|---:|---|---|:---:|---|---|
+| 1 | `ddba753f7f51` | feat(interview-map): 근거 route 소개 추가 | B | ROUTING, RENDERER | feature-flagged Interview Map route, intro, reference repository link를 최초 구성합니다. |
+| 2 | `cb161d118ddd` | feat(interview-map): 인터뷰 주제 인덱스 추가 | B | RENDERER | track 목록을 page-local topic anchor index로 추가합니다. |
+| 3 | `9704aa5f7b59` | feat(interview-map): 근거 공백 목록 추가 | B | RENDERER | 현재 evidence의 부족 영역을 명시적인 gaps 목록으로 공개합니다. |
+| 4 | `a3fb132d33f7` | feat(interview-map): 주제 track 소개 추가 | B | RENDERER | 각 interview track의 intro와 item count를 독립 section으로 구성합니다. |
+| 5 | `cdcbbc937490` | feat(interview-map): 주제와 외부 참조 표 추가 | B | RENDERER | track items의 topic, external reference, interview question을 표 구조로 추가합니다. |
+| 6 | `1cd28c140350` | feat(interview-map): 프로젝트 답변 근거 연결 | B | RENDERER | 각 question의 answers를 project case studies와 depth explanation으로 연결합니다. |
 
-각 section은 반드시 해당 SHA의 tree와 parent diff를 기준으로 작성합니다. 같은 commit이 다른 확장 thread에 다시 등장해도 이 thread의 관점에서 별도로 확인합니다.
+## 5. Commit-by-commit historical investigation
 
-### 1. `ddba753f7f51` — feat(interview-map): 근거 route 소개 추가
+### 5.1. `ddba753f7f51` — feat(interview-map): 근거 route 소개 추가
 
 - **Importance:** B
 - **Tags:** ROUTING, RENDERER
-- **확장 thread에서의 역할:** 초기 상태/기반
+- **Source-defined role:** feature-flagged Interview Map route, intro, reference repository link를 최초 구성합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `ddba753f7f51^`와 `ddba753f7f51`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/interview-map/page.tsx` — `InterviewMapPage`
+- `isSitePageEnabled("interviewMap", content)`와 `notFound()`
+- `content.interviewMap.intro`, `content.interviewMap.referenceRepo`
+- `presentation.pages.interviewMap.hero`
+- external anchor의 `target="_blank"`, `rel="noreferrer"`
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `ddba753f7f51^`와 `ddba753f7f51`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. `isSitePageEnabled("interviewMap", content)`와 `notFound()`가 partial page보다 먼저 실행되는지 확인합니다.
+2. intro/referenceRepo와 presentation hero copy의 data flow를 추적합니다.
+3. external anchor의 target/rel semantics와 fallback URL 부재를 기록합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-### 2. `cb161d118ddd` — feat(interview-map): 인터뷰 주제 인덱스 추가
+### 5.2. `cb161d118ddd` — feat(interview-map): 인터뷰 주제 인덱스 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Source-defined role:** track 목록을 page-local topic anchor index로 추가합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `cb161d118ddd^`와 `cb161d118ddd`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/interview-map/page.tsx` — topic index/nav section
+- `content.interviewMap.tracks`
+- track `id`, `label` 또는 title을 fragment href로 변환하는 위치
+- `presentation.pages.interviewMap`의 index labels
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `cb161d118ddd^`와 `cb161d118ddd`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. tracks의 ID/label/order가 topic index fragment links로 변환되는 규칙을 확인합니다.
+2. link href와 후속 section ID가 일치하도록 어떤 field를 공유하는지 기록합니다.
+3. tracks가 비어 있을 때 hero/index DOM 상태를 확인합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-### 3. `9704aa5f7b59` — feat(interview-map): 근거 공백 목록 추가
+### 5.3. `9704aa5f7b59` — feat(interview-map): 근거 공백 목록 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Source-defined role:** 현재 evidence의 부족 영역을 명시적인 gaps 목록으로 공개합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `9704aa5f7b59^`와 `9704aa5f7b59`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/interview-map/page.tsx` — gaps section
+- `content.interviewMap.gaps`
+- `presentation.pages.interviewMap.gaps`
+- gap item semantic list/card 반복
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `9704aa5f7b59^`와 `9704aa5f7b59`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. `interviewMap.gaps`가 별도 section/list로 렌더링되는 위치와 presentation framing을 확인합니다.
+2. gap이 runtime error/empty-state와 다른 content claim임을 data model과 DOM으로 구분합니다.
+3. 빈 gaps에서 자동 gap 추론이나 placeholder 생성이 없는지 기록합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-### 4. `a3fb132d33f7` — feat(interview-map): 주제 track 소개 추가
+### 5.4. `a3fb132d33f7` — feat(interview-map): 주제 track 소개 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Source-defined role:** 각 interview track의 intro와 item count를 독립 section으로 구성합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `a3fb132d33f7^`와 `a3fb132d33f7`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/interview-map/page.tsx` — `TrackSection` 초기 형태
+- `content.interviewMap.tracks` 반복
+- track ID를 section `id`로 적용
+- track title/intro/item count와 alternating background
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `a3fb132d33f7^`와 `a3fb132d33f7`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. `TrackSection`이 track ID, title, intro, item count를 어떻게 소비하는지 확인합니다.
+2. alternating background/index 기반 presentation과 semantic section ID를 기록합니다.
+3. 0-item track이 section 자체를 생략하는지 0 count를 보여 주는지 exact JSX에서 판별합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-### 5. `cdcbbc937490` — feat(interview-map): 주제와 외부 참조 표 추가
+### 5.5. `cdcbbc937490` — feat(interview-map): 주제와 외부 참조 표 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Source-defined role:** track items의 topic, external reference, interview question을 표 구조로 추가합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `cdcbbc937490^`와 `cdcbbc937490`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/interview-map/page.tsx` — `TrackSection` table
+- track item의 topic/title, reference link, question fields
+- `presentation.pages.interviewMap.tracks` column labels
+- external anchor semantics와 table header/body 관계
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `cdcbbc937490^`와 `cdcbbc937490`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. track item의 topic/reference/question이 table headers와 cells에 어떻게 매핑되는지 확인합니다.
+2. external reference anchor semantics와 question text source를 기록합니다.
+3. answer/depth columns가 아직 없는 이전 state를 명시합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-### 6. `1cd28c140350` — feat(interview-map): 프로젝트 답변 근거 연결
+### 5.6. `1cd28c140350` — feat(interview-map): 프로젝트 답변 근거 연결
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 통합·검증
+- **Source-defined role:** 각 question의 answers를 project case studies와 depth explanation으로 연결합니다.
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Exact inspection targets
 
-- `1cd28c140350^`와 `1cd28c140350`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/interview-map/page.tsx` — `TrackSection`
+- `projectsById = new Map(content.projects.map(...))`
+- `item.answers.map(...)`
+- missing project branch가 raw `answer.projectId`를 출력하는 위치
+- `getTemplateHref`를 사용한 project detail link
+- answer/depth table columns
 
-확인 원칙:
+#### Commit-specific investigation tasks
 
-- 먼저 `1cd28c140350^`와 `1cd28c140350`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+1. `projectsById` Map 구성 비용/범위와 `item.answers` lookup 순서를 추적합니다.
+2. lookup success의 project detail link와 failure의 raw project ID branch를 비교합니다.
+3. answer와 depth lists가 같은 answer order를 유지하면서 별도 columns에 표현되는지 확인합니다.
 
-#### 학습자가 남길 증거
+#### Learner evidence record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- learner: 부모 상태와 정확한 SHA diff를 대조해 아래 항목을 채우십시오. final HEAD의 구현을 이 시점에 소급하지 마십시오. -->
+- **Previous state:**
+- **Implementation decision and path:**
+- **Ownership and data lifetime:**
+- **Failure, absence, and non-guarantee:**
+- **Resulting guarantee:**
+- **Relationship to later work:**
+- **Resource acquisition and cleanup, or why not applicable:**
 
-#### 코드 발췌 기록
+#### Execution evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner: 실제로 실행한 명령이 있으면 exact SHA, command, relevant result를 기록하십시오. 실행하지 못했다면 정적 검토와 환경 제한을 구분해 설명하십시오. -->
 
-## 6. Invariant ledger
+## 6. Invariant evolution
 
-| Invariant | 도입·강화 commit | 실제 code/test evidence | 부족함이 드러난 시점 | 최종 보장 범위 |
-| --- | --- | --- | --- | --- |
-| `Interview evidence map and gaps`의 핵심 결정은 한 owner가 수행합니다. |  |  |  |  |
-| Optional/disabled/unknown state는 explicit policy로 처리됩니다. |  |  |  |  |
-| Consumer와 regression evidence는 동일 production path를 사용합니다. |  |  |  |  |
+<!-- learner: invariant가 도입·확장·불충분 판정·교정·검증된 순서를 commit SHA와 함께 복원하십시오. -->
 
-## 7. Failure → Fix → Test 연결
+## 7. Failure → Fix → Test and later relationships
 
-| 기존 가정 또는 위험 | 대응 commit | 실제 수정/강화 code에서 확인할 것 | Test 또는 실행 증거 |
-| --- | --- | --- | --- |
-| Caller/renderer마다 같은 결정을 다시 수행함 |  | 중앙화된 owner와 제거된 local logic |  |
-| Empty/unknown/disabled state가 정상 값처럼 흘러감 |  | explicit branch, fallback, omission 또는 error |  |
-| 구현은 존재하지만 regression evidence가 없음 |  | production path를 직접 통과하는 test/command |  |
+<!-- learner: Failure → Fix → Test 또는 구현 → integration → regression 관계를 기록하십시오. 해당 commit이 없으면 왜 없는지 설명하십시오. -->
 
-## 8. Ownership / state / responsibility 변화
+## 8. Ownership, state, and responsibility changes
 
-| Concern | Thread 초기 owner/state | Thread 최종 owner/state | 실제 symbol과 호출 경로 |
-| --- | --- | --- | --- |
-| 입력 또는 source state |  |  |  |
-| 파생·선택·정렬·fallback |  |  |  |
-| Route/component/rendering |  |  |  |
-| Failure/absence 처리 |  |  |  |
-| Regression evidence |  |  |  |
+<!-- learner: content, selector, route, shared component, later view model 사이의 소유권·책임 이동을 기록하십시오. -->
 
-## 9. Thread 최종 상태
+## 9. Final thread state
 
-### 확장 계획에서 정의한 최종 상태
+<!-- learner: frozen commit map 마지막 상태에서 이 Thread가 보장하는 기능과 보장하지 않는 범위를 요약하십시오. -->
 
-Interview Map이 track index, external references, question table, project-backed answers와 explicit evidence gaps를 갖춘 검증 가능한 근거 지도으로 발전하는 과정을 복원합니다.
+## 10. Final architecture and execution flow
 
-### 학습자가 완성할 최종 설명
+<!-- learner: source data에서 route/component/link/failure branch까지 최종 실행·표현 흐름을 순서대로 설명하십시오. -->
 
-- Thread 시작 시점의 설계와 위험:
-- 핵심 decision과 responsibility 이동 순서:
-- 실제 failure, absence 또는 performance/accessibility risk:
-- Fix/refactor가 바꾼 invariant:
-- Test/browser evidence가 보장한 범위:
-- Thread 종료 시점에도 보장하지 않는 범위:
+## 11. Minimal historical code evidence
 
-## 10. 최종 architecture 또는 execution flow 정리
+<!-- learner: 설계·상태 전환·참조 해석·failure branch를 가장 잘 보여 주는 exact-SHA 최소 code excerpt를 하나 선택하고 SHA/path/symbol을 명시하십시오. -->
 
-1. 초기 source/state를 읽거나 구성합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-2. 공용 boundary가 validation, selection, normalization 또는 state resolution을 수행합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-3. Route/component/view model이 필요한 형태로 데이터를 준비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-4. Renderer 또는 browser interaction이 결과를 소비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-5. Test 또는 실행 command가 production invariant를 검증합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
+## 12. Learning-completion checks
 
-### 코드 없이 설명하기
-
-> 이 Thread의 최종 흐름을 설계 → 구현 → failure/risk → 수정/강화 → 검증 순서로 작성합니다.
-
-## 11. 학습 완료 자가 점검
-
-- [ ] Commit map의 모든 SHA가 `web/portfolio` ancestry에 속하는지 확인했습니다.
-- [ ] 각 commit의 parent diff와 resulting tree를 확인했습니다.
-- [ ] Importance에 따라 S/A/B/C 학습 깊이를 구분했습니다.
-- [ ] Fix를 기존 가정 → failure → root cause → corrected invariant로 설명했습니다.
-- [ ] Test의 technique, production path, proves/does-not-prove를 구분했습니다.
-- [ ] Final HEAD를 과거 commit에 소급하지 않았습니다.
-- [ ] Thread 최종 흐름을 코드 없이 설명할 수 있습니다.
+- [ ] Frozen commit map 6개를 모두 completion record와 연결했습니다.
+- [ ] SHA, subject, importance, tags, source-defined role의 고정 정보를 scaffold와 동일하게 유지했습니다.
+- [ ] 각 historical claim을 해당 SHA diff에 한정하고 later implementation을 소급하지 않았습니다.
+- [ ] fix/test가 없거나 다른 category 소유인 경우 그 사실을 명시했습니다.
+- [ ] runtime execution status를 명시했으며 실행하지 않은 command를 성공으로 기록하지 않았습니다.
+- [ ] learner placeholder를 남기지 않았습니다.

@@ -1,28 +1,64 @@
-# Routing, navigation, and page lifecycle
+# Category 02 — Routing, Navigation, and Page Lifecycle
 
-## 범위
+## Scope
 
-App Router query state, internal URL construction, shared shell navigation, dynamic routes, page enablement, not-found behavior와 공용 page context를 다룹니다.
+This category reconstructs the App Router lifecycle that turns URL state and validated page configuration into addressable routes, shared navigation, page availability, not-found recovery, and common page context.
 
-## 분류 원칙
+It includes:
 
-- 이 category/thread 구조는 원본 7개 Development Thread를 대체하거나 수정하지 않는 확장 계획입니다.
-- Commit SHA, subject, importance와 tags는 branch의 `commit/commit-importance.md`를 따릅니다.
-- Thread grouping과 목표는 웹 개발 학습 범위를 넓히기 위해 새로 계획했습니다.
-- Product delivery 전용 작업은 `08-product-delivery-and-runtime-verification`에서 별도로 다룹니다.
+- query-state normalization and state-preserving internal URLs
+- shared header, footer, mobile navigation, and active-route semantics
+- native design-switcher disclosure, hydration, focus, and server/client ownership
+- project index and dynamic detail addressability
+- page capability gates for optional routes
+- global not-found recovery
+- common page-context consolidation
 
-## 권장 학습 순서
+It excludes:
 
-1. [Query state and route-preserving navigation](01-query-state-and-route-preserving-navigation.md)
-2. [Shared shell navigation and mobile menu](02-shared-shell-navigation-and-mobile-menu.md)
-3. [Project index and dynamic detail lifecycle](03-project-index-and-dynamic-detail-lifecycle.md)
-4. [Auxiliary route lifecycle](04-auxiliary-route-lifecycle.md)
-5. [Page context consolidation](05-page-context-consolidation.md)
+- typed content-link transport and external-anchor security, which belong to Category 03
+- page body feature construction, which belongs to Category 04
+- visual-system styling and complete renderer construction, which belong to Category 05
+- generic test/performance strategy, which belongs to Category 07
+- source-defined cross-cutting architecture narratives, which may reuse selected commits in Category 09
 
-## 문서 사용법
+## Phase 1 audit outcome
 
-1. Thread 목표와 commit map을 먼저 읽습니다.
-2. 각 SHA를 parent와 비교하고 해당 SHA의 resulting tree를 확인합니다.
-3. learner-facing table과 code evidence를 채웁니다.
-4. Invariant ledger, Failure → Fix → Test, ownership 변화를 연결합니다.
-5. 마지막에 코드 없이 최종 흐름을 설명합니다.
+The draft category had five generic Threads. Repository evidence required these material changes before freeze:
+
+- removed `f63c978c71c9` from query navigation because Category 03 already owns the typed internal/external link transport story
+- reordered `51806e1875e7` before the later mobile-menu and shared-switcher commits
+- moved `42bef4e5783c` to the beginning of page-context consolidation because it is pre-refactor characterization
+- added the omitted native design-switcher lifecycle from client disclosure through hydration regression and server-first reduction
+- separated global 404 recovery from project dynamic-route creation
+- consolidated duplicated page-enablement work into one availability Thread
+- added exact URL helper tests from `3353032ba23b`
+- retained only commits whose code materially belongs to this category boundary
+
+The resulting seven-Thread scaffold is frozen for Phase 2.
+
+## Frozen file set
+
+| Thread | File | Engineering story | Commits |
+| ---: | --- | --- | ---: |
+| 01 | `01-query-state-and-route-preserving-navigation.md` | Query State and Route-Preserving Navigation | 4 |
+| 02 | `02-shared-shell-navigation-and-mobile-menu.md` | Shared Shell Navigation and Mobile Menu | 6 |
+| 03 | `03-native-design-switcher-page-lifecycle.md` | Native Design Switcher Page Lifecycle | 7 |
+| 04 | `04-project-index-and-dynamic-detail-lifecycle.md` | Project Index and Dynamic Detail Lifecycle | 2 |
+| 05 | `05-page-availability-and-auxiliary-route-lifecycle.md` | Page Availability and Auxiliary Route Lifecycle | 7 |
+| 06 | `06-custom-not-found-recovery.md` | Custom Not-Found Recovery | 2 |
+| 07 | `07-page-context-consolidation.md` | Page Context Consolidation | 5 |
+
+`README.md` plus these seven files are the complete category file set. The completed directory must have the exact same relative paths and no extras.
+
+## Historical validation basis
+
+- Branch-local classification: `commit/commit-importance.md`
+- Exact commit inspection through the GitHub connector
+- The classification source describes `web/portfolio` as a complete independent linear root-to-head history
+- Ancestry anchors were checked with GitHub compare: the earliest referenced `902eddcef875` and latest referenced `b669e04c0932` are merge-base ancestors of `web/portfolio` with `behind_by: 0`
+- Every frozen SHA is present in the branch-local classification and was resolved to its exact commit subject/diff
+
+## Completion and execution record
+
+> **학습자 작성란:** [[LEARNER:README_STATUS]]

@@ -1,504 +1,499 @@
 # Thread: Runtime schema vocabulary
 
-> Project: 42 Archive Portfolio (`web/portfolio`)
->
-> 이 문서는 원본 7개 Development Thread를 변경하지 않고, 같은 branch history를 웹 개발 학습 영역별로 추가 분류한 확장 scaffold입니다.
+> Repository: `https://github.com/seungwoo7050/42-archive`  
+> Branch: `web/portfolio`  
+> Category: `01-application-foundation-and-content-systems`
 
 ## 0. 분류 출처와 변경 가능 범위
 
-- Commit SHA, subject, importance, tags는 `commit/commit-importance.md`의 분류를 사용합니다.
-- 이 문서의 category, thread grouping, thread goal과 commit별 역할은 확장 계획에서 새로 정의했습니다.
-- 실제 code evidence, failure 재현, command 결과와 최종 설명은 학습자가 해당 SHA를 직접 확인해 채웁니다.
-- 다른 branch의 구현이나 final HEAD를 과거 SHA 설명에 소급하지 않습니다.
+- Commit SHA, subject, importance, tags는 target branch의 `commit/commit-importance.md` 분류와 exact commit metadata를 사용합니다.
+- 이 문서의 Thread grouping, 목표, 역할, 조사 지점은 Phase 1 category audit에서 repository evidence를 기준으로 확정했습니다.
+- Phase 2에서는 이 fixed information을 바꾸지 않고 learner-facing 기록만 채웠습니다.
+- 다른 branch나 final HEAD 구현을 과거 SHA 설명에 소급하지 않습니다.
 
 ## 1. Thread 목표
 
-공통 primitive에서 site/profile, links, projects, technology, journey, résumé와 curation까지 runtime schema vocabulary를 점진적으로 구축하는 과정을 복원합니다.
+TypeScript assertion만 존재하던 domain source에 Zod dependency와 공용 primitive를 도입하고 site, profile, links, projects, technology, experience, journey, contact, résumé, interview map, curation의 runtime shape를 단계적으로 고정하는 과정을 복원합니다.
 
 ### 계획된 핵심 invariant
 
-- `Runtime schema vocabulary`의 주요 결정은 route/design/component마다 중복 해석되지 않고 명시된 owner에 위치합니다.
-- Optional, disabled, unknown, empty 또는 unsupported state는 암묵적 성공으로 처리하지 않습니다.
-- 마지막 consumer와 regression evidence는 같은 production decision path를 기준으로 확인합니다.
+- 공백뿐인 문자열, 허용하지 않은 ID·URL·asset path는 공용 primitive에서 거부합니다.
+- 알려진 domain object는 대체로 `strict()`로 예상 밖 key를 거부하되 optional field는 schema에 명시합니다.
+- Schema 정의와 실제 source parsing, cross-file reference validation은 서로 다른 책임입니다.
 
 ## 2. 이 Thread를 이해하기 위한 핵심 질문
 
-- 첫 commit 직전에는 이 관심사가 어느 파일과 consumer에 분산돼 있었는가?
-- Commit sequence를 따라가며 데이터, 상태, 렌더링 또는 routing의 실제 owner가 어떻게 이동하는가?
-- Optional, disabled, unknown, empty, unsupported state는 각 시점에 어떻게 처리되는가?
-- 마지막 commit이 보장하는 것과 여전히 다른 thread가 책임지는 범위는 무엇인가?
+- 정적 TypeScript type이 runtime source 신뢰를 제공하지 못하는 이유는 무엇인가?
+- `strict()`, `optional()`, `nullable()`, `min(1)`이 각 source의 허용 범위를 어떻게 바꾸는가?
+- 이 Thread가 검증하는 단일 파일 shape와 후속 loader가 검증하는 참조 무결성은 어디서 갈리는가?
 
 ## 3. 완료 기준
 
-- 각 SHA의 parent diff와 resulting tree에서 실제 변경 파일과 symbol을 확인했습니다.
-- 중앙화된 결정과 renderer/component에 남은 표현 책임을 구분했습니다.
-- Failure, absence, fallback, cleanup 또는 progressive-enhancement branch를 기록했습니다.
-- 관련 test가 있으면 production path, technique, proves/does-not-prove를 구분했습니다.
-- 최종 실행 흐름을 코드 없이 설명할 수 있습니다.
+- 각 SHA의 parent diff와 resulting tree에서 실제 file/symbol을 확인합니다.
+- 이전 상태, implementation decision, owner/lifetime, absence/failure/fallback, guarantee/non-guarantee를 분리합니다.
+- Fix·refactor·integration은 바로 앞의 assumption이나 duplicated responsibility와 연결합니다.
+- 테스트나 command는 실제 실행 여부를 정적 검토와 명확히 구분합니다.
+- Thread 종료 시 invariant evolution과 최종 flow를 코드 없이 설명합니다.
 
 ## 4. Commit map
 
-| 순서 | Commit | Subject | Importance | Tags | 확장 thread에서 확인할 역할 |
+| 순서 | Commit | Subject | Importance | Tags | 이 Thread에서의 역할 |
 | ---: | --- | --- | :---: | --- | --- |
-| 1 | `51ceb76ad88a` | feat(content): 콘텐츠 경로와 기본 식별자 schema 추가 | B | CONTENT, VALIDATION | 초기 상태와 vocabulary를 고정합니다. |
-| 2 | `c2f3d376e96b` | feat(content): 사이트와 프로필 schema 추가 | B | CONTENT, VALIDATION | 기능·책임 경계를 확장합니다. |
-| 3 | `857fa82a2030` | feat(content): 링크와 배포 상태 schema 추가 | B | CONTENT, VALIDATION | 기능·책임 경계를 확장합니다. |
-| 4 | `f1163dc120bc` | feat(content): 프로젝트 분류와 지표 schema 추가 | B | CONTENT, VALIDATION | 기능·책임 경계를 확장합니다. |
-| 5 | `d93ec9730edd` | feat(content): 기술과 경력 schema 추가 | B | CONTENT, VALIDATION | 기능·책임 경계를 확장합니다. |
-| 6 | `6fc79f058744` | feat(content): 여정과 연락 schema 추가 | B | CONTENT, VALIDATION | 기능·책임 경계를 확장합니다. |
-| 7 | `03aacfddc364` | feat(content): Resume 콘텐츠 schema 추가 | B | CONTENT, VALIDATION, RENDERER | 기능·책임 경계를 확장합니다. |
-| 8 | `80152dae761f` | feat(content): 여정 narrative schema 추가 | B | CONTENT, VALIDATION | 기능·책임 경계를 확장합니다. |
-| 9 | `51ce1c15a0e5` | feat(content): Interview Map 콘텐츠 schema 추가 | B | CONTENT, VALIDATION, RENDERER | 기능·책임 경계를 확장합니다. |
-| 10 | `d0a62a7da4bd` | feat(content): 큐레이션 schema와 타입 export 추가 | A | CONTENT, VALIDATION | Thread의 통합·검증 상태를 확인합니다. |
+| 1 | `a1977dc7f026` | build(content): runtime 콘텐츠 검증 의존성 추가 | B | CONTENT, VALIDATION, DEPLOY | runtime validation 도구 기반 |
+| 2 | `51ceb76ad88a` | feat(content): 콘텐츠 경로와 기본 식별자 schema 추가 | B | CONTENT, VALIDATION | 공용 primitive vocabulary |
+| 3 | `c2f3d376e96b` | feat(content): 사이트와 프로필 schema 추가 | B | CONTENT, VALIDATION | site/profile runtime shape |
+| 4 | `857fa82a2030` | feat(content): 링크와 배포 상태 schema 추가 | B | CONTENT, VALIDATION | link/deployment/image schema |
+| 5 | `f1163dc120bc` | feat(content): 프로젝트 분류와 지표 schema 추가 | B | CONTENT, VALIDATION | project group/metric vocabulary |
+| 6 | `a944c73f0557` | feat(content): 프로젝트 사례 schema 추가 | A | CONTENT, VALIDATION | 완전한 project catalog schema |
+| 7 | `d93ec9730edd` | feat(content): 기술과 경력 schema 추가 | B | CONTENT, VALIDATION | technology/skills/experience schemas |
+| 8 | `6fc79f058744` | feat(content): 여정과 연락 schema 추가 | B | CONTENT, VALIDATION | journey/link-list/contact schemas |
+| 9 | `03aacfddc364` | feat(content): Resume 콘텐츠 schema 추가 | B | CONTENT, VALIDATION, RENDERER | résumé schema |
+| 10 | `80152dae761f` | feat(content): 여정 narrative schema 추가 | B | CONTENT, VALIDATION | journey narrative schema |
+| 11 | `51ce1c15a0e5` | feat(content): Interview Map 콘텐츠 schema 추가 | B | CONTENT, VALIDATION, RENDERER | interview evidence schema |
+| 12 | `d0a62a7da4bd` | feat(content): 큐레이션 schema와 타입 export 추가 | A | CONTENT, VALIDATION | curation schema 및 schema-derived source types |
 
 ## 5. Commit별 학습 기록
 
-각 section은 반드시 해당 SHA의 tree와 parent diff를 기준으로 작성합니다. 같은 commit이 다른 확장 thread에 다시 등장해도 이 thread의 관점에서 별도로 확인합니다.
+### 1. `a1977dc7f026` — build(content): runtime 콘텐츠 검증 의존성 추가
 
-### 1. `51ceb76ad88a` — feat(content): 콘텐츠 경로와 기본 식별자 schema 추가
+- **Importance:** B
+- **Tags:** CONTENT, VALIDATION, DEPLOY
+- **Thread 역할:** runtime validation 도구 기반
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
+
+#### 해당 SHA에서 확인할 실제 코드
+
+- `package.json`과 lockfile에서 `zod`와 `tsx` 추가를 확인합니다.
+- `zod`가 runtime dependency이고 `tsx`가 development command 실행 도구인지 구분합니다.
+
+확인 원칙:
+
+- 먼저 `a1977dc7f026^`와 `a1977dc7f026`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:05-runtime-schema-vocabulary.md:c1.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:05-runtime-schema-vocabulary.md:c1.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:05-runtime-schema-vocabulary.md:c1.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:05-runtime-schema-vocabulary.md:c1.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:05-runtime-schema-vocabulary.md:c1.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:05-runtime-schema-vocabulary.md:c1.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:05-runtime-schema-vocabulary.md:c1.evidence -->
+
+### 2. `51ceb76ad88a` — feat(content): 콘텐츠 경로와 기본 식별자 schema 추가
 
 - **Importance:** B
 - **Tags:** CONTENT, VALIDATION
-- **확장 thread에서의 역할:** 초기 상태/기반
+- **Thread 역할:** 공용 primitive vocabulary
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `51ceb76ad88a^`와 `51ceb76ad88a`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `nonEmptyString`, `contentId`, href/asset path schema의 구현을 확인합니다.
+- trim 후 `min(1)`, ID 정규식, 허용 protocol과 `/template`·`/assets` prefix 범위를 기록합니다.
 
 확인 원칙:
 
-- 먼저 `51ceb76ad88a^`와 `51ceb76ad88a`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `51ceb76ad88a^`와 `51ceb76ad88a`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:05-runtime-schema-vocabulary.md:c2.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:05-runtime-schema-vocabulary.md:c2.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:05-runtime-schema-vocabulary.md:c2.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:05-runtime-schema-vocabulary.md:c2.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:05-runtime-schema-vocabulary.md:c2.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:05-runtime-schema-vocabulary.md:c2.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:05-runtime-schema-vocabulary.md:c2.evidence -->
 
-### 2. `c2f3d376e96b` — feat(content): 사이트와 프로필 schema 추가
+### 3. `c2f3d376e96b` — feat(content): 사이트와 프로필 schema 추가
 
 - **Importance:** B
 - **Tags:** CONTENT, VALIDATION
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** site/profile runtime shape
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `c2f3d376e96b^`와 `c2f3d376e96b`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `siteContentSchema`, `profileContentSchema`와 하위 navigation/footer/photo/principle schema를 확인합니다.
+- `siteContentSchema`의 `passthrough()`와 `pages` 하위 object의 strictness 차이를 기록합니다.
 
 확인 원칙:
 
-- 먼저 `c2f3d376e96b^`와 `c2f3d376e96b`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `c2f3d376e96b^`와 `c2f3d376e96b`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:05-runtime-schema-vocabulary.md:c3.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:05-runtime-schema-vocabulary.md:c3.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:05-runtime-schema-vocabulary.md:c3.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:05-runtime-schema-vocabulary.md:c3.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:05-runtime-schema-vocabulary.md:c3.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:05-runtime-schema-vocabulary.md:c3.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:05-runtime-schema-vocabulary.md:c3.evidence -->
 
-### 3. `857fa82a2030` — feat(content): 링크와 배포 상태 schema 추가
+### 4. `857fa82a2030` — feat(content): 링크와 배포 상태 schema 추가
 
 - **Importance:** B
 - **Tags:** CONTENT, VALIDATION
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** link/deployment/image schema
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `857fa82a2030^`와 `857fa82a2030`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `contentLinkSchema`, `deploymentStatusSchema`, `projectImageSchema`를 확인합니다.
+- link type, env key, external/enabled/placements optional field와 object `strict()`를 기록합니다.
 
 확인 원칙:
 
-- 먼저 `857fa82a2030^`와 `857fa82a2030`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `857fa82a2030^`와 `857fa82a2030`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:05-runtime-schema-vocabulary.md:c4.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:05-runtime-schema-vocabulary.md:c4.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:05-runtime-schema-vocabulary.md:c4.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:05-runtime-schema-vocabulary.md:c4.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:05-runtime-schema-vocabulary.md:c4.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:05-runtime-schema-vocabulary.md:c4.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:05-runtime-schema-vocabulary.md:c4.evidence -->
 
-### 4. `f1163dc120bc` — feat(content): 프로젝트 분류와 지표 schema 추가
+### 5. `f1163dc120bc` — feat(content): 프로젝트 분류와 지표 schema 추가
 
 - **Importance:** B
 - **Tags:** CONTENT, VALIDATION
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** project group/metric vocabulary
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `f1163dc120bc^`와 `f1163dc120bc`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `projectGroupSchema`, `projectMetricFilterSchema`, `projectMetricSchema`를 확인합니다.
+- non-negative order, optional project/group/tag/featured/deployment filters, aggregate enum을 기록합니다.
 
 확인 원칙:
 
-- 먼저 `f1163dc120bc^`와 `f1163dc120bc`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `f1163dc120bc^`와 `f1163dc120bc`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:05-runtime-schema-vocabulary.md:c5.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:05-runtime-schema-vocabulary.md:c5.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:05-runtime-schema-vocabulary.md:c5.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:05-runtime-schema-vocabulary.md:c5.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:05-runtime-schema-vocabulary.md:c5.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:05-runtime-schema-vocabulary.md:c5.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:05-runtime-schema-vocabulary.md:c5.evidence -->
 
-### 5. `d93ec9730edd` — feat(content): 기술과 경력 schema 추가
-
-- **Importance:** B
-- **Tags:** CONTENT, VALIDATION
-- **확장 thread에서의 역할:** 기능·경계 확장
-
-#### 해당 SHA에서 확인할 실제 코드
-
-- `d93ec9730edd^`와 `d93ec9730edd`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
-
-확인 원칙:
-
-- 먼저 `d93ec9730edd^`와 `d93ec9730edd`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
-
-#### 학습자가 남길 증거
-
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
-
-#### 코드 발췌 기록
-
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
-
-### 6. `6fc79f058744` — feat(content): 여정과 연락 schema 추가
-
-- **Importance:** B
-- **Tags:** CONTENT, VALIDATION
-- **확장 thread에서의 역할:** 기능·경계 확장
-
-#### 해당 SHA에서 확인할 실제 코드
-
-- `6fc79f058744^`와 `6fc79f058744`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
-
-확인 원칙:
-
-- 먼저 `6fc79f058744^`와 `6fc79f058744`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
-
-#### 학습자가 남길 증거
-
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
-
-#### 코드 발췌 기록
-
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
-
-### 7. `03aacfddc364` — feat(content): Resume 콘텐츠 schema 추가
-
-- **Importance:** B
-- **Tags:** CONTENT, VALIDATION, RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
-
-#### 해당 SHA에서 확인할 실제 코드
-
-- `03aacfddc364^`와 `03aacfddc364`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
-
-확인 원칙:
-
-- 먼저 `03aacfddc364^`와 `03aacfddc364`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
-
-#### 학습자가 남길 증거
-
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
-
-#### 코드 발췌 기록
-
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
-
-### 8. `80152dae761f` — feat(content): 여정 narrative schema 추가
-
-- **Importance:** B
-- **Tags:** CONTENT, VALIDATION
-- **확장 thread에서의 역할:** 기능·경계 확장
-
-#### 해당 SHA에서 확인할 실제 코드
-
-- `80152dae761f^`와 `80152dae761f`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
-
-확인 원칙:
-
-- 먼저 `80152dae761f^`와 `80152dae761f`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
-
-#### 학습자가 남길 증거
-
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
-
-#### 코드 발췌 기록
-
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
-
-### 9. `51ce1c15a0e5` — feat(content): Interview Map 콘텐츠 schema 추가
-
-- **Importance:** B
-- **Tags:** CONTENT, VALIDATION, RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
-
-#### 해당 SHA에서 확인할 실제 코드
-
-- `51ce1c15a0e5^`와 `51ce1c15a0e5`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
-
-확인 원칙:
-
-- 먼저 `51ce1c15a0e5^`와 `51ce1c15a0e5`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
-
-#### 학습자가 남길 증거
-
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
-
-#### 코드 발췌 기록
-
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
-
-### 10. `d0a62a7da4bd` — feat(content): 큐레이션 schema와 타입 export 추가
+### 6. `a944c73f0557` — feat(content): 프로젝트 사례 schema 추가
 
 - **Importance:** A
 - **Tags:** CONTENT, VALIDATION
-- **확장 thread에서의 역할:** 통합·검증
+- **Thread 역할:** 완전한 project catalog schema
+- **조사 깊이:** 주요 subsystem의 결정 경로, owner, failure/non-guarantee와 integration evidence를 구체적으로 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `d0a62a7da4bd^`와 `d0a62a7da4bd`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `portfolioProjectSourceSchema`의 ID/order/group/tags/deployment/images/stack/links/narrative fields를 전부 확인합니다.
+- `projectsContentSchema`의 groups/items `min(1)`, metrics 배열, root `strict()`를 확인합니다.
+- nested architecture/deployment objects와 arrays가 허용하는 empty state를 구분합니다.
 
 확인 원칙:
 
-- 먼저 `d0a62a7da4bd^`와 `d0a62a7da4bd`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `a944c73f0557^`와 `a944c73f0557`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:05-runtime-schema-vocabulary.md:c6.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:05-runtime-schema-vocabulary.md:c6.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:05-runtime-schema-vocabulary.md:c6.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:05-runtime-schema-vocabulary.md:c6.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:05-runtime-schema-vocabulary.md:c6.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:05-runtime-schema-vocabulary.md:c6.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:05-runtime-schema-vocabulary.md:c6.evidence -->
 
-## 6. Invariant ledger
+### 7. `d93ec9730edd` — feat(content): 기술과 경력 schema 추가
 
-| Invariant | 도입·강화 commit | 실제 code/test evidence | 부족함이 드러난 시점 | 최종 보장 범위 |
-| --- | --- | --- | --- | --- |
-| `Runtime schema vocabulary`의 핵심 결정은 한 owner가 수행합니다. |  |  |  |  |
-| Optional/disabled/unknown state는 explicit policy로 처리됩니다. |  |  |  |  |
-| Consumer와 regression evidence는 동일 production path를 사용합니다. |  |  |  |  |
+- **Importance:** B
+- **Tags:** CONTENT, VALIDATION
+- **Thread 역할:** technology/skills/experience schemas
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
-## 7. Failure → Fix → Test 연결
+#### 해당 SHA에서 확인할 실제 코드
 
-| 기존 가정 또는 위험 | 대응 commit | 실제 수정/강화 code에서 확인할 것 | Test 또는 실행 증거 |
+- technology item icon/color, skills group, experience item schema를 확인합니다.
+- 각 record의 strictness와 array cardinality를 기록합니다.
+
+확인 원칙:
+
+- 먼저 `d93ec9730edd^`와 `d93ec9730edd`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:05-runtime-schema-vocabulary.md:c7.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:05-runtime-schema-vocabulary.md:c7.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:05-runtime-schema-vocabulary.md:c7.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:05-runtime-schema-vocabulary.md:c7.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:05-runtime-schema-vocabulary.md:c7.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:05-runtime-schema-vocabulary.md:c7.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:05-runtime-schema-vocabulary.md:c7.evidence -->
+
+### 8. `6fc79f058744` — feat(content): 여정과 연락 schema 추가
+
+- **Importance:** B
+- **Tags:** CONTENT, VALIDATION
+- **Thread 역할:** journey/link-list/contact schemas
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
+
+#### 해당 SHA에서 확인할 실제 코드
+
+- journey item의 nullable `projectId`, links collection, contact preferred ID 배열을 확인합니다.
+- nullable과 optional을 혼동하지 않고 기록합니다.
+
+확인 원칙:
+
+- 먼저 `6fc79f058744^`와 `6fc79f058744`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:05-runtime-schema-vocabulary.md:c8.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:05-runtime-schema-vocabulary.md:c8.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:05-runtime-schema-vocabulary.md:c8.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:05-runtime-schema-vocabulary.md:c8.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:05-runtime-schema-vocabulary.md:c8.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:05-runtime-schema-vocabulary.md:c8.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:05-runtime-schema-vocabulary.md:c8.evidence -->
+
+### 9. `03aacfddc364` — feat(content): Resume 콘텐츠 schema 추가
+
+- **Importance:** B
+- **Tags:** CONTENT, VALIDATION, RENDERER
+- **Thread 역할:** résumé schema
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
+
+#### 해당 SHA에서 확인할 실제 코드
+
+- summary, projectIds, education/training/experience/notes, nullable `downloadUrl` schema를 확인합니다.
+- asset path nullable 의미와 projectIds 배열의 허용 상태를 기록합니다.
+
+확인 원칙:
+
+- 먼저 `03aacfddc364^`와 `03aacfddc364`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:05-runtime-schema-vocabulary.md:c9.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:05-runtime-schema-vocabulary.md:c9.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:05-runtime-schema-vocabulary.md:c9.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:05-runtime-schema-vocabulary.md:c9.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:05-runtime-schema-vocabulary.md:c9.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:05-runtime-schema-vocabulary.md:c9.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:05-runtime-schema-vocabulary.md:c9.evidence -->
+
+### 10. `80152dae761f` — feat(content): 여정 narrative schema 추가
+
+- **Importance:** B
+- **Tags:** CONTENT, VALIDATION
+- **Thread 역할:** journey narrative schema
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
+
+#### 해당 SHA에서 확인할 실제 코드
+
+- intro, milestones, state/reason/result, anchorProjectIds, currentPosition schema를 확인합니다.
+- milestone ID uniqueness와 date 의미가 아직 없는지 확인합니다.
+
+확인 원칙:
+
+- 먼저 `80152dae761f^`와 `80152dae761f`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:05-runtime-schema-vocabulary.md:c10.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:05-runtime-schema-vocabulary.md:c10.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:05-runtime-schema-vocabulary.md:c10.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:05-runtime-schema-vocabulary.md:c10.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:05-runtime-schema-vocabulary.md:c10.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:05-runtime-schema-vocabulary.md:c10.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:05-runtime-schema-vocabulary.md:c10.evidence -->
+
+### 11. `51ce1c15a0e5` — feat(content): Interview Map 콘텐츠 schema 추가
+
+- **Importance:** B
+- **Tags:** CONTENT, VALIDATION, RENDERER
+- **Thread 역할:** interview evidence schema
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
+
+#### 해당 SHA에서 확인할 실제 코드
+
+- reference repo, tracks/items/answers/gaps schema를 확인합니다.
+- answer의 `projectId`와 depth field, track ID가 어떤 primitive를 사용하는지 기록합니다.
+
+확인 원칙:
+
+- 먼저 `51ce1c15a0e5^`와 `51ce1c15a0e5`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:05-runtime-schema-vocabulary.md:c11.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:05-runtime-schema-vocabulary.md:c11.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:05-runtime-schema-vocabulary.md:c11.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:05-runtime-schema-vocabulary.md:c11.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:05-runtime-schema-vocabulary.md:c11.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:05-runtime-schema-vocabulary.md:c11.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:05-runtime-schema-vocabulary.md:c11.evidence -->
+
+### 12. `d0a62a7da4bd` — feat(content): 큐레이션 schema와 타입 export 추가
+
+- **Importance:** A
+- **Tags:** CONTENT, VALIDATION
+- **Thread 역할:** curation schema 및 schema-derived source types
+- **조사 깊이:** 주요 subsystem의 결정 경로, owner, failure/non-guarantee와 integration evidence를 구체적으로 복원합니다.
+
+#### 해당 SHA에서 확인할 실제 코드
+
+- curation intro/criteria/categories/omissions/nextReview schema를 확인합니다.
+- `z.infer` 또는 schema output 기반으로 export되는 source types를 확인하고 수동 type 중복이 줄어드는 범위를 기록합니다.
+
+확인 원칙:
+
+- 먼저 `d0a62a7da4bd^`와 `d0a62a7da4bd`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:05-runtime-schema-vocabulary.md:c12.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:05-runtime-schema-vocabulary.md:c12.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:05-runtime-schema-vocabulary.md:c12.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:05-runtime-schema-vocabulary.md:c12.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:05-runtime-schema-vocabulary.md:c12.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:05-runtime-schema-vocabulary.md:c12.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:05-runtime-schema-vocabulary.md:c12.evidence -->
+
+## 6. Invariant evolution ledger
+
+| 추적할 invariant | 도입·변화 SHA | 실제 owner/evidence | 제한·후속 보호 |
 | --- | --- | --- | --- |
-| Caller/renderer마다 같은 결정을 다시 수행함 |  | 중앙화된 owner와 제거된 local logic |  |
-| Empty/unknown/disabled state가 정상 값처럼 흘러감 |  | explicit branch, fallback, omission 또는 error |  |
-| 구현은 존재하지만 regression evidence가 없음 |  | production path를 직접 통과하는 test/command |  |
+| 공용 primitive가 공백 문자열, ID, URL/asset path 형식을 제한한다. | <!-- learner:05-runtime-schema-vocabulary.md:ledger1.sha --> | <!-- learner:05-runtime-schema-vocabulary.md:ledger1.evidence --> | <!-- learner:05-runtime-schema-vocabulary.md:ledger1.limitation --> |
+| domain object는 알려진 shape와 optional/nullability를 schema로 표현한다. | <!-- learner:05-runtime-schema-vocabulary.md:ledger2.sha --> | <!-- learner:05-runtime-schema-vocabulary.md:ledger2.evidence --> | <!-- learner:05-runtime-schema-vocabulary.md:ledger2.limitation --> |
+| project catalog는 groups/items 최소 한 개와 strict project shape를 요구한다. | <!-- learner:05-runtime-schema-vocabulary.md:ledger3.sha --> | <!-- learner:05-runtime-schema-vocabulary.md:ledger3.evidence --> | <!-- learner:05-runtime-schema-vocabulary.md:ledger3.limitation --> |
+| source type은 schema에서 추론하기 시작한다. | <!-- learner:05-runtime-schema-vocabulary.md:ledger4.sha --> | <!-- learner:05-runtime-schema-vocabulary.md:ledger4.evidence --> | <!-- learner:05-runtime-schema-vocabulary.md:ledger4.limitation --> |
 
-## 8. Ownership / state / responsibility 변화
+## 7. Failure → Fix → Test 관계
 
-| Concern | Thread 초기 owner/state | Thread 최종 owner/state | 실제 symbol과 호출 경로 |
+| Failure 또는 risk | Fix/전환 SHA | 교정된 결정 | Regression·검증 관계 |
 | --- | --- | --- | --- |
-| 입력 또는 source state |  |  |  |
-| 파생·선택·정렬·fallback |  |  |  |
-| Route/component/rendering |  |  |  |
-| Failure/absence 처리 |  |  |  |
-| Regression evidence |  |  |  |
+| TypeScript assertion이 malformed JSON을 통과시킴 | <!-- learner:05-runtime-schema-vocabulary.md:failure1.sha --> | <!-- learner:05-runtime-schema-vocabulary.md:failure1.correction --> | <!-- learner:05-runtime-schema-vocabulary.md:failure1.test --> |
+| project record가 부분 shape로 들어올 위험 | <!-- learner:05-runtime-schema-vocabulary.md:failure2.sha --> | <!-- learner:05-runtime-schema-vocabulary.md:failure2.correction --> | <!-- learner:05-runtime-schema-vocabulary.md:failure2.test --> |
+| schema와 source type이 어긋날 위험 | <!-- learner:05-runtime-schema-vocabulary.md:failure3.sha --> | <!-- learner:05-runtime-schema-vocabulary.md:failure3.correction --> | <!-- learner:05-runtime-schema-vocabulary.md:failure3.test --> |
+
+## 8. Ownership·state·responsibility 변화
+
+| 대상 | 이전 owner/state | 최종 owner/state | 근거 |
+| --- | --- | --- | --- |
+| 문자열/ID/path 규칙 | <!-- learner:05-runtime-schema-vocabulary.md:owner1.before --> | <!-- learner:05-runtime-schema-vocabulary.md:owner1.after --> | <!-- learner:05-runtime-schema-vocabulary.md:owner1.evidence --> |
+| domain file shape | <!-- learner:05-runtime-schema-vocabulary.md:owner2.before --> | <!-- learner:05-runtime-schema-vocabulary.md:owner2.after --> | <!-- learner:05-runtime-schema-vocabulary.md:owner2.evidence --> |
+| source type | <!-- learner:05-runtime-schema-vocabulary.md:owner3.before --> | <!-- learner:05-runtime-schema-vocabulary.md:owner3.after --> | <!-- learner:05-runtime-schema-vocabulary.md:owner3.evidence --> |
+| cross-file semantics | <!-- learner:05-runtime-schema-vocabulary.md:owner4.before --> | <!-- learner:05-runtime-schema-vocabulary.md:owner4.after --> | <!-- learner:05-runtime-schema-vocabulary.md:owner4.evidence --> |
 
 ## 9. Thread 최종 상태
 
-### 확장 계획에서 정의한 최종 상태
+<!-- learner:05-runtime-schema-vocabulary.md:final.state -->
 
-공통 primitive에서 site/profile, links, projects, technology, journey, résumé와 curation까지 runtime schema vocabulary를 점진적으로 구축하는 과정을 복원합니다.
+### 최종 설명
 
-### 학습자가 완성할 최종 설명
+<!-- learner:05-runtime-schema-vocabulary.md:final.explanation -->
 
-- Thread 시작 시점의 설계와 위험:
-- 핵심 decision과 responsibility 이동 순서:
-- 실제 failure, absence 또는 performance/accessibility risk:
-- Fix/refactor가 바꾼 invariant:
-- Test/browser evidence가 보장한 범위:
-- Thread 종료 시점에도 보장하지 않는 범위:
+## 10. 최종 실행·데이터 흐름
 
-## 10. 최종 architecture 또는 execution flow 정리
+| 단계 | Owner/call path | 입력·출력 | Failure/non-guarantee |
+| --- | --- | --- | --- |
+| 원시 JSON 값을 schema에 입력할 준비를 합니다. | <!-- learner:05-runtime-schema-vocabulary.md:flow1.owner --> | <!-- learner:05-runtime-schema-vocabulary.md:flow1.io --> | <!-- learner:05-runtime-schema-vocabulary.md:flow1.failure --> |
+| 공용 primitive를 먼저 적용합니다. | <!-- learner:05-runtime-schema-vocabulary.md:flow2.owner --> | <!-- learner:05-runtime-schema-vocabulary.md:flow2.io --> | <!-- learner:05-runtime-schema-vocabulary.md:flow2.failure --> |
+| nested domain object를 검사합니다. | <!-- learner:05-runtime-schema-vocabulary.md:flow3.owner --> | <!-- learner:05-runtime-schema-vocabulary.md:flow3.io --> | <!-- learner:05-runtime-schema-vocabulary.md:flow3.failure --> |
+| schema-derived type을 export합니다. | <!-- learner:05-runtime-schema-vocabulary.md:flow4.owner --> | <!-- learner:05-runtime-schema-vocabulary.md:flow4.io --> | <!-- learner:05-runtime-schema-vocabulary.md:flow4.failure --> |
 
-1. 초기 source/state를 읽거나 구성합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-2. 공용 boundary가 validation, selection, normalization 또는 state resolution을 수행합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-3. Route/component/view model이 필요한 형태로 데이터를 준비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-4. Renderer 또는 browser interaction이 결과를 소비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-5. Test 또는 실행 command가 production invariant를 검증합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
+## 11. 학습 완료 확인
 
-### 코드 없이 설명하기
-
-> 이 Thread의 최종 흐름을 설계 → 구현 → failure/risk → 수정/강화 → 검증 순서로 작성합니다.
-
-## 11. 학습 완료 자가 점검
-
-- [ ] Commit map의 모든 SHA가 `web/portfolio` ancestry에 속하는지 확인했습니다.
-- [ ] 각 commit의 parent diff와 resulting tree를 확인했습니다.
-- [ ] Importance에 따라 S/A/B/C 학습 깊이를 구분했습니다.
-- [ ] Fix를 기존 가정 → failure → root cause → corrected invariant로 설명했습니다.
-- [ ] Test의 technique, production path, proves/does-not-prove를 구분했습니다.
-- [ ] Final HEAD를 과거 commit에 소급하지 않았습니다.
-- [ ] Thread 최종 흐름을 코드 없이 설명할 수 있습니다.
+<!-- learner:05-runtime-schema-vocabulary.md:completion.check -->

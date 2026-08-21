@@ -2,239 +2,209 @@
 
 > Project: 42 Archive Portfolio (`web/portfolio`)
 >
-> 이 문서는 원본 7개 Development Thread를 변경하지 않고, 같은 branch history에 product-delivery 관점을 추가한 확장 scaffold입니다.
+> 이 문서는 원본 Development Thread를 변경하지 않고, 같은 branch history에 product-delivery 관점을 추가한 확장 workbook입니다.
 
 ## 0. 분류 출처와 변경 가능 범위
 
-- Commit SHA, subject, importance, tags는 `commit/commit-importance.md`의 분류를 사용합니다.
-- 이 문서의 category, thread grouping, thread goal과 commit별 역할은 확장 계획에서 새로 정의했습니다.
-- 실제 code evidence, build/test command 결과와 최종 설명은 학습자가 해당 SHA를 직접 확인해 채웁니다.
+- Commit SHA, subject, importance, tags는 `commit/commit-importance.md`의 branch-scoped 분류를 사용합니다.
+- Phase 1 audit에서 category/thread grouping과 commit set을 실제 history에 대조한 뒤 이 문서를 freeze했습니다.
+- Phase 2는 freeze된 구조와 fixed metadata를 바꾸지 않고 learner-facing 기록만 완성합니다.
 - 다른 branch의 구현이나 final HEAD를 과거 SHA 설명에 소급하지 않습니다.
+- 실행하지 않은 build/test/CI/Docker 결과는 exact-SHA source inspection과 구분합니다.
 
 ## 1. Thread 목표
 
-Next.js source tree 전체가 아니라 실행에 필요한 traced standalone artifact를 명시적으로 생성하고, 필수 산출물의 존재를 검사한 뒤 CI에서 같은 artifact contract를 강제하는 과정을 복원합니다.
+Next production build를 source tree나 전체 development dependency graph가 아닌 standalone server artifact로 전달할 수 있게 만들고, 그 artifact의 최소 file-layout contract를 local command와 CI가 동일하게 검증하도록 복원합니다.
 
 ### 계획된 핵심 invariant
 
-- production build는 독립 실행 가능한 standalone server artifact를 생성합니다.
-- 전달 단계는 `.next/standalone/server.js`와 static output 같은 필수 산출물을 명시적으로 확인합니다.
-- local build verification과 CI가 동일한 artifact completeness command를 사용합니다.
+- `next.config.ts`는 standalone output 생성을 명시합니다.
+- post-build verification은 `.next/standalone/server.js`와 `.next/static`의 존재를 fail-closed로 요구합니다.
+- CI는 production E2E가 만든 동일한 `.next` tree에 local `build:verify` command를 적용합니다.
 
 ## 2. 이 Thread를 이해하기 위한 핵심 질문
 
-- 직전 단계에서 source가 “개발 가능한 상태”였더라도 왜 “전달 가능한 artifact”라고 할 수 없었는가?
-- Toolchain, build output, CI, performance gate 또는 runtime의 실제 owner는 각 SHA에서 어디에 있는가?
-- 어떤 failure가 source-level test로는 잡히지 않고 production artifact 또는 container에서만 드러나는가?
-- Local verification과 CI가 같은 command/artifact를 사용하는 지점은 어디이며, 다른 환경 가정은 무엇인가?
-- 마지막 commit이 보장하는 delivery 범위와 여전히 외부 hosting/operations가 책임지는 범위는 무엇인가?
+- `output: "standalone"`이 생성하는 artifact와 별도로 복사해야 하는 static/public 자산은 무엇인가?
+- file existence 검증은 어떤 missing state를 잡고, 실행 가능성·내용·public asset에 대해서는 무엇을 증명하지 못하는가?
+- CI가 build를 두 번 수행하는지, 아니면 production E2E의 output을 재사용하는지 step ordering으로 확인할 수 있는가?
+- 이 Thread의 artifact contract가 다음 Docker Thread에 어떻게 handoff되는가?
 
 ## 3. 완료 기준
 
-- 각 SHA의 parent diff와 resulting tree에서 실제 변경 파일과 build/runtime symbol을 확인했습니다.
+- 각 SHA의 parent diff와 resulting tree에서 실제 변경 file, function, config, script와 workflow step을 확인했습니다.
 - Source, generated artifact, CI gate, container/runtime owner를 구분했습니다.
-- Missing artifact, build portability, threshold violation, startup failure와 cleanup branch를 기록했습니다.
-- Test/CI command의 production path, technique, proves/does-not-prove를 구분했습니다.
-- 최종 product-delivery 흐름을 코드 없이 설명할 수 있습니다.
+- Missing artifact, portability failure, threshold violation, startup failure와 cleanup branch를 기록했습니다.
+- Test/CI command의 technique, production path, proves/does-not-prove와 실제 실행 여부를 구분했습니다.
+- 최종 product-delivery 흐름과 cross-thread handoff를 코드 없이 설명할 수 있습니다.
 
 ## 4. Commit map
 
 | 순서 | Commit | Subject | Importance | Tags | 확장 thread에서 확인할 역할 |
 | ---: | --- | --- | :---: | --- | --- |
-| 1 | `29508f4668ea` | build: standalone server 산출물 생성 | B | DEPLOY | Next.js output mode를 standalone으로 전환합니다. |
-| 2 | `c0f7434467a0` | test(build): standalone 산출물 완전성 검증 | A | VALIDATION, DEPLOY, TEST | 필수 standalone/static 산출물의 존재를 검사하는 build verification command를 추가합니다. |
-| 3 | `c5e73853a1b6` | ci: standalone 산출물 검증 추가 | A | VALIDATION, DEPLOY, TEST | standalone completeness verification을 CI production path에 연결합니다. |
+| 1 | `29508f4668ea` | build: standalone server 산출물 생성 | B | DEPLOY | artifact 형식 선택 — Next.js가 traced runtime dependency를 포함한 standalone server bundle을 생성하도록 설정합니다. |
+| 2 | `c0f7434467a0` | test(build): standalone 산출물 완전성 검증 | A | VALIDATION, DEPLOY, TEST | artifact shape regression — server entry와 generated static directory의 존재를 explicit command로 검사합니다. |
+| 3 | `c5e73853a1b6` | ci: standalone 산출물 검증 추가 | A | VALIDATION, DEPLOY, TEST | CI promotion — production E2E build output에 standalone completeness command를 적용합니다. |
 
 ## 5. Commit별 학습 기록
 
-각 section은 반드시 해당 SHA의 tree와 parent diff를 기준으로 작성합니다. 같은 commit이 다른 category에 다시 등장해도 여기서는 product delivery 관점에서 별도로 확인합니다.
+각 section은 반드시 해당 SHA의 tree와 parent diff를 기준으로 작성합니다. 다른 Thread의 later commit은 관계 설명에만 사용하고 과거 구현에 소급하지 않습니다.
 
 ### 1. `29508f4668ea` — build: standalone server 산출물 생성
 
+- **Full SHA:** `29508f4668eaed37c393c8c2ef2e80d0e6c8e2f2`
 - **Importance:** B
 - **Tags:** DEPLOY
-- **확장 thread에서의 역할:** 초기 전달 경계 — Next.js output mode를 standalone으로 전환합니다.
+- **확장 thread에서의 역할:** artifact 형식 선택 — Next.js가 traced runtime dependency를 포함한 standalone server bundle을 생성하도록 설정합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `29508f4668ea^`와 `29508f4668ea`의 first-parent diff에서 변경 파일과 핵심 build/test/runtime entry point를 확인합니다.
-- Resulting tree에서 해당 설정·script·artifact의 caller/consumer와 실행 순서를 추적합니다.
-- Build configuration, generated artifact/manifest, command entry point와 downstream consumer를 확인합니다.
-- 정상 output과 missing/unsupported output이 어떻게 구분되고 실패로 전환되는지 확인합니다.
+- `next.config.ts`의 parent/resulting tree를 비교해 `output: "standalone"`이 유일한 behavior change인지 확인합니다.
+- generated `.next/standalone`은 source control에 commit되지 않고 build가 소유하는 ephemeral output이라는 점을 기록합니다.
+- standalone output만으로 `.next/static`과 `public`이 자동 포함되는지 후속 commits의 copy/verify logic으로 확인합니다.
+- 이 SHA에는 artifact existence test나 runtime launch가 없다는 범위를 명시합니다.
 
 확인 원칙:
 
-- 먼저 `29508f4668ea^`와 `29508f4668ea`를 비교합니다.
+- 먼저 `29508f4668ea^`와 `29508f4668ea`를 비교하고, 필요한 file은 `29508f4668ea:<path>`의 resulting tree에서 읽습니다.
 - Final HEAD의 workflow, script, Dockerfile 또는 generated output을 이 commit에 소급하지 않습니다.
-- 실제 실행하지 않은 build/test/CI/Docker 결과는 code inspection과 구분합니다.
+- Commit subject나 body만으로 behavior를 추정하지 않고 실제 changed code/test/config를 기준으로 판단합니다.
+- 실제 실행하지 않은 command 결과는 code inspection과 분리합니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 전달 상태와 부족함 |  |
-| 실제 변경 file/symbol/command/artifact |  |
-| Build/runtime/resource owner |  |
-| Failure·missing output·cleanup 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 delivery commit 또는 관련 test 연결 |  |
+| 직전 전달 상태와 부족함 | <!-- LEARNER:29508f4668ea:previous --> |
+| 실제 변경 file/symbol/command/artifact | <!-- LEARNER:29508f4668ea:changed --> |
+| Build/runtime/resource owner와 lifetime | <!-- LEARNER:29508f4668ea:owner --> |
+| Failure·missing output·cleanup 처리 | <!-- LEARNER:29508f4668ea:failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- LEARNER:29508f4668ea:guarantee --> |
+| 다음 delivery commit 또는 관련 test 연결 | <!-- LEARNER:29508f4668ea:relation --> |
 
 #### 코드·실행 증거 기록
 
-- **변경 전 대응 코드:** 경로, command/config, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** build decision, artifact boundary, failure branch 또는 cleanup을 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 아직 검증되지 않은 artifact, portability 또는 runtime risk를 기록합니다.
+- **변경 전 대응 코드:** <!-- LEARNER:29508f4668ea:before_code -->
+- **해당 SHA 핵심 코드:** <!-- LEARNER:29508f4668ea:excerpt -->
+- **관찰 근거의 성격:** <!-- LEARNER:29508f4668ea:evidence_kind -->
+- **실행·테스트 증거:** <!-- LEARNER:29508f4668ea:execution -->
+- **다음 commit 연결:** <!-- LEARNER:29508f4668ea:next -->
 
 ### 2. `c0f7434467a0` — test(build): standalone 산출물 완전성 검증
 
+- **Full SHA:** `c0f7434467a051f93273a7e850d7bf94cc97a215`
 - **Importance:** A
 - **Tags:** VALIDATION, DEPLOY, TEST
-- **확장 thread에서의 역할:** 회귀·artifact 검증 — 필수 standalone/static 산출물의 존재를 검사하는 build verification command를 추가합니다.
+- **확장 thread에서의 역할:** artifact shape regression — server entry와 generated static directory의 존재를 explicit command로 검사합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `c0f7434467a0^`와 `c0f7434467a0`의 first-parent diff에서 변경 파일과 핵심 build/test/runtime entry point를 확인합니다.
-- Resulting tree에서 해당 설정·script·artifact의 caller/consumer와 실행 순서를 추적합니다.
-- 대상 production invariant, fixture 또는 failure boundary, test technique와 실제 production path를 구분합니다.
-- Test가 증명하는 것과 증명하지 않는 것을 명시하고, 실제 command 실행 여부를 별도로 기록합니다.
+- `package.json`의 `build:verify`와 `scripts/verify-build-output.mjs`의 `requiredArtifacts` 배열을 확인합니다.
+- `existsSync(resolve(...))`가 file/directory type이나 내용이 아니라 path existence만 확인한다는 technique를 분류합니다.
+- missing path를 모두 수집해 한 error에 출력하는 failure shape와 success log를 기록합니다.
+- `public` directory와 standalone server launch가 검사 목록에 없는 이유를 후속 Docker contract와 연결합니다.
 
 확인 원칙:
 
-- 먼저 `c0f7434467a0^`와 `c0f7434467a0`를 비교합니다.
+- 먼저 `c0f7434467a0^`와 `c0f7434467a0`를 비교하고, 필요한 file은 `c0f7434467a0:<path>`의 resulting tree에서 읽습니다.
 - Final HEAD의 workflow, script, Dockerfile 또는 generated output을 이 commit에 소급하지 않습니다.
-- 실제 실행하지 않은 build/test/CI/Docker 결과는 code inspection과 구분합니다.
+- Commit subject나 body만으로 behavior를 추정하지 않고 실제 changed code/test/config를 기준으로 판단합니다.
+- 실제 실행하지 않은 command 결과는 code inspection과 분리합니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 전달 상태와 부족함 |  |
-| 실제 변경 file/symbol/command/artifact |  |
-| Build/runtime/resource owner |  |
-| Failure·missing output·cleanup 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 delivery commit 또는 관련 test 연결 |  |
+| 직전 전달 상태와 부족함 | <!-- LEARNER:c0f7434467a0:previous --> |
+| 실제 변경 file/symbol/command/artifact | <!-- LEARNER:c0f7434467a0:changed --> |
+| Build/runtime/resource owner와 lifetime | <!-- LEARNER:c0f7434467a0:owner --> |
+| Failure·missing output·cleanup 처리 | <!-- LEARNER:c0f7434467a0:failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- LEARNER:c0f7434467a0:guarantee --> |
+| 다음 delivery commit 또는 관련 test 연결 | <!-- LEARNER:c0f7434467a0:relation --> |
 
 #### 코드·실행 증거 기록
 
-- **변경 전 대응 코드:** 경로, command/config, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** build decision, artifact boundary, failure branch 또는 cleanup을 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 아직 검증되지 않은 artifact, portability 또는 runtime risk를 기록합니다.
+- **변경 전 대응 코드:** <!-- LEARNER:c0f7434467a0:before_code -->
+- **해당 SHA 핵심 코드:** <!-- LEARNER:c0f7434467a0:excerpt -->
+- **관찰 근거의 성격:** <!-- LEARNER:c0f7434467a0:evidence_kind -->
+- **실행·테스트 증거:** <!-- LEARNER:c0f7434467a0:execution -->
+- **다음 commit 연결:** <!-- LEARNER:c0f7434467a0:next -->
 
 ### 3. `c5e73853a1b6` — ci: standalone 산출물 검증 추가
 
+- **Full SHA:** `c5e73853a1b69e39561748435f4768109a368544`
 - **Importance:** A
 - **Tags:** VALIDATION, DEPLOY, TEST
-- **확장 thread에서의 역할:** CI gate 승격 — standalone completeness verification을 CI production path에 연결합니다.
+- **확장 thread에서의 역할:** CI promotion — production E2E build output에 standalone completeness command를 적용합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `c5e73853a1b6^`와 `c5e73853a1b6`의 first-parent diff에서 변경 파일과 핵심 build/test/runtime entry point를 확인합니다.
-- Resulting tree에서 해당 설정·script·artifact의 caller/consumer와 실행 순서를 추적합니다.
-- Workflow가 어떤 upstream command와 artifact를 소비하며 어떤 failure를 release blocker로 승격하는지 확인합니다.
-- Local command와 CI environment의 차이, dependency/tool installation, timeout/concurrency를 구분합니다.
+- `.github/workflows/ci.yml`에서 새 step이 `Build and run production E2E tests` 뒤에 위치하는지 확인합니다.
+- 새 step이 rebuild하지 않고 앞 step이 남긴 `.next`를 `npm run build:verify`로 검사한다는 artifact handoff를 기록합니다.
+- 앞 E2E 실패 시 verify step에 도달하지 않는 fail-fast ordering과, E2E 성공 뒤 artifact shape가 별도 실패할 수 있는 이유를 설명합니다.
+- CI가 이 시점에 `public` copy나 standalone `server.js` 직접 실행을 아직 하지 않는다는 범위를 명시합니다.
 
 확인 원칙:
 
-- 먼저 `c5e73853a1b6^`와 `c5e73853a1b6`를 비교합니다.
+- 먼저 `c5e73853a1b6^`와 `c5e73853a1b6`를 비교하고, 필요한 file은 `c5e73853a1b6:<path>`의 resulting tree에서 읽습니다.
 - Final HEAD의 workflow, script, Dockerfile 또는 generated output을 이 commit에 소급하지 않습니다.
-- 실제 실행하지 않은 build/test/CI/Docker 결과는 code inspection과 구분합니다.
+- Commit subject나 body만으로 behavior를 추정하지 않고 실제 changed code/test/config를 기준으로 판단합니다.
+- 실제 실행하지 않은 command 결과는 code inspection과 분리합니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 전달 상태와 부족함 |  |
-| 실제 변경 file/symbol/command/artifact |  |
-| Build/runtime/resource owner |  |
-| Failure·missing output·cleanup 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 delivery commit 또는 관련 test 연결 |  |
+| 직전 전달 상태와 부족함 | <!-- LEARNER:c5e73853a1b6:previous --> |
+| 실제 변경 file/symbol/command/artifact | <!-- LEARNER:c5e73853a1b6:changed --> |
+| Build/runtime/resource owner와 lifetime | <!-- LEARNER:c5e73853a1b6:owner --> |
+| Failure·missing output·cleanup 처리 | <!-- LEARNER:c5e73853a1b6:failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- LEARNER:c5e73853a1b6:guarantee --> |
+| 다음 delivery commit 또는 관련 test 연결 | <!-- LEARNER:c5e73853a1b6:relation --> |
 
 #### 코드·실행 증거 기록
 
-- **변경 전 대응 코드:** 경로, command/config, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** build decision, artifact boundary, failure branch 또는 cleanup을 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 아직 검증되지 않은 artifact, portability 또는 runtime risk를 기록합니다.
+- **변경 전 대응 코드:** <!-- LEARNER:c5e73853a1b6:before_code -->
+- **해당 SHA 핵심 코드:** <!-- LEARNER:c5e73853a1b6:excerpt -->
+- **관찰 근거의 성격:** <!-- LEARNER:c5e73853a1b6:evidence_kind -->
+- **실행·테스트 증거:** <!-- LEARNER:c5e73853a1b6:execution -->
+- **다음 commit 연결:** <!-- LEARNER:c5e73853a1b6:next -->
 
 ## 6. Invariant ledger
 
-| Invariant | 도입·강화 commit | 실제 code/test evidence | 부족함이 드러난 시점 | 최종 보장 범위 |
+| Invariant | 이전 상태 | 도입·수정 | 검증·소비 | 남은 비보장 |
 | --- | --- | --- | --- | --- |
-| production build는 독립 실행 가능한 standalone server artifact를 생성합니다. |  |  |  |  |
-| 전달 단계는 `.next/standalone/server.js`와 static output 같은 필수 산출물을 명시적으로 확인합니다. |  |  |  |  |
-| local build verification과 CI가 동일한 artifact completeness command를 사용합니다. |  |  |  |  |
+| Artifact generation | <!-- LEARNER:ledger:1:before --> | <!-- LEARNER:ledger:1:change --> | <!-- LEARNER:ledger:1:verify --> | <!-- LEARNER:ledger:1:gap --> |
+| Minimum layout | <!-- LEARNER:ledger:2:before --> | <!-- LEARNER:ledger:2:change --> | <!-- LEARNER:ledger:2:verify --> | <!-- LEARNER:ledger:2:gap --> |
+| CI artifact lifetime | <!-- LEARNER:ledger:3:before --> | <!-- LEARNER:ledger:3:change --> | <!-- LEARNER:ledger:3:verify --> | <!-- LEARNER:ledger:3:gap --> |
 
 ## 7. Failure → Fix → Test 연결
 
-| 기존 가정 또는 위험 | 대응 commit | 실제 수정/강화 code에서 확인할 것 | Test/CI/runtime 증거 |
+| Failure 또는 위험 | Fix/decision | Test·gate evidence | 한계 |
 | --- | --- | --- | --- |
-| 개발 환경에서는 동작하지만 fresh production build에서 실패할 수 있음 |  | pinned/self-contained build boundary |  |
-| build 성공만으로 전달 artifact의 완전성을 가정함 |  | explicit artifact verification |  |
-| 측정/검증은 존재하지만 release를 막지 못함 |  | CI gate 또는 fail-closed threshold |  |
+| standalone mode 미설정 | <!-- LEARNER:failure:1:fix --> | <!-- LEARNER:failure:1:test --> | <!-- LEARNER:failure:1:limit --> |
+| partial/missing build layout | <!-- LEARNER:failure:2:fix --> | <!-- LEARNER:failure:2:test --> | <!-- LEARNER:failure:2:limit --> |
+| browser test는 성공하지만 deployable layout 누락 | <!-- LEARNER:failure:3:fix --> | <!-- LEARNER:failure:3:test --> | <!-- LEARNER:failure:3:limit --> |
 
 ## 8. Ownership / state / responsibility 변화
 
-| Concern | Thread 초기 owner/state | Thread 최종 owner/state | 실제 file/symbol/command |
+| 대상 | 이전 owner/state | 중간 변화 | 최종 owner/state |
 | --- | --- | --- | --- |
-| Toolchain/build configuration |  |  |  |
-| Generated production artifact |  |  |  |
-| Verification/failure decision |  |  |  |
-| Runtime/resource lifecycle |  |  |  |
-| CI/release blocker |  |  |  |
+| Output format | <!-- LEARNER:owner:1:before --> | <!-- LEARNER:owner:1:middle --> | <!-- LEARNER:owner:1:final --> |
+| Artifact completeness policy | <!-- LEARNER:owner:2:before --> | <!-- LEARNER:owner:2:middle --> | <!-- LEARNER:owner:2:final --> |
+| Generated tree lifetime | <!-- LEARNER:owner:3:before --> | <!-- LEARNER:owner:3:middle --> | <!-- LEARNER:owner:3:final --> |
 
 ## 9. Thread 최종 상태
 
-### 확장 계획에서 정의한 최종 상태
-
-Next.js source tree 전체가 아니라 실행에 필요한 traced standalone artifact를 명시적으로 생성하고, 필수 산출물의 존재를 검사한 뒤 CI에서 같은 artifact contract를 강제하는 과정을 복원합니다.
-
-### 학습자가 완성할 최종 설명
-
-- Thread 시작 시점의 delivery 상태와 위험:
-- Build/artifact/runtime responsibility 이동 순서:
-- 실제 failure 또는 portability/release risk:
-- Fix/build/CI가 바꾼 invariant:
-- Test/CI/runtime evidence가 보장한 범위:
-- Thread 종료 시점에도 보장하지 않는 hosting/operations 범위:
+<!-- LEARNER:thread:final_state -->
 
 ## 10. 최종 product-delivery flow 정리
 
-1. Source와 pinned toolchain에서 production build를 시작합니다.
-   - 실제 코드/설정 위치:
-   - 입력과 출력:
-   - 실패 처리:
-2. Build가 deployable artifact와 static/public asset을 생성합니다.
-   - 실제 코드/설정 위치:
-   - 입력과 출력:
-   - 실패 처리:
-3. Artifact verification 또는 release budget이 결과를 검사합니다.
-   - 실제 코드/설정 위치:
-   - 입력과 출력:
-   - 실패 처리:
-4. CI가 같은 production decision path를 release gate로 실행합니다.
-   - 실제 workflow 위치:
-   - 입력과 출력:
-   - 실패 처리:
-5. 최종 runtime artifact가 실제 HTTP 요청을 처리합니다.
-   - 실제 코드/설정 위치:
-   - 입력과 출력:
-   - startup/cleanup 처리:
-
-### 코드 없이 설명하기
-
-> 이 Thread의 최종 흐름을 source → build → artifact → verification → release/runtime 순서로 작성합니다.
+<!-- LEARNER:thread:flow -->
 
 ## 11. 학습 완료 자가 점검
 
-- [ ] Commit map의 모든 SHA가 `web/portfolio` ancestry에 속하는지 확인했습니다.
-- [ ] 각 commit의 parent diff와 resulting tree를 확인했습니다.
-- [ ] Importance에 따라 S/A/B/C 학습 깊이를 구분했습니다.
-- [ ] Fix를 기존 가정 → failure → root cause → corrected invariant로 설명했습니다.
-- [ ] Test/CI의 technique, production path, proves/does-not-prove를 구분했습니다.
-- [ ] 실행하지 않은 build/test/Docker 결과를 fabricated evidence로 기록하지 않았습니다.
-- [ ] Final HEAD를 과거 commit에 소급하지 않았습니다.
-- [ ] Thread 최종 product-delivery 흐름을 코드 없이 설명할 수 있습니다.
+- [ ] standalone mode 설정과 generated output ownership을 구분했습니다.
+- [ ] path-existence test가 증명하는 것과 증명하지 않는 것을 기록했습니다.
+- [ ] CI가 rebuild하지 않고 앞 step의 `.next`를 재사용함을 확인했습니다.
+- [ ] public assets와 actual standalone runtime이 다음 Thread 책임임을 연결했습니다.
+- [ ] Exact-SHA runtime command를 직접 실행했다면 command, environment와 실제 결과를 기록했습니다. 실행하지 못했다면 이유를 명시했습니다.

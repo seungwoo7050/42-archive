@@ -1,27 +1,69 @@
-# SEO, security, and machine-readable output
+# 06-seo-security-and-machine-readable-output
 
-## 범위
+> Repository: `seungwoo7050/42-archive`
+>
+> Branch: `web/portfolio`
+>
+> Artifact scope: this category only
 
-Canonical metadata, indexing, robots/sitemap, safe JSON-LD와 URL/link reference security를 다룹니다.
+## Category purpose
 
-## 분류 원칙
+Canonical metadata, crawler indexing policy, content-declared URL integrity, production publication trust, and safely embedded machine-readable claims를 historical implementation sequence로 학습합니다.
 
-- 이 category/thread 구조는 원본 7개 Development Thread를 대체하거나 수정하지 않는 확장 계획입니다.
-- Commit SHA, subject, importance와 tags는 branch의 `commit/commit-importance.md`를 따릅니다.
-- Thread grouping과 목표는 웹 개발 학습 범위를 넓히기 위해 새로 계획했습니다.
-- Product delivery 전용 작업은 `08-product-delivery-and-runtime-verification`에서 별도로 다룹니다.
+## Phase 1 category audit and frozen boundary
 
-## 권장 학습 순서
+- **Category boundary:** SEO/crawler/publication URL/structured-data safety로 한정했습니다.
+- **Removed from this category:** `902eddcef875`, `ba8da56d3fcf`, `f63c978c71c9`는 query navigation과 UI link transport의 owner인 category 02/03과 중복되어 제거했습니다.
+- **Split:** 기존 혼합 Thread 01을 content-declared internal route integrity와 production origin/publication URL safety로 분리했습니다.
+- **Moved within category:** `adc392157f70`은 route metadata Thread에서 sitemap/indexing Thread로 이동했습니다.
+- **Added material commits:** route validation regression `3353032ba23b`, publication readiness chain, metadata ownership transfer `55b6061e0052 → 67aabeab1553`, indexing unit/E2E evidence를 추가했습니다.
+- **Intentional reuse:** `55b6061e0052`는 metadata shape와 indexing directive, `67aabeab1553`는 metadata-origin integration과 page-indexing integration, `fb3d18fd660b`는 readiness regression과 indexing regression이라는 서로 다른 file/decision 관점에서 두 Thread에 등장합니다. 같은 code claim은 중복 서술하지 않습니다.
+- **Final coverage:** 5 Threads, 31 unique SHAs. URL integrity, publication trust, canonical metadata, crawler policy, safe JSON-LD를 독립 engineering stories로 덮습니다.
 
-1. [Internal route and external-link security](01-internal-route-and-external-link-security.md)
-2. [Route-aware metadata and canonical identity](02-route-aware-metadata-and-canonical-identity.md)
-3. [Indexing, robots, and sitemap policy](03-indexing-robots-and-sitemap-policy.md)
-4. [Safe JSON-LD serialization and structured claims](04-safe-jsonld-serialization-and-structured-claims.md)
+## Frozen Thread index
 
-## 문서 사용법
+| 순서 | 파일 | Thread | Commits |
+| --- | --- | --- | --- |
+| 1 | `01-content-declared-internal-route-integrity.md` | Content-declared internal route integrity | 4 |
+| 2 | `02-production-origin-and-publication-url-safety.md` | Production origin and publication URL safety | 9 |
+| 3 | `03-route-aware-metadata-and-canonical-identity.md` | Route-aware metadata and canonical identity | 8 |
+| 4 | `04-indexing-robots-and-sitemap-policy.md` | Indexing, robots, and sitemap policy | 7 |
+| 5 | `05-safe-jsonld-serialization-and-structured-claims.md` | Safe JSON-LD serialization and structured claims | 6 |
 
-1. Thread 목표와 commit map을 먼저 읽습니다.
-2. 각 SHA를 parent와 비교하고 해당 SHA의 resulting tree를 확인합니다.
-3. learner-facing table과 code evidence를 채웁니다.
-4. Invariant ledger, Failure → Fix → Test, ownership 변화를 연결합니다.
-5. 마지막에 코드 없이 최종 흐름을 설명합니다.
+## Historical validation basis
+
+- `commit/commit-importance.md` on `web/portfolio` describes the branch as one independent, linear 476-commit history from `cce7dd020563` through `aff0acdd4cf9`. Every SHA below was matched to that branch-local classification and its exact commit object/diff.
+- Exact commit objects/diffs and relevant exact-SHA files were retrieved through the connected GitHub repository interface.
+- Earliest selected ancestry anchors were additionally compared against `web/portfolio`; the branch was ahead with the selected SHA as merge base.
+- Direct local clone failed because the execution container could not resolve `github.com`; therefore no project command result is claimed in this workbook.
+
+## Phase 2 status
+
+<!-- learner:start readme-phase2-status -->
+### Phase 2 completion result
+
+- [ ] 모든 frozen Thread를 completed counterpart로 작성합니다.
+- [ ] fixed fields와 scaffold hash를 보존합니다.
+- [ ] 실행하지 않은 test result를 기록하지 않습니다.
+<!-- learner:end readme-phase2-status -->
+
+## Validation matrix
+
+<!-- learner:start readme-validation -->
+| 검증 | 결과 |
+| --- | --- |
+| scaffold/completed file set |  |
+| frozen scaffold hash unchanged |  |
+| fixed fields preserved |  |
+| all SHAs branch-scoped |  |
+| no unfinished learner region |  |
+| ZIP contains only category |  |
+<!-- learner:end readme-validation -->
+
+## Reading order
+
+1. Start with content-declared internal route integrity to understand route vocabulary before publication.
+2. Continue to production origin/readiness because metadata and crawler output trust this boundary.
+3. Study canonical metadata ownership and per-route exports.
+4. Study aligned page robots, robots.txt, and sitemap publication.
+5. Finish with JSON-LD semantic restraint and script-context safety.

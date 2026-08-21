@@ -1,77 +1,78 @@
 # Thread: Journey timeline primitives and responsive layout
 
-> Project: 42 Archive Portfolio (`web/portfolio`)
+> Project: 42 Archive Portfolio
 >
-> 이 문서는 원본 7개 Development Thread를 변경하지 않고, 같은 branch history를 웹 개발 학습 영역별로 추가 분류한 확장 scaffold입니다.
+> Branch: `web/portfolio`
+>
+> Category: `03-shared-ui-interaction-and-responsive-primitives`
 
-## 0. 분류 출처와 변경 가능 범위
+## 0. 분류 출처와 Phase 1 고정 범위
 
-- Commit SHA, subject, importance, tags는 `commit/commit-importance.md`의 분류를 사용합니다.
-- 이 문서의 category, thread grouping, thread goal과 commit별 역할은 확장 계획에서 새로 정의했습니다.
-- 실제 code evidence, failure 재현, command 결과와 최종 설명은 학습자가 해당 SHA를 직접 확인해 채웁니다.
-- 다른 branch의 구현이나 final HEAD를 과거 SHA 설명에 소급하지 않습니다.
+- Commit SHA, subject, importance와 tags는 branch의 `commit/commit-importance.md` 분류와 exact commit resolution을 대조했습니다.
+- 이 문서의 Thread boundary, commit set, order, 역할과 commit-specific investigation task는 Phase 1 audit에서 확정했습니다.
+- Phase 2에서는 이 fixed text와 commit metadata를 바꾸지 않고 learner-facing section만 채웁니다.
+- 다른 branch와 final HEAD를 과거 SHA 설명에 사용하지 않습니다.
 
-## 1. Thread 목표
+## 1. Thread 목표와 경계
 
-단일 카드/date formatter에서 compact·paired-centerline variant, desktop geometry와 mobile reflow까지 timeline primitive를 발전시키는 과정을 복원합니다.
+Journey item의 period formatting과 optional case-study link, compact/paired variants, odd-row handling, desktop centerline과 mobile single-column collapse를 실제 history로 복원합니다.
 
-### 계획된 핵심 invariant
+**경계:** 이 Thread는 journey presentation primitive와 responsive CSS를 다룹니다. Journey JSON schema/validation, route section copy, Reveal의 최종 server-first refactor는 각각 content system과 03 Thread가 소유합니다.
 
-- `Journey timeline primitives and responsive layout`의 주요 결정은 route/design/component마다 중복 해석되지 않고 명시된 owner에 위치합니다.
-- Optional, disabled, unknown, empty 또는 unsupported state는 암묵적 성공으로 처리하지 않습니다.
-- 마지막 consumer와 regression evidence는 같은 production decision path를 기준으로 확인합니다.
+### 고정 invariant
 
-## 2. 이 Thread를 이해하기 위한 핵심 질문
+- Journey source order는 유지되고 첫 item만 paired timeline의 start card로 분리됩니다.
+- 나머지 items는 두 개씩 묶이며 마지막 홀수 item은 단독 row로 손실 없이 렌더링됩니다.
+- projectId가 있는 item만 template/debug-aware case-study link를 가집니다.
+- Mobile은 같은 semantic ordered list를 단일 column으로 재배치하며 item order를 바꾸지 않습니다.
+- Animated flag는 wrapper 선택만 바꾸고 journey data semantics는 바꾸지 않습니다.
 
-- 첫 commit 직전에는 이 관심사가 어느 파일과 consumer에 분산돼 있었는가?
-- Commit sequence를 따라가며 데이터, 상태, 렌더링 또는 routing의 실제 owner가 어떻게 이동하는가?
-- Optional, disabled, unknown, empty, unsupported state는 각 시점에 어떻게 처리되는가?
-- 마지막 commit이 보장하는 것과 여전히 다른 thread가 책임지는 범위는 무엇인가?
+## 2. 핵심 질문
+
+- `formatYearMonth`가 ISO date를 검증하지 않고 어떤 substring transform만 수행하는가?
+- 첫 item과 projectItems 분리, `chunkPairs`, `is-single` class가 empty/one/even/odd input을 어떻게 처리하는가?
+- Compact와 paired variants에서 Reveal wrapper 위치와 delay 계산은 어떻게 다른가?
+- Desktop centerline의 three-column grid가 mobile에서 같은 DOM을 어떻게 flatten하는가?
+- 03 Thread의 server-first Reveal 전환이 animated flag의 최종 의미를 어떻게 약화시키는가?
 
 ## 3. 완료 기준
 
-- 각 SHA의 parent diff와 resulting tree에서 실제 변경 파일과 symbol을 확인했습니다.
-- 중앙화된 결정과 renderer/component에 남은 표현 책임을 구분했습니다.
-- Failure, absence, fallback, cleanup 또는 progressive-enhancement branch를 기록했습니다.
-- 관련 test가 있으면 production path, technique, proves/does-not-prove를 구분했습니다.
-- 최종 실행 흐름을 코드 없이 설명할 수 있습니다.
+- 각 SHA의 parent diff와 resulting tree를 구분해 실제 file/symbol/call path를 기록합니다.
+- Previous state, owner, state transition, absence/failure branch, guarantee/non-guarantee를 commit별로 분리합니다.
+- Fix와 test는 실제로 수정·검증하는 production path에 연결합니다.
+- 실행하지 않은 command 결과를 만들지 않습니다.
+- 이 Thread는 B-level commit만 포함하므로 각 commit의 concrete role, boundary, failure/non-guarantee를 필요한 범위로 기록합니다.
 
 ## 4. Commit map
 
-| 순서 | Commit | Subject | Importance | Tags | 확장 thread에서 확인할 역할 |
-| ---: | --- | --- | :---: | --- | --- |
-| 1 | `f60edf14dae0` | feat(journey): 여정 날짜와 카드 프리미티브 추가 | B | RENDERER | 초기 상태와 vocabulary를 고정합니다. |
-| 2 | `3c0a1154ba08` | feat(journey): 중앙선 여정 목록 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 3 | `b3182e35aed0` | feat(journey): 여정 목록 변형 연결 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 4 | `377fa128f82b` | style(journey): 여정 타임라인 시각 계층 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 5 | `7995a3cf5435` | style(journey): 데스크톱 중앙선 여정 구성 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 6 | `6394188022fd` | style(journey): 모바일 중앙선 여정 구성 | B | RENDERER | Thread의 통합·검증 상태를 확인합니다. |
+| 순서 | Commit | Subject | Importance | Tags | Thread 역할 |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `f60edf14dae0` | feat(journey): 여정 날짜와 카드 프리미티브 추가 | B | RENDERER | entry/card 기반 도입 |
+| 2 | `3c0a1154ba08` | feat(journey): 중앙선 여정 목록 추가 | B | RENDERER | paired timeline composition |
+| 3 | `b3182e35aed0` | feat(journey): 여정 목록 변형 연결 | B | RENDERER | public variant dispatcher |
+| 4 | `377fa128f82b` | style(journey): 여정 타임라인 시각 계층 추가 | B | RENDERER | compact guide/node 표현 |
+| 5 | `7995a3cf5435` | style(journey): 데스크톱 중앙선 여정 구성 | B | RENDERER | desktop centerline geometry |
+| 6 | `6394188022fd` | style(journey): 모바일 중앙선 여정 구성 | B | RENDERER | mobile single-column collapse |
 
 ## 5. Commit별 학습 기록
-
-각 section은 반드시 해당 SHA의 tree와 parent diff를 기준으로 작성합니다. 같은 commit이 다른 확장 thread에 다시 등장해도 이 thread의 관점에서 별도로 확인합니다.
 
 ### 1. `f60edf14dae0` — feat(journey): 여정 날짜와 카드 프리미티브 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 초기 상태/기반
+- **Thread 역할:** entry/card 기반 도입
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `f60edf14dae0^`와 `f60edf14dae0`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `journey-list.tsx`의 `formatYearMonth`, `getJourneyPeriod`, `JourneyEntry`, `JourneyCard`, `chunkPairs`를 확인합니다.
+- endDate absence/equality, projectId absence, pair slicing의 boundary를 각각 추적합니다.
+- `getTemplateHref`에 homeTemplate/contentDebug가 전달되는지 확인합니다.
+- 먼저 parent diff와 해당 SHA의 resulting tree를 구분합니다.
+- Final HEAD의 helper·file layout·behavior를 이 SHA에 소급하지 않습니다.
 
-확인 원칙:
+#### 학습 기록
 
-- 먼저 `f60edf14dae0^`와 `f60edf14dae0`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
-
-#### 학습자가 남길 증거
-
+<!-- learner:commit-f60edf14dae0-record:start -->
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
 | 직전 상태와 부족함 |  |
@@ -80,35 +81,40 @@
 | Failure·absence·fallback 처리 |  |
 | 보장하는 것과 보장하지 않는 것 |  |
 | 다음 commit 또는 관련 test 연결 |  |
+<!-- learner:commit-f60edf14dae0-record:end -->
 
-#### 코드 발췌 기록
+#### 최소 코드 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:commit-f60edf14dae0-excerpt:start -->
+- 변경 전 대응 코드의 path/symbol과 기존 가정을 기록합니다.
+- 해당 SHA의 decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
+- 후속 SHA의 코드를 이 section에 넣지 않습니다.
+<!-- learner:commit-f60edf14dae0-excerpt:end -->
+
+#### 실행·테스트 증거
+
+<!-- learner:commit-f60edf14dae0-execution:start -->
+- 실행했다면 exact SHA, command, environment와 실제 result를 기록합니다.
+- 실행하지 못했다면 정적 검토와 외부 제한을 구분하고 결과를 추정하지 않습니다.
+<!-- learner:commit-f60edf14dae0-execution:end -->
 
 ### 2. `3c0a1154ba08` — feat(journey): 중앙선 여정 목록 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** paired timeline composition
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `3c0a1154ba08^`와 `3c0a1154ba08`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `PairedJourneyList`의 `[startItem, ...projectItems]`, `chunkPairs`, first-item branch를 확인합니다.
+- Pair length 1 class, middle node, optional second card와 key 생성 방식을 확인합니다.
+- animated true/false에서 element type과 delay가 어떻게 달라지는지 확인합니다.
+- 먼저 parent diff와 해당 SHA의 resulting tree를 구분합니다.
+- Final HEAD의 helper·file layout·behavior를 이 SHA에 소급하지 않습니다.
 
-확인 원칙:
+#### 학습 기록
 
-- 먼저 `3c0a1154ba08^`와 `3c0a1154ba08`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
-
-#### 학습자가 남길 증거
-
+<!-- learner:commit-3c0a1154ba08-record:start -->
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
 | 직전 상태와 부족함 |  |
@@ -117,35 +123,40 @@
 | Failure·absence·fallback 처리 |  |
 | 보장하는 것과 보장하지 않는 것 |  |
 | 다음 commit 또는 관련 test 연결 |  |
+<!-- learner:commit-3c0a1154ba08-record:end -->
 
-#### 코드 발췌 기록
+#### 최소 코드 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:commit-3c0a1154ba08-excerpt:start -->
+- 변경 전 대응 코드의 path/symbol과 기존 가정을 기록합니다.
+- 해당 SHA의 decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
+- 후속 SHA의 코드를 이 section에 넣지 않습니다.
+<!-- learner:commit-3c0a1154ba08-excerpt:end -->
+
+#### 실행·테스트 증거
+
+<!-- learner:commit-3c0a1154ba08-execution:start -->
+- 실행했다면 exact SHA, command, environment와 실제 result를 기록합니다.
+- 실행하지 못했다면 정적 검토와 외부 제한을 구분하고 결과를 추정하지 않습니다.
+<!-- learner:commit-3c0a1154ba08-execution:end -->
 
 ### 3. `b3182e35aed0` — feat(journey): 여정 목록 변형 연결
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** public variant dispatcher
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `b3182e35aed0^`와 `b3182e35aed0`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- Exported `JourneyList`의 defaults와 paired-centerline early return을 확인합니다.
+- Compact rows의 animated/plain branches와 outer Reveal wrapper 차이를 확인합니다.
+- Index-based delay와 stable key가 source order에 어떻게 연결되는지 확인합니다.
+- 먼저 parent diff와 해당 SHA의 resulting tree를 구분합니다.
+- Final HEAD의 helper·file layout·behavior를 이 SHA에 소급하지 않습니다.
 
-확인 원칙:
+#### 학습 기록
 
-- 먼저 `b3182e35aed0^`와 `b3182e35aed0`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
-
-#### 학습자가 남길 증거
-
+<!-- learner:commit-b3182e35aed0-record:start -->
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
 | 직전 상태와 부족함 |  |
@@ -154,35 +165,39 @@
 | Failure·absence·fallback 처리 |  |
 | 보장하는 것과 보장하지 않는 것 |  |
 | 다음 commit 또는 관련 test 연결 |  |
+<!-- learner:commit-b3182e35aed0-record:end -->
 
-#### 코드 발췌 기록
+#### 최소 코드 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:commit-b3182e35aed0-excerpt:start -->
+- 변경 전 대응 코드의 path/symbol과 기존 가정을 기록합니다.
+- 해당 SHA의 decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
+- 후속 SHA의 코드를 이 section에 넣지 않습니다.
+<!-- learner:commit-b3182e35aed0-excerpt:end -->
+
+#### 실행·테스트 증거
+
+<!-- learner:commit-b3182e35aed0-execution:start -->
+- 실행했다면 exact SHA, command, environment와 실제 result를 기록합니다.
+- 실행하지 못했다면 정적 검토와 외부 제한을 구분하고 결과를 추정하지 않습니다.
+<!-- learner:commit-b3182e35aed0-execution:end -->
 
 ### 4. `377fa128f82b` — style(journey): 여정 타임라인 시각 계층 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** compact guide/node 표현
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `377fa128f82b^`와 `377fa128f82b`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- 적용 selector, token, breakpoint, motion/focus/semantics 영향과 DOM contract를 확인합니다.
-- Visual change가 interaction 또는 accessibility invariant를 바꾸는지 구분합니다.
+- `.timeline-list` gutter/x variables, guide pseudo-element와 `.experience-row::before`를 확인합니다.
+- `is-visible` class가 guide scaleY와 node opacity/scale를 어떻게 바꾸는지 확인합니다.
+- 먼저 parent diff와 해당 SHA의 resulting tree를 구분합니다.
+- Final HEAD의 helper·file layout·behavior를 이 SHA에 소급하지 않습니다.
 
-확인 원칙:
+#### 학습 기록
 
-- 먼저 `377fa128f82b^`와 `377fa128f82b`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
-
-#### 학습자가 남길 증거
-
+<!-- learner:commit-377fa128f82b-record:start -->
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
 | 직전 상태와 부족함 |  |
@@ -191,35 +206,40 @@
 | Failure·absence·fallback 처리 |  |
 | 보장하는 것과 보장하지 않는 것 |  |
 | 다음 commit 또는 관련 test 연결 |  |
+<!-- learner:commit-377fa128f82b-record:end -->
 
-#### 코드 발췌 기록
+#### 최소 코드 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:commit-377fa128f82b-excerpt:start -->
+- 변경 전 대응 코드의 path/symbol과 기존 가정을 기록합니다.
+- 해당 SHA의 decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
+- 후속 SHA의 코드를 이 section에 넣지 않습니다.
+<!-- learner:commit-377fa128f82b-excerpt:end -->
+
+#### 실행·테스트 증거
+
+<!-- learner:commit-377fa128f82b-execution:start -->
+- 실행했다면 exact SHA, command, environment와 실제 result를 기록합니다.
+- 실행하지 못했다면 정적 검토와 외부 제한을 구분하고 결과를 추정하지 않습니다.
+<!-- learner:commit-377fa128f82b-execution:end -->
 
 ### 5. `7995a3cf5435` — style(journey): 데스크톱 중앙선 여정 구성
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** desktop centerline geometry
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `7995a3cf5435^`와 `7995a3cf5435`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- 적용 selector, token, breakpoint, motion/focus/semantics 영향과 DOM contract를 확인합니다.
-- Visual change가 interaction 또는 accessibility invariant를 바꾸는지 구분합니다.
+- `.paired-timeline::before`, start marker/card, three-column row와 center node를 확인합니다.
+- `.is-single` row가 one-column centered card로 바뀌고 node를 숨기는 rule을 확인합니다.
+- Classic template의 card shadow override를 확인합니다.
+- 먼저 parent diff와 해당 SHA의 resulting tree를 구분합니다.
+- Final HEAD의 helper·file layout·behavior를 이 SHA에 소급하지 않습니다.
 
-확인 원칙:
+#### 학습 기록
 
-- 먼저 `7995a3cf5435^`와 `7995a3cf5435`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
-
-#### 학습자가 남길 증거
-
+<!-- learner:commit-7995a3cf5435-record:start -->
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
 | 직전 상태와 부족함 |  |
@@ -228,35 +248,40 @@
 | Failure·absence·fallback 처리 |  |
 | 보장하는 것과 보장하지 않는 것 |  |
 | 다음 commit 또는 관련 test 연결 |  |
+<!-- learner:commit-7995a3cf5435-record:end -->
 
-#### 코드 발췌 기록
+#### 최소 코드 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:commit-7995a3cf5435-excerpt:start -->
+- 변경 전 대응 코드의 path/symbol과 기존 가정을 기록합니다.
+- 해당 SHA의 decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
+- 후속 SHA의 코드를 이 section에 넣지 않습니다.
+<!-- learner:commit-7995a3cf5435-excerpt:end -->
+
+#### 실행·테스트 증거
+
+<!-- learner:commit-7995a3cf5435-execution:start -->
+- 실행했다면 exact SHA, command, environment와 실제 result를 기록합니다.
+- 실행하지 못했다면 정적 검토와 외부 제한을 구분하고 결과를 추정하지 않습니다.
+<!-- learner:commit-7995a3cf5435-execution:end -->
 
 ### 6. `6394188022fd` — style(journey): 모바일 중앙선 여정 구성
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 통합·검증
+- **Thread 역할:** mobile single-column collapse
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `6394188022fd^`와 `6394188022fd`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- 적용 selector, token, breakpoint, motion/focus/semantics 영향과 DOM contract를 확인합니다.
-- Visual change가 interaction 또는 accessibility invariant를 바꾸는지 구분합니다.
+- max-width 767px media query에서 centerline x, list padding, start/row grid를 확인합니다.
+- Desktop center node를 숨기고 각 card pseudo-node를 만드는 selector를 확인합니다.
+- Card border/shadow/radius/text alignment가 mobile에서 어떻게 단순화되는지 확인합니다.
+- 먼저 parent diff와 해당 SHA의 resulting tree를 구분합니다.
+- Final HEAD의 helper·file layout·behavior를 이 SHA에 소급하지 않습니다.
 
-확인 원칙:
+#### 학습 기록
 
-- 먼저 `6394188022fd^`와 `6394188022fd`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
-
-#### 학습자가 남길 증거
-
+<!-- learner:commit-6394188022fd-record:start -->
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
 | 직전 상태와 부족함 |  |
@@ -265,88 +290,81 @@
 | Failure·absence·fallback 처리 |  |
 | 보장하는 것과 보장하지 않는 것 |  |
 | 다음 commit 또는 관련 test 연결 |  |
+<!-- learner:commit-6394188022fd-record:end -->
 
-#### 코드 발췌 기록
+#### 최소 코드 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:commit-6394188022fd-excerpt:start -->
+- 변경 전 대응 코드의 path/symbol과 기존 가정을 기록합니다.
+- 해당 SHA의 decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
+- 후속 SHA의 코드를 이 section에 넣지 않습니다.
+<!-- learner:commit-6394188022fd-excerpt:end -->
+
+#### 실행·테스트 증거
+
+<!-- learner:commit-6394188022fd-execution:start -->
+- 실행했다면 exact SHA, command, environment와 실제 result를 기록합니다.
+- 실행하지 못했다면 정적 검토와 외부 제한을 구분하고 결과를 추정하지 않습니다.
+<!-- learner:commit-6394188022fd-execution:end -->
 
 ## 6. Invariant ledger
 
-| Invariant | 도입·강화 commit | 실제 code/test evidence | 부족함이 드러난 시점 | 최종 보장 범위 |
+<!-- learner:thread-ledger:start -->
+| Invariant | 도입·변경 commit | 실제 code/test evidence | 부족함이 드러난 지점 | 최종 보장 범위 |
 | --- | --- | --- | --- | --- |
-| `Journey timeline primitives and responsive layout`의 핵심 결정은 한 owner가 수행합니다. |  |  |  |  |
-| Optional/disabled/unknown state는 explicit policy로 처리됩니다. |  |  |  |  |
-| Consumer와 regression evidence는 동일 production path를 사용합니다. |  |  |  |  |
+| Period formatting | f60edf14dae0 |  |  |  |
+| Source order와 odd tail 보존 | 3c0a1154ba08 |  |  |  |
+| Variant dispatch | b3182e35aed0 |  |  |  |
+| Desktop centerline | 7995a3cf5435 |  |  |  |
+| Mobile reflow | 6394188022fd |  |  |  |
+<!-- learner:thread-ledger:end -->
 
-## 7. Failure → Fix → Test 연결
+## 7. Failure → Fix → Test 관계
 
-| 기존 가정 또는 위험 | 대응 commit | 실제 수정/강화 code에서 확인할 것 | Test 또는 실행 증거 |
+<!-- learner:thread-relations:start -->
+| Failure/위험 | 실제 영향·root cause | Fix/결정 | Regression evidence 또는 공백 |
 | --- | --- | --- | --- |
-| Caller/renderer마다 같은 결정을 다시 수행함 |  | 중앙화된 owner와 제거된 local logic |  |
-| Empty/unknown/disabled state가 정상 값처럼 흘러감 |  | explicit branch, fallback, omission 또는 error |  |
-| 구현은 존재하지만 regression evidence가 없음 |  | production path를 직접 통과하는 test/command |  |
+| Odd number of project items |  |  |  |
+| Desktop paired grid on mobile |  |  |  |
+| Reveal is-visible coupling |  |  |  |
+<!-- learner:thread-relations:end -->
 
-## 8. Ownership / state / responsibility 변화
+## 8. Ownership·state·responsibility 변화
 
-| Concern | Thread 초기 owner/state | Thread 최종 owner/state | 실제 symbol과 호출 경로 |
-| --- | --- | --- | --- |
-| 입력 또는 source state |  |  |  |
-| 파생·선택·정렬·fallback |  |  |  |
-| Route/component/rendering |  |  |  |
-| Failure/absence 처리 |  |  |  |
-| Regression evidence |  |  |  |
+<!-- learner:thread-ownership:start -->
+| 단계 | Owner | 책임 변화 |
+| --- | --- | --- |
+| Journey data |  |  |
+| Helpers |  |  |
+| JourneyList |  |  |
+| PairedJourneyList |  |  |
+| CSS |  |  |
+<!-- learner:thread-ownership:end -->
 
-## 9. Thread 최종 상태
+## 9. 최종 Thread 상태
 
-### 확장 계획에서 정의한 최종 상태
+<!-- learner:thread-final-state:start -->
+- 최종 owner와 data/state/DOM boundary를 설명합니다.
+- 최종 guarantee와 명시적으로 남은 non-guarantee를 설명합니다.
+- 관련 후속 fix/test가 다른 category에 있으면 경계를 기록합니다.
+<!-- learner:thread-final-state:end -->
 
-단일 카드/date formatter에서 compact·paired-centerline variant, desktop geometry와 mobile reflow까지 timeline primitive를 발전시키는 과정을 복원합니다.
+## 10. 최종 실행 흐름
 
-### 학습자가 완성할 최종 설명
+<!-- learner:thread-flow:start -->
+1. 입력/content/state가 어디서 오는지 기록합니다.
+2. Selector/helper/component/CSS owner를 실제 call order로 기록합니다.
+3. Absence/failure/fallback/cleanup branch를 flow 안에 포함합니다.
+4. Code 없이도 최종 흐름을 설명할 수 있게 작성합니다.
+<!-- learner:thread-flow:end -->
 
-- Thread 시작 시점의 설계와 위험:
-- 핵심 decision과 responsibility 이동 순서:
-- 실제 failure, absence 또는 performance/accessibility risk:
-- Fix/refactor가 바꾼 invariant:
-- Test/browser evidence가 보장한 범위:
-- Thread 종료 시점에도 보장하지 않는 범위:
+## 11. 학습 완료 확인
 
-## 10. 최종 architecture 또는 execution flow 정리
-
-1. 초기 source/state를 읽거나 구성합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-2. 공용 boundary가 validation, selection, normalization 또는 state resolution을 수행합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-3. Route/component/view model이 필요한 형태로 데이터를 준비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-4. Renderer 또는 browser interaction이 결과를 소비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-5. Test 또는 실행 command가 production invariant를 검증합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-
-### 코드 없이 설명하기
-
-> 이 Thread의 최종 흐름을 설계 → 구현 → failure/risk → 수정/강화 → 검증 순서로 작성합니다.
-
-## 11. 학습 완료 자가 점검
-
-- [ ] Commit map의 모든 SHA가 `web/portfolio` ancestry에 속하는지 확인했습니다.
-- [ ] 각 commit의 parent diff와 resulting tree를 확인했습니다.
-- [ ] Importance에 따라 S/A/B/C 학습 깊이를 구분했습니다.
-- [ ] Fix를 기존 가정 → failure → root cause → corrected invariant로 설명했습니다.
-- [ ] Test의 technique, production path, proves/does-not-prove를 구분했습니다.
-- [ ] Final HEAD를 과거 commit에 소급하지 않았습니다.
-- [ ] Thread 최종 흐름을 코드 없이 설명할 수 있습니다.
+<!-- learner:thread-checklist:start -->
+- [ ] 모든 commit을 exact SHA diff와 resulting file 기준으로 기록했습니다.
+- [ ] SHA, subject, order, importance, tags와 Thread 역할을 바꾸지 않았습니다.
+- [ ] Previous state, owner, absence/failure, guarantee/non-guarantee와 later relation을 채웠습니다.
+- [ ] B-level commit의 concrete role과 non-guarantee를 필요한 범위로 기록했습니다.
+- [ ] 실행 상태를 사실대로 기록했습니다.
+- [ ] 빈 learner-facing section을 남기지 않았습니다.
+<!-- learner:thread-checklist:end -->

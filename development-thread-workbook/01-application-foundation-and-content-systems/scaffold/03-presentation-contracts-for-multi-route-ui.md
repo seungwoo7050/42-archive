@@ -1,428 +1,599 @@
 # Thread: Presentation contracts for multi-route UI
 
-> Project: 42 Archive Portfolio (`web/portfolio`)
->
-> 이 문서는 원본 7개 Development Thread를 변경하지 않고, 같은 branch history를 웹 개발 학습 영역별로 추가 분류한 확장 scaffold입니다.
+> Repository: `https://github.com/seungwoo7050/42-archive`  
+> Branch: `web/portfolio`  
+> Category: `01-application-foundation-and-content-systems`
 
 ## 0. 분류 출처와 변경 가능 범위
 
-- Commit SHA, subject, importance, tags는 `commit/commit-importance.md`의 분류를 사용합니다.
-- 이 문서의 category, thread grouping, thread goal과 commit별 역할은 확장 계획에서 새로 정의했습니다.
-- 실제 code evidence, failure 재현, command 결과와 최종 설명은 학습자가 해당 SHA를 직접 확인해 채웁니다.
-- 다른 branch의 구현이나 final HEAD를 과거 SHA 설명에 소급하지 않습니다.
+- Commit SHA, subject, importance, tags는 target branch의 `commit/commit-importance.md` 분류와 exact commit metadata를 사용합니다.
+- 이 문서의 Thread grouping, 목표, 역할, 조사 지점은 Phase 1 category audit에서 repository evidence를 기준으로 확정했습니다.
+- Phase 2에서는 이 fixed information을 바꾸지 않고 learner-facing 기록만 채웠습니다.
+- 다른 branch나 final HEAD 구현을 과거 SHA 설명에 소급하지 않습니다.
 
 ## 1. Thread 목표
 
-Domain content와 화면 문구·section ordering을 분리하고 home, project index, detail, auxiliary routes와 여러 design의 표현 계약을 확장하는 과정을 복원합니다.
+한 개 home placeholder에서 다섯 design과 여러 route가 공유·분리하는 copy, section order, metric key, ARIA/empty-state vocabulary까지 `presentation.json` 계약으로 성장하는 과정을 복원합니다.
 
 ### 계획된 핵심 invariant
 
-- `Presentation contracts for multi-route UI`의 주요 결정은 route/design/component마다 중복 해석되지 않고 명시된 owner에 위치합니다.
-- Optional, disabled, unknown, empty 또는 unsupported state는 암묵적 성공으로 처리하지 않습니다.
-- 마지막 consumer와 regression evidence는 같은 production decision path를 기준으로 확인합니다.
+- route/design별 표시 문구와 section order는 renderer 코드가 아니라 presentation source가 소유합니다.
+- count key, section ID, empty/ARIA label은 제한된 vocabulary로 소비됩니다.
+- placeholder 추가와 실제 copy 완성을 구분하고, JSON 변경만으로 renderer 지원을 과장하지 않습니다.
 
 ## 2. 이 Thread를 이해하기 위한 핵심 질문
 
-- 첫 commit 직전에는 이 관심사가 어느 파일과 consumer에 분산돼 있었는가?
-- Commit sequence를 따라가며 데이터, 상태, 렌더링 또는 routing의 실제 owner가 어떻게 이동하는가?
-- Optional, disabled, unknown, empty, unsupported state는 각 시점에 어떻게 처리되는가?
-- 마지막 commit이 보장하는 것과 여전히 다른 thread가 책임지는 범위는 무엇인가?
+- Design/Classic의 초기 home 계약에서 다섯 design·다중 route로 어떻게 확장되는가?
+- 새 copy가 추가된 commit과 실제 placeholder가 완성된 commit은 각각 무엇인가?
+- 공용 vocabulary와 design-specific vocabulary의 경계는 어디인가?
 
 ## 3. 완료 기준
 
-- 각 SHA의 parent diff와 resulting tree에서 실제 변경 파일과 symbol을 확인했습니다.
-- 중앙화된 결정과 renderer/component에 남은 표현 책임을 구분했습니다.
-- Failure, absence, fallback, cleanup 또는 progressive-enhancement branch를 기록했습니다.
-- 관련 test가 있으면 production path, technique, proves/does-not-prove를 구분했습니다.
-- 최종 실행 흐름을 코드 없이 설명할 수 있습니다.
+- 각 SHA의 parent diff와 resulting tree에서 실제 file/symbol을 확인합니다.
+- 이전 상태, implementation decision, owner/lifetime, absence/failure/fallback, guarantee/non-guarantee를 분리합니다.
+- Fix·refactor·integration은 바로 앞의 assumption이나 duplicated responsibility와 연결합니다.
+- 테스트나 command는 실제 실행 여부를 정적 검토와 명확히 구분합니다.
+- Thread 종료 시 invariant evolution과 최종 flow를 코드 없이 설명합니다.
 
 ## 4. Commit map
 
-| 순서 | Commit | Subject | Importance | Tags | 확장 thread에서 확인할 역할 |
+| 순서 | Commit | Subject | Importance | Tags | 이 Thread에서의 역할 |
 | ---: | --- | --- | :---: | --- | --- |
-| 1 | `7f5017b21d37` | feat(content): 디자인 홈 표현 모델 추가 | B | CONTENT | 초기 상태와 vocabulary를 고정합니다. |
-| 2 | `04a810bb0ab4` | feat(content): 클래식과 공용 홈 표현 추가 | B | CONTENT | 기능·책임 경계를 확장합니다. |
-| 3 | `d21d53591b5c` | feat(content): 프로젝트 목록 표현 계약 정의 | B | CONTENT | 기능·책임 경계를 확장합니다. |
-| 4 | `d6468cbea9e2` | feat(content): 보조 페이지 표현 계약 정의 | B | CONTENT | 기능·책임 경계를 확장합니다. |
-| 5 | `da3941184155` | feat(content): 상세 소개 이력 연락 문구 추가 | B | CONTENT | 기능·책임 경계를 확장합니다. |
-| 6 | `96c8ba5733f5` | feat(content): 공용 UI 표현 콘텐츠 구성 | B | CONTENT | 기능·책임 경계를 확장합니다. |
-| 7 | `2b9b35d4b8de` | feat(content): 확장 디자인 홈 표현 콘텐츠 구성 | B | CONTENT | 기능·책임 경계를 확장합니다. |
-| 8 | `a7a2000ff462` | feat(content): Contact 표현 콘텐츠와 최종 문서 형식 구성 | B | CONTENT, RENDERER | Thread의 통합·검증 상태를 확인합니다. |
+| 1 | `7f5017b21d37` | feat(content): 디자인 홈 표현 모델 추가 | B | CONTENT | Design home 계약 시작 |
+| 2 | `04a810bb0ab4` | feat(content): 클래식과 공용 홈 표현 추가 | B | CONTENT | Classic/shared home 계약 |
+| 3 | `d21d53591b5c` | feat(content): 프로젝트 목록 표현 계약 정의 | B | CONTENT | projects route type 계약 |
+| 4 | `d55a2017e725` | feat(content): 프로젝트 목록 화면 문구 추가 | B | CONTENT | projects route placeholder source |
+| 5 | `d6468cbea9e2` | feat(content): 보조 페이지 표현 계약 정의 | B | CONTENT | detail/about/resume/contact 계약 |
+| 6 | `da3941184155` | feat(content): 상세 소개 이력 연락 문구 추가 | B | CONTENT | 초기 route copy source |
+| 7 | `96c8ba5733f5` | feat(content): 공용 UI 표현 콘텐츠 구성 | B | CONTENT | 공용 ARIA/empty-state vocabulary |
+| 8 | `9a7d41edfad0` | feat(content): Design과 Classic 홈 표현 콘텐츠 구성 | B | CONTENT, RENDERER | 초기 두 home의 의미 있는 구성 |
+| 9 | `2b9b35d4b8de` | feat(content): 확장 디자인 홈 표현 콘텐츠 구성 | B | CONTENT | Editorial/Brutalist/Cinematic 계약 |
+| 10 | `8886459d1b0d` | feat(content): 공용 홈 섹션 표현 콘텐츠 구성 | B | CONTENT | shared home copy 완성 |
+| 11 | `61d1976cde0d` | feat(content): 프로젝트 목록 표현 콘텐츠 구성 | B | CONTENT | 다섯 design projects route copy |
+| 12 | `a6c72a6b3b34` | feat(content): 프로젝트 상세 표현 콘텐츠 구성 | B | CONTENT | project detail copy 완성 |
+| 13 | `20dfc298375c` | feat(content): About과 Journey 표현 콘텐츠 구성 | B | CONTENT, RENDERER | About/Journey narrative 계약 |
+| 14 | `13c8c52c54d9` | feat(content): Interview Map과 Resume 표현 콘텐츠 구성 | B | CONTENT, RENDERER | Resume/Interview Map 계약 완성 |
+| 15 | `a7a2000ff462` | feat(content): Contact 표현 콘텐츠와 최종 문서 형식 구성 | B | CONTENT, RENDERER | 문서형 route 최종 구성 |
 
 ## 5. Commit별 학습 기록
-
-각 section은 반드시 해당 SHA의 tree와 parent diff를 기준으로 작성합니다. 같은 commit이 다른 확장 thread에 다시 등장해도 이 thread의 관점에서 별도로 확인합니다.
 
 ### 1. `7f5017b21d37` — feat(content): 디자인 홈 표현 모델 추가
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 초기 상태/기반
+- **Thread 역할:** Design home 계약 시작
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `7f5017b21d37^`와 `7f5017b21d37`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `presentation.json`의 `defaultHomeTemplate`, templates, `home.design`을 확인합니다.
+- `types.ts`의 home section/count key/Design hero type을 확인합니다.
 
 확인 원칙:
 
-- 먼저 `7f5017b21d37^`와 `7f5017b21d37`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `7f5017b21d37^`와 `7f5017b21d37`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c1.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c1.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c1.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c1.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c1.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c1.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:c1.evidence -->
 
 ### 2. `04a810bb0ab4` — feat(content): 클래식과 공용 홈 표현 추가
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** Classic/shared home 계약
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `04a810bb0ab4^`와 `04a810bb0ab4`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `home.classic.terminal`, shared `workMap`, `technicalFocus`, `stack`, `journey`, `contact`를 확인합니다.
+- terminal command/output 배열의 소유 위치를 확인합니다.
 
 확인 원칙:
 
-- 먼저 `04a810bb0ab4^`와 `04a810bb0ab4`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `04a810bb0ab4^`와 `04a810bb0ab4`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c2.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c2.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c2.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c2.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c2.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c2.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:c2.evidence -->
 
 ### 3. `d21d53591b5c` — feat(content): 프로젝트 목록 표현 계약 정의
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** projects route type 계약
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `d21d53591b5c^`와 `d21d53591b5c`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `ProjectPageContent`와 Design/Classic hero stats, terminal, selected/grouped shape를 확인합니다.
+- countKey가 renderer 계산 결과와 연결될 단순 문자열 union인지 확인합니다.
 
 확인 원칙:
 
-- 먼저 `d21d53591b5c^`와 `d21d53591b5c`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `d21d53591b5c^`와 `d21d53591b5c`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c3.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c3.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c3.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c3.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c3.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c3.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:c3.evidence -->
 
-### 4. `d6468cbea9e2` — feat(content): 보조 페이지 표현 계약 정의
+### 4. `d55a2017e725` — feat(content): 프로젝트 목록 화면 문구 추가
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** projects route placeholder source
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `d6468cbea9e2^`와 `d6468cbea9e2`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `presentation.json.pages.projects`의 Design/Classic 구조를 확인합니다.
+- 빈 `groups`, placeholder body, stats/countKey, terminal `maxGroups`를 구분합니다.
 
 확인 원칙:
 
-- 먼저 `d6468cbea9e2^`와 `d6468cbea9e2`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `d55a2017e725^`와 `d55a2017e725`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c4.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c4.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c4.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c4.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c4.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c4.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:c4.evidence -->
 
-### 5. `da3941184155` — feat(content): 상세 소개 이력 연락 문구 추가
+### 5. `d6468cbea9e2` — feat(content): 보조 페이지 표현 계약 정의
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** detail/about/resume/contact 계약
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `da3941184155^`와 `da3941184155`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `types.ts`의 project detail section, About, Resume, Contact page content와 `PresentationContent.pages`를 확인합니다.
+- project detail section key 집합과 route별 필수 field를 확인합니다.
 
 확인 원칙:
 
-- 먼저 `da3941184155^`와 `da3941184155`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `d6468cbea9e2^`와 `d6468cbea9e2`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c5.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c5.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c5.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c5.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c5.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c5.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:c5.evidence -->
 
-### 6. `96c8ba5733f5` — feat(content): 공용 UI 표현 콘텐츠 구성
+### 6. `da3941184155` — feat(content): 상세 소개 이력 연락 문구 추가
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** 초기 route copy source
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `96c8ba5733f5^`와 `96c8ba5733f5`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `presentation.json.pages`의 projectDetail/about/resume/contact 값을 확인합니다.
+- placeholder와 실제 label을 구분하고 renderer가 아직 소비하지 않는 field가 있는지 확인합니다.
 
 확인 원칙:
 
-- 먼저 `96c8ba5733f5^`와 `96c8ba5733f5`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `da3941184155^`와 `da3941184155`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c6.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c6.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c6.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c6.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c6.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c6.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:c6.evidence -->
 
-### 7. `2b9b35d4b8de` — feat(content): 확장 디자인 홈 표현 콘텐츠 구성
+### 7. `96c8ba5733f5` — feat(content): 공용 UI 표현 콘텐츠 구성
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** 공용 ARIA/empty-state vocabulary
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `2b9b35d4b8de^`와 `2b9b35d4b8de`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `presentation.json.ui`의 debug/skip/nav/switcher/ARIA/emptyStates를 확인합니다.
+- template description과 public UI label이 component-local literal을 대체할 범위를 확인합니다.
 
 확인 원칙:
 
-- 먼저 `2b9b35d4b8de^`와 `2b9b35d4b8de`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `96c8ba5733f5^`와 `96c8ba5733f5`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c7.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c7.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c7.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c7.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c7.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c7.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:c7.evidence -->
 
-### 8. `a7a2000ff462` — feat(content): Contact 표현 콘텐츠와 최종 문서 형식 구성
+### 8. `9a7d41edfad0` — feat(content): Design과 Classic 홈 표현 콘텐츠 구성
 
 - **Importance:** B
 - **Tags:** CONTENT, RENDERER
-- **확장 thread에서의 역할:** 통합·검증
+- **Thread 역할:** 초기 두 home의 의미 있는 구성
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `a7a2000ff462^`와 `a7a2000ff462`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `presentation.json.home.design/classic.sections`가 여섯 section으로 채워지는 diff를 확인합니다.
+- Design action/featured copy와 Classic terminal commands/output placeholder 교체를 확인합니다.
 
 확인 원칙:
 
-- 먼저 `a7a2000ff462^`와 `a7a2000ff462`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `9a7d41edfad0^`와 `9a7d41edfad0`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c8.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c8.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c8.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c8.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c8.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c8.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:c8.evidence -->
 
-## 6. Invariant ledger
+### 9. `2b9b35d4b8de` — feat(content): 확장 디자인 홈 표현 콘텐츠 구성
 
-| Invariant | 도입·강화 commit | 실제 code/test evidence | 부족함이 드러난 시점 | 최종 보장 범위 |
-| --- | --- | --- | --- | --- |
-| `Presentation contracts for multi-route UI`의 핵심 결정은 한 owner가 수행합니다. |  |  |  |  |
-| Optional/disabled/unknown state는 explicit policy로 처리됩니다. |  |  |  |  |
-| Consumer와 regression evidence는 동일 production path를 사용합니다. |  |  |  |  |
+- **Importance:** B
+- **Tags:** CONTENT
+- **Thread 역할:** Editorial/Brutalist/Cinematic 계약
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
-## 7. Failure → Fix → Test 연결
+#### 해당 SHA에서 확인할 실제 코드
 
-| 기존 가정 또는 위험 | 대응 commit | 실제 수정/강화 code에서 확인할 것 | Test 또는 실행 증거 |
+- `presentation.json`과 type에서 editorial/brutalist/cinematic shell/home nodes를 확인합니다.
+- 각 design의 section ID vocabulary와 action label 차이를 확인합니다.
+
+확인 원칙:
+
+- 먼저 `2b9b35d4b8de^`와 `2b9b35d4b8de`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c9.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c9.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c9.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c9.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c9.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c9.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:c9.evidence -->
+
+### 10. `8886459d1b0d` — feat(content): 공용 홈 섹션 표현 콘텐츠 구성
+
+- **Importance:** B
+- **Tags:** CONTENT
+- **Thread 역할:** shared home copy 완성
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
+
+#### 해당 SHA에서 확인할 실제 코드
+
+- `home.shared.workMap` card IDs/labels/body/countKey와 technicalFocus/stack/journey/contact diff를 확인합니다.
+- `curriculum` card ID가 `archive`로 바뀐 의미를 확인합니다.
+
+확인 원칙:
+
+- 먼저 `8886459d1b0d^`와 `8886459d1b0d`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c10.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c10.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c10.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c10.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c10.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c10.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:c10.evidence -->
+
+### 11. `61d1976cde0d` — feat(content): 프로젝트 목록 표현 콘텐츠 구성
+
+- **Importance:** B
+- **Tags:** CONTENT
+- **Thread 역할:** 다섯 design projects route copy
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
+
+#### 해당 SHA에서 확인할 실제 코드
+
+- `presentation.json.pages.projects`의 groups와 editorial/brutalist/cinematic nodes를 확인합니다.
+- 초기 Design/Classic placeholder가 실제 archive copy로 교체되는지 확인합니다.
+
+확인 원칙:
+
+- 먼저 `61d1976cde0d^`와 `61d1976cde0d`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c11.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c11.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c11.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c11.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c11.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c11.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:c11.evidence -->
+
+### 12. `a6c72a6b3b34` — feat(content): 프로젝트 상세 표현 콘텐츠 구성
+
+- **Importance:** B
+- **Tags:** CONTENT
+- **Thread 역할:** project detail copy 완성
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
+
+#### 해당 SHA에서 확인할 실제 코드
+
+- `pages.projectDetail`의 missing/facts/outro/frame/editorial/sections를 확인합니다.
+- highlights section과 기존 section label의 최종 집합을 확인합니다.
+
+확인 원칙:
+
+- 먼저 `a6c72a6b3b34^`와 `a6c72a6b3b34`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c12.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c12.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c12.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c12.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c12.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c12.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:c12.evidence -->
+
+### 13. `20dfc298375c` — feat(content): About과 Journey 표현 콘텐츠 구성
+
+- **Importance:** B
+- **Tags:** CONTENT, RENDERER
+- **Thread 역할:** About/Journey narrative 계약
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
+
+#### 해당 SHA에서 확인할 실제 코드
+
+- `pages.about.curation`과 `pages.journey` hero/narrative/timeline/now를 확인합니다.
+- state/reason/result labels와 anchor label을 확인합니다.
+
+확인 원칙:
+
+- 먼저 `20dfc298375c^`와 `20dfc298375c`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c13.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c13.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c13.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c13.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c13.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c13.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:c13.evidence -->
+
+### 14. `13c8c52c54d9` — feat(content): Interview Map과 Resume 표현 콘텐츠 구성
+
+- **Importance:** B
+- **Tags:** CONTENT, RENDERER
+- **Thread 역할:** Resume/Interview Map 계약 완성
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
+
+#### 해당 SHA에서 확인할 실제 코드
+
+- `pages.resume`의 experience/education/notes/identity/editorial/brutalist를 확인합니다.
+- `pages.interviewMap`의 hero/tracks/gaps label과 empty label을 확인합니다.
+
+확인 원칙:
+
+- 먼저 `13c8c52c54d9^`와 `13c8c52c54d9`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c14.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c14.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c14.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c14.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c14.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c14.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:c14.evidence -->
+
+### 15. `a7a2000ff462` — feat(content): Contact 표현 콘텐츠와 최종 문서 형식 구성
+
+- **Importance:** B
+- **Tags:** CONTENT, RENDERER
+- **Thread 역할:** 문서형 route 최종 구성
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
+
+#### 해당 SHA에서 확인할 실제 코드
+
+- `presentation.json`의 Contact copy와 Journey/Interview Map grouping/reordering diff를 확인합니다.
+- 삭제·재배치된 field가 단순 copy 수정인지 contract shape 변경인지 구분합니다.
+
+확인 원칙:
+
+- 먼저 `a7a2000ff462^`와 `a7a2000ff462`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c15.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c15.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c15.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c15.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c15.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:c15.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:c15.evidence -->
+
+## 6. Invariant evolution ledger
+
+| 추적할 invariant | 도입·변화 SHA | 실제 owner/evidence | 제한·후속 보호 |
 | --- | --- | --- | --- |
-| Caller/renderer마다 같은 결정을 다시 수행함 |  | 중앙화된 owner와 제거된 local logic |  |
-| Empty/unknown/disabled state가 정상 값처럼 흘러감 |  | explicit branch, fallback, omission 또는 error |  |
-| 구현은 존재하지만 regression evidence가 없음 |  | production path를 직접 통과하는 test/command |  |
+| 표시 문구와 section order는 JSON source가 소유한다. | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:ledger1.sha --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:ledger1.evidence --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:ledger1.limitation --> |
+| 공용 UI/empty/ARIA vocabulary는 한 node에서 공유한다. | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:ledger2.sha --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:ledger2.evidence --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:ledger2.limitation --> |
+| 다섯 design과 핵심 routes가 명시적 copy 계약을 가진다. | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:ledger3.sha --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:ledger3.evidence --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:ledger3.limitation --> |
 
-## 8. Ownership / state / responsibility 변화
+## 7. Failure → Fix → Test 관계
 
-| Concern | Thread 초기 owner/state | Thread 최종 owner/state | 실제 symbol과 호출 경로 |
+| Failure 또는 risk | Fix/전환 SHA | 교정된 결정 | Regression·검증 관계 |
 | --- | --- | --- | --- |
-| 입력 또는 source state |  |  |  |
-| 파생·선택·정렬·fallback |  |  |  |
-| Route/component/rendering |  |  |  |
-| Failure/absence 처리 |  |  |  |
-| Regression evidence |  |  |  |
+| 문구·순서가 renderer마다 하드코딩될 위험 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:failure1.sha --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:failure1.correction --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:failure1.test --> |
+| placeholder/빈 section이 정상 콘텐츠처럼 노출될 위험 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:failure2.sha --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:failure2.correction --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:failure2.test --> |
+| 추가 design/route가 계약 밖 field를 요구할 위험 | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:failure3.sha --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:failure3.correction --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:failure3.test --> |
+
+## 8. Ownership·state·responsibility 변화
+
+| 대상 | 이전 owner/state | 최종 owner/state | 근거 |
+| --- | --- | --- | --- |
+| 표시 source | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:owner1.before --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:owner1.after --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:owner1.evidence --> |
+| section order | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:owner2.before --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:owner2.after --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:owner2.evidence --> |
+| 공용 label | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:owner3.before --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:owner3.after --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:owner3.evidence --> |
+| 실제 data resolution | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:owner4.before --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:owner4.after --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:owner4.evidence --> |
 
 ## 9. Thread 최종 상태
 
-### 확장 계획에서 정의한 최종 상태
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:final.state -->
 
-Domain content와 화면 문구·section ordering을 분리하고 home, project index, detail, auxiliary routes와 여러 design의 표현 계약을 확장하는 과정을 복원합니다.
+### 최종 설명
 
-### 학습자가 완성할 최종 설명
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:final.explanation -->
 
-- Thread 시작 시점의 설계와 위험:
-- 핵심 decision과 responsibility 이동 순서:
-- 실제 failure, absence 또는 performance/accessibility risk:
-- Fix/refactor가 바꾼 invariant:
-- Test/browser evidence가 보장한 범위:
-- Thread 종료 시점에도 보장하지 않는 범위:
+## 10. 최종 실행·데이터 흐름
 
-## 10. 최종 architecture 또는 execution flow 정리
+| 단계 | Owner/call path | 입력·출력 | Failure/non-guarantee |
+| --- | --- | --- | --- |
+| route가 active design과 page copy key를 선택합니다. | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:flow1.owner --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:flow1.io --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:flow1.failure --> |
+| presentation copy를 읽습니다. | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:flow2.owner --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:flow2.io --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:flow2.failure --> |
+| domain/view model 값과 결합합니다. | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:flow3.owner --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:flow3.io --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:flow3.failure --> |
+| design renderer가 구조와 스타일을 적용합니다. | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:flow4.owner --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:flow4.io --> | <!-- learner:03-presentation-contracts-for-multi-route-ui.md:flow4.failure --> |
 
-1. 초기 source/state를 읽거나 구성합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-2. 공용 boundary가 validation, selection, normalization 또는 state resolution을 수행합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-3. Route/component/view model이 필요한 형태로 데이터를 준비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-4. Renderer 또는 browser interaction이 결과를 소비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-5. Test 또는 실행 command가 production invariant를 검증합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
+## 11. 학습 완료 확인
 
-### 코드 없이 설명하기
-
-> 이 Thread의 최종 흐름을 설계 → 구현 → failure/risk → 수정/강화 → 검증 순서로 작성합니다.
-
-## 11. 학습 완료 자가 점검
-
-- [ ] Commit map의 모든 SHA가 `web/portfolio` ancestry에 속하는지 확인했습니다.
-- [ ] 각 commit의 parent diff와 resulting tree를 확인했습니다.
-- [ ] Importance에 따라 S/A/B/C 학습 깊이를 구분했습니다.
-- [ ] Fix를 기존 가정 → failure → root cause → corrected invariant로 설명했습니다.
-- [ ] Test의 technique, production path, proves/does-not-prove를 구분했습니다.
-- [ ] Final HEAD를 과거 commit에 소급하지 않았습니다.
-- [ ] Thread 최종 흐름을 코드 없이 설명할 수 있습니다.
+<!-- learner:03-presentation-contracts-for-multi-route-ui.md:completion.check -->

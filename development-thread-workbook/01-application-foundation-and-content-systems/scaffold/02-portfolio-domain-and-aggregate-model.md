@@ -1,390 +1,327 @@
 # Thread: Portfolio domain and aggregate model
 
-> Project: 42 Archive Portfolio (`web/portfolio`)
->
-> 이 문서는 원본 7개 Development Thread를 변경하지 않고, 같은 branch history를 웹 개발 학습 영역별로 추가 분류한 확장 scaffold입니다.
+> Repository: `https://github.com/seungwoo7050/42-archive`  
+> Branch: `web/portfolio`  
+> Category: `01-application-foundation-and-content-systems`
 
 ## 0. 분류 출처와 변경 가능 범위
 
-- Commit SHA, subject, importance, tags는 `commit/commit-importance.md`의 분류를 사용합니다.
-- 이 문서의 category, thread grouping, thread goal과 commit별 역할은 확장 계획에서 새로 정의했습니다.
-- 실제 code evidence, failure 재현, command 결과와 최종 설명은 학습자가 해당 SHA를 직접 확인해 채웁니다.
-- 다른 branch의 구현이나 final HEAD를 과거 SHA 설명에 소급하지 않습니다.
+- Commit SHA, subject, importance, tags는 target branch의 `commit/commit-importance.md` 분류와 exact commit metadata를 사용합니다.
+- 이 문서의 Thread grouping, 목표, 역할, 조사 지점은 Phase 1 category audit에서 repository evidence를 기준으로 확정했습니다.
+- Phase 2에서는 이 fixed information을 바꾸지 않고 learner-facing 기록만 채웠습니다.
+- 다른 branch나 final HEAD 구현을 과거 SHA 설명에 소급하지 않습니다.
 
 ## 1. Thread 목표
 
-사이트, 프로필, 링크, 프로젝트, 기술, 여정, 연락, 이력 데이터를 JSON source와 TypeScript contract로 분리하고 하나의 aggregate로 만드는 과정을 복원합니다.
+분산 JSON source와 수동 TypeScript shape가 하나의 `PortfolioContent` aggregate 및 파생 map/filter 흐름으로 조립되는 초기 domain 모델을 복원합니다.
 
 ### 계획된 핵심 invariant
 
-- `Portfolio domain and aggregate model`의 주요 결정은 route/design/component마다 중복 해석되지 않고 명시된 owner에 위치합니다.
-- Optional, disabled, unknown, empty 또는 unsupported state는 암묵적 성공으로 처리하지 않습니다.
-- 마지막 consumer와 regression evidence는 같은 production decision path를 기준으로 확인합니다.
+- 콘텐츠 source는 JSON에 있고 renderer-facing aggregate는 `src/lib/portfolio`가 구성합니다.
+- 정렬·enabled filtering·environment href resolution은 호출자마다 재구현하지 않습니다.
+- 이 단계의 TypeScript assertion은 runtime validation이 아니라 정적 편의에 불과합니다.
 
 ## 2. 이 Thread를 이해하기 위한 핵심 질문
 
-- 첫 commit 직전에는 이 관심사가 어느 파일과 consumer에 분산돼 있었는가?
-- Commit sequence를 따라가며 데이터, 상태, 렌더링 또는 routing의 실제 owner가 어떻게 이동하는가?
-- Optional, disabled, unknown, empty, unsupported state는 각 시점에 어떻게 처리되는가?
-- 마지막 commit이 보장하는 것과 여전히 다른 thread가 책임지는 범위는 무엇인가?
+- 각 JSON source와 대응 TypeScript type은 어떤 순서로 확장되는가?
+- `getPortfolioContent()`가 새 aggregate를 만들면서 공유하는 객체와 복사하는 배열은 무엇인가?
+- disabled 항목과 environment override는 어디에서 제거·적용되는가?
 
 ## 3. 완료 기준
 
-- 각 SHA의 parent diff와 resulting tree에서 실제 변경 파일과 symbol을 확인했습니다.
-- 중앙화된 결정과 renderer/component에 남은 표현 책임을 구분했습니다.
-- Failure, absence, fallback, cleanup 또는 progressive-enhancement branch를 기록했습니다.
-- 관련 test가 있으면 production path, technique, proves/does-not-prove를 구분했습니다.
-- 최종 실행 흐름을 코드 없이 설명할 수 있습니다.
+- 각 SHA의 parent diff와 resulting tree에서 실제 file/symbol을 확인합니다.
+- 이전 상태, implementation decision, owner/lifetime, absence/failure/fallback, guarantee/non-guarantee를 분리합니다.
+- Fix·refactor·integration은 바로 앞의 assumption이나 duplicated responsibility와 연결합니다.
+- 테스트나 command는 실제 실행 여부를 정적 검토와 명확히 구분합니다.
+- Thread 종료 시 invariant evolution과 최종 flow를 코드 없이 설명합니다.
 
 ## 4. Commit map
 
-| 순서 | Commit | Subject | Importance | Tags | 확장 thread에서 확인할 역할 |
+| 순서 | Commit | Subject | Importance | Tags | 이 Thread에서의 역할 |
 | ---: | --- | --- | :---: | --- | --- |
-| 1 | `efb1e2e26b74` | feat(content): 사이트와 프로필 콘텐츠 기반 추가 | B | CONTENT | 초기 상태와 vocabulary를 고정합니다. |
-| 2 | `5eb01dfecabb` | feat(content): 링크와 프로젝트 도메인 정의 | B | CONTENT | 기능·책임 경계를 확장합니다. |
-| 3 | `0d891d41cf4c` | feat(content): 기술과 여정 콘텐츠 모델 추가 | B | CONTENT | 기능·책임 경계를 확장합니다. |
-| 4 | `8661cc00c45d` | feat(content): 연락과 이력 집계 모델 완성 | B | CONTENT | 기능·책임 경계를 확장합니다. |
-| 5 | `a365b3d19118` | feat(content): 정적 포트폴리오 콘텐츠 로딩 | B | CONTENT | 기능·책임 경계를 확장합니다. |
-| 6 | `0b134b1a6cf6` | feat(content): 여정 정렬과 콘텐츠 인덱스 구성 | B | CONTENT | 기능·책임 경계를 확장합니다. |
-| 7 | `7c95a6f387b4` | feat(content): 환경 링크를 반영한 콘텐츠 집계 | B | CONTENT | Thread의 통합·검증 상태를 확인합니다. |
+| 1 | `efb1e2e26b74` | feat(content): 사이트와 프로필 콘텐츠 기반 추가 | B | CONTENT | 기본 identity source와 type 도입 |
+| 2 | `5eb01dfecabb` | feat(content): 링크와 프로젝트 도메인 정의 | B | CONTENT | project/link core vocabulary |
+| 3 | `0d891d41cf4c` | feat(content): 기술과 여정 콘텐츠 모델 추가 | B | CONTENT | 경력/기술/여정 source 확장 |
+| 4 | `8661cc00c45d` | feat(content): 연락과 이력 집계 모델 완성 | B | CONTENT | aggregate type 완성 |
+| 5 | `a365b3d19118` | feat(content): 정적 포트폴리오 콘텐츠 로딩 | B | CONTENT | 직접 JSON import 기반 조립 |
+| 6 | `0b134b1a6cf6` | feat(content): 여정 정렬과 콘텐츠 인덱스 구성 | B | CONTENT | 전체 source와 파생 index 연결 |
+| 7 | `7c95a6f387b4` | feat(content): 환경 링크를 반영한 콘텐츠 집계 | B | CONTENT | 초기 aggregate policy 완성 |
 
 ## 5. Commit별 학습 기록
-
-각 section은 반드시 해당 SHA의 tree와 parent diff를 기준으로 작성합니다. 같은 commit이 다른 확장 thread에 다시 등장해도 이 thread의 관점에서 별도로 확인합니다.
 
 ### 1. `efb1e2e26b74` — feat(content): 사이트와 프로필 콘텐츠 기반 추가
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 초기 상태/기반
+- **Thread 역할:** 기본 identity source와 type 도입
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `efb1e2e26b74^`와 `efb1e2e26b74`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/content/site.json`, `profile.json`의 초기 필드를 확인합니다.
+- `src/lib/portfolio/types.ts`의 `SiteContent`, `ProfileContent`와 JSON 사이에 runtime parse가 없는지 확인합니다.
 
 확인 원칙:
 
-- 먼저 `efb1e2e26b74^`와 `efb1e2e26b74`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `efb1e2e26b74^`와 `efb1e2e26b74`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c1.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c1.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c1.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c1.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c1.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c1.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:02-portfolio-domain-and-aggregate-model.md:c1.evidence -->
 
 ### 2. `5eb01dfecabb` — feat(content): 링크와 프로젝트 도메인 정의
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** project/link core vocabulary
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `5eb01dfecabb^`와 `5eb01dfecabb`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/content/projects.json`, `links.json`의 초기 빈 collection을 확인합니다.
+- `ContentLink`, deployment/project model, environment key 정의를 확인합니다.
 
 확인 원칙:
 
-- 먼저 `5eb01dfecabb^`와 `5eb01dfecabb`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `5eb01dfecabb^`와 `5eb01dfecabb`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c2.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c2.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c2.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c2.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c2.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c2.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:02-portfolio-domain-and-aggregate-model.md:c2.evidence -->
 
 ### 3. `0d891d41cf4c` — feat(content): 기술과 여정 콘텐츠 모델 추가
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** 경력/기술/여정 source 확장
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `0d891d41cf4c^`와 `0d891d41cf4c`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `tech-stack.json`, `skills.json`, `experience.json`, `journey.json`과 대응 type을 확인합니다.
+- journey의 `projectId` nullability와 technology ID reference가 단순 문자열인지 확인합니다.
 
 확인 원칙:
 
-- 먼저 `0d891d41cf4c^`와 `0d891d41cf4c`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `0d891d41cf4c^`와 `0d891d41cf4c`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c3.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c3.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c3.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c3.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c3.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c3.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:02-portfolio-domain-and-aggregate-model.md:c3.evidence -->
 
 ### 4. `8661cc00c45d` — feat(content): 연락과 이력 집계 모델 완성
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** aggregate type 완성
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `8661cc00c45d^`와 `8661cc00c45d`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `contact.json`, `resume.json`과 `ContactContent`, `ResumeContent`를 확인합니다.
+- `PortfolioContent`, `PortfolioEnv`, `RouteSearchParams`가 어떤 하위 source를 묶는지 확인합니다.
 
 확인 원칙:
 
-- 먼저 `8661cc00c45d^`와 `8661cc00c45d`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `8661cc00c45d^`와 `8661cc00c45d`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c4.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c4.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c4.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c4.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c4.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c4.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:02-portfolio-domain-and-aggregate-model.md:c4.evidence -->
 
 ### 5. `a365b3d19118` — feat(content): 정적 포트폴리오 콘텐츠 로딩
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** 직접 JSON import 기반 조립
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `a365b3d19118^`와 `a365b3d19118`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/lib/portfolio/content.ts`의 JSON imports와 `as` assertions를 확인합니다.
+- 어떤 source가 module-level singleton으로 저장되고 `getPortfolioContent()`가 무엇을 반환하는지 확인합니다.
 
 확인 원칙:
 
-- 먼저 `a365b3d19118^`와 `a365b3d19118`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `a365b3d19118^`와 `a365b3d19118`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c5.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c5.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c5.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c5.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c5.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c5.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:02-portfolio-domain-and-aggregate-model.md:c5.evidence -->
 
 ### 6. `0b134b1a6cf6` — feat(content): 여정 정렬과 콘텐츠 인덱스 구성
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** 전체 source와 파생 index 연결
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `0b134b1a6cf6^`와 `0b134b1a6cf6`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `content.ts`에서 skills/tech/experience/journey/links/contact/resume import를 확인합니다.
+- journey의 date→title 정렬, `portfolioTechStackById` Map, `getEnabledLinks()`를 확인합니다.
 
 확인 원칙:
 
-- 먼저 `0b134b1a6cf6^`와 `0b134b1a6cf6`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `0b134b1a6cf6^`와 `0b134b1a6cf6`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c6.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c6.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c6.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c6.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c6.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c6.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:02-portfolio-domain-and-aggregate-model.md:c6.evidence -->
 
 ### 7. `7c95a6f387b4` — feat(content): 환경 링크를 반영한 콘텐츠 집계
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 통합·검증
+- **Thread 역할:** 초기 aggregate policy 완성
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `7c95a6f387b4^`와 `7c95a6f387b4`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `withEnvHref`, `getPortfolioContent`의 env default와 project/link mapping을 확인합니다.
+- project `enabled !== false`, nested link `enabled !== false`, top-level `getEnabledLinks()`의 차이를 확인합니다.
 
 확인 원칙:
 
-- 먼저 `7c95a6f387b4^`와 `7c95a6f387b4`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `7c95a6f387b4^`와 `7c95a6f387b4`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c7.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c7.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c7.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c7.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c7.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:c7.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:02-portfolio-domain-and-aggregate-model.md:c7.evidence -->
 
-## 6. Invariant ledger
+## 6. Invariant evolution ledger
 
-| Invariant | 도입·강화 commit | 실제 code/test evidence | 부족함이 드러난 시점 | 최종 보장 범위 |
-| --- | --- | --- | --- | --- |
-| `Portfolio domain and aggregate model`의 핵심 결정은 한 owner가 수행합니다. |  |  |  |  |
-| Optional/disabled/unknown state는 explicit policy로 처리됩니다. |  |  |  |  |
-| Consumer와 regression evidence는 동일 production path를 사용합니다. |  |  |  |  |
-
-## 7. Failure → Fix → Test 연결
-
-| 기존 가정 또는 위험 | 대응 commit | 실제 수정/강화 code에서 확인할 것 | Test 또는 실행 증거 |
+| 추적할 invariant | 도입·변화 SHA | 실제 owner/evidence | 제한·후속 보호 |
 | --- | --- | --- | --- |
-| Caller/renderer마다 같은 결정을 다시 수행함 |  | 중앙화된 owner와 제거된 local logic |  |
-| Empty/unknown/disabled state가 정상 값처럼 흘러감 |  | explicit branch, fallback, omission 또는 error |  |
-| 구현은 존재하지만 regression evidence가 없음 |  | production path를 직접 통과하는 test/command |  |
+| JSON source와 renderer aggregate를 분리한다. | <!-- learner:02-portfolio-domain-and-aggregate-model.md:ledger1.sha --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:ledger1.evidence --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:ledger1.limitation --> |
+| journey order와 lookup/filter 정책은 aggregate module이 소유한다. | <!-- learner:02-portfolio-domain-and-aggregate-model.md:ledger2.sha --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:ledger2.evidence --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:ledger2.limitation --> |
+| disabled project/link와 env href를 호출 전에 해석한다. | <!-- learner:02-portfolio-domain-and-aggregate-model.md:ledger3.sha --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:ledger3.evidence --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:ledger3.limitation --> |
 
-## 8. Ownership / state / responsibility 변화
+## 7. Failure → Fix → Test 관계
 
-| Concern | Thread 초기 owner/state | Thread 최종 owner/state | 실제 symbol과 호출 경로 |
+| Failure 또는 risk | Fix/전환 SHA | 교정된 결정 | Regression·검증 관계 |
 | --- | --- | --- | --- |
-| 입력 또는 source state |  |  |  |
-| 파생·선택·정렬·fallback |  |  |  |
-| Route/component/rendering |  |  |  |
-| Failure/absence 처리 |  |  |  |
-| Regression evidence |  |  |  |
+| 각 component가 JSON을 직접 import할 위험 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:failure1.sha --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:failure1.correction --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:failure1.test --> |
+| journey 순서와 tech lookup이 consumer마다 달라질 위험 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:failure2.sha --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:failure2.correction --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:failure2.test --> |
+| disabled/env link가 그대로 노출될 위험 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:failure3.sha --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:failure3.correction --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:failure3.test --> |
+
+## 8. Ownership·state·responsibility 변화
+
+| 대상 | 이전 owner/state | 최종 owner/state | 근거 |
+| --- | --- | --- | --- |
+| 원본 값 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:owner1.before --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:owner1.after --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:owner1.evidence --> |
+| aggregate shape | <!-- learner:02-portfolio-domain-and-aggregate-model.md:owner2.before --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:owner2.after --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:owner2.evidence --> |
+| 파생 정렬/index/filter | <!-- learner:02-portfolio-domain-and-aggregate-model.md:owner3.before --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:owner3.after --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:owner3.evidence --> |
+| runtime 신뢰 | <!-- learner:02-portfolio-domain-and-aggregate-model.md:owner4.before --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:owner4.after --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:owner4.evidence --> |
 
 ## 9. Thread 최종 상태
 
-### 확장 계획에서 정의한 최종 상태
+<!-- learner:02-portfolio-domain-and-aggregate-model.md:final.state -->
 
-사이트, 프로필, 링크, 프로젝트, 기술, 여정, 연락, 이력 데이터를 JSON source와 TypeScript contract로 분리하고 하나의 aggregate로 만드는 과정을 복원합니다.
+### 최종 설명
 
-### 학습자가 완성할 최종 설명
+<!-- learner:02-portfolio-domain-and-aggregate-model.md:final.explanation -->
 
-- Thread 시작 시점의 설계와 위험:
-- 핵심 decision과 responsibility 이동 순서:
-- 실제 failure, absence 또는 performance/accessibility risk:
-- Fix/refactor가 바꾼 invariant:
-- Test/browser evidence가 보장한 범위:
-- Thread 종료 시점에도 보장하지 않는 범위:
+## 10. 최종 실행·데이터 흐름
 
-## 10. 최종 architecture 또는 execution flow 정리
+| 단계 | Owner/call path | 입력·출력 | Failure/non-guarantee |
+| --- | --- | --- | --- |
+| JSON modules를 import합니다. | <!-- learner:02-portfolio-domain-and-aggregate-model.md:flow1.owner --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:flow1.io --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:flow1.failure --> |
+| 파생 collection을 준비합니다. | <!-- learner:02-portfolio-domain-and-aggregate-model.md:flow2.owner --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:flow2.io --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:flow2.failure --> |
+| 환경 링크와 project 활성화를 해석합니다. | <!-- learner:02-portfolio-domain-and-aggregate-model.md:flow3.owner --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:flow3.io --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:flow3.failure --> |
+| aggregate를 route에 반환합니다. | <!-- learner:02-portfolio-domain-and-aggregate-model.md:flow4.owner --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:flow4.io --> | <!-- learner:02-portfolio-domain-and-aggregate-model.md:flow4.failure --> |
 
-1. 초기 source/state를 읽거나 구성합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-2. 공용 boundary가 validation, selection, normalization 또는 state resolution을 수행합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-3. Route/component/view model이 필요한 형태로 데이터를 준비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-4. Renderer 또는 browser interaction이 결과를 소비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-5. Test 또는 실행 command가 production invariant를 검증합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
+## 11. 학습 완료 확인
 
-### 코드 없이 설명하기
-
-> 이 Thread의 최종 흐름을 설계 → 구현 → failure/risk → 수정/강화 → 검증 순서로 작성합니다.
-
-## 11. 학습 완료 자가 점검
-
-- [ ] Commit map의 모든 SHA가 `web/portfolio` ancestry에 속하는지 확인했습니다.
-- [ ] 각 commit의 parent diff와 resulting tree를 확인했습니다.
-- [ ] Importance에 따라 S/A/B/C 학습 깊이를 구분했습니다.
-- [ ] Fix를 기존 가정 → failure → root cause → corrected invariant로 설명했습니다.
-- [ ] Test의 technique, production path, proves/does-not-prove를 구분했습니다.
-- [ ] Final HEAD를 과거 commit에 소급하지 않았습니다.
-- [ ] Thread 최종 흐름을 코드 없이 설명할 수 있습니다.
+<!-- learner:02-portfolio-domain-and-aggregate-model.md:completion.check -->

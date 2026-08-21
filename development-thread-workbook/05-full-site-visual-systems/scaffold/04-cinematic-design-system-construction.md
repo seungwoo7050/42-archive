@@ -2,541 +2,446 @@
 
 > Project: 42 Archive Portfolio (`web/portfolio`)
 >
-> 이 문서는 원본 7개 Development Thread를 변경하지 않고, 같은 branch history를 웹 개발 학습 영역별로 추가 분류한 확장 scaffold입니다.
+> Category: `05-full-site-visual-systems`
+>
+> Phase 1 audit에서 확정한 authoritative scaffold입니다. Phase 2에서는 answer marker 내부만 채웁니다.
 
-## 0. 분류 출처와 변경 가능 범위
+## 0. Scope and authority
 
-- Commit SHA, subject, importance, tags는 `commit/commit-importance.md`의 분류를 사용합니다.
-- 이 문서의 category, thread grouping, thread goal과 commit별 역할은 확장 계획에서 새로 정의했습니다.
-- 실제 code evidence, failure 재현, command 결과와 최종 설명은 학습자가 해당 SHA를 직접 확인해 채웁니다.
-- 다른 branch의 구현이나 final HEAD를 과거 SHA 설명에 소급하지 않습니다.
+- Commit SHA, subject, importance, tags는 branch의 `commit/commit-importance.md`와 exact commit metadata를 기준으로 고정했습니다.
+- **Thread boundary:** Cinematic CSS module과 route module construction을 포함합니다. registry activation/API 연결은 Thread 1에 둡니다.
+- 다른 branch, final HEAD의 후대 구현, 실행하지 않은 command 결과를 사용하지 않습니다.
 
-## 1. Thread 목표
+## 1. Thread goal
 
-Cinematic renderer가 image-led chapter, dark shell, sticky evidence, archive/detail/profile/journey/interview composition과 responsive behavior를 완성하는 과정을 복원합니다.
+Cinematic의 암실 palette와 image-led chapter grammar, shared frame/media, full-site route composition과 reference/empty-state 경계를 복원합니다.
 
-### 계획된 핵심 invariant
+### Frozen invariant target
 
-- `Cinematic design system construction`의 주요 결정은 route/design/component마다 중복 해석되지 않고 명시된 owner에 위치합니다.
-- Optional, disabled, unknown, empty 또는 unsupported state는 암묵적 성공으로 처리하지 않습니다.
-- 마지막 consumer와 regression evidence는 같은 production decision path를 기준으로 확인합니다.
+최종 invariant는 route가 공통 `Frame`과 `Media` boundary를 사용하고 internal link가 선택 상태를 보존하며, route별 content join과 absence는 명시적으로 처리하되 각 route가 보장하지 않는 empty/reference 상태도 그대로 남긴다는 것입니다.
 
-## 2. 이 Thread를 이해하기 위한 핵심 질문
+## 2. Commit map
 
-- 첫 commit 직전에는 이 관심사가 어느 파일과 consumer에 분산돼 있었는가?
-- Commit sequence를 따라가며 데이터, 상태, 렌더링 또는 routing의 실제 owner가 어떻게 이동하는가?
-- Optional, disabled, unknown, empty, unsupported state는 각 시점에 어떻게 처리되는가?
-- 마지막 commit이 보장하는 것과 여전히 다른 thread가 책임지는 범위는 무엇인가?
-
-## 3. 완료 기준
-
-- 각 SHA의 parent diff와 resulting tree에서 실제 변경 파일과 symbol을 확인했습니다.
-- 중앙화된 결정과 renderer/component에 남은 표현 책임을 구분했습니다.
-- Failure, absence, fallback, cleanup 또는 progressive-enhancement branch를 기록했습니다.
-- 관련 test가 있으면 production path, technique, proves/does-not-prove를 구분했습니다.
-- 최종 실행 흐름을 코드 없이 설명할 수 있습니다.
-
-## 4. Commit map
-
-| 순서 | Commit | Subject | Importance | Tags | 확장 thread에서 확인할 역할 |
+| 순서 | Commit | Subject | Importance | Tags | 역할 |
 | ---: | --- | --- | :---: | --- | --- |
-| 1 | `74a27c95eb1c` | style(cinematic): 암실 palette와 shell 기초 구성 | B | ROUTING, RENDERER | 초기 상태와 vocabulary를 고정합니다. |
-| 2 | `197c0781f1b9` | feat(cinematic): 링크와 chapter 표기 프리미티브 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 3 | `e2dbb1b7c7d0` | feat(cinematic): 공용 frame과 media 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 4 | `22c4593809bf` | feat(cinematic): 프로젝트 chapter 추가 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 5 | `bb7a742122fd` | style(cinematic): chapter와 archive 지면 구성 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 6 | `29430d7dfe67` | feat(cinematic-home): 소개와 대표 프로젝트 구성 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 7 | `2e9f70067daf` | feat(cinematic-project): 상세 hero와 매체 구성 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 8 | `95ee01decc8f` | style(cinematic): 프로필과 콘텐츠 section 구성 | B | CONTENT, RENDERER | 기능·책임 경계를 확장합니다. |
-| 9 | `52f13fcc5a12` | style(cinematic): 여정 timeline과 답변 근거 구성 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 10 | `c3aba5da6a10` | style(cinematic): 인터뷰 근거와 반응형 동작 구성 | B | RENDERER | 기능·책임 경계를 확장합니다. |
-| 11 | `b8de57f130eb` | feat(designs): Cinematic renderer 활성화 | A | ARCH, RENDERER | Thread의 통합·검증 상태를 확인합니다. |
+| 1 | `74a27c95eb1c` | style(cinematic): 암실 palette와 shell 기초 구성 | B | ROUTING, RENDERER | Cinematic 시각 계약의 dark scoped tokens·selection/focus/skip-link·sticky glass header |
+| 2 | `197c0781f1b9` | feat(cinematic): 링크와 chapter 표기 프리미티브 추가 | B | RENDERER | navigation primitives |
+| 3 | `3b72294a0fd7` | style(cinematic): 모바일 탐색과 hero 매체 구성 | B | ROUTING, RENDERER | Cinematic 시각 계약의 native mobile disclosure와 image-led hero |
+| 4 | `e2dbb1b7c7d0` | feat(cinematic): 공용 frame과 media 추가 | B | RENDERER | shared full-site frame |
+| 5 | `22c4593809bf` | feat(cinematic): 프로젝트 chapter 추가 | B | RENDERER | reusable project chapter |
+| 6 | `bb7a742122fd` | style(cinematic): chapter와 archive 지면 구성 | B | RENDERER | Cinematic 시각 계약의 long-form chapter/archive/sticky copy/media hover/dual panel |
+| 7 | `29430d7dfe67` | feat(cinematic-home): 소개와 대표 프로젝트 구성 | B | RENDERER | Home route |
+| 8 | `f417e3e70b1f` | feat(cinematic-projects): 프로젝트 archive 구성 | B | RENDERER | Projects archive |
+| 9 | `1f4c35853502` | style(cinematic): 상세와 이력 grid 구성 | B | RENDERER | Cinematic 시각 계약의 project evidence·profile essays·resume grid |
+| 10 | `2e9f70067daf` | feat(cinematic-project): 상세 hero와 매체 구성 | B | RENDERER | Project detail boundary |
+| 11 | `2f404402a2ea` | feat(cinematic-project): 상세 서사와 gallery 구성 | B | RENDERER | Project detail completion |
+| 12 | `95ee01decc8f` | style(cinematic): 프로필과 콘텐츠 section 구성 | B | CONTENT, RENDERER | Cinematic 시각 계약의 profile facts·long-form sections·chronology·evidence/contact/gaps |
+| 13 | `4eefc512d05c` | feat(cinematic-about): 프로필과 경력 소개 구성 | B | RENDERER | About route |
+| 14 | `ee692d893a11` | feat(cinematic-about): 큐레이션 archive 구성 | B | CONTENT, RENDERER | feature-gated curation |
+| 15 | `52f13fcc5a12` | style(cinematic): 여정 timeline과 답변 근거 구성 | B | RENDERER | Cinematic 시각 계약의 milestone/timeline/current-position/interview evidence grammar |
+| 16 | `7cc23349f59f` | feat(cinematic): 이력과 연락 route 구성 | B | ROUTING, RENDERER | Resume and Contact |
+| 17 | `c3aba5da6a10` | style(cinematic): 인터뷰 근거와 반응형 동작 구성 | B | RENDERER | Cinematic 시각 계약의 Interview evidence completion·980/640 reflow·reduced motion |
+| 18 | `bddb3cc18eed` | feat(cinematic-journey): 여정 archive 구성 | B | RENDERER | Journey route |
+| 19 | `2a0f0aadee1c` | feat(cinematic-interview): 인터뷰 근거 map 구성 | B | RENDERER | Interview route |
 
-## 5. Commit별 학습 기록
+## 3. Historical baseline
 
-각 section은 반드시 해당 SHA의 tree와 parent diff를 기준으로 작성합니다. 같은 commit이 다른 확장 thread에 다시 등장해도 이 thread의 관점에서 별도로 확인합니다.
+<!-- LEARNER-ANSWER:thread:04-cinematic-design-system-construction.md:baseline:BEGIN -->
+_첫 commit 직전의 실제 owner와 부족함을 기록합니다._
+<!-- LEARNER-ANSWER:thread:04-cinematic-design-system-construction.md:baseline:END -->
+
+## 4. Commit-by-commit reconstruction
 
 ### 1. `74a27c95eb1c` — style(cinematic): 암실 palette와 shell 기초 구성
 
 - **Importance:** B
 - **Tags:** ROUTING, RENDERER
-- **확장 thread에서의 역할:** 초기 상태/기반
+- **Thread role:** Cinematic 시각 계약의 dark scoped tokens·selection/focus/skip-link·sticky glass header
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Commit-specific investigation
 
-- `74a27c95eb1c^`와 `74a27c95eb1c`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- 적용 selector, token, breakpoint, motion/focus/semantics 영향과 DOM contract를 확인합니다.
-- Visual change가 interaction 또는 accessibility invariant를 바꾸는지 구분합니다.
+- `74a27c95eb1c^`와 `74a27c95eb1c`를 비교하고 `src/designs/cinematic/cinematic.module.css`에서 **parent diff에서 dark scoped tokens·selection/focus/skip-link·sticky glass header에 대응하는 selector·media rule·token과 기존 선언의 재배치를 확인**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `Cinematic 시각 계약의 dark scoped tokens·selection/focus/skip-link·sticky glass header` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `이 CSS만으로 대응 DOM class가 실제 route에서 사용되거나 브라우저별 layout이 정확하다는 사실은 보장되지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
 
-확인 원칙:
+#### Learning record
 
-- 먼저 `74a27c95eb1c^`와 `74a27c95eb1c`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
-
-#### 학습자가 남길 증거
-
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
-
-#### 코드 발췌 기록
-
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- LEARNER-ANSWER:commit:74a27c95eb1c:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:74a27c95eb1c:END -->
 
 ### 2. `197c0781f1b9` — feat(cinematic): 링크와 chapter 표기 프리미티브 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread role:** navigation primitives
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Commit-specific investigation
 
-- `197c0781f1b9^`와 `197c0781f1b9`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `197c0781f1b9^`와 `197c0781f1b9`를 비교하고 `src/designs/cinematic/cinematic-route.tsx`에서 **`routeHref`, `isCurrentNavigation`, `CinematicLink`, `ChapterLabel`**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `navigation primitives` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `이 commit은 해당 route/section의 정적 composition을 추가하지만 다른 route, 모든 빈 상태, 브라우저 layout을 자동으로 검증하지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
 
-확인 원칙:
+#### Learning record
 
-- 먼저 `197c0781f1b9^`와 `197c0781f1b9`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+<!-- LEARNER-ANSWER:commit:197c0781f1b9:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:197c0781f1b9:END -->
 
-#### 학습자가 남길 증거
+### 3. `3b72294a0fd7` — style(cinematic): 모바일 탐색과 hero 매체 구성
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+- **Importance:** B
+- **Tags:** ROUTING, RENDERER
+- **Thread role:** Cinematic 시각 계약의 native mobile disclosure와 image-led hero
 
-#### 코드 발췌 기록
+#### Commit-specific investigation
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+- `3b72294a0fd7^`와 `3b72294a0fd7`를 비교하고 `src/designs/cinematic/cinematic.module.css`에서 **parent diff에서 native mobile disclosure와 image-led hero에 대응하는 selector·media rule·token과 기존 선언의 재배치를 확인**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `Cinematic 시각 계약의 native mobile disclosure와 image-led hero` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `이 CSS만으로 대응 DOM class가 실제 route에서 사용되거나 브라우저별 layout이 정확하다는 사실은 보장되지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
 
-### 3. `e2dbb1b7c7d0` — feat(cinematic): 공용 frame과 media 추가
+#### Learning record
+
+<!-- LEARNER-ANSWER:commit:3b72294a0fd7:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:3b72294a0fd7:END -->
+
+### 4. `e2dbb1b7c7d0` — feat(cinematic): 공용 frame과 media 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread role:** shared full-site frame
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Commit-specific investigation
 
-- `e2dbb1b7c7d0^`와 `e2dbb1b7c7d0`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `e2dbb1b7c7d0^`와 `e2dbb1b7c7d0`를 비교하고 `src/designs/cinematic/cinematic-route.tsx`에서 **`Frame`, `Media`, canonical nav/footer, root/main shell**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `shared full-site frame` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `이 commit은 해당 route/section의 정적 composition을 추가하지만 다른 route, 모든 빈 상태, 브라우저 layout을 자동으로 검증하지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
+- 후속 관계: 후속 route view들이 `Frame` 안에 body만 제공한다.
 
-확인 원칙:
+#### Learning record
 
-- 먼저 `e2dbb1b7c7d0^`와 `e2dbb1b7c7d0`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+<!-- LEARNER-ANSWER:commit:e2dbb1b7c7d0:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:e2dbb1b7c7d0:END -->
 
-#### 학습자가 남길 증거
-
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
-
-#### 코드 발췌 기록
-
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
-
-### 4. `22c4593809bf` — feat(cinematic): 프로젝트 chapter 추가
+### 5. `22c4593809bf` — feat(cinematic): 프로젝트 chapter 추가
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread role:** reusable project chapter
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Commit-specific investigation
 
-- `22c4593809bf^`와 `22c4593809bf`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `22c4593809bf^`와 `22c4593809bf`를 비교하고 `src/designs/cinematic/cinematic-route.tsx`에서 **`ProjectChapter`, sticky evidence copy, media link, accessible aria-label**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `reusable project chapter` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `이 commit은 해당 route/section의 정적 composition을 추가하지만 다른 route, 모든 빈 상태, 브라우저 layout을 자동으로 검증하지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
 
-확인 원칙:
+#### Learning record
 
-- 먼저 `22c4593809bf^`와 `22c4593809bf`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+<!-- LEARNER-ANSWER:commit:22c4593809bf:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:22c4593809bf:END -->
 
-#### 학습자가 남길 증거
-
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
-
-#### 코드 발췌 기록
-
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
-
-### 5. `bb7a742122fd` — style(cinematic): chapter와 archive 지면 구성
+### 6. `bb7a742122fd` — style(cinematic): chapter와 archive 지면 구성
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread role:** Cinematic 시각 계약의 long-form chapter/archive/sticky copy/media hover/dual panel
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Commit-specific investigation
 
-- `bb7a742122fd^`와 `bb7a742122fd`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- 적용 selector, token, breakpoint, motion/focus/semantics 영향과 DOM contract를 확인합니다.
-- Visual change가 interaction 또는 accessibility invariant를 바꾸는지 구분합니다.
+- `bb7a742122fd^`와 `bb7a742122fd`를 비교하고 `src/designs/cinematic/cinematic.module.css`에서 **parent diff에서 long-form chapter/archive/sticky copy/media hover/dual panel에 대응하는 selector·media rule·token과 기존 선언의 재배치를 확인**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `Cinematic 시각 계약의 long-form chapter/archive/sticky copy/media hover/dual panel` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `이 CSS만으로 대응 DOM class가 실제 route에서 사용되거나 브라우저별 layout이 정확하다는 사실은 보장되지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
 
-확인 원칙:
+#### Learning record
 
-- 먼저 `bb7a742122fd^`와 `bb7a742122fd`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+<!-- LEARNER-ANSWER:commit:bb7a742122fd:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:bb7a742122fd:END -->
 
-#### 학습자가 남길 증거
-
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
-
-#### 코드 발췌 기록
-
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
-
-### 6. `29430d7dfe67` — feat(cinematic-home): 소개와 대표 프로젝트 구성
+### 7. `29430d7dfe67` — feat(cinematic-home): 소개와 대표 프로젝트 구성
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread role:** Home route
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Commit-specific investigation
 
-- `29430d7dfe67^`와 `29430d7dfe67`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `29430d7dfe67^`와 `29430d7dfe67`를 비교하고 `src/designs/cinematic/cinematic-route.tsx`에서 **`HomeView`, presentation section order, featured→all fallback, `slice(0, 4)`**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `Home route` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `이 commit은 해당 route/section의 정적 composition을 추가하지만 다른 route, 모든 빈 상태, 브라우저 layout을 자동으로 검증하지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
 
-확인 원칙:
+#### Learning record
 
-- 먼저 `29430d7dfe67^`와 `29430d7dfe67`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+<!-- LEARNER-ANSWER:commit:29430d7dfe67:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:29430d7dfe67:END -->
 
-#### 학습자가 남길 증거
-
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
-
-#### 코드 발췌 기록
-
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
-
-### 7. `2e9f70067daf` — feat(cinematic-project): 상세 hero와 매체 구성
+### 8. `f417e3e70b1f` — feat(cinematic-projects): 프로젝트 archive 구성
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread role:** Projects archive
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Commit-specific investigation
 
-- `2e9f70067daf^`와 `2e9f70067daf`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `f417e3e70b1f^`와 `f417e3e70b1f`를 비교하고 `src/designs/cinematic/cinematic-route.tsx`에서 **`ProjectsView`, all projects as `ProjectChapter`, padded count**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `Projects archive` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `빈 project archive는 단순 빈 목록이 되며 명시적 recovery copy를 보장하지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
 
-확인 원칙:
+#### Learning record
 
-- 먼저 `2e9f70067daf^`와 `2e9f70067daf`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+<!-- LEARNER-ANSWER:commit:f417e3e70b1f:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:f417e3e70b1f:END -->
 
-#### 학습자가 남길 증거
+### 9. `1f4c35853502` — style(cinematic): 상세와 이력 grid 구성
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+- **Importance:** B
+- **Tags:** RENDERER
+- **Thread role:** Cinematic 시각 계약의 project evidence·profile essays·resume grid
 
-#### 코드 발췌 기록
+#### Commit-specific investigation
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+- `1f4c35853502^`와 `1f4c35853502`를 비교하고 `src/designs/cinematic/cinematic.module.css`에서 **parent diff에서 project evidence·profile essays·resume grid에 대응하는 selector·media rule·token과 기존 선언의 재배치를 확인**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `Cinematic 시각 계약의 project evidence·profile essays·resume grid` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `이 CSS만으로 대응 DOM class가 실제 route에서 사용되거나 브라우저별 layout이 정확하다는 사실은 보장되지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
 
-### 8. `95ee01decc8f` — style(cinematic): 프로필과 콘텐츠 section 구성
+#### Learning record
+
+<!-- LEARNER-ANSWER:commit:1f4c35853502:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:1f4c35853502:END -->
+
+### 10. `2e9f70067daf` — feat(cinematic-project): 상세 hero와 매체 구성
+
+- **Importance:** B
+- **Tags:** RENDERER
+- **Thread role:** Project detail boundary
+
+#### Commit-specific investigation
+
+- `2e9f70067daf^`와 `2e9f70067daf`를 비교하고 `src/designs/cinematic/cinematic-route.tsx`에서 **`ProjectDetailView`, unresolved guard, archive back link, facts, hero media**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `Project detail boundary` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `이 commit은 해당 route/section의 정적 composition을 추가하지만 다른 route, 모든 빈 상태, 브라우저 layout을 자동으로 검증하지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
+- 후속 관계: `2f404402a2ea`가 full narrative와 galleries를 추가한다.
+
+#### Learning record
+
+<!-- LEARNER-ANSWER:commit:2e9f70067daf:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:2e9f70067daf:END -->
+
+### 11. `2f404402a2ea` — feat(cinematic-project): 상세 서사와 gallery 구성
+
+- **Importance:** B
+- **Tags:** RENDERER
+- **Thread role:** Project detail completion
+
+#### Commit-specific investigation
+
+- `2f404402a2ea^`와 `2f404402a2ea`를 비교하고 `src/designs/cinematic/cinematic-route.tsx`에서 **optional narrative/evidence arrays, resolved stack fallback, detail links, hero screenshot de-duplication**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `Project detail completion` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `이 commit은 해당 route/section의 정적 composition을 추가하지만 다른 route, 모든 빈 상태, 브라우저 layout을 자동으로 검증하지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
+
+#### Learning record
+
+<!-- LEARNER-ANSWER:commit:2f404402a2ea:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:2f404402a2ea:END -->
+
+### 12. `95ee01decc8f` — style(cinematic): 프로필과 콘텐츠 section 구성
 
 - **Importance:** B
 - **Tags:** CONTENT, RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread role:** Cinematic 시각 계약의 profile facts·long-form sections·chronology·evidence/contact/gaps
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Commit-specific investigation
 
-- `95ee01decc8f^`와 `95ee01decc8f`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- 적용 selector, token, breakpoint, motion/focus/semantics 영향과 DOM contract를 확인합니다.
-- Visual change가 interaction 또는 accessibility invariant를 바꾸는지 구분합니다.
+- `95ee01decc8f^`와 `95ee01decc8f`를 비교하고 `src/designs/cinematic/cinematic.module.css`에서 **parent diff에서 profile facts·long-form sections·chronology·evidence/contact/gaps에 대응하는 selector·media rule·token과 기존 선언의 재배치를 확인**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `Cinematic 시각 계약의 profile facts·long-form sections·chronology·evidence/contact/gaps` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `이 CSS만으로 대응 DOM class가 실제 route에서 사용되거나 브라우저별 layout이 정확하다는 사실은 보장되지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
 
-확인 원칙:
+#### Learning record
 
-- 먼저 `95ee01decc8f^`와 `95ee01decc8f`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+<!-- LEARNER-ANSWER:commit:95ee01decc8f:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:95ee01decc8f:END -->
 
-#### 학습자가 남길 증거
-
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
-
-#### 코드 발췌 기록
-
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
-
-### 9. `52f13fcc5a12` — style(cinematic): 여정 timeline과 답변 근거 구성
+### 13. `4eefc512d05c` — feat(cinematic-about): 프로필과 경력 소개 구성
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread role:** About route
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Commit-specific investigation
 
-- `52f13fcc5a12^`와 `52f13fcc5a12`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- 적용 selector, token, breakpoint, motion/focus/semantics 영향과 DOM contract를 확인합니다.
-- Visual change가 interaction 또는 accessibility invariant를 바꾸는지 구분합니다.
+- `4eefc512d05c^`와 `4eefc512d05c`를 비교하고 `src/designs/cinematic/cinematic-route.tsx`에서 **`AboutView`, optional profile photo, facts, principles, skills/groups, experience**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `About route` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `이 commit은 해당 route/section의 정적 composition을 추가하지만 다른 route, 모든 빈 상태, 브라우저 layout을 자동으로 검증하지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
 
-확인 원칙:
+#### Learning record
 
-- 먼저 `52f13fcc5a12^`와 `52f13fcc5a12`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+<!-- LEARNER-ANSWER:commit:4eefc512d05c:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:4eefc512d05c:END -->
 
-#### 학습자가 남길 증거
+### 14. `ee692d893a11` — feat(cinematic-about): 큐레이션 archive 구성
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+- **Importance:** B
+- **Tags:** CONTENT, RENDERER
+- **Thread role:** feature-gated curation
 
-#### 코드 발췌 기록
+#### Commit-specific investigation
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+- `ee692d893a11^`와 `ee692d893a11`를 비교하고 `src/designs/cinematic/cinematic-route.tsx`에서 **`isSitePageEnabled`, category projectIds resolution/filter, omissions/nextReview**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `feature-gated curation` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `이 commit은 해당 route/section의 정적 composition을 추가하지만 다른 route, 모든 빈 상태, 브라우저 layout을 자동으로 검증하지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
 
-### 10. `c3aba5da6a10` — style(cinematic): 인터뷰 근거와 반응형 동작 구성
+#### Learning record
+
+<!-- LEARNER-ANSWER:commit:ee692d893a11:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:ee692d893a11:END -->
+
+### 15. `52f13fcc5a12` — style(cinematic): 여정 timeline과 답변 근거 구성
 
 - **Importance:** B
 - **Tags:** RENDERER
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread role:** Cinematic 시각 계약의 milestone/timeline/current-position/interview evidence grammar
 
-#### 해당 SHA에서 확인할 실제 코드
+#### Commit-specific investigation
 
-- `c3aba5da6a10^`와 `c3aba5da6a10`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- 적용 selector, token, breakpoint, motion/focus/semantics 영향과 DOM contract를 확인합니다.
-- Visual change가 interaction 또는 accessibility invariant를 바꾸는지 구분합니다.
+- `52f13fcc5a12^`와 `52f13fcc5a12`를 비교하고 `src/designs/cinematic/cinematic.module.css`에서 **parent diff에서 milestone/timeline/current-position/interview evidence grammar에 대응하는 selector·media rule·token과 기존 선언의 재배치를 확인**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `Cinematic 시각 계약의 milestone/timeline/current-position/interview evidence grammar` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `이 CSS만으로 대응 DOM class가 실제 route에서 사용되거나 브라우저별 layout이 정확하다는 사실은 보장되지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
 
-확인 원칙:
+#### Learning record
 
-- 먼저 `c3aba5da6a10^`와 `c3aba5da6a10`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+<!-- LEARNER-ANSWER:commit:52f13fcc5a12:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:52f13fcc5a12:END -->
 
-#### 학습자가 남길 증거
+### 16. `7cc23349f59f` — feat(cinematic): 이력과 연락 route 구성
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+- **Importance:** B
+- **Tags:** ROUTING, RENDERER
+- **Thread role:** Resume and Contact
 
-#### 코드 발췌 기록
+#### Commit-specific investigation
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+- `7cc23349f59f^`와 `7cc23349f59f`를 비교하고 `src/designs/cinematic/cinematic-route.tsx`에서 **resume selected-project ID resolution/filter, optional download, contact preferred→placement fallback, empty channels**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `Resume and Contact` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `Resume의 모든 선택 배열이 빈 경우 각각 별도 empty-state를 제공하는 것은 아니며 notes에만 명시적 fallback이 있다.`라는 한계를 코드와 test 범위에서 확인합니다.
 
-### 11. `b8de57f130eb` — feat(designs): Cinematic renderer 활성화
+#### Learning record
 
-- **Importance:** A
-- **Tags:** ARCH, RENDERER
-- **확장 thread에서의 역할:** 통합·검증
+<!-- LEARNER-ANSWER:commit:7cc23349f59f:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:7cc23349f59f:END -->
 
-#### 해당 SHA에서 확인할 실제 코드
+### 17. `c3aba5da6a10` — style(cinematic): 인터뷰 근거와 반응형 동작 구성
 
-- `b8de57f130eb^`와 `b8de57f130eb`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- **Importance:** B
+- **Tags:** RENDERER
+- **Thread role:** Cinematic 시각 계약의 Interview evidence completion·980/640 reflow·reduced motion
 
-확인 원칙:
+#### Commit-specific investigation
 
-- 먼저 `b8de57f130eb^`와 `b8de57f130eb`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- `c3aba5da6a10^`와 `c3aba5da6a10`를 비교하고 `src/designs/cinematic/cinematic.module.css`에서 **parent diff에서 Interview evidence completion·980/640 reflow·reduced motion에 대응하는 selector·media rule·token과 기존 선언의 재배치를 확인**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `Cinematic 시각 계약의 Interview evidence completion·980/640 reflow·reduced motion` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `reduced-motion·focus·semantic 보조는 CSS/DOM 계약의 일부만 다루며, 실제 WCAG 적합성이나 모든 보조기기 동작을 단독으로 보장하지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
 
-#### 학습자가 남길 증거
+#### Learning record
 
-| 확인·기록 항목 | 학습자 기록 |
-| --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+<!-- LEARNER-ANSWER:commit:c3aba5da6a10:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:c3aba5da6a10:END -->
 
-#### 코드 발췌 기록
+### 18. `bddb3cc18eed` — feat(cinematic-journey): 여정 archive 구성
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+- **Importance:** B
+- **Tags:** RENDERER
+- **Thread role:** Journey route
 
-## 6. Invariant ledger
+#### Commit-specific investigation
 
-| Invariant | 도입·강화 commit | 실제 code/test evidence | 부족함이 드러난 시점 | 최종 보장 범위 |
-| --- | --- | --- | --- | --- |
-| `Cinematic design system construction`의 핵심 결정은 한 owner가 수행합니다. |  |  |  |  |
-| Optional/disabled/unknown state는 explicit policy로 처리됩니다. |  |  |  |  |
-| Consumer와 regression evidence는 동일 production path를 사용합니다. |  |  |  |  |
+- `bddb3cc18eed^`와 `bddb3cc18eed`를 비교하고 `src/designs/cinematic/cinematic-route.tsx`에서 **milestone anchor project resolution/filter, dated archive, direct `item.projectId` URL, current position**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `Journey route` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `archive `projectId`가 canonical project에 존재한다는 보장은 이 renderer에서 검증하지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
 
-## 7. Failure → Fix → Test 연결
+#### Learning record
 
-| 기존 가정 또는 위험 | 대응 commit | 실제 수정/강화 code에서 확인할 것 | Test 또는 실행 증거 |
-| --- | --- | --- | --- |
-| Caller/renderer마다 같은 결정을 다시 수행함 |  | 중앙화된 owner와 제거된 local logic |  |
-| Empty/unknown/disabled state가 정상 값처럼 흘러감 |  | explicit branch, fallback, omission 또는 error |  |
-| 구현은 존재하지만 regression evidence가 없음 |  | production path를 직접 통과하는 test/command |  |
+<!-- LEARNER-ANSWER:commit:bddb3cc18eed:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:bddb3cc18eed:END -->
 
-## 8. Ownership / state / responsibility 변화
+### 19. `2a0f0aadee1c` — feat(cinematic-interview): 인터뷰 근거 map 구성
 
-| Concern | Thread 초기 owner/state | Thread 최종 owner/state | 실제 symbol과 호출 경로 |
-| --- | --- | --- | --- |
-| 입력 또는 source state |  |  |  |
-| 파생·선택·정렬·fallback |  |  |  |
-| Route/component/rendering |  |  |  |
-| Failure/absence 처리 |  |  |  |
-| Regression evidence |  |  |  |
+- **Importance:** B
+- **Tags:** RENDERER
+- **Thread role:** Interview route
 
-## 9. Thread 최종 상태
+#### Commit-specific investigation
 
-### 확장 계획에서 정의한 최종 상태
+- `2a0f0aadee1c^`와 `2a0f0aadee1c`를 비교하고 `src/designs/cinematic/cinematic-route.tsx`에서 **`projectsById` Map, external reference, track/question answers, missing/empty evidence, gaps**가 처음 생기거나 이동한 위치를 찾습니다.
+- 직전 owner와 이 SHA 이후 owner를 구분하고, `Interview route` 역할이 caller/callee·DOM·content-reference 경계에 어떤 변화를 주는지 적습니다.
+- absence, unsupported route, missing reference, empty list, optional media/link 또는 responsive fallback 중 이 SHA에 실제 존재하는 분기만 기록합니다.
+- `이 commit은 해당 route/section의 정적 composition을 추가하지만 다른 route, 모든 빈 상태, 브라우저 layout을 자동으로 검증하지 않는다.`라는 한계를 코드와 test 범위에서 확인합니다.
+- 후속 관계: Thread 1의 `b8de57f130eb`가 완성된 route entry를 registry에 활성화한다.
 
-Cinematic renderer가 image-led chapter, dark shell, sticky evidence, archive/detail/profile/journey/interview composition과 responsive behavior를 완성하는 과정을 복원합니다.
+#### Learning record
 
-### 학습자가 완성할 최종 설명
+<!-- LEARNER-ANSWER:commit:2a0f0aadee1c:BEGIN -->
+_해당 SHA의 parent diff와 resulting tree를 확인한 뒤 작성합니다._
+<!-- LEARNER-ANSWER:commit:2a0f0aadee1c:END -->
 
-- Thread 시작 시점의 설계와 위험:
-- 핵심 decision과 responsibility 이동 순서:
-- 실제 failure, absence 또는 performance/accessibility risk:
-- Fix/refactor가 바꾼 invariant:
-- Test/browser evidence가 보장한 범위:
-- Thread 종료 시점에도 보장하지 않는 범위:
+## 5. Invariant evolution
 
-## 10. 최종 architecture 또는 execution flow 정리
+<!-- LEARNER-ANSWER:thread:04-cinematic-design-system-construction.md:invariant:BEGIN -->
+_어느 SHA에서 invariant가 도입·확장·제한·검증됐는지 기록합니다._
+<!-- LEARNER-ANSWER:thread:04-cinematic-design-system-construction.md:invariant:END -->
 
-1. 초기 source/state를 읽거나 구성합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-2. 공용 boundary가 validation, selection, normalization 또는 state resolution을 수행합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-3. Route/component/view model이 필요한 형태로 데이터를 준비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-4. Renderer 또는 browser interaction이 결과를 소비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-5. Test 또는 실행 command가 production invariant를 검증합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
+## 6. Failure → Fix → Test and ownership relations
 
-### 코드 없이 설명하기
+<!-- LEARNER-ANSWER:thread:04-cinematic-design-system-construction.md:relations:BEGIN -->
+_실패·부족함·수정·검증과 owner 이동 관계를 연결합니다._
+<!-- LEARNER-ANSWER:thread:04-cinematic-design-system-construction.md:relations:END -->
 
-> 이 Thread의 최종 흐름을 설계 → 구현 → failure/risk → 수정/강화 → 검증 순서로 작성합니다.
+## 7. Final architecture or execution flow
 
-## 11. 학습 완료 자가 점검
+<!-- LEARNER-ANSWER:thread:04-cinematic-design-system-construction.md:flow:BEGIN -->
+_최종 flow를 코드 없이 설명합니다._
+<!-- LEARNER-ANSWER:thread:04-cinematic-design-system-construction.md:flow:END -->
 
-- [ ] Commit map의 모든 SHA가 `web/portfolio` ancestry에 속하는지 확인했습니다.
-- [ ] 각 commit의 parent diff와 resulting tree를 확인했습니다.
-- [ ] Importance에 따라 S/A/B/C 학습 깊이를 구분했습니다.
-- [ ] Fix를 기존 가정 → failure → root cause → corrected invariant로 설명했습니다.
-- [ ] Test의 technique, production path, proves/does-not-prove를 구분했습니다.
-- [ ] Final HEAD를 과거 commit에 소급하지 않았습니다.
-- [ ] Thread 최종 흐름을 코드 없이 설명할 수 있습니다.
+## 8. Runtime and verification evidence
+
+<!-- LEARNER-ANSWER:thread:04-cinematic-design-system-construction.md:runtime:BEGIN -->
+_실제로 실행한 command와 정적 inspection을 구분해 기록합니다._
+<!-- LEARNER-ANSWER:thread:04-cinematic-design-system-construction.md:runtime:END -->
+
+## 9. Learning-completion checks
+
+<!-- LEARNER-ANSWER:thread:04-cinematic-design-system-construction.md:checks:BEGIN -->
+_완료한 항목만 체크합니다._
+<!-- LEARNER-ANSWER:thread:04-cinematic-design-system-construction.md:checks:END -->

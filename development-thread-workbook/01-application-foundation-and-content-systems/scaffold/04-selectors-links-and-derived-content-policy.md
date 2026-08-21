@@ -1,390 +1,398 @@
 # Thread: Selectors, links, and derived content policy
 
-> Project: 42 Archive Portfolio (`web/portfolio`)
->
-> 이 문서는 원본 7개 Development Thread를 변경하지 않고, 같은 branch history를 웹 개발 학습 영역별로 추가 분류한 확장 scaffold입니다.
+> Repository: `https://github.com/seungwoo7050/42-archive`  
+> Branch: `web/portfolio`  
+> Category: `01-application-foundation-and-content-systems`
 
 ## 0. 분류 출처와 변경 가능 범위
 
-- Commit SHA, subject, importance, tags는 `commit/commit-importance.md`의 분류를 사용합니다.
-- 이 문서의 category, thread grouping, thread goal과 commit별 역할은 확장 계획에서 새로 정의했습니다.
-- 실제 code evidence, failure 재현, command 결과와 최종 설명은 학습자가 해당 SHA를 직접 확인해 채웁니다.
-- 다른 branch의 구현이나 final HEAD를 과거 SHA 설명에 소급하지 않습니다.
+- Commit SHA, subject, importance, tags는 target branch의 `commit/commit-importance.md` 분류와 exact commit metadata를 사용합니다.
+- 이 문서의 Thread grouping, 목표, 역할, 조사 지점은 Phase 1 category audit에서 repository evidence를 기준으로 확정했습니다.
+- Phase 2에서는 이 fixed information을 바꾸지 않고 learner-facing 기록만 채웠습니다.
+- 다른 branch나 final HEAD 구현을 과거 SHA 설명에 소급하지 않습니다.
 
 ## 1. Thread 목표
 
-Renderer가 raw collection을 직접 해석하지 않도록 project lookup, metrics, page enablement, link placement와 external-anchor policy를 selector로 이동하는 과정을 복원합니다.
+renderer와 route에 흩어질 수 있는 lookup, fallback, enabled page, link placement, project metric 계산을 pure selector policy로 중앙화하고 실제 consumer가 이를 사용하도록 전환하는 과정을 복원합니다.
 
 ### 계획된 핵심 invariant
 
-- `Selectors, links, and derived content policy`의 주요 결정은 route/design/component마다 중복 해석되지 않고 명시된 owner에 위치합니다.
-- Optional, disabled, unknown, empty 또는 unsupported state는 암묵적 성공으로 처리하지 않습니다.
-- 마지막 consumer와 regression evidence는 같은 production decision path를 기준으로 확인합니다.
+- lookup/fallback/filter/metric 계산은 selector가 소유하고 renderer는 결과를 표현합니다.
+- page enablement는 `false`만 차단하는 명시적 fail-open 정책입니다.
+- link placement와 live deployment 조건은 같은 selector 경로에서 함께 적용됩니다.
 
 ## 2. 이 Thread를 이해하기 위한 핵심 질문
 
-- 첫 commit 직전에는 이 관심사가 어느 파일과 consumer에 분산돼 있었는가?
-- Commit sequence를 따라가며 데이터, 상태, 렌더링 또는 routing의 실제 owner가 어떻게 이동하는가?
-- Optional, disabled, unknown, empty, unsupported state는 각 시점에 어떻게 처리되는가?
-- 마지막 commit이 보장하는 것과 여전히 다른 thread가 책임지는 범위는 무엇인가?
+- unknown technology, missing reference, disabled page는 각각 fallback·omission·false 중 무엇으로 처리되는가?
+- metric filter의 여러 조건은 AND인가 OR인가?
+- placement vocabulary가 도입된 뒤 어떤 consumer의 임의 type filter가 제거되는가?
 
 ## 3. 완료 기준
 
-- 각 SHA의 parent diff와 resulting tree에서 실제 변경 파일과 symbol을 확인했습니다.
-- 중앙화된 결정과 renderer/component에 남은 표현 책임을 구분했습니다.
-- Failure, absence, fallback, cleanup 또는 progressive-enhancement branch를 기록했습니다.
-- 관련 test가 있으면 production path, technique, proves/does-not-prove를 구분했습니다.
-- 최종 실행 흐름을 코드 없이 설명할 수 있습니다.
+- 각 SHA의 parent diff와 resulting tree에서 실제 file/symbol을 확인합니다.
+- 이전 상태, implementation decision, owner/lifetime, absence/failure/fallback, guarantee/non-guarantee를 분리합니다.
+- Fix·refactor·integration은 바로 앞의 assumption이나 duplicated responsibility와 연결합니다.
+- 테스트나 command는 실제 실행 여부를 정적 검토와 명확히 구분합니다.
+- Thread 종료 시 invariant evolution과 최종 flow를 코드 없이 설명합니다.
 
 ## 4. Commit map
 
-| 순서 | Commit | Subject | Importance | Tags | 확장 thread에서 확인할 역할 |
+| 순서 | Commit | Subject | Importance | Tags | 이 Thread에서의 역할 |
 | ---: | --- | --- | :---: | --- | --- |
-| 1 | `eb988f5e09e4` | feat(portfolio): 기술과 프로젝트 조회기 추가 | B | CONTENT | 초기 상태와 vocabulary를 고정합니다. |
-| 2 | `ba8da56d3fcf` | feat(portfolio): 연락과 프로젝트 링크 선택기 추가 | A | CONTENT | 기능·책임 경계를 확장합니다. |
-| 3 | `3e2e95a3a28c` | feat(content): 페이지 활성화 selector 추가 | B | CONTENT, ROUTING | 기능·책임 경계를 확장합니다. |
-| 4 | `7c539b142d6d` | feat(content): 프로젝트 지표 selector 추가 | B | CONTENT | 기능·책임 경계를 확장합니다. |
-| 5 | `119ff9a92090` | feat(content): 링크 배치 selector 추가 | B | CONTENT | 기능·책임 경계를 확장합니다. |
-| 6 | `2d87b62dcce8` | refactor(project): 상세 링크를 배치 기준으로 선택 | B | RENDERER, REFACTOR | 기능·책임 경계를 확장합니다. |
-| 7 | `ee2c118a76d6` | feat(content): 홈 링크를 배치 기준으로 선택 | B | CONTENT | Thread의 통합·검증 상태를 확인합니다. |
+| 1 | `eb988f5e09e4` | feat(portfolio): 기술과 프로젝트 조회기 추가 | B | CONTENT | 기본 lookup/fallback selectors |
+| 2 | `ba8da56d3fcf` | feat(portfolio): 연락과 프로젝트 링크 선택기 추가 | A | CONTENT | link/deployment 정책 중앙화 |
+| 3 | `3e2e95a3a28c` | feat(content): 페이지 활성화 selector 추가 | B | CONTENT, ROUTING | page enablement selector |
+| 4 | `7c539b142d6d` | feat(content): 프로젝트 지표 selector 추가 | B | CONTENT | declarative metric evaluator |
+| 5 | `daa6815a6dfa` | feat(project): 카드 링크를 콘텐츠 배치 기준으로 선택 | B | CONTENT, RENDERER | card placement 최초 소비 |
+| 6 | `383a3b86e119` | feat(content): 프로젝트 지표를 화면에 적용 | B | CONTENT | metric selector consumer migration |
+| 7 | `119ff9a92090` | feat(content): 링크 배치 selector 추가 | B | CONTENT | 공용 LinkPlacement vocabulary |
+| 8 | `2d87b62dcce8` | refactor(project): 상세 링크를 배치 기준으로 선택 | B | RENDERER, REFACTOR | detail component consumer migration |
+| 9 | `ee2c118a76d6` | feat(content): 홈 링크를 배치 기준으로 선택 | B | CONTENT | home hero consumer migration |
 
 ## 5. Commit별 학습 기록
-
-각 section은 반드시 해당 SHA의 tree와 parent diff를 기준으로 작성합니다. 같은 commit이 다른 확장 thread에 다시 등장해도 이 thread의 관점에서 별도로 확인합니다.
 
 ### 1. `eb988f5e09e4` — feat(portfolio): 기술과 프로젝트 조회기 추가
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 초기 상태/기반
+- **Thread 역할:** 기본 lookup/fallback selectors
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `eb988f5e09e4^`와 `eb988f5e09e4`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/lib/portfolio/selectors.ts`의 technology fallback, featured/project-by-id, resume project selectors를 확인합니다.
+- unknown tech와 missing project ID가 각각 어떤 결과를 내는지 확인합니다.
 
 확인 원칙:
 
-- 먼저 `eb988f5e09e4^`와 `eb988f5e09e4`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `eb988f5e09e4^`와 `eb988f5e09e4`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c1.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:04-selectors-links-and-derived-content-policy.md:c1.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:04-selectors-links-and-derived-content-policy.md:c1.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c1.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c1.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c1.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:04-selectors-links-and-derived-content-policy.md:c1.evidence -->
 
 ### 2. `ba8da56d3fcf` — feat(portfolio): 연락과 프로젝트 링크 선택기 추가
 
 - **Importance:** A
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** link/deployment 정책 중앙화
+- **조사 깊이:** 주요 subsystem의 결정 경로, owner, failure/non-guarantee와 integration evidence를 구체적으로 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `ba8da56d3fcf^`와 `ba8da56d3fcf`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `getPreferredContactLinks`, project link selectors, `isProjectLive`, `getProjectCardLinks`, external link props를 확인합니다.
+- demo link가 live deployment 조건을 통과해야 하는지와 source/github/case-study 처리 차이를 확인합니다.
+- barrel export에서 public selector surface를 확인합니다.
 
 확인 원칙:
 
-- 먼저 `ba8da56d3fcf^`와 `ba8da56d3fcf`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `ba8da56d3fcf^`와 `ba8da56d3fcf`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c2.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:04-selectors-links-and-derived-content-policy.md:c2.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:04-selectors-links-and-derived-content-policy.md:c2.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c2.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c2.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c2.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:04-selectors-links-and-derived-content-policy.md:c2.evidence -->
 
 ### 3. `3e2e95a3a28c` — feat(content): 페이지 활성화 selector 추가
 
 - **Importance:** B
 - **Tags:** CONTENT, ROUTING
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** page enablement selector
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `3e2e95a3a28c^`와 `3e2e95a3a28c`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `isPortfolioPageEnabled` 또는 대응 selector가 `site.pages?.[pageId] !== false`를 사용하는지 확인합니다.
+- missing pages map과 missing page key의 결과를 확인합니다.
 
 확인 원칙:
 
-- 먼저 `3e2e95a3a28c^`와 `3e2e95a3a28c`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `3e2e95a3a28c^`와 `3e2e95a3a28c`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c3.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:04-selectors-links-and-derived-content-policy.md:c3.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:04-selectors-links-and-derived-content-policy.md:c3.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c3.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c3.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c3.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:04-selectors-links-and-derived-content-policy.md:c3.evidence -->
 
 ### 4. `7c539b142d6d` — feat(content): 프로젝트 지표 selector 추가
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** declarative metric evaluator
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `7c539b142d6d^`와 `7c539b142d6d`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `getProjectMetricValue`와 filter predicate를 확인합니다.
+- `projectIds`, `groupIds`, `tags`, `featured`, `deploymentStatuses` 조건이 함께 있을 때 AND로 적용되는지 확인합니다.
+- `aggregate: count`와 `sum-highlights`, unknown metric ID의 0 fallback을 확인합니다.
 
 확인 원칙:
 
-- 먼저 `7c539b142d6d^`와 `7c539b142d6d`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `7c539b142d6d^`와 `7c539b142d6d`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c4.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:04-selectors-links-and-derived-content-policy.md:c4.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:04-selectors-links-and-derived-content-policy.md:c4.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c4.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c4.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c4.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:04-selectors-links-and-derived-content-policy.md:c4.evidence -->
 
-### 5. `119ff9a92090` — feat(content): 링크 배치 selector 추가
+### 5. `daa6815a6dfa` — feat(project): 카드 링크를 콘텐츠 배치 기준으로 선택
+
+- **Importance:** B
+- **Tags:** CONTENT, RENDERER
+- **Thread 역할:** card placement 최초 소비
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
+
+#### 해당 SHA에서 확인할 실제 코드
+
+- `getProjectCardLinks`의 `placements?.includes("card")` 선행 조건을 확인합니다.
+- demo link에만 `isProjectLive`가 추가로 적용되고 다른 type은 placement만 통과하면 반환되는지 확인합니다.
+
+확인 원칙:
+
+- 먼저 `daa6815a6dfa^`와 `daa6815a6dfa`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c5.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:04-selectors-links-and-derived-content-policy.md:c5.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:04-selectors-links-and-derived-content-policy.md:c5.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c5.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c5.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c5.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:04-selectors-links-and-derived-content-policy.md:c5.evidence -->
+
+### 6. `383a3b86e119` — feat(content): 프로젝트 지표를 화면에 적용
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** metric selector consumer migration
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `119ff9a92090^`와 `119ff9a92090`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/projects/page.tsx`와 `work-map-section.tsx`에서 path/ID/featured heuristic이 `getProjectMetricValue`로 교체되는지 확인합니다.
+- `project-detail-view.tsx`에 highlights section이 추가되는 별도 표현 변경을 구분합니다.
 
 확인 원칙:
 
-- 먼저 `119ff9a92090^`와 `119ff9a92090`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `383a3b86e119^`와 `383a3b86e119`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c6.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:04-selectors-links-and-derived-content-policy.md:c6.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:04-selectors-links-and-derived-content-policy.md:c6.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c6.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c6.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c6.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:04-selectors-links-and-derived-content-policy.md:c6.evidence -->
 
-### 6. `2d87b62dcce8` — refactor(project): 상세 링크를 배치 기준으로 선택
+### 7. `119ff9a92090` — feat(content): 링크 배치 selector 추가
+
+- **Importance:** B
+- **Tags:** CONTENT
+- **Thread 역할:** 공용 LinkPlacement vocabulary
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
+
+#### 해당 SHA에서 확인할 실제 코드
+
+- `LinkPlacement` type과 placement 기반 selector들을 확인합니다.
+- hero/contact/card/detail/footer별 selection과 demo live guard가 어디에서 공유되는지 확인합니다.
+
+확인 원칙:
+
+- 먼저 `119ff9a92090^`와 `119ff9a92090`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
+
+#### 학습자가 남길 증거
+
+| 확인·기록 항목 | 학습자 기록 |
+| --- | --- |
+| 직전 상태와 부족함 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c7.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:04-selectors-links-and-derived-content-policy.md:c7.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:04-selectors-links-and-derived-content-policy.md:c7.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c7.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c7.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c7.next --> |
+
+#### 코드·실행 증거
+
+<!-- learner:04-selectors-links-and-derived-content-policy.md:c7.evidence -->
+
+### 8. `2d87b62dcce8` — refactor(project): 상세 링크를 배치 기준으로 선택
 
 - **Importance:** B
 - **Tags:** RENDERER, REFACTOR
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **Thread 역할:** detail component consumer migration
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `2d87b62dcce8^`와 `2d87b62dcce8`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Refactor 전후 responsibility와 runtime payload/import/call graph 변화를 비교합니다.
-- Compatibility branch와 제거 조건, behavior-preservation evidence를 확인합니다.
+- project detail links component의 local `link.type` filter 제거를 확인합니다.
+- 새 detail selector 호출과 렌더링 props가 behavior-preserving인지 비교합니다.
 
 확인 원칙:
 
-- 먼저 `2d87b62dcce8^`와 `2d87b62dcce8`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `2d87b62dcce8^`와 `2d87b62dcce8`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c8.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:04-selectors-links-and-derived-content-policy.md:c8.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:04-selectors-links-and-derived-content-policy.md:c8.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c8.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c8.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c8.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:04-selectors-links-and-derived-content-policy.md:c8.evidence -->
 
-### 7. `ee2c118a76d6` — feat(content): 홈 링크를 배치 기준으로 선택
+### 9. `ee2c118a76d6` — feat(content): 홈 링크를 배치 기준으로 선택
 
 - **Importance:** B
 - **Tags:** CONTENT
-- **확장 thread에서의 역할:** 통합·검증
+- **Thread 역할:** home hero consumer migration
+- **조사 깊이:** 이 commit이 맡은 실제 구현 역할, changed symbol, state/absence 처리와 다음 연결을 복원합니다.
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `ee2c118a76d6^`와 `ee2c118a76d6`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- Design/Classic home renderer에서 link type 기반 selection이 hero placement selector로 바뀌는지 확인합니다.
+- live demo guard와 fallback action이 유지되는지 확인합니다.
 
 확인 원칙:
 
-- 먼저 `ee2c118a76d6^`와 `ee2c118a76d6`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- 먼저 `ee2c118a76d6^`와 `ee2c118a76d6`의 first-parent diff를 비교합니다. Root commit이면 parent 부재를 명시합니다.
+- Resulting tree의 file/symbol만 이 SHA의 사실로 사용합니다.
+- 실행하지 않은 command 결과와 후속 test evidence를 직접 실행한 결과처럼 쓰지 않습니다.
 
 #### 학습자가 남길 증거
 
 | 확인·기록 항목 | 학습자 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
-| 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| 직전 상태와 부족함 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c9.before --> |
+| 실제 변경 file/symbol/call path | <!-- learner:04-selectors-links-and-derived-content-policy.md:c9.change --> |
+| Data/state/resource owner와 lifetime | <!-- learner:04-selectors-links-and-derived-content-policy.md:c9.owner --> |
+| Failure·absence·fallback 처리 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c9.failure --> |
+| 보장하는 것과 보장하지 않는 것 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c9.guarantee --> |
+| 다음 commit 또는 관련 test 연결 | <!-- learner:04-selectors-links-and-derived-content-policy.md:c9.next --> |
 
-#### 코드 발췌 기록
+#### 코드·실행 증거
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+<!-- learner:04-selectors-links-and-derived-content-policy.md:c9.evidence -->
 
-## 6. Invariant ledger
+## 6. Invariant evolution ledger
 
-| Invariant | 도입·강화 commit | 실제 code/test evidence | 부족함이 드러난 시점 | 최종 보장 범위 |
-| --- | --- | --- | --- | --- |
-| `Selectors, links, and derived content policy`의 핵심 결정은 한 owner가 수행합니다. |  |  |  |  |
-| Optional/disabled/unknown state는 explicit policy로 처리됩니다. |  |  |  |  |
-| Consumer와 regression evidence는 동일 production path를 사용합니다. |  |  |  |  |
-
-## 7. Failure → Fix → Test 연결
-
-| 기존 가정 또는 위험 | 대응 commit | 실제 수정/강화 code에서 확인할 것 | Test 또는 실행 증거 |
+| 추적할 invariant | 도입·변화 SHA | 실제 owner/evidence | 제한·후속 보호 |
 | --- | --- | --- | --- |
-| Caller/renderer마다 같은 결정을 다시 수행함 |  | 중앙화된 owner와 제거된 local logic |  |
-| Empty/unknown/disabled state가 정상 값처럼 흘러감 |  | explicit branch, fallback, omission 또는 error |  |
-| 구현은 존재하지만 regression evidence가 없음 |  | production path를 직접 통과하는 test/command |  |
+| fallback/omission/selection 정책은 selector가 소유한다. | <!-- learner:04-selectors-links-and-derived-content-policy.md:ledger1.sha --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:ledger1.evidence --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:ledger1.limitation --> |
+| page는 명시적 false만 비활성이다. | <!-- learner:04-selectors-links-and-derived-content-policy.md:ledger2.sha --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:ledger2.evidence --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:ledger2.limitation --> |
+| metric은 content definition을 AND filter로 평가한다. | <!-- learner:04-selectors-links-and-derived-content-policy.md:ledger3.sha --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:ledger3.evidence --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:ledger3.limitation --> |
+| link 문맥은 explicit placement로 결정한다. | <!-- learner:04-selectors-links-and-derived-content-policy.md:ledger4.sha --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:ledger4.evidence --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:ledger4.limitation --> |
 
-## 8. Ownership / state / responsibility 변화
+## 7. Failure → Fix → Test 관계
 
-| Concern | Thread 초기 owner/state | Thread 최종 owner/state | 실제 symbol과 호출 경로 |
+| Failure 또는 risk | Fix/전환 SHA | 교정된 결정 | Regression·검증 관계 |
 | --- | --- | --- | --- |
-| 입력 또는 source state |  |  |  |
-| 파생·선택·정렬·fallback |  |  |  |
-| Route/component/rendering |  |  |  |
-| Failure/absence 처리 |  |  |  |
-| Regression evidence |  |  |  |
+| renderer마다 lookup/fallback이 달라질 위험 | <!-- learner:04-selectors-links-and-derived-content-policy.md:failure1.sha --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:failure1.correction --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:failure1.test --> |
+| link type이 문맥을 암묵적으로 결정 | <!-- learner:04-selectors-links-and-derived-content-policy.md:failure2.sha --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:failure2.correction --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:failure2.test --> |
+| 화면이 ID/path heuristic으로 metric 계산 | <!-- learner:04-selectors-links-and-derived-content-policy.md:failure3.sha --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:failure3.correction --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:failure3.test --> |
+
+## 8. Ownership·state·responsibility 변화
+
+| 대상 | 이전 owner/state | 최종 owner/state | 근거 |
+| --- | --- | --- | --- |
+| raw source | <!-- learner:04-selectors-links-and-derived-content-policy.md:owner1.before --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:owner1.after --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:owner1.evidence --> |
+| lookup/fallback | <!-- learner:04-selectors-links-and-derived-content-policy.md:owner2.before --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:owner2.after --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:owner2.evidence --> |
+| metric 계산 | <!-- learner:04-selectors-links-and-derived-content-policy.md:owner3.before --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:owner3.after --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:owner3.evidence --> |
+| link 문맥 | <!-- learner:04-selectors-links-and-derived-content-policy.md:owner4.before --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:owner4.after --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:owner4.evidence --> |
 
 ## 9. Thread 최종 상태
 
-### 확장 계획에서 정의한 최종 상태
+<!-- learner:04-selectors-links-and-derived-content-policy.md:final.state -->
 
-Renderer가 raw collection을 직접 해석하지 않도록 project lookup, metrics, page enablement, link placement와 external-anchor policy를 selector로 이동하는 과정을 복원합니다.
+### 최종 설명
 
-### 학습자가 완성할 최종 설명
+<!-- learner:04-selectors-links-and-derived-content-policy.md:final.explanation -->
 
-- Thread 시작 시점의 설계와 위험:
-- 핵심 decision과 responsibility 이동 순서:
-- 실제 failure, absence 또는 performance/accessibility risk:
-- Fix/refactor가 바꾼 invariant:
-- Test/browser evidence가 보장한 범위:
-- Thread 종료 시점에도 보장하지 않는 범위:
+## 10. 최종 실행·데이터 흐름
 
-## 10. 최종 architecture 또는 execution flow 정리
+| 단계 | Owner/call path | 입력·출력 | Failure/non-guarantee |
+| --- | --- | --- | --- |
+| aggregate와 context를 입력합니다. | <!-- learner:04-selectors-links-and-derived-content-policy.md:flow1.owner --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:flow1.io --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:flow1.failure --> |
+| lookup/filter/metric을 평가합니다. | <!-- learner:04-selectors-links-and-derived-content-policy.md:flow2.owner --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:flow2.io --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:flow2.failure --> |
+| route/view model이 결과를 조합합니다. | <!-- learner:04-selectors-links-and-derived-content-policy.md:flow3.owner --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:flow3.io --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:flow3.failure --> |
+| renderer가 표시합니다. | <!-- learner:04-selectors-links-and-derived-content-policy.md:flow4.owner --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:flow4.io --> | <!-- learner:04-selectors-links-and-derived-content-policy.md:flow4.failure --> |
 
-1. 초기 source/state를 읽거나 구성합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-2. 공용 boundary가 validation, selection, normalization 또는 state resolution을 수행합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-3. Route/component/view model이 필요한 형태로 데이터를 준비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-4. Renderer 또는 browser interaction이 결과를 소비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-5. Test 또는 실행 command가 production invariant를 검증합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
+## 11. 학습 완료 확인
 
-### 코드 없이 설명하기
-
-> 이 Thread의 최종 흐름을 설계 → 구현 → failure/risk → 수정/강화 → 검증 순서로 작성합니다.
-
-## 11. 학습 완료 자가 점검
-
-- [ ] Commit map의 모든 SHA가 `web/portfolio` ancestry에 속하는지 확인했습니다.
-- [ ] 각 commit의 parent diff와 resulting tree를 확인했습니다.
-- [ ] Importance에 따라 S/A/B/C 학습 깊이를 구분했습니다.
-- [ ] Fix를 기존 가정 → failure → root cause → corrected invariant로 설명했습니다.
-- [ ] Test의 technique, production path, proves/does-not-prove를 구분했습니다.
-- [ ] Final HEAD를 과거 commit에 소급하지 않았습니다.
-- [ ] Thread 최종 흐름을 코드 없이 설명할 수 있습니다.
+<!-- learner:04-selectors-links-and-derived-content-policy.md:completion.check -->

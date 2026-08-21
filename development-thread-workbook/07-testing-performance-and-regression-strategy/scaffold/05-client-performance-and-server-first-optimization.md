@@ -2,313 +2,379 @@
 
 > Project: 42 Archive Portfolio (`web/portfolio`)
 >
-> 이 문서는 원본 7개 Development Thread를 변경하지 않고, 같은 branch history를 웹 개발 학습 영역별로 추가 분류한 확장 scaffold입니다.
+> Category: `07-testing-performance-and-regression-strategy`
+>
+> Phase 1에서 감사·수정한 뒤 동결한 scaffold를 기준으로 합니다.
 
 ## 0. 분류 출처와 변경 가능 범위
 
-- Commit SHA, subject, importance, tags는 `commit/commit-importance.md`의 분류를 사용합니다.
-- 이 문서의 category, thread grouping, thread goal과 commit별 역할은 확장 계획에서 새로 정의했습니다.
-- 실제 code evidence, failure 재현, command 결과와 최종 설명은 학습자가 해당 SHA를 직접 확인해 채웁니다.
-- 다른 branch의 구현이나 final HEAD를 과거 SHA 설명에 소급하지 않습니다.
+- Commit SHA, subject, importance와 tags는 branch-local `commit/commit-importance.md` 분류와 exact commit metadata를 기준으로 고정했습니다.
+- 이 문서의 Thread goal, commit grouping과 source-defined 역할은 Phase 1 category audit 결과입니다.
+- Phase 2에서는 SHA, 순서, subject, importance, tags, 역할, 질문과 문서 구조를 바꾸지 않습니다.
+- 다른 branch 또는 final HEAD의 구현을 earlier SHA 설명에 소급하지 않습니다.
+- Runtime evidence는 실제로 실행한 command만 기록하며, 미실행 상태를 통과로 해석하지 않습니다.
 
 ## 1. Thread 목표
 
-Root font loading, route prefetch, client boundaries와 interaction latency를 줄이고 browser-level performance assertion으로 고정하는 과정을 복원합니다.
+Client reveal state, global font loading과 automatic route prefetch를 줄이고 actual browser request/font behavior 및 native interaction latency를 regression tests로 고정하는 과정을 복원합니다.
 
-### 계획된 핵심 invariant
+### 동결된 핵심 invariant
 
-- `Client performance and server-first optimization`의 주요 결정은 route/design/component마다 중복 해석되지 않고 명시된 owner에 위치합니다.
-- Optional, disabled, unknown, empty 또는 unsupported state는 암묵적 성공으로 처리하지 않습니다.
-- 마지막 consumer와 regression evidence는 같은 production decision path를 기준으로 확인합니다.
+- Core content visibility는 hydration·IntersectionObserver progress에 의존하지 않습니다.
+- Font preload/consumer는 locale·renderer 필요 범위로 제한되고 Geist Mono는 audited initial routes에서 불필요하게 요청되지 않습니다.
+- Internal links는 idle/viewport route prefetch를 명시적으로 끄되 user-initiated navigation은 유지합니다.
+- Design switcher close와 mobile menu open은 defined Event Timing measurement에서 3-sample median·maximum 200ms 이하를 목표로 합니다.
 
 ## 2. 이 Thread를 이해하기 위한 핵심 질문
 
-- 첫 commit 직전에는 이 관심사가 어느 파일과 consumer에 분산돼 있었는가?
-- Commit sequence를 따라가며 데이터, 상태, 렌더링 또는 routing의 실제 owner가 어떻게 이동하는가?
-- Optional, disabled, unknown, empty, unsupported state는 각 시점에 어떻게 처리되는가?
-- 마지막 commit이 보장하는 것과 여전히 다른 thread가 책임지는 범위는 무엇인가?
+- Reveal의 observer/state lifecycle을 제거하면 어떤 animation을 포기하고 어떤 server-first invariant를 얻는가?
+- Next localFont options, locale predicate와 CSS consumer가 실제 request behavior에 어떻게 연결되는가?
+- 모든 renderer Link call site의 prefetch opt-out을 browser request stream에서 어떻게 검증하는가?
+- Event Timing sample은 trusted click, interaction ID, below-threshold entry와 paint settlement를 어떻게 처리하는가?
 
 ## 3. 완료 기준
 
-- 각 SHA의 parent diff와 resulting tree에서 실제 변경 파일과 symbol을 확인했습니다.
-- 중앙화된 결정과 renderer/component에 남은 표현 책임을 구분했습니다.
-- Failure, absence, fallback, cleanup 또는 progressive-enhancement branch를 기록했습니다.
-- 관련 test가 있으면 production path, technique, proves/does-not-prove를 구분했습니다.
-- 최종 실행 흐름을 코드 없이 설명할 수 있습니다.
+- 각 referenced SHA의 exact parent diff와 resulting changed files를 확인합니다.
+- Commit별 previous state, implementation decision, ownership/lifetime, failure path와 non-guarantee를 구분합니다.
+- Fix는 earlier assumption과 root cause에 연결하고, test는 production path·technique·proves/does-not-prove를 구분합니다.
+- A-level은 subsystem·failure·verification 관계까지, B-level은 local role과 후속 연결까지만 설명합니다.
+- Thread-level invariant evolution, Failure → Fix → Test, ownership transfer와 final flow를 코드 없이 설명합니다.
 
 ## 4. Commit map
 
-| 순서 | Commit | Subject | Importance | Tags | 확장 thread에서 확인할 역할 |
+| 순서 | Commit | Subject | Importance | Tags | 이 Thread에서 확인할 역할 |
 | ---: | --- | --- | :---: | --- | --- |
-| 1 | `b8164cfdddbd` | refactor(ui): reveal 콘텐츠를 server에서 즉시 표시 | A | ARCH, CONTENT, REFACTOR | 초기 상태와 vocabulary를 고정합니다. |
-| 2 | `b09775ec17c3` | perf(font): route별 글꼴 로딩 비용 축소 | A | ARCH, ROUTING, PERF | 기능·책임 경계를 확장합니다. |
-| 3 | `2c0c9bb34b77` | perf(navigation): 유휴 route prefetch 비활성화 | A | ARCH, ROUTING, PERF | 기능·책임 경계를 확장합니다. |
-| 4 | `dfeb324572fa` | test(perf): 유휴 route 요청과 글꼴 경계 검증 | A | ARCH, VALIDATION, ROUTING | 기능·책임 경계를 확장합니다. |
-| 5 | `787478032d27` | test(perf): 사용자 상호작용 지연 측정 추가 | A | PERF, TEST | Thread의 통합·검증 상태를 확인합니다. |
+| 1 | `b8164cfdddbd` | refactor(ui): reveal 콘텐츠를 server에서 즉시 표시 | A | ARCH, CONTENT, REFACTOR | Observer/client state 제거와 immediate server-visible content |
+| 2 | `b09775ec17c3` | perf(font): route별 글꼴 로딩 비용 축소 | A | ARCH, ROUTING, PERF | Locale/consumer-aware local font loading policy |
+| 3 | `2c0c9bb34b77` | perf(navigation): 유휴 route prefetch 비활성화 | A | ARCH, ROUTING, PERF | Shared/five-renderer internal Link idle-prefetch opt-out |
+| 4 | `dfeb324572fa` | test(perf): 유휴 route 요청과 글꼴 경계 검증 | A | ARCH, VALIDATION, ROUTING | Actual `_rsc` request, preload와 font resource browser regression |
+| 5 | `787478032d27` | test(perf): 사용자 상호작용 지연 측정 추가 | A | PERF, TEST | Trusted Event Timing samples와 200ms interaction target |
 
 ## 5. Commit별 학습 기록
 
-각 section은 반드시 해당 SHA의 tree와 parent diff를 기준으로 작성합니다. 같은 commit이 다른 확장 thread에 다시 등장해도 이 thread의 관점에서 별도로 확인합니다.
+각 section은 해당 SHA의 tree와 parent diff만 기준으로 작성합니다. 같은 SHA가 다른 category Thread에 등장하더라도 여기서는 위 역할과 파일 범위만 설명합니다.
 
 ### 1. `b8164cfdddbd` — refactor(ui): reveal 콘텐츠를 server에서 즉시 표시
 
+- **Full SHA:** `b8164cfdddbdda1bbff45f06649fc706cf552123`
 - **Importance:** A
 - **Tags:** ARCH, CONTENT, REFACTOR
-- **확장 thread에서의 역할:** 초기 상태/기반
+- **이 Thread에서의 역할:** Observer/client state 제거와 immediate server-visible content
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `b8164cfdddbd^`와 `b8164cfdddbd`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Refactor 전후 responsibility와 runtime payload/import/call graph 변화를 비교합니다.
-- Compatibility branch와 제거 조건, behavior-preservation evidence를 확인합니다.
+- `src/components/portfolio/reveal.tsx`에서 제거된 `"use client"`, React hooks와 `Ref` type
+- 초기 `visible` 계산의 `window`/`IntersectionObserver` branch
+- `useEffect`의 observer 생성, rootMargin/threshold, observe/disconnect cleanup
+- 최종 class가 항상 `reveal-item is-visible`이며 polymorphic `as`, `className`, `delay`는 유지되는 점
 
-확인 원칙:
+#### Commit-specific investigation
 
-- 먼저 `b8164cfdddbd^`와 `b8164cfdddbd`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- `b8164cfdddbd^`와 `b8164cfdddbd`의 diff에서 위 파일·symbol이 실제로 추가·변경·제거된 범위를 구분합니다.
+- 직전 state에서 `Observer/client state 제거와 immediate server-visible content`가 필요해진 구체적 부족함 또는 잘못된 가정을 찾습니다.
+- Production path와 test path를 분리하고, state/data/resource owner와 lifetime·cleanup을 실제 symbol 기준으로 추적합니다.
+- Failure/absence/fallback branch와 test technique을 구분하고, 이 SHA가 보장하지 않는 범위를 명시합니다.
+- 다음 후속 관계를 대조하되 later code를 이 SHA의 구현으로 설명하지 않습니다: `b09775ec17c3`과 `2c0c9bb34b77`이 font/network 비용을 줄이고, `dfeb...`·`787...`가 browser-observable regression evidence를 추가합니다.
 
-#### 학습자가 남길 증거
+#### 학습자 증거
 
-| 확인·기록 항목 | 학습자 기록 |
+| 확인·기록 항목 | 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
+| 직전 state와 부족함 |  |
 | 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| Data/state/DOM/resource owner와 lifetime |  |
+| Failure·absence·fallback·cleanup |  |
+| Test technique와 실행 증거 |  |
+| 보장하는 것 |  |
+| 보장하지 않는 것 |  |
+| 다음 commit/관련 test 연결 |  |
 
-#### 코드 발췌 기록
+#### 최소 code evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+- **Commit:**
+- **Path / function / test:**
+- **왜 이 excerpt가 필요한가:**
+
+```text
+[학습자가 exact SHA에서 필요한 최소 excerpt만 기록]
+```
+
+#### 실행 증거
+
+| 항목 | 기록 |
+| --- | --- |
+| 해당 SHA에서 실행한 command |  |
+| 실제 결과 또는 실행 불가 사유 |  |
+| 정적 검토와 실행 결과의 구분 |  |
 
 ### 2. `b09775ec17c3` — perf(font): route별 글꼴 로딩 비용 축소
 
+- **Full SHA:** `b09775ec17c3c393829d7b77d36bd34d34e6c04d`
 - **Importance:** A
 - **Tags:** ARCH, ROUTING, PERF
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **이 Thread에서의 역할:** Locale/consumer-aware local font loading policy
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `b09775ec17c3^`와 `b09775ec17c3`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `src/app/layout.tsx`의 Geist Sans/Mono/Korean Serif `localFont` options
+- `display: "swap"`에서 `"optional"`로의 변경과 Mono/Korean `preload: false`
+- `usesKoreanSerif` language predicate와 non-Korean `serifFallback` CSS custom property
+- `<html>` className/style에서 Korean serif variable을 조건부로 주입하는 방식
+- `design-switcher.module.css`가 Geist Mono variable 대신 system monospace stack을 사용하는 두 selector
 
-확인 원칙:
+#### Commit-specific investigation
 
-- 먼저 `b09775ec17c3^`와 `b09775ec17c3`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- `b09775ec17c3^`와 `b09775ec17c3`의 diff에서 위 파일·symbol이 실제로 추가·변경·제거된 범위를 구분합니다.
+- 직전 state에서 `Locale/consumer-aware local font loading policy`가 필요해진 구체적 부족함 또는 잘못된 가정을 찾습니다.
+- Production path와 test path를 분리하고, state/data/resource owner와 lifetime·cleanup을 실제 symbol 기준으로 추적합니다.
+- Failure/absence/fallback branch와 test technique을 구분하고, 이 SHA가 보장하지 않는 범위를 명시합니다.
+- 다음 후속 관계를 대조하되 later code를 이 SHA의 구현으로 설명하지 않습니다: `dfeb324572fa`가 generated `@font-face`, preload links와 actual font requests를 browser에서 검사합니다.
 
-#### 학습자가 남길 증거
+#### 학습자 증거
 
-| 확인·기록 항목 | 학습자 기록 |
+| 확인·기록 항목 | 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
+| 직전 state와 부족함 |  |
 | 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| Data/state/DOM/resource owner와 lifetime |  |
+| Failure·absence·fallback·cleanup |  |
+| Test technique와 실행 증거 |  |
+| 보장하는 것 |  |
+| 보장하지 않는 것 |  |
+| 다음 commit/관련 test 연결 |  |
 
-#### 코드 발췌 기록
+#### 최소 code evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+- **Commit:**
+- **Path / function / test:**
+- **왜 이 excerpt가 필요한가:**
+
+```text
+[학습자가 exact SHA에서 필요한 최소 excerpt만 기록]
+```
+
+#### 실행 증거
+
+| 항목 | 기록 |
+| --- | --- |
+| 해당 SHA에서 실행한 command |  |
+| 실제 결과 또는 실행 불가 사유 |  |
+| 정적 검토와 실행 결과의 구분 |  |
 
 ### 3. `2c0c9bb34b77` — perf(navigation): 유휴 route prefetch 비활성화
 
+- **Full SHA:** `2c0c9bb34b77655f40eb13b51fd1e754881a7fdb`
 - **Importance:** A
 - **Tags:** ARCH, ROUTING, PERF
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **이 Thread에서의 역할:** Shared/five-renderer internal Link idle-prefetch opt-out
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `2c0c9bb34b77^`와 `2c0c9bb34b77`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- Commit이 추가한 입력, 출력, optional/disabled/unknown state와 integration point를 확인합니다.
-- 이 SHA가 보장하는 범위와 후속 commit에 남긴 미완성 범위를 기록합니다.
+- `ContentLinkView`, `DesignSwitcher`, `ProjectCard`, `SiteHeader`, `SiteFooter`의 internal `<Link>`
+- Design/Classic home·project routes의 action/back/detail links
+- Editorial, Brutalist, Cinematic renderer의 brand/navigation/project/action links
+- 각 href/query-building helper는 유지되고 `prefetch={false}`만 추가되는지
+- external `<a>`나 실제 user-initiated navigation은 이 정책의 대상이 아니라는 점
 
-확인 원칙:
+#### Commit-specific investigation
 
-- 먼저 `2c0c9bb34b77^`와 `2c0c9bb34b77`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- `2c0c9bb34b77^`와 `2c0c9bb34b77`의 diff에서 위 파일·symbol이 실제로 추가·변경·제거된 범위를 구분합니다.
+- 직전 state에서 `Shared/five-renderer internal Link idle-prefetch opt-out`가 필요해진 구체적 부족함 또는 잘못된 가정을 찾습니다.
+- Production path와 test path를 분리하고, state/data/resource owner와 lifetime·cleanup을 실제 symbol 기준으로 추적합니다.
+- Failure/absence/fallback branch와 test technique을 구분하고, 이 SHA가 보장하지 않는 범위를 명시합니다.
+- 다음 후속 관계를 대조하되 later code를 이 SHA의 구현으로 설명하지 않습니다: `dfeb324572fa`가 five-design home/detail에서 `_rsc` requests를 실제 browser request stream으로 관찰합니다.
 
-#### 학습자가 남길 증거
+#### 학습자 증거
 
-| 확인·기록 항목 | 학습자 기록 |
+| 확인·기록 항목 | 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
+| 직전 state와 부족함 |  |
 | 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| Data/state/DOM/resource owner와 lifetime |  |
+| Failure·absence·fallback·cleanup |  |
+| Test technique와 실행 증거 |  |
+| 보장하는 것 |  |
+| 보장하지 않는 것 |  |
+| 다음 commit/관련 test 연결 |  |
 
-#### 코드 발췌 기록
+#### 최소 code evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+- **Commit:**
+- **Path / function / test:**
+- **왜 이 excerpt가 필요한가:**
+
+```text
+[학습자가 exact SHA에서 필요한 최소 excerpt만 기록]
+```
+
+#### 실행 증거
+
+| 항목 | 기록 |
+| --- | --- |
+| 해당 SHA에서 실행한 command |  |
+| 실제 결과 또는 실행 불가 사유 |  |
+| 정적 검토와 실행 결과의 구분 |  |
 
 ### 4. `dfeb324572fa` — test(perf): 유휴 route 요청과 글꼴 경계 검증
 
+- **Full SHA:** `dfeb324572fac339cc3bd3162da88c4bc1e68c7e`
 - **Importance:** A
 - **Tags:** ARCH, VALIDATION, ROUTING
-- **확장 thread에서의 역할:** 기능·경계 확장
+- **이 Thread에서의 역할:** Actual `_rsc` request, preload와 font resource browser regression
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `dfeb324572fa^`와 `dfeb324572fa`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- 대상 production invariant, fixture/failure injection, test technique와 실제 production path를 구분합니다.
-- Test가 증명하는 것과 증명하지 않는 것을 명시합니다.
+- `tests/e2e/performance.spec.ts`의 `designIds × initialRoutes(home, first project detail)` loop
+- `page.on("request")` listener가 `_rsc` query와 `resourceType() === "font"`를 기록하는 방식
+- page visit, first heading visibility, 1-second idle window와 listener 제거 시점
+- same-origin stylesheet `cssRules`에서 Geist Mono `CSSFontFaceRule` source URL을 추출하는 code
+- `link[rel~="preload"][as="font"]` manifest와 actual font requests assertions
+- Design/Editorial만 Geist Mono download absence를 요구하고 모든 design은 preload absence를 요구하는 scope
 
-확인 원칙:
+#### Commit-specific investigation
 
-- 먼저 `dfeb324572fa^`와 `dfeb324572fa`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- `dfeb324572fa^`와 `dfeb324572fa`의 diff에서 위 파일·symbol이 실제로 추가·변경·제거된 범위를 구분합니다.
+- 직전 state에서 `Actual `_rsc` request, preload와 font resource browser regression`가 필요해진 구체적 부족함 또는 잘못된 가정을 찾습니다.
+- Production path와 test path를 분리하고, state/data/resource owner와 lifetime·cleanup을 실제 symbol 기준으로 추적합니다.
+- Failure/absence/fallback branch와 test technique을 구분하고, 이 SHA가 보장하지 않는 범위를 명시합니다.
+- 다음 후속 관계를 대조하되 later code를 이 SHA의 구현으로 설명하지 않습니다: `787478032d27`가 network absence와 별개로 user interaction latency를 Event Timing으로 측정합니다. Bundle/Lighthouse/release gates는 category 08의 별도 Thread가 소유합니다.
 
-#### 학습자가 남길 증거
+#### 학습자 증거
 
-| 확인·기록 항목 | 학습자 기록 |
+| 확인·기록 항목 | 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
+| 직전 state와 부족함 |  |
 | 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| Data/state/DOM/resource owner와 lifetime |  |
+| Failure·absence·fallback·cleanup |  |
+| Test technique와 실행 증거 |  |
+| 보장하는 것 |  |
+| 보장하지 않는 것 |  |
+| 다음 commit/관련 test 연결 |  |
 
-#### 코드 발췌 기록
+#### 최소 code evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+- **Commit:**
+- **Path / function / test:**
+- **왜 이 excerpt가 필요한가:**
+
+```text
+[학습자가 exact SHA에서 필요한 최소 excerpt만 기록]
+```
+
+#### 실행 증거
+
+| 항목 | 기록 |
+| --- | --- |
+| 해당 SHA에서 실행한 command |  |
+| 실제 결과 또는 실행 불가 사유 |  |
+| 정적 검토와 실행 결과의 구분 |  |
 
 ### 5. `787478032d27` — test(perf): 사용자 상호작용 지연 측정 추가
 
+- **Full SHA:** `787478032d27be5dc2435ad3378318644251c10d`
 - **Importance:** A
 - **Tags:** PERF, TEST
-- **확장 thread에서의 역할:** 통합·검증
+- **이 Thread에서의 역할:** Trusted Event Timing samples와 200ms interaction target
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- `787478032d27^`와 `787478032d27`의 first-parent diff에서 변경 파일과 핵심 symbol을 확인합니다.
-- Resulting tree에서 새 symbol의 caller/callee와 data/state ownership을 추적합니다.
-- 대상 production invariant, fixture/failure injection, test technique와 실제 production path를 구분합니다.
-- Test가 증명하는 것과 증명하지 않는 것을 명시합니다.
+- `tests/e2e/interaction-performance.spec.ts`의 16ms observer threshold, 200ms target, 3-sample constants
+- `PerformanceObserver` event entries, `interactionId`, `startTime`, trusted click counter를 저장하는 probe
+- double `requestAnimationFrame`+timer settle, warmup, probe reset/read lifecycle
+- entry가 없을 때 `<16ms` upper bound로 해석하고 한 trusted click·한 interaction ID를 요구하는 logic
+- 세 sample의 median과 maximum을 모두 200ms 이하로 assert하고 diagnostic line을 출력하는 code
+- all-design switcher close와 mobile project에서만 menu-open을 측정하는 scenario scope
 
-확인 원칙:
+#### Commit-specific investigation
 
-- 먼저 `787478032d27^`와 `787478032d27`를 비교합니다.
-- Final HEAD의 helper, test, file layout을 이 commit에 소급하지 않습니다.
-- 실행하지 않은 command 결과는 정적 검토와 구분합니다.
+- `787478032d27^`와 `787478032d27`의 diff에서 위 파일·symbol이 실제로 추가·변경·제거된 범위를 구분합니다.
+- 직전 state에서 `Trusted Event Timing samples와 200ms interaction target`가 필요해진 구체적 부족함 또는 잘못된 가정을 찾습니다.
+- Production path와 test path를 분리하고, state/data/resource owner와 lifetime·cleanup을 실제 symbol 기준으로 추적합니다.
+- Failure/absence/fallback branch와 test technique을 구분하고, 이 SHA가 보장하지 않는 범위를 명시합니다.
+- 다음 후속 관계를 대조하되 later code를 이 SHA의 구현으로 설명하지 않습니다: 이 Thread의 runtime interaction evidence를 완성합니다. Release-level Lighthouse/bundle budget 및 CI enforcement는 category 08로 분리됩니다.
 
-#### 학습자가 남길 증거
+#### 학습자 증거
 
-| 확인·기록 항목 | 학습자 기록 |
+| 확인·기록 항목 | 기록 |
 | --- | --- |
-| 직전 상태와 부족함 |  |
+| 직전 state와 부족함 |  |
 | 실제 변경 file/symbol/call path |  |
-| Data/state/DOM/resource owner |  |
-| Failure·absence·fallback 처리 |  |
-| 보장하는 것과 보장하지 않는 것 |  |
-| 다음 commit 또는 관련 test 연결 |  |
+| Data/state/DOM/resource owner와 lifetime |  |
+| Failure·absence·fallback·cleanup |  |
+| Test technique와 실행 증거 |  |
+| 보장하는 것 |  |
+| 보장하지 않는 것 |  |
+| 다음 commit/관련 test 연결 |  |
 
-#### 코드 발췌 기록
+#### 최소 code evidence
 
-- **변경 전 대응 코드:** 경로, symbol, 핵심 line 범위와 기존 가정을 기록합니다.
-- **해당 SHA 핵심 코드:** decision, state transition, ownership 또는 failure branch를 직접 보여 주는 최소 부분만 삽입합니다.
-- **실행·테스트 증거:** exact SHA, command, environment와 실제 결과를 기록합니다.
-- **다음 commit 연결:** 남은 문제나 확장 지점을 기록합니다.
+- **Commit:**
+- **Path / function / test:**
+- **왜 이 excerpt가 필요한가:**
 
-## 6. Invariant ledger
+```text
+[학습자가 exact SHA에서 필요한 최소 excerpt만 기록]
+```
 
-| Invariant | 도입·강화 commit | 실제 code/test evidence | 부족함이 드러난 시점 | 최종 보장 범위 |
-| --- | --- | --- | --- | --- |
-| `Client performance and server-first optimization`의 핵심 결정은 한 owner가 수행합니다. |  |  |  |  |
-| Optional/disabled/unknown state는 explicit policy로 처리됩니다. |  |  |  |  |
-| Consumer와 regression evidence는 동일 production path를 사용합니다. |  |  |  |  |
+#### 실행 증거
 
-## 7. Failure → Fix → Test 연결
+| 항목 | 기록 |
+| --- | --- |
+| 해당 SHA에서 실행한 command |  |
+| 실제 결과 또는 실행 불가 사유 |  |
+| 정적 검토와 실행 결과의 구분 |  |
 
-| 기존 가정 또는 위험 | 대응 commit | 실제 수정/강화 code에서 확인할 것 | Test 또는 실행 증거 |
+## 6. Invariant evolution ledger
+
+| Invariant | 도입/변경 SHA | Historical evidence | 상태 |
 | --- | --- | --- | --- |
-| Caller/renderer마다 같은 결정을 다시 수행함 |  | 중앙화된 owner와 제거된 local logic |  |
-| Empty/unknown/disabled state가 정상 값처럼 흘러감 |  | explicit branch, fallback, omission 또는 error |  |
-| 구현은 존재하지만 regression evidence가 없음 |  | production path를 직접 통과하는 test/command |  |
+| Content는 server output에서 즉시 visible하다. |  |  |  |
+| Font acquisition은 need-based이고 audited mono preload가 없다. |  |  |  |
+| Audited internal links는 idle RSC prefetch를 하지 않는다. |  |  |  |
+| Core disclosure interactions는 explicit lab target을 가진다. |  |  |  |
 
-## 8. Ownership / state / responsibility 변화
+## 7. Failure → Fix → Test
 
-| Concern | Thread 초기 owner/state | Thread 최종 owner/state | 실제 symbol과 호출 경로 |
+| Earlier failure/risk | Fix SHA | Corrected decision | Regression evidence |
 | --- | --- | --- | --- |
-| 입력 또는 source state |  |  |  |
-| 파생·선택·정렬·fallback |  |  |  |
-| Route/component/rendering |  |  |  |
-| Failure/absence 처리 |  |  |  |
-| Regression evidence |  |  |  |
+| Hydration/observer가 늦거나 없을 때 content가 hidden으로 남을 위험 |  |  |  |
+| 사용하지 않는 font가 preload/download될 위험 |  |  |  |
+| 링크가 많은 page가 idle RSC requests를 폭증시킬 위험 |  |  |  |
+| Interaction 측정이 synthetic click/다중 event/threshold absence를 잘못 해석할 위험 |  |  |  |
 
-## 9. Thread 최종 상태
+## 8. Ownership/state/responsibility 변화
 
-### 확장 계획에서 정의한 최종 상태
+| 대상 | 초기 owner/state | 최종 owner/state | Evidence |
+| --- | --- | --- | --- |
+| Content visibility |  |  |  |
+| Font preload/use |  |  |  |
+| Idle route acquisition |  |  |  |
+| Runtime network evidence |  |  |  |
+| Interaction timing evidence |  |  |  |
 
-Root font loading, route prefetch, client boundaries와 interaction latency를 줄이고 browser-level performance assertion으로 고정하는 과정을 복원합니다.
+## 9. 최종 Thread state
 
-### 학습자가 완성할 최종 설명
+다음 내용을 코드 없이 설명합니다: 최종 owner, input→decision→output, failure/absence policy, regression evidence와 명시적 non-guarantee.
 
-- Thread 시작 시점의 설계와 위험:
-- 핵심 decision과 responsibility 이동 순서:
-- 실제 failure, absence 또는 performance/accessibility risk:
-- Fix/refactor가 바꾼 invariant:
-- Test/browser evidence가 보장한 범위:
-- Thread 종료 시점에도 보장하지 않는 범위:
+> 학습자 기록:
 
-## 10. 최종 architecture 또는 execution flow 정리
+## 10. 최종 실행 흐름
 
-1. 초기 source/state를 읽거나 구성합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-2. 공용 boundary가 validation, selection, normalization 또는 state resolution을 수행합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-3. Route/component/view model이 필요한 형태로 데이터를 준비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-4. Renderer 또는 browser interaction이 결과를 소비합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
-5. Test 또는 실행 command가 production invariant를 검증합니다.
-   - 실제 코드 위치:
-   - 입력과 출력:
-   - 실패/absence 처리:
+| 단계 | Owner / mechanism | Input | Output/state | Failure/non-guarantee |
+| ---: | --- | --- | --- | --- |
+| 1. Server content |  |  |  |  |
+| 2. Font policy |  |  |  |  |
+| 3. Link policy |  |  |  |  |
+| 4. Network verification |  |  |  |  |
+| 5. Interaction verification |  |  |  |  |
 
-### 코드 없이 설명하기
+## 11. 학습 완료 확인
 
-> 이 Thread의 최종 흐름을 설계 → 구현 → failure/risk → 수정/강화 → 검증 순서로 작성합니다.
-
-## 11. 학습 완료 자가 점검
-
-- [ ] Commit map의 모든 SHA가 `web/portfolio` ancestry에 속하는지 확인했습니다.
-- [ ] 각 commit의 parent diff와 resulting tree를 확인했습니다.
-- [ ] Importance에 따라 S/A/B/C 학습 깊이를 구분했습니다.
-- [ ] Fix를 기존 가정 → failure → root cause → corrected invariant로 설명했습니다.
-- [ ] Test의 technique, production path, proves/does-not-prove를 구분했습니다.
-- [ ] Final HEAD를 과거 commit에 소급하지 않았습니다.
-- [ ] Thread 최종 흐름을 코드 없이 설명할 수 있습니다.
+- [ ] 모든 referenced SHA를 exact historical diff 기준으로 설명했습니다.
+- [ ] Commit map의 SHA·순서·subject·importance·tags를 변경하지 않았습니다.
+- [ ] Fix를 earlier failure/assumption에 연결했습니다.
+- [ ] Test가 실행하는 production path와 증명하지 않는 범위를 구분했습니다.
+- [ ] 정적 inspection과 실제 command execution을 구분했습니다.
+- [ ] Thread-level invariant, ownership과 final flow를 완성했습니다.
+- [ ] 실행하지 못한 command가 있으면 환경 사유와 정적 검토 범위를 기록했습니다.
