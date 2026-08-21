@@ -65,9 +65,13 @@ browser가 이들을 소비하거나 표현하는 경계는 포함하지만 serv
 
 실제로 실행한 검증은 생성된 workbook 자체의 파일 대응, commit metadata 보존, placeholder 제거, scaffold freeze hash, Markdown 기본 형식, ZIP member와 CRC 검사입니다.
 
-## 6. Phase 2 학습 완료 확인
+## 6. Phase 2 완료 기록
 
-- [ ] frozen scaffold의 모든 learner-facing 기록을 exact-SHA 근거로 작성합니다.
-- [ ] fix/test 관계와 A/B depth를 유지합니다.
-- [ ] 실행하지 않은 command의 결과를 만들지 않습니다.
-- [ ] scaffold를 수정하지 않고 동일 파일 구조의 completed를 만듭니다.
+- [x] frozen scaffold 8개 Thread와 completed 8개 Thread가 1:1로 대응합니다.
+- [x] README를 포함한 상대 경로와 파일명이 동일합니다.
+- [x] commit SHA, subject, importance, tags, role, commit order를 frozen scaffold와 동일하게 유지했습니다.
+- [x] 각 SHA의 concrete investigation task를 보존하고 learner-facing 기록을 exact-SHA evidence로 채웠습니다.
+- [x] fix/test는 이전 가정·failure·root cause·corrected invariant·증명/비증명 범위에 연결했습니다.
+- [x] unfinished placeholder가 completed에 남지 않았습니다.
+- [x] project command를 실행하지 않았다는 제한을 명시하고 runtime pass evidence를 만들지 않았습니다.
+- [x] local structural/hash/archive validation을 실행해 통과한 경우에만 이 파일과 ZIP을 산출했습니다.

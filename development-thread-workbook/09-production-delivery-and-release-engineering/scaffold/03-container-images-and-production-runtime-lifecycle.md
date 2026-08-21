@@ -41,31 +41,30 @@ compiled artifact를 API/Web multi-stage image로 패키징하고 source mount�
 
 | 순서 | SHA | Subject | Importance | Tags | Thread 역할 |
 | ---: | --- | --- | :---: | --- | --- |
-| 1 | `9693b2a9ad3d` | `build(runtime): Node.js engine version을 정확히 고정` | B | PERSISTENCE, OPERATIONS | workspace runtime engine을 실제 image/toolchain과 같은 exact Node version으로 좁힙니다. |
-| 2 | `f8efb2656771` | `build(docker): production API image 구성` | B | PERSISTENCE, OPERATIONS | shared/db/API를 build한 뒤 non-root runner에 필요한 결과만 복사하는 multi-stage API image를 만듭니다. |
-| 3 | `656893e8e1cb` | `build(docker): production Web image 구성` | B | REALTIME, WEB, OPERATIONS | Next.js standalone output과 static asset만 runner에 포함하는 multi-stage Web image를 만듭니다. |
-| 4 | `2c44cb7cd71f` | `build(docker): production container lifecycle 구성` | A | PERSISTENCE, OPERATIONS | source-mounted Compose를 built images, one-shot migration, health-gated startup, required secrets로 교체합니다. |
-| 5 | `e2c12ded1d5f` | `test(docker): production container contract 검증` | B | OPERATIONS, OBSERVABILITY, TEST | rendered Compose와 Dockerfile이 production image/lifecycle 규칙을 유지하는지 검사합니다. |
-| 6 | `312ddbc6fbe2` | `fix(runtime): container 종료 유예를 room drain과 정렬` | A | REALTIME, OPERATIONS, RISK | API container termination grace를 application room-drain budget보다 길게 맞춥니다. |
-| 7 | `73ba979841cd` | `test(docker): API 종료 유예 계약 검증` | B | OPERATIONS, TEST | Compose의 stop grace가 60초 application drain budget 이상인지 회귀 검증합니다. |
+| 1 | `f8efb2656771` | `build(docker): production API image 구성` | B | PERSISTENCE, OPERATIONS | shared/db/API를 build한 뒤 non-root runner에 필요한 결과만 복사하는 multi-stage API image를 만듭니다. |
+| 2 | `656893e8e1cb` | `build(docker): production Web image 구성` | B | REALTIME, WEB, OPERATIONS | Next.js standalone output과 static asset만 runner에 포함하는 multi-stage Web image를 만듭니다. |
+| 3 | `2c44cb7cd71f` | `build(docker): production container lifecycle 구성` | A | PERSISTENCE, OPERATIONS | source-mounted Compose를 built images, one-shot migration, health-gated startup, required secrets로 교체합니다. |
+| 4 | `e2c12ded1d5f` | `test(docker): production container contract 검증` | B | OPERATIONS, OBSERVABILITY, TEST | rendered Compose와 Dockerfile이 production image/lifecycle 규칙을 유지하는지 검사합니다. |
+| 5 | `312ddbc6fbe2` | `fix(runtime): container 종료 유예를 room drain과 정렬` | A | REALTIME, OPERATIONS, RISK | API container termination grace를 application room-drain budget보다 길게 맞춥니다. |
+| 6 | `73ba979841cd` | `test(docker): API 종료 유예 계약 검증` | B | OPERATIONS, TEST | Compose의 stop grace가 60초 application drain budget 이상인지 회귀 검증합니다. |
 
 ## 5. Commit별 학습 기록
 
-### 5.1. `build(runtime): Node.js engine version을 정확히 고정`
+### 5.1. `build(docker): production API image 구성`
 
 | 항목 | 값 |
 | --- | --- |
-| SHA | `9693b2a9ad3d` |
+| SHA | `f8efb2656771` |
 | Importance | B |
 | Tags | PERSISTENCE, OPERATIONS |
-| Source에서 확정된 역할 | workspace runtime engine을 실제 image/toolchain과 같은 exact Node version으로 좁힙니다. |
+| Source에서 확정된 역할 | shared/db/API를 build한 뒤 non-root runner에 필요한 결과만 복사하는 multi-stage API image를 만듭니다. |
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
-- migration 실행 시점, database dependency, persistent volume/credential, 실패 시 startup 차단 여부를 확인합니다.
-- process/container lifecycle, health/readiness, exposed port, shutdown/grace, 운영 endpoint 노출 규칙을 확인합니다.
+- `.dockerignore`가 `.git`, `.github`, `node_modules`, `.next`, `dist`, coverage/report, `.env*`, log와 문서를 build context에서 제외하는지 확인합니다.
+- `apps/api/Dockerfile`의 base/dependencies/builder/runner stage에서 root manifests, workspace package files, frozen install, shared→db→api build가 어떻게 이어지는지 확인합니다.
+- runner가 API/DB/shared `dist`, migration, workspace manifests와 `node_modules`를 복사하고 `USER node`, `EXPOSE 4000`, `CMD node apps/api/dist/index.js`를 선택하는지 확인합니다.
+- runner에 전체 install 결과가 복사되어 dev dependency까지 남을 수 있는 범위와 Dockerfile healthcheck 부재를 기록합니다.
 
 #### 학습자 기록
 
@@ -83,43 +82,9 @@ compiled artifact를 API/Web multi-stage image로 패키징하고 source mount�
 
 비교 기준:
 - 이 commit의 parent와 비교합니다.
-- 다음 관련 SHA: `f8efb2656771` — `build(docker): production API image 구성`
-
-### 5.2. `build(docker): production API image 구성`
-
-| 항목 | 값 |
-| --- | --- |
-| SHA | `f8efb2656771` |
-| Importance | B |
-| Tags | PERSISTENCE, OPERATIONS |
-| Source에서 확정된 역할 | shared/db/API를 build한 뒤 non-root runner에 필요한 결과만 복사하는 multi-stage API image를 만듭니다. |
-
-#### 해당 SHA에서 확인할 실제 코드
-
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
-- migration 실행 시점, database dependency, persistent volume/credential, 실패 시 startup 차단 여부를 확인합니다.
-- process/container lifecycle, health/readiness, exposed port, shutdown/grace, 운영 endpoint 노출 규칙을 확인합니다.
-
-#### 학습자 기록
-
-| 기록 항목 | 해당 SHA의 근거 |
-| --- | --- |
-| 직전 관련 상태 | [파일·command·artifact·process 상태 작성] |
-| 해결하려던 문제 | [development/runtime 또는 delivery gap 작성] |
-| 핵심 결정 | [build/package/image/workflow/config 변경 작성] |
-| build → package → execute 흐름 | [producer/consumer command 순서 작성] |
-| ownership/lifetime/cleanup | [artifact·process·container·resource owner 작성] |
-| failure/rollback/fail-closed | [실패 분기와 startup/cleanup 동작 작성] |
-| 보장하는 것 | [실제 코드/contract로 증명되는 범위 작성] |
-| 보장하지 않는 것 | [환경 외부 또는 아직 남은 제한 작성] |
-| 후속 연결 | [다음 fix/test/통합 commit과 연결] |
-
-비교 기준:
-- 직전 관련 SHA: `9693b2a9ad3d` — `build(runtime): Node.js engine version을 정확히 고정`
 - 다음 관련 SHA: `656893e8e1cb` — `build(docker): production Web image 구성`
 
-### 5.3. `build(docker): production Web image 구성`
+### 5.2. `build(docker): production Web image 구성`
 
 | 항목 | 값 |
 | --- | --- |
@@ -130,10 +95,10 @@ compiled artifact를 API/Web multi-stage image로 패키징하고 source mount�
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
-- Web build-time 값과 runtime 값, standalone/static artifact, browser origin/cookie 영향 범위를 확인합니다.
-- process/container lifecycle, health/readiness, exposed port, shutdown/grace, 운영 endpoint 노출 규칙을 확인합니다.
+- `apps/web/Dockerfile`에서 frozen workspace install과 shared build, Web build가 stage별로 어떻게 수행되는지 확인합니다.
+- builder의 `ARG`/`ENV NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_WS_URL`, `NEXT_PUBLIC_APP_MODE`가 Next build에 주입되어 browser bundle에 고정되는 시점을 확인합니다.
+- runner가 `.next/standalone`을 root로, `.next/static`을 `apps/web/.next/static`으로 복사하고 `USER node`, `CMD node apps/web/server.js`를 사용하는지 확인합니다.
+- runtime env 변경만으로 public variable을 바꿀 수 없는 점, image healthcheck와 `public/` copy가 이 diff에 없는 점을 기록합니다.
 
 #### 학습자 기록
 
@@ -153,7 +118,7 @@ compiled artifact를 API/Web multi-stage image로 패키징하고 source mount�
 - 직전 관련 SHA: `f8efb2656771` — `build(docker): production API image 구성`
 - 다음 관련 SHA: `2c44cb7cd71f` — `build(docker): production container lifecycle 구성`
 
-### 5.4. `build(docker): production container lifecycle 구성`
+### 5.3. `build(docker): production container lifecycle 구성`
 
 | 항목 | 값 |
 | --- | --- |
@@ -164,11 +129,11 @@ compiled artifact를 API/Web multi-stage image로 패키징하고 source mount�
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
-- migration 실행 시점, database dependency, persistent volume/credential, 실패 시 startup 차단 여부를 확인합니다.
-- process/container lifecycle, health/readiness, exposed port, shutdown/grace, 운영 endpoint 노출 규칙을 확인합니다.
-- A급 변경이므로 단순 파일 나열을 넘어서 delivery ownership, failure boundary, rollback/cleanup 또는 fail-closed 조건을 깊게 추적합니다.
+- parent의 source-mounted `docker-compose.yml`과 비교해 API/Web/Caddy `build`, bind mount 제거, startup install/build 제거, internal `expose`와 단일 Caddy host port를 확인합니다.
+- DB `POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}`와 API `SESSION_SECRET: ${SESSION_SECRET:?required}`가 Compose interpolation 단계에서 fail-fast하는지 확인합니다.
+- `migrate` service가 API image의 `node packages/db/dist/cli.js migrate`를 one-shot으로 실행하고 DB `service_healthy` 뒤, API는 `service_completed_successfully` 뒤 시작하는지 확인합니다.
+- API/Web HTTP healthcheck와 Caddy의 `service_healthy` dependencies가 DB → migrate → API → Web → gateway ordering을 형성하는지 확인합니다.
+- DB volume 외 source/node_modules/.next volume이 제거되고 rollback/backup/automatic migration recovery가 별도로 없다는 점을 기록합니다.
 
 #### 학습자 기록
 
@@ -188,7 +153,7 @@ compiled artifact를 API/Web multi-stage image로 패키징하고 source mount�
 - 직전 관련 SHA: `656893e8e1cb` — `build(docker): production Web image 구성`
 - 다음 관련 SHA: `e2c12ded1d5f` — `test(docker): production container contract 검증`
 
-### 5.5. `test(docker): production container contract 검증`
+### 5.4. `test(docker): production container contract 검증`
 
 | 항목 | 값 |
 | --- | --- |
@@ -199,10 +164,10 @@ compiled artifact를 API/Web multi-stage image로 패키징하고 source mount�
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
-- process/container lifecycle, health/readiness, exposed port, shutdown/grace, 운영 endpoint 노출 규칙을 확인합니다.
-- 어떤 production artifact/process를 실제로 실행하거나 정적으로 검사하는지, 그리고 무엇을 증명하지 못하는지도 기록합니다.
+- `tests/docker-production.test.mjs`가 required env를 주입해 `docker compose config`를 render하고, secret 누락 시 render 실패를 별도로 검사하는 방식을 확인합니다.
+- rendered model에서 migrate completion, API/Web health dependency, published port가 Caddy뿐인지, bind mount가 없는지 검사하는 assertion을 확인합니다.
+- API/Web Dockerfile source text에서 exact Node/toolchain, frozen install, non-root runner, expected CMD와 Caddy metrics block을 정적으로 검사하는지 확인합니다.
+- test가 image를 build하거나 container를 기동하지 않으므로 healthcheck 성공, migration 실행, network isolation의 runtime 결과는 증명하지 않는다고 기록합니다.
 
 #### 학습자 기록
 
@@ -222,7 +187,7 @@ compiled artifact를 API/Web multi-stage image로 패키징하고 source mount�
 - 직전 관련 SHA: `2c44cb7cd71f` — `build(docker): production container lifecycle 구성`
 - 다음 관련 SHA: `312ddbc6fbe2` — `fix(runtime): container 종료 유예를 room drain과 정렬`
 
-### 5.6. `fix(runtime): container 종료 유예를 room drain과 정렬`
+### 5.5. `fix(runtime): container 종료 유예를 room drain과 정렬`
 
 | 항목 | 값 |
 | --- | --- |
@@ -233,11 +198,10 @@ compiled artifact를 API/Web multi-stage image로 패키징하고 source mount�
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
-- process/container lifecycle, health/readiness, exposed port, shutdown/grace, 운영 endpoint 노출 규칙을 확인합니다.
-- 이전 상태의 가정 → 실제 실패/위험 → root cause → 수정된 release invariant → regression evidence를 연결합니다.
-- A급 변경이므로 단순 파일 나열을 넘어서 delivery ownership, failure boundary, rollback/cleanup 또는 fail-closed 조건을 깊게 추적합니다.
+- `docker-compose.yml`의 API service에 `stop_grace_period: 70s`가 추가되는 exact diff를 확인합니다.
+- 동일 historical state의 application room drain budget 60초와 container orchestrator의 SIGTERM→grace→SIGKILL sequence를 연결합니다.
+- 이전 Compose가 명시적 grace를 두지 않아 Docker 기본 timeout이 application cleanup 완료 전 강제 종료할 수 있었던 가정을 복원합니다.
+- 70초가 60초 drain보다 10초 큰 이유를 process close와 scheduling overhead를 위한 최소 headroom으로 해석하되 실제 종료 시간 측정은 없다고 구분합니다.
 
 #### 학습자 기록
 
@@ -257,7 +221,7 @@ compiled artifact를 API/Web multi-stage image로 패키징하고 source mount�
 - 직전 관련 SHA: `e2c12ded1d5f` — `test(docker): production container contract 검증`
 - 다음 관련 SHA: `73ba979841cd` — `test(docker): API 종료 유예 계약 검증`
 
-### 5.7. `test(docker): API 종료 유예 계약 검증`
+### 5.6. `test(docker): API 종료 유예 계약 검증`
 
 | 항목 | 값 |
 | --- | --- |
@@ -268,10 +232,9 @@ compiled artifact를 API/Web multi-stage image로 패키징하고 source mount�
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
-- process/container lifecycle, health/readiness, exposed port, shutdown/grace, 운영 endpoint 노출 규칙을 확인합니다.
-- 어떤 production artifact/process를 실제로 실행하거나 정적으로 검사하는지, 그리고 무엇을 증명하지 못하는지도 기록합니다.
+- `tests/docker-production.test.mjs`의 duration parser가 `s`, `m` 등 Compose duration을 seconds로 변환하는 실제 구현을 확인합니다.
+- rendered API service의 `stop_grace_period`가 존재하고 parsed value가 `>= 60`인지 assertion하는지 확인합니다.
+- 정적 duration contract는 SIGTERM delivery, active room drain, actual exit time이나 SIGKILL 부재를 관찰하지 않는다고 기록합니다.
 
 #### 학습자 기록
 
@@ -294,7 +257,6 @@ compiled artifact를 API/Web multi-stage image로 패키징하고 source mount�
 
 | 시점 | 불변식 | 상태 | 실제 근거 |
 | --- | --- | --- | --- |
-| `9693b2a9ad3d` | workspace runtime engine을 실제 image/toolchain과 같은 exact Node version으로 좁힙니다. | [도입/확장/불충분/수정/검증] | [파일·command·assertion 작성] |
 | `f8efb2656771` | shared/db/API를 build한 뒤 non-root runner에 필요한 결과만 복사하는 multi-stage API image를 만듭니다. | [도입/확장/불충분/수정/검증] | [파일·command·assertion 작성] |
 | `656893e8e1cb` | Next.js standalone output과 static asset만 runner에 포함하는 multi-stage Web image를 만듭니다. | [도입/확장/불충분/수정/검증] | [파일·command·assertion 작성] |
 | `2c44cb7cd71f` | source-mounted Compose를 built images, one-shot migration, health-gated startup, required secrets로 교체합니다. | [도입/확장/불충분/수정/검증] | [파일·command·assertion 작성] |
@@ -306,8 +268,8 @@ compiled artifact를 API/Web multi-stage image로 패키징하고 source mount�
 
 | 이전 가정 또는 failure | Fix | Regression/contract evidence | 학습자 설명 |
 | --- | --- | --- | --- |
-| [실제 이전 상태] | [관련 fix SHA] | [관련 test/CI SHA] | [왜 다시 깨지지 않는지 작성] |
-| [실제 이전 상태] | [관련 fix SHA] | [관련 test/CI SHA] | [무엇은 아직 보장하지 않는지 작성] |
+| [실제 이전 상태] | [관련 fix SHA] | [관련 test/CI SHA] | [왜 다시 깨지지 않는지와 남은 비보장 작성] |
+| [실제 이전 상태] | [관련 fix SHA] | [관련 test/CI SHA] | [왜 다시 깨지지 않는지와 남은 비보장 작성] |
 
 ## 8. Artifact·process·resource ownership
 

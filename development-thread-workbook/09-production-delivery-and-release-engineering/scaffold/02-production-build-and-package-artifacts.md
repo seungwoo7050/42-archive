@@ -59,8 +59,9 @@ TypeScript source를 직접 import하거나 실행하던 workspace를 shared/db/
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
+- `packages/shared/package.json`의 `main`, `types`, conditional `exports`에서 `development` source와 production `dist` consumer를 구분합니다.
+- `packages/shared/tsconfig.build.json`의 declaration/source map/output 설정과 test exclusion을 확인합니다.
+- `packages/shared/src/index.ts`와 내부 상대 import에 `.js` 확장자가 추가되어 NodeNext emitted ESM이 실제 파일을 해석할 수 있는지 확인합니다.
 
 #### 학습자 기록
 
@@ -91,9 +92,10 @@ TypeScript source를 직접 import하거나 실행하던 workspace를 shared/db/
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
-- migration 실행 시점, database dependency, persistent volume/credential, 실패 시 startup 차단 여부를 확인합니다.
+- `packages/db/package.json`의 production exports, `build` script, `migrate:prod: node dist/cli.js migrate`를 확인합니다.
+- build가 TypeScript emit 뒤 `migrations` directory를 `dist/migrations`로 복사하는 실제 command를 확인합니다.
+- `packages/db/src/migrator.ts`의 `new URL('../migrations', import.meta.url)`가 compiled `dist` 기준으로 어떤 directory를 요구하는지 추적합니다.
+- DB source 상대 import의 `.js` 확장자와 `tsconfig.build.json`의 declaration/output 범위를 확인합니다.
 
 #### 학습자 기록
 
@@ -124,12 +126,11 @@ TypeScript source를 직접 import하거나 실행하던 workspace를 shared/db/
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
-- migration 실행 시점, database dependency, persistent volume/credential, 실패 시 startup 차단 여부를 확인합니다.
-- Web build-time 값과 runtime 값, standalone/static artifact, browser origin/cookie 영향 범위를 확인합니다.
-- process/container lifecycle, health/readiness, exposed port, shutdown/grace, 운영 endpoint 노출 규칙을 확인합니다.
-- A급 변경이므로 단순 파일 나열을 넘어서 delivery ownership, failure boundary, rollback/cleanup 또는 fail-closed 조건을 깊게 추적합니다.
+- `apps/api/package.json`의 `build`, `start: node dist/index.js`와 `apps/api/tsconfig.build.json`이 API source/test를 어떻게 분리하는지 확인합니다.
+- API 내부 상대 import 전반의 `.js` suffix가 emitted NodeNext ESM dependency graph를 완성하는지 확인합니다.
+- `apps/web/next.config.mjs`의 `output: 'standalone'`, tracing root, shared runtime alias, `transpilePackages`가 monorepo file tracing에 미치는 영향을 확인합니다.
+- Web `predev`/`prebuild`/`pretypecheck`/`pretest`가 shared build를 선행하고, root `build`가 shared → db → api → web 순서를 고정하는지 확인합니다.
+- 이 SHA에서 root `verify:build` entrypoint는 추가되지만 `tests/build-artifacts.mjs`는 아직 없다는 incomplete handoff를 확인합니다.
 
 #### 학습자 기록
 
@@ -160,12 +161,9 @@ TypeScript source를 직접 import하거나 실행하던 workspace를 shared/db/
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
-- migration 실행 시점, database dependency, persistent volume/credential, 실패 시 startup 차단 여부를 확인합니다.
-- Web build-time 값과 runtime 값, standalone/static artifact, browser origin/cookie 영향 범위를 확인합니다.
-- process/container lifecycle, health/readiness, exposed port, shutdown/grace, 운영 endpoint 노출 규칙을 확인합니다.
-- 어떤 production artifact/process를 실제로 실행하거나 정적으로 검사하는지, 그리고 무엇을 증명하지 못하는지도 기록합니다.
+- 새 `tests/build-artifacts.mjs`의 artifact path list를 확인해 shared JS/d.ts, DB JS/d.ts/CLI/migrator/migrations, API entry/modules, Web standalone server를 정확히 나열합니다.
+- missing path를 수집해 한 번에 throw하는 failure 방식과 성공 시 verified count를 출력하는 방식을 확인합니다.
+- 검사가 file existence만 확인하며 artifact 내용, executable startup, 모든 migration, `.next/static` 또는 public asset은 검사하지 않는 범위를 기록합니다.
 
 #### 학습자 기록
 
@@ -196,12 +194,9 @@ TypeScript source를 직접 import하거나 실행하던 workspace를 shared/db/
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
-- migration 실행 시점, database dependency, persistent volume/credential, 실패 시 startup 차단 여부를 확인합니다.
-- Web build-time 값과 runtime 값, standalone/static artifact, browser origin/cookie 영향 범위를 확인합니다.
-- process/container lifecycle, health/readiness, exposed port, shutdown/grace, 운영 endpoint 노출 규칙을 확인합니다.
-- 어떤 production artifact/process를 실제로 실행하거나 정적으로 검사하는지, 그리고 무엇을 증명하지 못하는지도 기록합니다.
+- `.github/workflows/ci.yml`의 build step 직후 `pnpm verify:build` step이 배치되는지 확인합니다.
+- 동일 checkout/install/build workspace의 artifact를 verifier가 소비하므로 job filesystem lifetime과 step failure propagation을 확인합니다.
+- workflow가 verifier의 정적 존재 검사만 추가하며 process startup, Docker image build, PostgreSQL migration은 아직 수행하지 않는 점을 기록합니다.
 
 #### 학습자 기록
 
@@ -234,8 +229,9 @@ TypeScript source를 직접 import하거나 실행하던 workspace를 shared/db/
 
 | 이전 가정 또는 failure | Fix | Regression/contract evidence | 학습자 설명 |
 | --- | --- | --- | --- |
-| [실제 이전 상태] | [관련 fix SHA] | [관련 test/CI SHA] | [왜 다시 깨지지 않는지 작성] |
-| [실제 이전 상태] | [관련 fix SHA] | [관련 test/CI SHA] | [무엇은 아직 보장하지 않는지 작성] |
+| [실제 이전 상태] | [관련 fix SHA] | [관련 test/CI SHA] | [왜 다시 깨지지 않는지와 남은 비보장 작성] |
+| [실제 이전 상태] | [관련 fix SHA] | [관련 test/CI SHA] | [왜 다시 깨지지 않는지와 남은 비보장 작성] |
+| [실제 이전 상태] | [관련 fix SHA] | [관련 test/CI SHA] | [왜 다시 깨지지 않는지와 남은 비보장 작성] |
 
 ## 8. Artifact·process·resource ownership
 

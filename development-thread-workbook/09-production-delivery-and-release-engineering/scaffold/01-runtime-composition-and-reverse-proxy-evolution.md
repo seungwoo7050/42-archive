@@ -57,10 +57,10 @@ PostgreSQL, Fastify API, Next.js Web, Caddy를 하나의 실행 단위로 조립
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
-- migration 실행 시점, database dependency, persistent volume/credential, 실패 시 startup 차단 여부를 확인합니다.
-- Web build-time 값과 runtime 값, standalone/static artifact, browser origin/cookie 영향 범위를 확인합니다.
+- parent에 없던 `docker-compose.yml`의 `db`, `api`, `web`, `caddy` service와 `pong-pong-db`, `api-node-modules`, `web-node-modules` volume의 소유 관계를 확인합니다.
+- `api`/`web` command가 `corepack enable`, frozen install, `dev`를 startup마다 수행하는지와 source bind mount가 image보다 우선하는 범위를 확인합니다.
+- DB `pg_isready` healthcheck와 `depends_on` 조건, host port 4000/3000/8080 공개, 고정 credential 및 migration 부재를 기록합니다.
+- `Caddyfile`의 `handle_path /api/*`, `handle /ws`, default `reverse_proxy`가 prefix와 WebSocket upgrade를 어떻게 전달하는지 확인합니다.
 
 #### 학습자 기록
 
@@ -91,9 +91,9 @@ PostgreSQL, Fastify API, Next.js Web, Caddy를 하나의 실행 단위로 조립
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
-- Web build-time 값과 runtime 값, standalone/static artifact, browser origin/cookie 영향 범위를 확인합니다.
+- `apps/web/package.json`에서 `build: next build`와 새 `start: next start --hostname 0.0.0.0 --port 3000`의 producer/consumer 관계를 확인합니다.
+- `apps/web/tsconfig.json`의 `incremental: false`가 `.tsbuildinfo` cache를 production build 계약에서 제외하는지 확인합니다.
+- 같은 SHA의 `docker-compose.yml`은 여전히 Web `dev`를 실행하므로 새 `start` script의 runtime consumer가 아직 없다는 점을 확인합니다.
 
 #### 학습자 기록
 
@@ -124,11 +124,9 @@ PostgreSQL, Fastify API, Next.js Web, Caddy를 하나의 실행 단위로 조립
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
-- Web build-time 값과 runtime 값, standalone/static artifact, browser origin/cookie 영향 범위를 확인합니다.
-- process/container lifecycle, health/readiness, exposed port, shutdown/grace, 운영 endpoint 노출 규칙을 확인합니다.
-- 이전 상태의 가정 → 실제 실패/위험 → root cause → 수정된 release invariant → regression evidence를 연결합니다.
+- parent의 `docker-compose.yml`과 비교해 API command가 `dev`에서 `start`로, Web command가 `dev`에서 `build && start`로 바뀐 정확한 shell chain을 확인합니다.
+- 새 `web-next` named volume이 `/workspace/apps/web/.next` artifact를 소유하고 source bind mount와 어떤 순서로 결합되는지 확인합니다.
+- install은 여전히 startup마다 수행되고 API/Web source도 bind mount된다는 점을 기록해 production-like process와 immutable delivery를 구분합니다.
 
 #### 학습자 기록
 
@@ -159,9 +157,10 @@ PostgreSQL, Fastify API, Next.js Web, Caddy를 하나의 실행 단위로 조립
 
 #### 해당 SHA에서 확인할 실제 코드
 
-- 이 SHA의 diff와 parent 상태를 비교해 변경 전 실행 방식, 변경 파일, build/runtime entrypoint를 기록합니다.
-- 실제 `package.json`, workflow, Dockerfile, Compose, Caddyfile, config/test script에서 producer와 consumer를 연결합니다.
-- process/container lifecycle, health/readiness, exposed port, shutdown/grace, 운영 endpoint 노출 규칙을 확인합니다.
+- 새 `Caddy.Dockerfile`의 `FROM caddy:2-alpine`과 `COPY Caddyfile /etc/caddy/Caddyfile`로 config ownership이 image layer로 이동하는지 확인합니다.
+- `Caddyfile`의 `route`, `@metrics path /api/metrics`, `respond @metrics 404`가 일반 `/api/*` proxy보다 먼저 평가되는지 확인합니다.
+- 이 SHA의 `docker-compose.yml`은 Caddy image build를 아직 소비하지 않고 기존 `caddy:2-alpine`과 bind mount를 유지한다는 historical gap을 명시합니다.
+- 후속 `2c44cb7cd71f`에서야 Compose `caddy.build.dockerfile: Caddy.Dockerfile`이 연결되는 handoff를 확인합니다.
 
 #### 학습자 기록
 
@@ -193,8 +192,8 @@ PostgreSQL, Fastify API, Next.js Web, Caddy를 하나의 실행 단위로 조립
 
 | 이전 가정 또는 failure | Fix | Regression/contract evidence | 학습자 설명 |
 | --- | --- | --- | --- |
-| [실제 이전 상태] | [관련 fix SHA] | [관련 test/CI SHA] | [왜 다시 깨지지 않는지 작성] |
-| [실제 이전 상태] | [관련 fix SHA] | [관련 test/CI SHA] | [무엇은 아직 보장하지 않는지 작성] |
+| [실제 이전 상태] | [관련 fix SHA] | [관련 test/CI SHA] | [왜 다시 깨지지 않는지와 남은 비보장 작성] |
+| [실제 이전 상태] | [관련 fix SHA] | [관련 test/CI SHA] | [왜 다시 깨지지 않는지와 남은 비보장 작성] |
 
 ## 8. Artifact·process·resource ownership
 
@@ -229,7 +228,7 @@ DB availability → API → Web → gateway
 ## 11. 교차 카테고리 연결
 
 - `02-production-build-and-package-artifacts.md`: source 실행이 compiled artifact 실행으로 바뀌는 단계
-- `03-container-images-and-production-runtime-lifecycle.md`: source-mounted service가 built image와 health-gated lifecycle로 바뀌는 단계
+- `03-container-images-and-production-runtime-lifecycle.md`: source-mounted service와 Caddy image 정의가 built image와 health-gated lifecycle로 연결되는 단계
 - `07-runtime-observability-and-service-health`: readiness와 graceful drain 자체의 애플리케이션 의미
 
 ## 12. 학습 완료 체크
