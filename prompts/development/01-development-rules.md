@@ -196,6 +196,13 @@ Use the following as appropriate.
 - For each commit, run the minimum validation that proves its purpose.
 - Validate using the relevant tests that exist at that point in history.
 - Run the full regression suite at milestones or release gates.
+- Treat commit-level verifiability as a development-time responsibility. Do not infer a requirement
+  to retrospectively check out, rebuild, or rerun tests for every historical commit after the work
+  is complete.
+- Perform historical per-commit execution only when the user explicitly requests it or an external
+  compliance requirement mandates it. Even then, use reasonable validation units and the minimum
+  validation appropriate to each unit; do not run the full suite at every SHA unless that exact
+  behavior is explicitly required.
 - Do not weaken assertions or delete failing cases merely to make tests pass.
 - If a flaky test is discovered, resolve its cause or do not treat it as passing without clear justification.
 - Make tests that depend on time, randomness, or networks reproducible whenever possible through seeds, fake clocks, fixtures, local services, or equivalent mechanisms.

@@ -426,20 +426,28 @@ Run the full suite at major milestones and at the final release gate.
 
 ---
 
-## 16. Root-to-Tip Replay Validation
+## 16. Reconstructed History Validation
 
-Do not consider the work complete merely because the final HEAD is healthy.
-Replay the new history from root to tip in order and validate it.
+Do not consider the work complete merely because the final HEAD is healthy. Audit the reconstructed
+history for parent-chain integrity, coherent dependency order, responsibility boundaries, test
+placement, and the absence of temporary/debug/local artifacts.
 
-At each commit, or at each reasonable validation unit, verify:
+Do not automatically check out, rebuild, or rerun tests for every historical commit. The fact that
+commits should be independently verifiable is a development-time requirement and does not create an
+exhaustive post-development replay requirement.
 
-- checkout succeeds
-- build status is valid for that stage
-- minimum validation for that point in history passes
-- no temporary/debug/local artifacts are present
-- no later commit is merely hiding an intentionally broken prior state
+Use static history inspection and targeted validation for suspicious commits, dependency
+boundaries, or discovered regressions. Run the full suite at major milestones and at the final
+release gate, not at every SHA.
 
-If a failure is a reconstruction error, repair the history and replay it again.
+Perform executable root-to-tip replay only when the user explicitly requests it or an external
+compliance requirement mandates it. If such replay is required:
+
+- use reasonable validation units rather than assuming one full run per SHA;
+- apply only the minimum validation appropriate to each unit;
+- do not run the full suite at every SHA unless explicitly required; and
+- if a reconstruction error is found, repair its owning commit and revalidate the affected range
+  and final release state.
 
 ---
 
@@ -520,7 +528,8 @@ Final SHA:
 
 Baseline build/test:
 Final build/test:
-Root-to-tip replay: PASS / FAIL
+History validation: PASS / FAIL
+Historical execution replay: NOT REQUIRED / PASS / FAIL
 Release gates: PASS / FAIL
 
 Commits created:
@@ -547,7 +556,7 @@ Remaining risks:
 Completion requires all four of the following to PASS.
 
 1. History quality
-2. Root-to-tip validation
+2. Reconstructed history validation
 3. Allowed-delta audit
 4. Final release regression
 
